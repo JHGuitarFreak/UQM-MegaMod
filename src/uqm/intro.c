@@ -1075,7 +1075,7 @@ DoPresentation (void *pIS)
 
 				if (f > 9 || (f + e) > 9)
 				{
-					char buf[40];
+					char buf[ARRAY_SIZE (pPIS->Buffer) + 12];
 					TEXT t;
 
 					log_add (log_Warning, "SPINSTAT: Stats exceed max "

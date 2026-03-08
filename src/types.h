@@ -59,7 +59,7 @@ extern "C" {
 	/* 64-bit platforms */
 #	define UQM_INT16   short
 #	define UQM_INT32   int
-#	define UQM_INT64   long
+#	define UQM_INT64   long long
 
 #elif defined(__MACOS__)
 

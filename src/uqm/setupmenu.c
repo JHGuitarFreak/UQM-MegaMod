@@ -220,6 +220,7 @@ static WIDGET *engine_widgets[] = {
 
 	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
 	(WIDGET *)(&choices[CHOICE_MENUSTYLE   ]), // Menu Style
+	(WIDGET *)(&choices[CHOICE_DOSMENUS    ]), // DOS side menu in shipyard
 	(WIDGET *)(&choices[CHOICE_FONTSTYLE   ]), // Font Style
 	(WIDGET *)(&choices[CHOICE_CUTSCENE    ]), // Cutscenes
 
@@ -347,6 +348,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_FUELCIRCLE   ]), // Fuel Range
 	(WIDGET *)(&choices[CHOICE_SOICOLOR     ]), // SOI Color Selection
 	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]), // Animated HyperStars
+	(WIDGET *)(&choices[CHOICE_CAPTNAMES    ]), // Captain names in shipyard
 	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]), // Game Over switch
 
 	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
@@ -380,6 +382,7 @@ static WIDGET *qol_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_ADVAUTO     ]), // Advanced Auto-Pilot
 	(WIDGET *)(&choices[CHOICE_VISITED     ]), // Show Visited Stars
 	(WIDGET *)(&choices[CHOICE_MLTOOLTIP   ]), // Melee Tool Tips
+	(WIDGET *)(&choices[CHOICE_SHIPSTORE   ]), // Ship storage queue
 
 	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU    ]), // Exit to Menu
@@ -600,10 +603,11 @@ do_keyconfig (WIDGET *self, int event)
 static void
 populate_seed (void)
 {
-	if (!SANE_SEED (optCustomSeed) || choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME)
+	if (choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME ||
+			!SANE_SEED (optCustomSeed))
 		optCustomSeed = PrimeA;
-	snprintf (textentries[TEXT_GAMESEED].value, 
-		sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
+	snprintf (textentries[TEXT_GAMESEED].value,
+			sizeof (textentries[TEXT_GAMESEED].value), "%d", optCustomSeed);
 }
 
 static int
@@ -748,16 +752,20 @@ check_for_hd (WIDGET_CHOICE *self, int oldval)
 		oldval = OPTVAL_320_240;
 		addon_unavailable (self, OPTVAL_320_240);
 	}
+
+	(void)oldval; // Satisfy compiler
 }
 
 static BOOLEAN
 check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 {
+	bool selected = choices[CHOICE_GRAPHICS].selected;
+	int shmagoigle = (selected && !IS_HD) ? HD : IS_HD;
+
 	switch (self->selected)
 	{
 		case OPTVAL_PC_WINDOW:
-			if (!isAddonAvailable (
-					DOS_MODE (choices[CHOICE_GRAPHICS].selected && !IS_HD ? HD : IS_HD)))
+			if (!isAddonAvailable (DOS_MODE (shmagoigle)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, oldval);
@@ -765,9 +773,7 @@ check_dos_3do_modes (WIDGET_CHOICE *self, int oldval)
 			}
 			break;
 		case OPTVAL_3DO_WINDOW:
-			if (!isAddonAvailable (
-					THREEDO_MODE (
-						choices[CHOICE_GRAPHICS].selected && !IS_HD ? HD : IS_HD)))
+			if (!isAddonAvailable (THREEDO_MODE (shmagoigle)))
 			{
 				oldval = OPTVAL_UQM_WINDOW;
 				addon_unavailable (self, OPTVAL_UQM_WINDOW);
@@ -857,13 +863,16 @@ change_seedtype (WIDGET_CHOICE *self, int oldval)
 				sizeof (textentries[TEXT_GAMESEED].value),
 				"%d", optCustomSeed);
 	}
+
+	(void)oldval; // Satisfy compiler
 }
 
 static void
 change_seed (WIDGET_TEXTENTRY *self)
 {
 	int customSeed = atoi (self->value);
-	if (!SANE_SEED (customSeed) || choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME)
+	if (choices[CHOICE_GAMESEED].selected == OPTVAL_PRIME ||
+			!SANE_SEED (optCustomSeed))
 	{
 		customSeed = PrimeA;
 		snprintf (self->value, sizeof (self->value), "%d", customSeed);
@@ -1060,20 +1069,20 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 	populate_res ();
 }
 
-static BOOLEAN
-res_check (int width, int height)
-{
-	if (width % 320)
-		return FALSE;
-
-	if (height % DOS_BOOL (240, 200))
-		return FALSE;
-
-	if (width > 1920 || height > 1440)
-		return FALSE;
-
-	return TRUE;
-}
+//static BOOLEAN
+//res_check (int width, int height)
+//{
+//	if (width % 320)
+//		return FALSE;
+//
+//	if (height % DOS_BOOL (240, 200))
+//		return FALSE;
+//
+//	if (width > 1920 || height > 1440)
+//		return FALSE;
+//
+//	return TRUE;
+//}
 
 static void
 change_res (WIDGET_TEXTENTRY *self)
@@ -1270,6 +1279,9 @@ SetDefaults (void)
 
 	// Next choice should be choices[CHOICE_SHIPSEED]
 	choices[CHOICE_SHIPSEED  ].selected = opts.shipSeed;
+	choices[CHOICE_SHIPSTORE ].selected = opts.shipStore;
+	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
+	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
 
 	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME ].value = opts.sfxvol;
@@ -1392,6 +1404,9 @@ PropagateResults (void)
 	}
 
 	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
+	opts.shipStore = choices[CHOICE_SHIPSTORE].selected;
+	opts.captainNames = choices[CHOICE_CAPTNAMES].selected;
+	opts.dosMenus = choices[CHOICE_DOSMENUS].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -2443,6 +2458,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->wholeFuel = optWholeFuel;
 	opts->meleeToolTips = optMeleeToolTips;
 	opts->sphereColors = optSphereColors;
+	opts->dosMenus = optDosMenus;
 
 	// Interplanetary
 	opts->nebulae = optNebulae;
@@ -2492,6 +2508,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	// QoL
 	opts->scatterElements = optScatterElements;
 	opts->showUpgrades = optShowUpgrades;
+	opts->shipStore = optShipStore;
+	opts->captainNames = optCaptainNames;
 
 /*
  *		Cheats
@@ -2538,7 +2556,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	newFactor = (int)(opts->screenResolution << 1);
 	PutIntOpt (&resFactor, &newFactor, "config.resolutionfactor", TRUE);
 
-	if (resFactor != resolutionFactor)
+	if (resFactor != (int)resolutionFactor)
 	{
 		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		resolutionFactor = resFactor;
@@ -2712,6 +2730,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optMeleeToolTips, &opts->meleeToolTips, "mm.meleeToolTips", FALSE);
 	PutIntOpt  (&optSphereColors, (int *)&opts->sphereColors, "mm.sphereColors", FALSE);
 	PutBoolOpt (&optScatterElements, &opts->scatterElements, "mm.scatterElements", FALSE);
+	PutBoolOpt (&optShipStore, &opts->shipStore, "mm.shipStore", FALSE);
+	PutBoolOpt (&optCaptainNames, &opts->captainNames, "mm.captainNames", FALSE);
+	PutBoolOpt (&optDosMenus, &opts->dosMenus, "mm.dosMenus", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);

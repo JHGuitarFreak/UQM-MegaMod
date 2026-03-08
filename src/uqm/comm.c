@@ -1599,7 +1599,7 @@ DoCommunication (ENCOUNTER_STATE *pES)
 	}
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
-		;
+		UninitOscilloscope ();
 	else if (pES->num_responses == 0)
 	{
 		// The player doesn't get a chance to say anything,
@@ -1632,6 +1632,8 @@ DoCommunication (ENCOUNTER_STATE *pES)
 	StopSound ();
 	StopTrack ();
 	SleepThreadUntil (FadeMusic (NORMAL_VOLUME, 0) + ONE_SECOND / 60);
+
+	UninitOscilloscope ();
 
 	return FALSE;
 }

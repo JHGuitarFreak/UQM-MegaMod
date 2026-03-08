@@ -24,6 +24,7 @@
 
 
 #include "libs/strlib.h"
+#include "sis.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -38,12 +39,12 @@ extern "C" {
 #define PLANET_NUMBER_COUNT      43
 #define MONTHS_STRING_COUNT      12
 #define FEEDBACK_STRING_COUNT     8
-#define STARBASE_STRING_COUNT    42
+#define STARBASE_STRING_COUNT   (12 + 2 * NUM_PURCHASE_MODULES + 2)
 #define ENCOUNTER_STRING_COUNT    8
 #define NAVIGATION_STRING_COUNT   9
 #define NAMING_STRING_COUNT       8
 #define MELEE_STRING_COUNT       25
-#define SAVEGAME_STRING_COUNT     8
+#define SAVEGAME_STRING_COUNT    10
 #define OPTION_STRING_COUNT      10
 #define QUITMENU_STRING_COUNT     5
 #define STATUS_STRING_COUNT      22
@@ -88,6 +89,10 @@ enum {
 
 #define GAME_STRING(i) ((UNICODE *)GetStringAddress (SetAbsStringTableIndex (GameStrings, (i))))
 #define GET_STRING(s,i) ((UNICODE *)GetStringAddress (SetAbsStringTableIndex ((s), (i))))
+
+#define DOS_STARBASE_STRING_BASE (STARBASE_STRING_BASE + 12)
+#define TDO_STARBASE_STRING_BASE (DOS_STARBASE_STRING_BASE + NUM_PURCHASE_MODULES)
+#define END_STARBASE_STRING_BASE (TDO_STARBASE_STRING_BASE + NUM_PURCHASE_MODULES)
 
 extern STRING GameStrings;
 

@@ -1732,6 +1732,7 @@ yack1_respond (void)
 			break;
 		case 1:
 			Response (what_factors, DoFirstMeeting);
+			FALLTHROUGH;
 		case 2:
 			Response (get_on_with_business, NatureOfConversation);
 			break;

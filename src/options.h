@@ -124,6 +124,9 @@ extern BOOLEAN optNoClassic;
 extern OPT_ENABLABLE optScatterElements;
 extern OPT_ENABLABLE optShowUpgrades;
 extern OPT_ENABLABLE optFleetPointSys;
+extern OPT_ENABLABLE optShipStore;
+extern OPT_ENABLABLE optCaptainNames;
+extern OPT_ENABLABLE optDosMenus;
 extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 
@@ -166,9 +169,9 @@ extern ADDON_COUNT addonList;
 #define REGION_MUSIC  "SpaceMusic"
 #define HD_MODE       "mm-hd"
 
-#define DOS_MODE(a)			((a) ? "dos-mode-hd" : "dos-mode-sd")
-#define THREEDO_MODE(a)		((a) ? "3do-mode-hd" : "3do-mode-sd")
-#define WINDOW_MODE(a,b)	((b) == 0 ? DOS_MODE(a) : THREEDO_MODE(a))
+#define DOS_MODE(a)      ((a) ? "dos-mode-hd" : "dos-mode-sd")
+#define THREEDO_MODE(a)  ((a) ? "3do-mode-hd" : "3do-mode-sd")
+#define WINDOW_MODE(a,b) ((b) == 0 ? DOS_MODE(a) : THREEDO_MODE(a))
 
 #define BASE_CONTENT_NAME "mm-" UQM_MAJOR_VERSION_S "." \
 		UQM_MINOR_VERSION_S "." UQM_PATCH_VERSION_S "-content.uqm"

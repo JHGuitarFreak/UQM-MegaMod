@@ -37,6 +37,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "uqmdebug.h"
+#include "planets/lander.h"
+#include "comm.h"
+#include "gameopt.h"
+#include "sounds.h"
 
 #include <time.h>//required to use 'srand(time(NULL))'
 
@@ -665,6 +669,8 @@ InitGameStructures (void)
 
 	loadGameCheats ();
 
+	InitQueue (&GLOBAL (stowed_ship_q),
+			MAX_STOWED_SHIPS, sizeof (SHIP_FRAGMENT));
 	InitQueue (&GLOBAL (built_ship_q),
 			MAX_BUILT_SHIPS, sizeof (SHIP_FRAGMENT));
 	InitQueue (&GLOBAL (npc_built_ship_q), MAX_SHIPS_PER_SIDE,
@@ -747,6 +753,7 @@ UninitGameStructures (void)
 	UninitQueue (&GLOBAL (ip_group_q));
 	UninitQueue (&GLOBAL (npc_built_ship_q));
 	UninitQueue (&GLOBAL (built_ship_q));
+	UninitQueue (&GLOBAL (stowed_ship_q));
 	UninitGroupInfo ();
 	UninitPlanetInfo ();
 
@@ -981,6 +988,24 @@ inSuperMelee (void)
 {
 	return (LOBYTE (GLOBAL (CurrentActivity)) == SUPER_MELEE);
 			// TODO: && !inMainMenu ()
+}
+
+BOOLEAN
+inSavablePos (void)
+{
+	ACTIVITY curr_act = GLOBAL (CurrentActivity);
+	ACTIVITY lob_curr_act = LOBYTE (curr_act);
+
+	if (InPopUp || SaveLoadActive || lob_curr_act == SUPER_MELEE
+			|| planetSideDesc != NULL || lob_curr_act == WON_LAST_BATTLE
+			|| CommData.ConversationPhrases != NULL
+			|| ((curr_act & IN_BATTLE) && lob_curr_act != IN_HYPERSPACE))
+	{
+		PlayMenuSound (MENU_SOUND_FAILURE);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 #if 0

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.4]
 
 ### Added
+- Storage Queue: QOL option adds a ship storage queue accessable at the starbase for storing escort ships or retrieving them from storage.  Gift ships will enter storage if flagship does not have room at the time they are given.  Storing/unstoring uses TAB key binding.
+- Shipyard Captain Names: Visual option to display captain's names above the ships in the shipyard. (Also moved Sphere Colors to Visual)
+- Shipyard/Outfit DOS Side Window: Platform option to always use the DOS side menu (in place of flagship window) for buying ships and modules, as well as removing ships from storage.
 - Extended mode: Utwig and Supox now give gift ships on a calendar similar to the Yehat and Pkunk (which now use standardized functions).
 - Extended mode: Added missing Supox rumors to neutral (but helpful) Supox dialog.
 - Extended mode: Druuge SOI revealed when Supox tell you to look for Ultron parts there.
@@ -23,8 +26,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Introduced a "Fleet Point System" which limits the total amount of ships you can purchase by the max melee point value of your entire fleet
 - Added Infinite Credits cheat
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
+- Added a QuickSave/QuickLoad activated via the F3 (QuickSave) and F4 (QuickLoad) keys
 
 ### Changed
+- Fleet points display updates at the same time the SIS displays RU changes (instead of when the confirmation is made).  Also, it blacks out the value before writing the new one.
 - Head Start cheat now skips the UQ Drone encounter at Earth (and disables it for the game).
 - Extended mode: Supox dialog doesn't kick you out between gifting ultron and asking about Druuge.
 - Split Nomad Mode into Easy and Normal. Easy is how it has been previously and Normal is nerf'd down to just being a brutal no StarBase run while being able to complete the Shofixti quest
@@ -38,8 +43,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - "Scanning Screen Options" now "Orbit Screen Options" in the Setup Menu
 - Added support for Tall Pixels for SDL2 through "Keep Aspect Ratio" option
 - Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
+- No longer needs separate bindings for Xbox and PlayStation controllers (Still need to use the Control Display option to show your gamepad preference in the UI)
+- Hotswapping controllers is now available. Meaning you can now connect a controller mid-game and use it without restarting.
 
 ### Fixed
+- Shipyard no longer called "load_ship" to retrieve ship data (was seriously lagging in DOS mode), instead uses the master ship list.
 - Head Start no longer gives you the Melnorme version of the Spathi password (only Fwiffo's version)
 - Hard mode: Defeating Ilwrath at Chmmr homeworld now takes you into orbit
 - Fixed bug in starmap name plates array indexing out of bounds (potential crash)
@@ -58,11 +66,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixed F10 exit issue when shipyard powerlines being drawn over exit dialog box
 - Fixed an array of bugs introduced with tall pixels and custom resolution modes
 - Fixed Hard Mode Thraddash Allies during UQ/KA mission not able to acquire Aqua Helix
+- Fixed oscilloscope size when switching from SD to HD graphics
 
 ## [v0.8.3] - 2024-04-11
 
 ### Added
 - Advanced Auto-Pilot option that auto-pilots the flagship on the shortest route through HyperSpace or QuasiSpace
+		(Based on the Python QuasiSpace Calculator by Lukrative525 - https://www.reddit.com/r/starcontrol/comments/zpyhkc/quasispace_calculator/)
 - Option to resume all music where it last left off
 - A map that shows Rainbow Worlds that have been currently discovered
 - Option to show short tooltips at the bottom of the melee screen when picking a ship a la SC1 - Kruzen
