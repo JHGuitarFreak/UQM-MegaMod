@@ -433,8 +433,9 @@ MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy)
 				FRAME star_frame[] = 
 				{
 					SetAbsFrameIndex (stars_in_space, optMeleeScale ? 
-							scale : min (scale, 1)),
-					SetAbsFrameIndex (stars_in_space, min (scale + 1, 2))
+							scale : (COUNT)fmin (scale, 1)),
+					SetAbsFrameIndex (stars_in_space,
+							(COUNT)fmin (scale + 1, 2))
 				};
 
 				for (iss = 0, pprim = DisplayArray; iss < 2; ++iss)
