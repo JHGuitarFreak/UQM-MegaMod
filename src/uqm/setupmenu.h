@@ -300,6 +300,7 @@ enum {
 	CHOICE_SHIPSTORE,
 	CHOICE_CAPTNAMES,
 	CHOICE_DOSMENUS,
+	CHOICE_HSCOLOR,
 
 	CHOICE_COUNT
 };
@@ -429,7 +430,7 @@ typedef struct globalopts_struct {
 			shipSeed, shipStore, captainNames, dosMenus;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
-			scopeStyle, landerStyle, flagshipColor;
+			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
 	int gamma, starBackground;

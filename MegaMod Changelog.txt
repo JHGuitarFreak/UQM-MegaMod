@@ -27,7 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added Infinite Credits cheat
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
 - Added a QuickSave/QuickLoad activated via the F3 (QuickSave) and F4 (QuickLoad) keys
-- Added an option to switch color saturation of hyperspace and quasispace (between PC-DOS and 3DO colors)
+- Added an option to switch color saturation of hyperspace and quasispace (between DOS and 3DO colors)
 
 ### Changed
 - Fleet points display updates at the same time the SIS displays RU changes (instead of when the confirmation is made).  Also, it blacks out the value before writing the new one.

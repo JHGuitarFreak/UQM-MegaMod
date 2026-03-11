@@ -522,7 +522,7 @@ BOOLEAN
 LoadHyperspace (void)
 {	// TODO: Add a new option
 	BYTE whichPalette = (GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1) +
-				(is3DO (optFlagshipColor) * 2);
+				(is3DO (optHyperSpaceColor) * 2);
 	hyper_dx = 0;
 	hyper_dy = 0;
 	hyper_extra = 0;

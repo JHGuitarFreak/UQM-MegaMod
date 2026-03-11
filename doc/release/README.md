@@ -58,6 +58,7 @@ To be honest I don't know of a decent, safe, and streamlined way to do this.
 * **DOS Side Menu**: Shows DOS-style ship selection menu in the shipyard while in 3DO or UQM UI modes.
 * **Flagship Engine Color**: Switch between the Green (PC) variant or Red (3DO) variant engined Flagship.
 * **Screen Transitions**: Allows the user to switch between Stepped zooming and Crossfade for various screen transitions. Stepped is the method used in the original PC version of SC2, while Crossfade is what is used in the 3DO version of SC2. There is no performance difference between the two although the Stepped method has instantaneous transition.
+* **HyperSpace Color**: An option to switch the shade of red in HyperSpace between the DOS and 3DO versions
 * **Oscilloscope Style**: Choose between PC or 3DO oscilloscope display during conversations.
 * **Planet Style**: Allows the user to choose between either PC or 3DO styled planets. PC planets seem to have more contrast and color than the 3DO planets. Only works when Textured Planets is disabled.
 * **Star Background**: Lets you choose between PC, 3DO, UQM, or HD-mod star backgrounds in interplanetary. Only functional when not using a Custom Seed.
