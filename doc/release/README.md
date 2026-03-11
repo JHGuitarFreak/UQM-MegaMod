@@ -36,6 +36,9 @@ After that you can load the MegaMod and opt to use the HD content in the setup m
 To be honest I don't know of a decent, safe, and streamlined way to do this.
 
 ## The Setup Menu
+
+This is a rundown on all the options that aren't in Vanilla UQM.
+
 <details>
 <summary>Graphics</summary>
 
@@ -177,6 +180,17 @@ ___
 
 # Default Gamepad Controls
 
+While this shows more of an Xbox layout the PlayStation layout is the same.  
+In fact most controllers are supported unless they're not in the gamecontrollerdb.txt  
+(Which resides in the content directory inside the installation folder).
+
+If you have a controller that doesn't seem to be working you can first try updating  
+the gamecontrollerdb.txt from https://github.com/mdqinc/SDL_GameControllerDB
+
+If that fails there are tools provided on that GitHub page which should allow  
+you to get the correct mapping for your controller and add it to the gamecontrollerdb.txt file.
+
+
 <center>
 
 ![gamepad](./gamepad.png)
@@ -270,6 +284,9 @@ ___
 </td>
 </table>
 </center>
+
+Unfortunately, at the moment, the only controls that are remappable in-game are the Flight and Lander controls.  
+There are plans to crack open remapping 
 
 ___
 
