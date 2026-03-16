@@ -74,6 +74,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixed oscilloscope size when switching from SD to HD graphics
 - Kohr-Stahp cheat now works as intended
 - Fixed double moon suffix when loading into an encounter on the moon
+- Fixed SD quasispace ambiece using incorrect filter after 0.8.4 change
 
 ## [v0.8.3] - 2024-04-11
 
