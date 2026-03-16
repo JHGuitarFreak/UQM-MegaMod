@@ -120,7 +120,7 @@ GenerateSpathi_generatePlanets (SOLARSYS_STATE *solarSys)
 	{
 		if (CurStarDescPtr->Index == ALGOLITES_DEFINED)
 		{
-			if (PrimeSeed)
+			if (!StarSeed)
 				pSunDesc->PlanetByte = 3;
 			else
 				pSunDesc->PlanetByte = PickClosestHabitable (solarSys);
