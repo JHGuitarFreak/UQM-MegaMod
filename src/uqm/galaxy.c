@@ -313,7 +313,7 @@ InitGalaxy (void)
 							: stars_in_space);
 
 			// TODO: Remove these eventually
-			if (inQuasiSpace ())
+			if (IS_HD && inQuasiSpace ())
 				SetPrimFlags (&DisplayArray[p], HYPER_TO_QUASI_COLOR);
 		}
 		else
