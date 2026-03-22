@@ -218,6 +218,7 @@ InitShips (void)
 		// Kruzen: Moved and duped for melee to load correct stars in InitGalaxy()
 		// Depended on stars_in_space frame, which is redeclared in LoadHyperspace()
 		InitDisplayList ();
+		InitStarOffsets ();
 		InitGalaxy ();
 
 		num_ships = 1;
@@ -374,7 +375,10 @@ UninitShips (void)
 			ReinitQueue (&race_q[i]);
 
 		if (inHQSpace ())
+		{
+			UninitStarOffsets ();
 			FreeHyperspace ();
+		}
 	}
 }
 
