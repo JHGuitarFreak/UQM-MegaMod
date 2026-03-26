@@ -2618,7 +2618,8 @@ EnterPlanetOrbit (void)
 		// JMS_GFX: Draw the moon letter when orbiting a moon
 		if (!(GetNamedPlanetaryBody ()) && isPC (optWhichFonts)
 				&& !(pSolarSysState->pOrbitalDesc->data_index
-					& WORLD_TYPE_SPECIAL))
+					& WORLD_TYPE_SPECIAL) &&
+					!(LastActivity & CHECK_LOAD))
 		{
 			snprintf (GLOBAL_SIS (PlanetName)
 					+ strlen (GLOBAL_SIS (PlanetName)), 4, "-%c%c",
