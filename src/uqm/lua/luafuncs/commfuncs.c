@@ -65,6 +65,7 @@ static int luaUqm_comm_getStarName (lua_State *luaState);
 static int luaUqm_comm_getConstellation (lua_State *luaState);
 static int luaUqm_comm_getColor (lua_State *luaState);
 static int luaUqm_comm_swapIfSeeded (lua_State *luaState);
+static int luaUqm_comm_removeIfSeeded (lua_State *luaState);
 
 static const luaL_Reg commFuncs[] = {
 	{ "addResponse",       luaUqm_comm_addResponse },
@@ -81,6 +82,7 @@ static const luaL_Reg commFuncs[] = {
 	{ "getConstellation",  luaUqm_comm_getConstellation },
 	{ "getColor",          luaUqm_comm_getColor },
 	{ "swapIfSeeded",      luaUqm_comm_swapIfSeeded },
+	{ "removeIfSeeded",    luaUqm_comm_removeIfSeeded },
 	{ NULL,              NULL },
 };
 
@@ -600,5 +602,27 @@ luaUqm_comm_swapIfSeeded (lua_State *luaState)
 #endif
 	lua_pushstring (luaState, seed_text);
 	RoboTrack[0] = (COUNT) ~0;
+	return 1;
+}
+
+// Removes text by returning an empty string if seeded
+// otherwise returns the original text.
+static int
+luaUqm_comm_removeIfSeeded (lua_State *luaState)
+{
+	const char *prime_text = luaL_checkstring (luaState, 1);
+
+	if (!StarSeed)
+	{
+		lua_pushstring (luaState, prime_text);
+		return 1;
+	}
+
+#ifdef DEBUG_STARSEED
+	fprintf (stderr, "Remove If Seeded called (%s)\n", prime_text);
+#endif
+
+	lua_pushstring (luaState, "");
+
 	return 1;
 }

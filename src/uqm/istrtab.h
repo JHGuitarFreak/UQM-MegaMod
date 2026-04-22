@@ -10,7 +10,6 @@
 #define ALKALI_XLAT_TAB "planet.alkali.translatetable"
 #define ANDROSYNTH_RUINS_STRTAB "text.androsynthruins"
 #define AQUA_STRTAB "text.aquahelix"
-#define ARISPACE_COLOR_TAB "colortable.quasispace"
 #define AURIC_COLOR_TAB "planet.auric.colortable"
 #define AURIC_XLAT_TAB "planet.auric.translatetable"
 #define AZURE_COLOR_TAB "planet.azure.colortable"

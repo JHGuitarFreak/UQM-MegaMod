@@ -39,6 +39,8 @@
 #include "uqmdebug.h"
 #include "planets/lander.h"
 #include "comm.h"
+#include "gameopt.h"
+#include "sounds.h"
 
 #include <time.h>//required to use 'srand(time(NULL))'
 
@@ -1002,16 +1004,16 @@ inSavablePos (void)
 	ACTIVITY curr_act = GLOBAL (CurrentActivity);
 	ACTIVITY lob_curr_act = LOBYTE (curr_act);
 
-	if (InPopUp || lob_curr_act == SUPER_MELEE || planetSideDesc != NULL
+	if (InPopUp || SaveLoadActive || lob_curr_act == SUPER_MELEE
+			|| planetSideDesc != NULL || lob_curr_act == WON_LAST_BATTLE
 			|| CommData.ConversationPhrases != NULL
 			|| ((curr_act & IN_BATTLE) && lob_curr_act != IN_HYPERSPACE))
+	{
+		PlayMenuSound (MENU_SOUND_FAILURE);
 		return FALSE;
+	}
 
-	return (lob_curr_act == IN_ENCOUNTER ||
-			lob_curr_act == IN_HYPERSPACE ||
-			lob_curr_act == IN_INTERPLANETARY ||
-			lob_curr_act == IN_PLANET_ORBIT ||
-			lob_curr_act == IN_STARBASE);
+	return TRUE;
 }
 
 #if 0

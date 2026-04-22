@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added Infinite Credits cheat
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
 - Added a QuickSave/QuickLoad activated via the F3 (QuickSave) and F4 (QuickLoad) keys
+- Added an option to switch color saturation of hyperspace and quasispace (between DOS and 3DO colors)
 - Added in-game Captain's Log/Journal that logs important stuff for the player to review that is activated pressing F9
 
 ### Changed
@@ -44,6 +45,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - "Scanning Screen Options" now "Orbit Screen Options" in the Setup Menu
 - Added support for Tall Pixels for SDL2 through "Keep Aspect Ratio" option
 - Separated out the "Add All Devices" and "Add All Upgrades" cheats into individual toggles
+- No longer needs separate bindings for Xbox and PlayStation controllers (Still need to use the Control Display option to show your gamepad preference in the UI)
+- Hotswapping controllers is now available. Meaning you can now connect a controller mid-game and use it without restarting
+- Updated HD hyperspace sprites to closely match original counterparts
+- New hyperspace flagship sprites, compatible with new hyperspace color option (see ADDED)
+- Updated HD sprites for stars in melee combat
+- Updated HD sprites for default projectile impact in melee combat
 
 ### Fixed
 - Shipyard no longer called "load_ship" to retrieve ship data (was seriously lagging in DOS mode), instead uses the master ship list.
@@ -66,6 +73,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Fixed an array of bugs introduced with tall pixels and custom resolution modes
 - Fixed Hard Mode Thraddash Allies during UQ/KA mission not able to acquire Aqua Helix
 - Fixed oscilloscope size when switching from SD to HD graphics
+- Kohr-Stahp cheat now works as intended
+- Fixed double moon suffix when loading into an encounter on the moon
+- Fixed SD quasispace ambiece using incorrect filter after 0.8.4 change
 
 ## [v0.8.3] - 2024-04-11
 
