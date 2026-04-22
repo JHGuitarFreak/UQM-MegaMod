@@ -66,9 +66,13 @@ DLLS=$(for dll in $DLLS; do echo $dll; done | sort -u)
  done) >> undlls.nsi
 
 echo "Preparing documentation..."
-for i in AUTHORS.txt COPYING.txt MegaMod-README.txt UQM-README.txt README-SDL.txt UQM-Manual.txt CHANGELOG.txt UQM-Manual.txt; do
+for i in AUTHORS.txt COPYING.txt README.md gamepad.png UQM-README.txt README-SDL.txt UQM-Manual.txt; do
 	cp "../../doc/release/$i" "$i"
 done
+
+cp "../../MegaMod Changelog.txt" "CHANGELOG.txt"
+cp "../../content/gamecontrollerdb.txt" "gamecontrollerdb.txt"
+cp "../../content/version" "version"
 
 echo "Creating installer..."
 makensis "-XSetCompressor /SOLID lzma" uqm-installer.nsi || exit 1
