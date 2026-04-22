@@ -211,10 +211,11 @@ arilou_exit_event (int arg)
 static void
 check_race_growth (void)
 {
+	BYTE Index;
 	HFLEETINFO hStarShip, hNextShip;
 
-	for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
-			hStarShip; hStarShip = hNextShip)
+	for (Index = 0, hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
+			hStarShip; ++Index, hStarShip = hNextShip)
 	{
 		FLEET_INFO *FleetPtr;
 
@@ -248,14 +249,17 @@ check_race_growth (void)
 			FleetPtr->actual_strength = (COUNT)delta_strength;
 			if (FleetPtr->actual_strength && FleetPtr->days_left)
 			{
-				FleetPtr->loc.x += (FleetPtr->dest_loc.x - FleetPtr->loc.x)
-						/ FleetPtr->days_left;
-				FleetPtr->loc.y += (FleetPtr->dest_loc.y - FleetPtr->loc.y)
-						/ FleetPtr->days_left;
+				if (!(Index == BLACK_URQUAN_SHIP && optCheatMode))
+				{
+					FleetPtr->loc.x += (FleetPtr->dest_loc.x - FleetPtr->loc.x)
+							/ FleetPtr->days_left;
+					FleetPtr->loc.y += (FleetPtr->dest_loc.y - FleetPtr->loc.y)
+							/ FleetPtr->days_left;
 
-				if (--FleetPtr->days_left == 0
-						&& FleetPtr->func_index != (BYTE) ~0)
-					EventHandler (FleetPtr->func_index);
+					if (--FleetPtr->days_left == 0
+							&& FleetPtr->func_index != (BYTE) ~0)
+						EventHandler (FleetPtr->func_index);
+				}
 			}
 		}
 
@@ -687,9 +691,6 @@ kohr_ah_genocide_event (int arg)
 			speed = 1;
 		else if (speed > 255)
 			speed = 255;
- 
-		if (optCheatMode)
-			speed = 0;
 
 		SET_GAME_STATE (KOHR_AH_FRENZY, 1);
 		SET_GAME_STATE (KOHR_AH_VISITS, 0);
