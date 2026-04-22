@@ -232,6 +232,7 @@ static WIDGET *engine_widgets[] = {
 
 	(WIDGET *)(&choices[CHOICE_FLAGSHIP    ]), // Flagship Style
 	(WIDGET *)(&choices[CHOICE_SCRMELT     ]), // Screen Transitions
+	(WIDGET *)(&choices[CHOICE_HSCOLOR     ]), // HyperSpace Color
 
 	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
 	(WIDGET *)(&labels [LABEL_COMM         ]), // Comm Label
@@ -1257,6 +1258,7 @@ SetDefaults (void)
 	choices[CHOICE_SCATTERCARGO ].selected = opts.scatterElements;
 	choices[CHOICE_LANDERUPGMASK].selected = opts.showUpgrades;
 	choices[CHOICE_FLEETPOINT   ].selected = opts.fleetPointSys;
+	choices[CHOICE_HSCOLOR      ].selected = opts.hyperSpaceColor;
 
 	// Devices
 	for (i = DEVICE_START; i < DEVICE_START
@@ -1383,6 +1385,7 @@ PropagateResults (void)
 	opts.scatterElements =  choices[CHOICE_SCATTERCARGO ].selected;
 	opts.showUpgrades =     choices[CHOICE_LANDERUPGMASK].selected;
 	opts.fleetPointSys =    choices[CHOICE_FLEETPOINT   ].selected;
+	opts.hyperSpaceColor =  choices[CHOICE_HSCOLOR      ].selected;
 
 	// Devices
 	for (i = DEVICE_START;
@@ -2452,6 +2455,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->meleeToolTips = optMeleeToolTips;
 	opts->sphereColors = optSphereColors;
 	opts->dosMenus = optDosMenus;
+	opts->hyperSpaceColor = is3DO (optHyperSpaceColor);
 
 	// Interplanetary
 	opts->nebulae = optNebulae;
@@ -2726,6 +2730,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optShipStore, &opts->shipStore, "mm.shipStore", FALSE);
 	PutBoolOpt (&optCaptainNames, &opts->captainNames, "mm.captainNames", FALSE);
 	PutBoolOpt (&optDosMenus, &opts->dosMenus, "mm.dosMenus", FALSE);
+	PutConsOpt (&optHyperSpaceColor, &opts->hyperSpaceColor, "mm.hyperSpaceColor", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);

@@ -141,6 +141,7 @@ OPT_ENABLABLE optCaptainNames;
 OPT_ENABLABLE optDosMenus;
 OPT_ADD_REMOVE optDeviceArray[28];
 OPT_ADD_REMOVE optUpgradeArray[13];
+int optHyperSpaceColor;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

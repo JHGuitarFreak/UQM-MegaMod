@@ -205,6 +205,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  shipStore);
 	DECL_CONFIG_OPTION(bool,  captainNames);
 	DECL_CONFIG_OPTION(bool,  dosMenus);
+	DECL_CONFIG_OPTION(int,   hyperSpaceColor);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -412,6 +413,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  shipStore,         false ),
 		INIT_CONFIG_OPTION(  captainNames,      false ),
 		INIT_CONFIG_OPTION(  dosMenus,          false ),
+		INIT_CONFIG_OPTION(  hyperSpaceColor,   OPT_3DO ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -644,6 +646,7 @@ main (int argc, char *argv[])
 	optShipStore = options.shipStore.value;
 	optCaptainNames = options.captainNames.value;
 	optDosMenus = options.dosMenus.value;
+	optHyperSpaceColor = options.hyperSpaceColor.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1205,6 +1208,9 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->dosMenus, "mm.dosMenus");
 
+	getBoolConfigValueXlat (&options->hyperSpaceColor, "mm.hyperSpaceColor",
+			OPT_3DO, OPT_PC);
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1317,6 +1323,7 @@ enum
 	LOADGAME_OPT,
 	NEBUVOL_OPT,
 	CLAPAK_OPT,
+	HSCOLOR_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1433,6 +1440,7 @@ static struct option longOptions[] =
 	{"shipstore", 0, NULL, SHIPSTORE_OPT},
 	{"captainnames", 0, NULL, CAPTNAMES_OPT},
 	{"dosmenus", 0, NULL, DOSMENUS_OPT},
+	{"hyperspacecolor", 1, NULL, HSCOLOR_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2266,6 +2274,13 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case DOSMENUS_OPT:
 				setBoolOption (&options->dosMenus, true);
 				break;
+			case HSCOLOR_OPT:
+				if (!setChoiceOption (&options->flagshipColor, optarg))
+				{
+					InvalidArgument (optarg, "--hyperspacecolor");
+					badArg = true;
+				}
+				break;
 			case MELEE_OPT:
 				optSuperMelee = TRUE;
 				break;
@@ -2682,6 +2697,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --dosmenus : Display DOS style menu in shipyard "
 			"in place of SIS window (default: %s)",
 			boolOptString (&defaults->dosMenus));
+	log_add (log_User, "  --hyperspacecolor : Choose between either the PC"
+			" or 3DO Flagship engine color (default: %s)",
+			choiceOptString (&defaults->hyperSpaceColor));
 
 	log_setOutput (old);
 }

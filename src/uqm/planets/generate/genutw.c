@@ -122,15 +122,10 @@ GenerateUtwig_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		if (!PrimeSeed)
 		{
-			if (!StarSeed)
-			{
-				DWORD RandVal = RandomContext_Random (SysGenRNG);
-				BYTE PByte = pSunDesc->PlanetByte + 1;
-				pSunDesc->NumPlanets =
-						(RandVal % (MAX_GEN_PLANETS - PByte) + PByte);
-			}
-			else
-				pSunDesc->NumPlanets = (BYTE)~0;
+			DWORD RandVal = RandomContext_Random (SysGenRNG);
+			BYTE PByte = pSunDesc->PlanetByte + 1;
+			pSunDesc->NumPlanets =
+					(RandVal % (MAX_GEN_PLANETS - PByte) + PByte);
 
 			FillOrbits (solarSys, pSunDesc->NumPlanets,
 					solarSys->PlanetDesc, FALSE);
