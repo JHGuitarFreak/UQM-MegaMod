@@ -293,3 +293,17 @@ UrQuanMasters
 UrQuanMastersDebug
 
 build/msvs2008/UrQuanMasters\.vcproj\.DESKTOP-TCJIFU9\.seros\.user
+
+thirdparty/
+build/win32_install/AUTHORS.txt
+build/win32_install/CHANGELOG.txt
+build/win32_install/COPYING.txt
+build/win32_install/dlls.nsi
+build/win32_install/gamecontrollerdb.txt
+build/win32_install/gamepad.png
+build/win32_install/README-SDL.txt
+build/win32_install/README.md
+build/win32_install/undlls.nsi
+build/win32_install/UQM-Manual.txt
+build/win32_install/UQM-README.txt
+build/win32_install/version

@@ -233,6 +233,9 @@ extern void InitGalaxy (void);
 extern void SetStarPoint (POINT pt, COUNT i);
 extern void MoveGalaxy (VIEW_STATE view_state, SDWORD dx, SDWORD dy);
 
+extern void InitStarOffsets (void);
+extern void UninitStarOffsets (void);
+
 extern BOOLEAN CalculateGravity (ELEMENT *ElementPtr);
 
 
