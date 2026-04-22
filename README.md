@@ -6,7 +6,7 @@ ___
 
 <p align="center">
 
-<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.3/">
+<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.4/">
 <img alt="SourceForge Downloads (folder)" src="https://img.shields.io/sourceforge/dt/uqm-mods/MegaMod"></a>
 <a href="https://github.com/JHGuitarFreak/UQM-MegaMod/pulls">
 	<img src="https://img.shields.io/github/issues-pr/JHGuitarFreak/UQM-MegaMod" alt="Pull Requests Badge"/></a>	
@@ -19,10 +19,10 @@ ___
 	
 </br>
 
-<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.3/">
+<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.4/">
 	<img src="https://img.shields.io/github/v/release/JHGuitarFreak/UQM-MegaMod?label=Latest%20release&style=social" alt="Latest release"/></a>	
 <a href="https://GitHub.com/JHGuitarFreak/UQM-MegaMod/commit/">
-	<img src="https://img.shields.io/github/commits-since/JHGuitarFreak/UQM-MegaMod/0.8.3.svg?style=social" alt="GitHub commits"/></a>	
+	<img src="https://img.shields.io/github/commits-since/JHGuitarFreak/UQM-MegaMod/0.8.4.svg?style=social" alt="GitHub commits"/></a>	
 <a href="https://github.com/JHGuitarFreak/UQM-MegaMod/stargazers">
 	<img src="https://img.shields.io/github/stars/JHGuitarFreak/UQM-MegaMod" alt="Stars Badge"/></a>	
 <a href="https://github.com/JHGuitarFreak/UQM-MegaMod/network/members">
@@ -44,24 +44,17 @@ ___
 
 The changes are too numerous to list here so I've provided a couple of links to help out in this regard...
 
-A full list of changes and features for the current release can be found in the [README](doc/release/MegaMod-README.txt).
+The full changelog can be found in the root of this repository: [Changelog](https://github.com/JHGuitarFreak/UQM-MegaMod/blob/0.8.4/MegaMod%20Changelog.txt)
 
-And the full changelog can be found in the root of this repository: [Changelog](MegaMod%20Changelog.txt)
+The master list of every change in MegaMod can be found on the main website's [About](https://uqm-mods.sourceforge.net/About) page 
 
 ## Install
 <p align="center">
 
-<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.3/mm-0.8.3-win32.exe/download">
-<img height="38" alt="SourceForge Downloads (folder)" src="https://img.shields.io/sourceforge/dt/uqm-mods/MegaMod%2F0.8.3%2Fmm-0.8.3-win32.exe?style=flat-square&logo=windows&logoSize=auto&label=Windows"></a>
-<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.3/mm-0.8.3-linux.deb/download">
-<img height="38" alt="SourceForge Downloads (folder)" src="https://img.shields.io/sourceforge/dt/uqm-mods/MegaMod%2F0.8.3%2Fmm-0.8.3-linux.deb?style=flat-square&logo=debian&logoSize=auto&label=Linux%20(Debian)"></a>
-<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.3/mm-0.8.3-macos.dmg/download">
-<img height="38" alt="SourceForge Downloads (folder)" src="https://img.shields.io/sourceforge/dt/uqm-mods/MegaMod%2F0.8.3%2Fmm-0.8.3-macos.dmg?style=flat-square&logo=apple&logoSize=auto&label=macOS%20(10.13)"></a>
+<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.4/mm-0.8.4-win32.exe/download">
+<img height="38" alt="SourceForge Downloads (folder)" src="https://img.shields.io/sourceforge/dt/uqm-mods/MegaMod/0.8.4/mm-0.8.4-installer.exe?style=for-the-badge&logo=windows&logoSize=auto&label=Windows"></a>
 
-<br>
 
-<a href="https://sourceforge.net/projects/uqm-mods/files/MegaMod/0.8.3/mm-0.8.3-android-SDL1.apk/download">
-<img height="38" alt="Android Download" src="https://img.shields.io/sourceforge/dt/uqm-mods/MegaMod%2F0.8.3%2Fmm-0.8.3-android-SDL1.apk?style=flat-square&logo=android&logoSize=auto&label=Android"></a>
 <a href="https://flathub.org/apps/net.sourceforge.uqm_mods.UQM-MegaMod">
 <img height="38" alt="Flathub Download" src="https://img.shields.io/flathub/downloads/net.sourceforge.uqm_mods.UQM-MegaMod?style=for-the-badge&logo=flathub&logoSize=auto&label=FlatHub"></a>
 
@@ -201,11 +194,6 @@ Once the build is complete you'll either have a `UrQuanMasters` or `UrQuanMaster
 
 ___
 
-> [!WARNING]  
-> ### Controllers
-> When using a DualShock 4 controller *DO NOT* use DS4Windows. UQM and hence, MegaMod, support the DS4 without extra software.
-The new controller layout options only work properly if you *don't* use DS4Windows.
-
 > [!CAUTION]
 > ### Mod Compatibility
 >
@@ -213,7 +201,7 @@ The new controller layout options only work properly if you *don't* use DS4Windo
 MegaMod is completely independant from Core UQM, HD-Mod, HD-Remix, Crazy Mod, Balance Mod, Extended, or any other mods.
 As such MegaMod has its own packages and add-ons.
 >
-> For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.3-hd-content.uqm`.
+> For example the HD-Mod add-on package `hires4x.zip` is not compatible with MegaMod as MegaMod has its own HD package currently named `mm-0.8.4-hd-content.uqm`.
 >
 > And as MegaMod is not compatible with any other mods, do not install it over any existing UQM installations.
 >
@@ -223,8 +211,11 @@ ___
 
 ## Contributors
 
-Me (JHGuitarFreak), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, Taleden, and Jordan Lo.
+Me (JHGuitarFreak), SlightlyIntelligentMonkey, Volasaurus, Ala-lala, Kruzenshtern, Taleden, Jordan Lo, Tarponpet, and King Duncan.
 
-The main menu music for the MegaMod is brought to you by Saibuster A.K.A. Itamar.Levy: http://star-control.com/fan/music/Various/saibuster-hyprespace.mp3, Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw, and Rush AX: http://star-control.com/fan/music/Rush/HSpace%20Rush%20MIX.mp3
+The main menu music for the MegaMod is brought to you by...
+* Saibuster A.K.A. Itamar.Levy: https://s3.amazonaws.com/starcontrol/files/fan/music/Various/saibuster-hyprespace.mp3
+* Mark Vera A.K.A. Jouni Airaksinen: https://www.youtube.com/watch?v=rsSc7x-p4zw
+* Rush AX: https://s3.amazonaws.com/starcontrol/files/fan/music/Rush/HSpace%20Rush%20MIX.mp3
 
 And the default Super Melee menu music is by Flashira Nakirov.

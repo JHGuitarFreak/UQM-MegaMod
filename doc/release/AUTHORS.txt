@@ -5,7 +5,7 @@ We worship these two higher beings for making the original, legendary game:
 MegaMod Contributers:
 -------------------------
 
-Kohr-Ah Death (Coding and art) <https://github.com/JHGuitarFreak>
+JHGuitarFreak (Coding and art) <https://github.com/JHGuitarFreak>
 DCzanik (Original HD art)
 Kwayne (Original HD art)
 Metamorphosis A.K.A. Matt Bentley (UQM-HD Remix Code)
@@ -22,6 +22,8 @@ Tarp (Ideas and writing)
 Jo Li KMC (QA and feedback)
 Bummer6 (Ilwrath Avenger concept art)
 Flashira Nakirov (Default Super Melee menu music)
+King Duncan (StarSeed & Ship Seeding code and implementation)
+Miridiana (StarSeed QA)
 
 Nebulae and HD Super Melee backgrounds created using wwwtyro's space2d & space2dwgl procedural space-scape generator.
 
