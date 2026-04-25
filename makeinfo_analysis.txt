@@ -1,0 +1,1091 @@
+=== File: ./Makeinfo ===
+Directory: .
+Contents:
+----------------------------------------
+uqm_SUBDIRS=src
+
+
+=== File: ./src/darwin/Makeinfo ===
+Directory: ./src/darwin
+Contents:
+----------------------------------------
+uqm_MFILES="SDLMain.m"
+uqm_HFILES="SDLMain.h"
+
+
+=== File: ./src/getopt/Makeinfo ===
+Directory: ./src/getopt
+Contents:
+----------------------------------------
+uqm_CFILES="getopt.c getopt1.c"
+uqm_HFILES="getopt.h"
+
+
+=== File: ./src/libs/callback/Makeinfo ===
+Directory: ./src/libs/callback
+Contents:
+----------------------------------------
+uqm_CFILES="alarm.c async.c callback.c"
+uqm_HFILES="alarm.h async.h callback.h"
+
+
+=== File: ./src/libs/cdp/Makeinfo ===
+Directory: ./src/libs/cdp
+Contents:
+----------------------------------------
+uqm_CFILES="cdp.c cdpapi.c"
+uqm_HFILES="cdp_alli.h cdpapi.h cdp.h cdp_iio.h cdp_imem.h cdpint.h
+		cdp_isnd.h cdp_ivid.h cdpmod.h windl.h"
+
+
+=== File: ./src/libs/decomp/Makeinfo ===
+Directory: ./src/libs/decomp
+Contents:
+----------------------------------------
+uqm_CFILES="lzdecode.c lzencode.c update.c"
+uqm_HFILES="lzh.h"
+
+
+=== File: ./src/libs/file/Makeinfo ===
+Directory: ./src/libs/file
+Contents:
+----------------------------------------
+uqm_CFILES="dirs.c files.c"
+uqm_HFILES="filintrn.h"
+
+
+=== File: ./src/libs/graphics/Makeinfo ===
+Directory: ./src/libs/graphics
+Contents:
+----------------------------------------
+if [ "$uqm_GFXMODULE" = "sdl" ]; then
+	uqm_SUBDIRS="sdl"
+fi
+
+uqm_CFILES="boxint.c clipline.c cmap.c context.c drawable.c filegfx.c
+		bbox.c dcqueue.c gfxload.c
+		font.c frame.c gfx_common.c intersec.c loaddisp.c
+		pixmap.c resgfx.c tfb_draw.c tfb_prim.c widgets.c"
+
+uqm_HFILES="bbox.h cmap.h context.h dcqueue.h drawable.h drawcmd.h font.h
+		gfx_common.h gfxintrn.h prim.h tfb_draw.h tfb_prim.h widgets.h"
+
+
+
+=== File: ./src/libs/graphics/sdl/Makeinfo ===
+Directory: ./src/libs/graphics/sdl
+Contents:
+----------------------------------------
+uqm_CFILES="opengl.c palette.c primitives.c pure.c sdl2_pure.c sdl_common.c
+		sdl1_common.c sdl2_common.c scalers.c 2xscalers.c 2xscalers_mmx.c
+		2xscalers_sse.c 2xscalers_3dnow.c nearest2x.c bilinear2x.c biadv2x.c
+		triscan2x.c hq2x.c canvas.c png2sdl.c sdluio.c rotozoom.c clipboard.c"
+uqm_HFILES="2xscalers.h 2xscalers_mmx.h opengl.h palette.h png2sdl.h 
+		primitives.h pure.h rotozoom.h scaleint.h scalemmx.h
+		scalers.h sdl_common.h sdluio.h"
+
+
+=== File: ./src/libs/heap/Makeinfo ===
+Directory: ./src/libs/heap
+Contents:
+----------------------------------------
+uqm_CFILES="heap.c"
+uqm_HFILES="heap.h"
+
+
+=== File: ./src/libs/input/Makeinfo ===
+Directory: ./src/libs/input
+Contents:
+----------------------------------------
+if [ "$uqm_GFXMODULE" = "sdl" ]; then
+	uqm_SUBDIRS="sdl"
+fi
+
+uqm_CFILES="input_common.c"
+uqm_HFILES="inpintrn.h input_common.h"
+
+
+=== File: ./src/libs/input/sdl/Makeinfo ===
+Directory: ./src/libs/input/sdl
+Contents:
+----------------------------------------
+uqm_CFILES="input.c keynames.c vcontrol.c"
+uqm_HFILES="input.h keynames.h vcontrol.h"
+
+
+=== File: ./src/libs/list/Makeinfo ===
+Directory: ./src/libs/list
+Contents:
+----------------------------------------
+uqm_CFILES="list.c"
+uqm_HFILES="list.h"
+
+
+=== File: ./src/libs/log/Makeinfo ===
+Directory: ./src/libs/log
+Contents:
+----------------------------------------
+uqm_CFILES="uqmlog.c"
+uqm_HFILES="loginternal.h msgbox.h uqmlog.h"
+
+case "$HOST_SYSTEM" in
+	Darwin)
+		uqm_MFILES="msgbox_macosx.m"
+		;;
+	MINGW32*|CYGWIN*)
+		uqm_CFILES="$uqm_CFILES msgbox_win.c"
+		;;
+	*)
+		uqm_CFILES="$uqm_CFILES msgbox_stub.c"
+		;;
+esac
+
+
+
+=== File: ./src/libs/lua/Makeinfo ===
+Directory: ./src/libs/lua
+Contents:
+----------------------------------------
+uqm_CFILES="lapi.c lauxlib.c lbaselib.c lbitlib.c lcode.c lctype.c ldebug.c ldo.c ldump.c lfunc.c lgc.c llex.c lmathlib.c lmem.c lobject.c lopcodes.c lparser.c lstate.c lstring.c lstrlib.c ltable.c ltablib.c ltm.c lundump.c lvm.c lzio.c"
+uqm_HFILES="lapi.h lauxlib.h lcode.h lctype.h ldebug.h ldo.h lfunc.h lgc.h llex.h llimits.h lmem.h lobject.h lopcodes.h lparser.h lstate.h lstring.h ltable.h ltm.h luaconf.h lua.h lualib.h lundump.h lvm.h lzio.h"
+
+
+
+=== File: ./src/libs/luauqm/Makeinfo ===
+Directory: ./src/libs/luauqm
+Contents:
+----------------------------------------
+uqm_CFILES="luauqm.c scriptres.c"
+uqm_HFILES="luauqm.h scriptres.h"
+
+
+=== File: ./src/libs/Makeinfo ===
+Directory: ./src/libs
+Contents:
+----------------------------------------
+uqm_SUBDIRS="callback decomp file graphics heap input list math memory
+		resource sound strings task threads time uio video log luauqm"
+if [ -n "$uqm_USE_INTERNAL_MIKMOD" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS mikmod"
+fi
+
+if [ -n "$uqm_USE_INTERNAL_LUA" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS lua"
+fi
+
+if [ -n "$uqm_NETPLAY" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS network"
+fi
+
+#if [ "$DEBUG" = 1 ]; then
+#	uqm_SUBDIRS="$UQM_SUBDIRS debug"
+#fi
+
+uqm_HFILES="alarm.h async.h callback.h cdplib.h compiler.h declib.h file.h
+		gfxlib.h heap.h inplib.h list.h log.h mathlib.h md5.h memlib.h
+		misc.h net.h platform.h reslib.h scriptlib.h sndlib.h
+		strlib.h tasklib.h threadlib.h timelib.h uio.h uioutils.h
+		unicode.h vidlib.h"
+
+
+
+=== File: ./src/libs/math/Makeinfo ===
+Directory: ./src/libs/math
+Contents:
+----------------------------------------
+uqm_CFILES="random.c random2.c sqrt.c"
+uqm_HFILES="mthintrn.h random.h"
+
+
+=== File: ./src/libs/md5/Makeinfo ===
+Directory: ./src/libs/md5
+Contents:
+----------------------------------------
+uqm_CFILES="md5.c"
+uqm_HFILES="md5.h"
+
+
+=== File: ./src/libs/memory/Makeinfo ===
+Directory: ./src/libs/memory
+Contents:
+----------------------------------------
+uqm_CFILES="w_memlib.c"
+
+
+=== File: ./src/libs/mikmod/Makeinfo ===
+Directory: ./src/libs/mikmod
+Contents:
+----------------------------------------
+uqm_CFILES="drv_nos.c load_it.c load_mod.c load_s3m.c load_stm.c load_xm.c
+		mdreg.c mdriver.c mdulaw.c mloader.c
+		mlreg.c mlutil.c mmalloc.c mmerror.c mmio.c mplayer.c munitrk.c
+		mwav.c npertab.c sloader.c virtch.c virtch2.c virtch_common.c"
+uqm_HFILES="mikmod_build.h mikmod.h mikmod_internals.h"
+
+
+=== File: ./src/libs/network/connect/Makeinfo ===
+Directory: ./src/libs/network/connect
+Contents:
+----------------------------------------
+uqm_CFILES="connect.c listen.c resolve.c"
+uqm_HFILES="connect.h listen.h resolve.h"
+
+
+=== File: ./src/libs/network/Makeinfo ===
+Directory: ./src/libs/network
+Contents:
+----------------------------------------
+uqm_SUBDIRS="connect netmanager socket"
+uqm_CFILES="netport.c"
+uqm_HFILES="bytesex.h netport.h network.h"
+
+if [ -n "$uqm_USE_WINSOCK" ]; then
+	uqm_CFILES="$uqm_CFILES network_win.c"
+	if [ -n "$MACRO___MINGW32__" ]; then
+		uqm_CFILES="$uqm_CFILES wspiapiwrap.c"
+		uqm_HFILES="$uqm_HFILES wspiapiwrap.h"
+	fi
+else
+	uqm_CFILES="$uqm_CFILES network_bsd.c"
+fi
+
+
+
+=== File: ./src/libs/network/netmanager/Makeinfo ===
+Directory: ./src/libs/network/netmanager
+Contents:
+----------------------------------------
+uqm_CFILES="ndesc.c"
+uqm_HFILES="ndesc.h netmanager.h"
+
+if [ -n "$uqm_USE_WINSOCK" ]; then
+	uqm_CFILES="$uqm_CFILES netmanager_win.c"
+	uqm_HFILES="$uqm_HFILES netmanager_win.h"
+else
+	uqm_CFILES="$uqm_CFILES netmanager_bsd.c"
+	uqm_HFILES="$uqm_HFILES netmanager_bsd.h"
+fi
+
+
+
+=== File: ./src/libs/network/socket/Makeinfo ===
+Directory: ./src/libs/network/socket
+Contents:
+----------------------------------------
+uqm_CFILES="socket.c"
+uqm_HFILES="socket.h"
+
+if [ -n "$uqm_USE_WINSOCK" ]; then
+	uqm_CFILES="$uqm_CFILES socket_win.c"
+	uqm_HFILES="$uqm_HFILES socket_win.h"
+else
+	uqm_CFILES="$uqm_CFILES socket_bsd.c"
+	uqm_HFILES="$uqm_CFILES socket_bsd.h"
+fi
+
+
+
+=== File: ./src/libs/resource/Makeinfo ===
+Directory: ./src/libs/resource
+Contents:
+----------------------------------------
+uqm_CFILES="direct.c filecntl.c getres.c loadres.c stringbank.c
+		propfile.c resinit.c"
+uqm_HFILES="index.h propfile.h resintrn.h stringbank.h"
+
+
+=== File: ./src/libs/sound/decoders/Makeinfo ===
+Directory: ./src/libs/sound/decoders
+Contents:
+----------------------------------------
+uqm_CFILES="decoder.c aiffaud.c wav.c dukaud.c modaud.c"
+uqm_HFILES="aiffaud.h decoder.h dukaud.h modaud.h wav.h"
+
+if [ "$uqm_OGGVORBIS" '!=' "none" ]; then
+	uqm_CFILES="$uqm_CFILES oggaud.c"
+	uqm_HFILES="$uqm_HFILES oggaud.h"
+fi
+
+
+
+=== File: ./src/libs/sound/Makeinfo ===
+Directory: ./src/libs/sound
+Contents:
+----------------------------------------
+if [ "$uqm_SOUNDMODULE" = "openal" ]; then
+	uqm_SUBDIRS="openal mixer decoders"
+	uqm_CFLAGS="$uqm_CFLAGS -DHAVE_OPENAL"
+else
+	uqm_SUBDIRS="mixer decoders"
+fi
+
+uqm_CFILES="audiocore.c fileinst.c resinst.c sound.c sfx.c music.c stream.c trackplayer.c"
+uqm_HFILES="audiocore.h sndintrn.h sound.h stream.h trackint.h trackplayer.h"
+
+
+=== File: ./src/libs/sound/mixer/Makeinfo ===
+Directory: ./src/libs/sound/mixer
+Contents:
+----------------------------------------
+uqm_SUBDIRS="sdl nosound"
+uqm_CFILES="mixer.c"
+uqm_HFILES="mixer.h mixerint.h"
+
+
+=== File: ./src/libs/sound/mixer/nosound/Makeinfo ===
+Directory: ./src/libs/sound/mixer/nosound
+Contents:
+----------------------------------------
+uqm_CFILES="audiodrv_nosound.c"
+uqm_HFILES="audiodrv_nosound.h"
+
+
+=== File: ./src/libs/sound/mixer/sdl/Makeinfo ===
+Directory: ./src/libs/sound/mixer/sdl
+Contents:
+----------------------------------------
+uqm_CFILES="audiodrv_sdl.c"
+uqm_HFILES="audiodrv_sdl.h"
+
+
+=== File: ./src/libs/sound/openal/Makeinfo ===
+Directory: ./src/libs/sound/openal
+Contents:
+----------------------------------------
+uqm_CFILES="audiodrv_openal.c"
+uqm_HFILES="audiodrv_openal.h"
+
+
+=== File: ./src/libs/strings/Makeinfo ===
+Directory: ./src/libs/strings
+Contents:
+----------------------------------------
+uqm_CFILES="getstr.c sfileins.c sresins.c stringhashtable.c strings.c unicode.c"
+uqm_HFILES="stringhashtable.c strintrn.h"
+
+
+=== File: ./src/libs/task/Makeinfo ===
+Directory: ./src/libs/task
+Contents:
+----------------------------------------
+uqm_CFILES="tasklib.c"
+
+
+=== File: ./src/libs/threads/Makeinfo ===
+Directory: ./src/libs/threads
+Contents:
+----------------------------------------
+case "$uqm_THREADLIB" in
+	SDL)
+		uqm_SUBDIRS="sdl"
+		;;
+	PTHREAD)
+		uqm_SUBDIRS="pthread"
+		;;
+esac
+
+uqm_CFILES="thrcommon.c"
+uqm_HFILES="thrcommon.h"
+
+
+=== File: ./src/libs/threads/pthread/Makeinfo ===
+Directory: ./src/libs/threads/pthread
+Contents:
+----------------------------------------
+uqm_CFILES="posixthreads.c"
+uqm_HFILES="posixthreads.h"
+
+
+=== File: ./src/libs/threads/sdl/Makeinfo ===
+Directory: ./src/libs/threads/sdl
+Contents:
+----------------------------------------
+uqm_CFILES="sdlthreads.c"
+uqm_HFILES="sdlthreads.h"
+
+
+=== File: ./src/libs/time/Makeinfo ===
+Directory: ./src/libs/time
+Contents:
+----------------------------------------
+uqm_SUBDIRS="sdl"
+uqm_CFILES="timecommon.c"
+uqm_HFILES="timecommon.h"
+
+
+=== File: ./src/libs/time/sdl/Makeinfo ===
+Directory: ./src/libs/time/sdl
+Contents:
+----------------------------------------
+uqm_CFILES="sdltime.c"
+uqm_HFILES="sdltime.h"
+
+
+=== File: ./src/libs/uio/Makeinfo ===
+Directory: ./src/libs/uio
+Contents:
+----------------------------------------
+uqm_SUBDIRS="stdio"
+uqm_CFILES="charhashtable.c defaultfs.c fileblock.c fstypes.c gphys.c io.c
+		ioaux.c match.c mount.c mounttree.c paths.c physical.c uiostream.c
+		uioutils.c utils.c"
+uqm_HFILES="charhashtable.h defaultfs.h fileblock.h fstypes.h getint.h
+		gphys.h ioaux.h io.h iointrn.h match.h mem.h mount.h mounttree.h
+		paths.h physical.h types.h uioport.h uiostream.h uioutils.h utils.h"
+
+if [ -n "$uqm_USE_ZIP_IO" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS zip"
+fi
+
+#if [ -n "$DEBUG" -o -n "$uqm_UIO_DEBUG" ]; then
+	uqm_CFILES="$uqm_CFILES debug.c"
+	uqm_HFILES="$uqm_HFILES debug.h"
+#fi
+
+if [ -n "$MEMDEBUG" ]; then
+	uqm_CFILES="$uqm_CFILES hashtable.c memdebug.c"
+	uqm_HFILES="$uqm_HFILES hashtable.h memdebug.h"
+fi
+
+
+
+=== File: ./src/libs/uio/stdio/Makeinfo ===
+Directory: ./src/libs/uio/stdio
+Contents:
+----------------------------------------
+uqm_CFILES="stdio.c"
+uqm_HFILES="stdio.h"
+
+
+=== File: ./src/libs/uio/zip/Makeinfo ===
+Directory: ./src/libs/uio/zip
+Contents:
+----------------------------------------
+uqm_CFILES="zip.c"
+uqm_HFILES="zip.h"
+
+
+=== File: ./src/libs/video/Makeinfo ===
+Directory: ./src/libs/video
+Contents:
+----------------------------------------
+uqm_CFILES="vfileins.c vresins.c video.c videodec.c vidplayer.c dukvid.c \
+            legacyplayer.c"
+uqm_HFILES="dukvid.h videodec.h video.h vidintrn.h vidplayer.h"
+
+
+=== File: ./src/Makeinfo ===
+Directory: ./src
+Contents:
+----------------------------------------
+uqm_SUBDIRS="libs res uqm"
+uqm_CFILES="options.c port.c uqm.c"
+uqm_HFILES="config.h endian_uqm.h options.h port.h types.h uqmversion.h"
+
+if [ "$uqm_HAVE_GETOPT_LONG" = 0 ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS getopt"
+fi
+
+case "$HOST_SYSTEM" in
+	Darwin)
+		uqm_SUBDIRS="$uqm_SUBDIRS darwin"
+		;;
+	MSVC)
+		uqm_HFILES="$uqm_HFILES config_vc6.h"
+		;;
+esac
+
+if [ "$uqm_HAVE_REGEX" = 0 ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS regex"
+fi
+
+
+
+=== File: ./src/regex/Makeinfo ===
+Directory: ./src/regex
+Contents:
+----------------------------------------
+uqm_CFILES="regex.c"
+uqm_HFILES="regex.h regex_internal.h"
+
+
+=== File: ./src/res/Makeinfo ===
+Directory: ./src/res
+Contents:
+----------------------------------------
+case "$HOST_SYSTEM" in
+	MINGW32*)
+		uqm_RCFILES="UrQuanMasters.rc"
+		;;
+esac
+
+
+
+=== File: ./src/uqm/comm/arilou/Makeinfo ===
+Directory: ./src/uqm/comm/arilou
+Contents:
+----------------------------------------
+uqm_CFILES="arilouc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/blackur/Makeinfo ===
+Directory: ./src/uqm/comm/blackur
+Contents:
+----------------------------------------
+uqm_CFILES="blackurc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/chmmr/Makeinfo ===
+Directory: ./src/uqm/comm/chmmr
+Contents:
+----------------------------------------
+uqm_CFILES="chmmrc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/comandr/Makeinfo ===
+Directory: ./src/uqm/comm/comandr
+Contents:
+----------------------------------------
+uqm_CFILES="comandr.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/druuge/Makeinfo ===
+Directory: ./src/uqm/comm/druuge
+Contents:
+----------------------------------------
+uqm_CFILES="druugec.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/ilwrath/Makeinfo ===
+Directory: ./src/uqm/comm/ilwrath
+Contents:
+----------------------------------------
+uqm_CFILES="ilwrathc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/Makeinfo ===
+Directory: ./src/uqm/comm
+Contents:
+----------------------------------------
+uqm_SUBDIRS="arilou blackur chmmr comandr druuge ilwrath melnorm mycon
+		orz pkunk rebel shofixt slyhome slyland spahome spathi starbas supox
+		syreen talkpet thradd umgah urquan utwig vux yehat zoqfot"
+uqm_HFILES="commall.h"
+
+
+=== File: ./src/uqm/comm/melnorm/Makeinfo ===
+Directory: ./src/uqm/comm/melnorm
+Contents:
+----------------------------------------
+uqm_CFILES="melnorm.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/mycon/Makeinfo ===
+Directory: ./src/uqm/comm/mycon
+Contents:
+----------------------------------------
+uqm_CFILES="myconc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/orz/Makeinfo ===
+Directory: ./src/uqm/comm/orz
+Contents:
+----------------------------------------
+uqm_CFILES="orzc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/pkunk/Makeinfo ===
+Directory: ./src/uqm/comm/pkunk
+Contents:
+----------------------------------------
+uqm_CFILES="pkunkc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/rebel/Makeinfo ===
+Directory: ./src/uqm/comm/rebel
+Contents:
+----------------------------------------
+uqm_CFILES="rebel.c"
+uqm_HFILES="strings.h"
+
+
+=== File: ./src/uqm/comm/shofixt/Makeinfo ===
+Directory: ./src/uqm/comm/shofixt
+Contents:
+----------------------------------------
+uqm_CFILES="shofixt.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/slyhome/Makeinfo ===
+Directory: ./src/uqm/comm/slyhome
+Contents:
+----------------------------------------
+uqm_CFILES="slyhome.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/slyland/Makeinfo ===
+Directory: ./src/uqm/comm/slyland
+Contents:
+----------------------------------------
+uqm_CFILES="slyland.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/spahome/Makeinfo ===
+Directory: ./src/uqm/comm/spahome
+Contents:
+----------------------------------------
+uqm_CFILES="spahome.c"
+uqm_HFILES="strings.h"
+
+
+=== File: ./src/uqm/comm/spathi/Makeinfo ===
+Directory: ./src/uqm/comm/spathi
+Contents:
+----------------------------------------
+uqm_CFILES="spathic.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/starbas/Makeinfo ===
+Directory: ./src/uqm/comm/starbas
+Contents:
+----------------------------------------
+uqm_CFILES="starbas.c"
+uqm_HFILES="strings.h"
+
+
+=== File: ./src/uqm/comm/supox/Makeinfo ===
+Directory: ./src/uqm/comm/supox
+Contents:
+----------------------------------------
+uqm_CFILES="supoxc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/syreen/Makeinfo ===
+Directory: ./src/uqm/comm/syreen
+Contents:
+----------------------------------------
+uqm_CFILES="syreenc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/talkpet/Makeinfo ===
+Directory: ./src/uqm/comm/talkpet
+Contents:
+----------------------------------------
+uqm_CFILES="talkpet.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/thradd/Makeinfo ===
+Directory: ./src/uqm/comm/thradd
+Contents:
+----------------------------------------
+uqm_CFILES="thraddc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/umgah/Makeinfo ===
+Directory: ./src/uqm/comm/umgah
+Contents:
+----------------------------------------
+uqm_CFILES="umgahc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/urquan/Makeinfo ===
+Directory: ./src/uqm/comm/urquan
+Contents:
+----------------------------------------
+uqm_CFILES="urquanc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/utwig/Makeinfo ===
+Directory: ./src/uqm/comm/utwig
+Contents:
+----------------------------------------
+uqm_CFILES="utwigc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/vux/Makeinfo ===
+Directory: ./src/uqm/comm/vux
+Contents:
+----------------------------------------
+uqm_CFILES="vuxc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/yehat/Makeinfo ===
+Directory: ./src/uqm/comm/yehat
+Contents:
+----------------------------------------
+uqm_CFILES="yehatc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/comm/zoqfot/Makeinfo ===
+Directory: ./src/uqm/comm/zoqfot
+Contents:
+----------------------------------------
+uqm_CFILES="zoqfotc.c"
+uqm_HFILES="resinst.h strings.h"
+
+
+=== File: ./src/uqm/lua/luafuncs/Makeinfo ===
+Directory: ./src/uqm/lua/luafuncs
+Contents:
+----------------------------------------
+uqm_CFILES="commfuncs.c customfuncs.c eventfuncs.c logfuncs.c statefuncs.c"
+uqm_HFILES="commfuncs.h customfuncs.h eventfuncs.h logfuncs.h statefuncs.h"
+
+
+=== File: ./src/uqm/lua/Makeinfo ===
+Directory: ./src/uqm/lua
+Contents:
+----------------------------------------
+uqm_SUBDIRS="luafuncs"
+uqm_CFILES="luacomm.c luaevent.c luainit.c luastate.c"
+uqm_HFILES="luacomm.h luaevent.h luainit.h luastate.h"
+
+if [ -n "$DEBUG" ]; then
+	uqm_CFILES="$uqm_CFILES luadebug.c"
+	uqm_HFILES="$uqm_HFILES luadebug.h"
+fi
+
+
+
+=== File: ./src/uqm/Makeinfo ===
+Directory: ./src/uqm
+Contents:
+----------------------------------------
+uqm_SUBDIRS="comm lua planets ships supermelee"
+uqm_CFILES="battle.c battlecontrols.c border.c build.c cleanup.c clock.c
+		cnctdlg.c collide.c comm.c commanim.c commglue.c confirm.c credits.c
+		cyborg.c demo.c displist.c dummy.c encount.c flash.c fmv.c galaxy.c
+		gameev.c gameinp.c gameopt.c gendef.c getchar.c globdata.c gravity.c
+		cons_res.c grpinfo.c hyper.c init.c intel.c intro.c ipdisp.c load.c
+		load_legacy.c
+		loadship.c master.c menu.c misc.c oscill.c outfit.c pickship.c
+		plandata.c process.c restart.c save.c settings.c setup.c setupmenu.c
+		ship.c shipstat.c shipyard.c sis.c sounds.c starbase.c starcon.c
+		starmap.c state.c status.c tactrans.c trans.c uqmdebug.c util.c
+		velocity.c weapon.c"
+uqm_HFILES="battlecontrols.h battle.h build.h clock.h cnctdlg.h coderes.h
+		collide.h colors.h commanim.h commglue.h comm.h cons_res.h controls.h
+		corecode.h credits.h demo.h displist.h dummy.h element.h encount.h
+		flash.h fmv.h gameev.h gameopt.h gamestr.h gendef.h globdata.h
+		grpinfo.h hyper.h ifontres.h igfxres.h ikey_con.h imusicre.h init.h
+		intel.h ipdisp.h isndres.h istrtab.h master.h menustat.h
+		nameref.h oscill.h pickship.h process.h races.h resinst.h respkg.h
+		restart.h save.h settings.h setup.h setupmenu.h shipcont.h ship.h
+		sis.h sounds.h starbase.h starcon.h state.h status.h tactrans.h
+		starmap.h
+		units.h uqmdebug.h util.h velocity.h weapon.h"
+
+
+
+=== File: ./src/uqm/planets/generate/Makeinfo ===
+Directory: ./src/uqm/planets/generate
+Contents:
+----------------------------------------
+uqm_CFILES="gendefault.c genand.c genburv.c genchmmr.c gencol.c gendru.c
+		genilw.c genmel.c genmyc.c genorz.c genpet.c genpku.c genrain.c
+		gensam.c genshof.c gensly.c gensol.c genspa.c gensup.c gensyr.c
+		genthrad.c gentrap.c genutw.c genvault.c genvux.c genwreck.c
+		genyeh.c genzfpscout.c genzoq.c"
+uqm_HFILES="genall.h gendefault.h"
+
+
+=== File: ./src/uqm/planets/Makeinfo ===
+Directory: ./src/uqm/planets
+Contents:
+----------------------------------------
+uqm_SUBDIRS="generate"
+uqm_CFILES="calc.c cargo.c devices.c gentopo.c lander.c orbits.c
+		oval.c pl_stuff.c planets.c plangen.c pstarmap.c report.c
+		roster.c scan.c solarsys.c surface.c"
+uqm_HFILES="elemdata.h generate.h lander.h lifeform.h plandata.h planets.h
+		scan.h solarsys.h sundata.h"
+
+
+
+=== File: ./src/uqm/ships/androsyn/Makeinfo ===
+Directory: ./src/uqm/ships/androsyn
+Contents:
+----------------------------------------
+uqm_CFILES="androsyn.c"
+uqm_HFILES="androsyn.h icode.h resinst.h"
+
+
+=== File: ./src/uqm/ships/arilou/Makeinfo ===
+Directory: ./src/uqm/ships/arilou
+Contents:
+----------------------------------------
+uqm_CFILES="arilou.c"
+uqm_HFILES="arilou.h icode.h resinst.h"
+
+
+=== File: ./src/uqm/ships/blackurq/Makeinfo ===
+Directory: ./src/uqm/ships/blackurq
+Contents:
+----------------------------------------
+uqm_CFILES="blackurq.c"
+uqm_HFILES="blackurq.h icode.h resinst.h"
+
+
+=== File: ./src/uqm/ships/chenjesu/Makeinfo ===
+Directory: ./src/uqm/ships/chenjesu
+Contents:
+----------------------------------------
+uqm_CFILES="chenjesu.c"
+uqm_HFILES="chenjesu.h icode.h resinst.h"
+
+
+=== File: ./src/uqm/ships/chmmr/Makeinfo ===
+Directory: ./src/uqm/ships/chmmr
+Contents:
+----------------------------------------
+uqm_CFILES="chmmr.c"
+uqm_HFILES="chmmr.h icode.h resinst.h"
+
+
+=== File: ./src/uqm/ships/druuge/Makeinfo ===
+Directory: ./src/uqm/ships/druuge
+Contents:
+----------------------------------------
+uqm_CFILES="druuge.c"
+uqm_HFILES="druuge.h icode.h resinst.h"
+
+
+=== File: ./src/uqm/ships/human/Makeinfo ===
+Directory: ./src/uqm/ships/human
+Contents:
+----------------------------------------
+uqm_CFILES="human.c"
+uqm_HFILES="human.h icode.h resinst.h"
+
+
+=== File: ./src/uqm/ships/ilwrath/Makeinfo ===
+Directory: ./src/uqm/ships/ilwrath
+Contents:
+----------------------------------------
+uqm_CFILES="ilwrath.c"
+uqm_HFILES="icode.h ilwrath.h resinst.h"
+
+
+=== File: ./src/uqm/ships/lastbat/Makeinfo ===
+Directory: ./src/uqm/ships/lastbat
+Contents:
+----------------------------------------
+uqm_CFILES="lastbat.c"
+uqm_HFILES="icode.h lastbat.h resinst.h"
+
+
+=== File: ./src/uqm/ships/Makeinfo ===
+Directory: ./src/uqm/ships
+Contents:
+----------------------------------------
+uqm_SUBDIRS="androsyn arilou blackurq chenjesu chmmr druuge human ilwrath
+		lastbat melnorme mmrnmhrm mycon orz pkunk probe shofixti sis_ship
+		slylandr spathi supox syreen thradd umgah urquan utwig vux yehat
+		zoqfot"
+uqm_HFILES="ship.h"
+
+
+=== File: ./src/uqm/ships/melnorme/Makeinfo ===
+Directory: ./src/uqm/ships/melnorme
+Contents:
+----------------------------------------
+uqm_CFILES="melnorme.c"
+uqm_HFILES="icode.h melnorme.h resinst.h"
+
+
+=== File: ./src/uqm/ships/mmrnmhrm/Makeinfo ===
+Directory: ./src/uqm/ships/mmrnmhrm
+Contents:
+----------------------------------------
+uqm_CFILES="mmrnmhrm.c"
+uqm_HFILES="icode.h mmrnmhrm.h resinst.h"
+
+
+=== File: ./src/uqm/ships/mycon/Makeinfo ===
+Directory: ./src/uqm/ships/mycon
+Contents:
+----------------------------------------
+uqm_CFILES="mycon.c"
+uqm_HFILES="icode.h mycon.h resinst.h"
+
+
+=== File: ./src/uqm/ships/orz/Makeinfo ===
+Directory: ./src/uqm/ships/orz
+Contents:
+----------------------------------------
+uqm_CFILES="orz.c"
+uqm_HFILES="icode.h orz.h resinst.h"
+
+
+=== File: ./src/uqm/ships/pkunk/Makeinfo ===
+Directory: ./src/uqm/ships/pkunk
+Contents:
+----------------------------------------
+uqm_CFILES="pkunk.c"
+uqm_HFILES="icode.h pkunk.h resinst.h"
+
+
+=== File: ./src/uqm/ships/probe/Makeinfo ===
+Directory: ./src/uqm/ships/probe
+Contents:
+----------------------------------------
+uqm_CFILES="probe.c"
+uqm_HFILES="icode.h probe.h resinst.h"
+
+
+=== File: ./src/uqm/ships/shofixti/Makeinfo ===
+Directory: ./src/uqm/ships/shofixti
+Contents:
+----------------------------------------
+uqm_CFILES="shofixti.c"
+uqm_HFILES="icode.h resinst.h shofixti.h"
+
+
+=== File: ./src/uqm/ships/sis_ship/Makeinfo ===
+Directory: ./src/uqm/ships/sis_ship
+Contents:
+----------------------------------------
+uqm_CFILES="sis_ship.c"
+uqm_HFILES="icode.h resinst.h sis_ship.h"
+
+
+=== File: ./src/uqm/ships/slylandr/Makeinfo ===
+Directory: ./src/uqm/ships/slylandr
+Contents:
+----------------------------------------
+uqm_CFILES="slylandr.c"
+uqm_HFILES="icode.h resinst.h slylandr.h"
+
+
+=== File: ./src/uqm/ships/spathi/Makeinfo ===
+Directory: ./src/uqm/ships/spathi
+Contents:
+----------------------------------------
+uqm_CFILES="spathi.c"
+uqm_HFILES="icode.h resinst.h spathi.h"
+
+
+=== File: ./src/uqm/ships/supox/Makeinfo ===
+Directory: ./src/uqm/ships/supox
+Contents:
+----------------------------------------
+uqm_CFILES="supox.c"
+uqm_HFILES="icode.h resinst.h supox.h"
+
+
+=== File: ./src/uqm/ships/syreen/Makeinfo ===
+Directory: ./src/uqm/ships/syreen
+Contents:
+----------------------------------------
+uqm_CFILES="syreen.c"
+uqm_HFILES="icode.h resinst.h syreen.h"
+
+
+=== File: ./src/uqm/ships/thradd/Makeinfo ===
+Directory: ./src/uqm/ships/thradd
+Contents:
+----------------------------------------
+uqm_CFILES="thradd.c"
+uqm_HFILES="icode.h resinst.h thradd.h"
+
+
+=== File: ./src/uqm/ships/umgah/Makeinfo ===
+Directory: ./src/uqm/ships/umgah
+Contents:
+----------------------------------------
+uqm_CFILES="umgah.c"
+uqm_HFILES="icode.h resinst.h umgah.h"
+
+
+=== File: ./src/uqm/ships/urquan/Makeinfo ===
+Directory: ./src/uqm/ships/urquan
+Contents:
+----------------------------------------
+uqm_CFILES="urquan.c"
+uqm_HFILES="icode.h resinst.h urquan.h"
+
+
+=== File: ./src/uqm/ships/utwig/Makeinfo ===
+Directory: ./src/uqm/ships/utwig
+Contents:
+----------------------------------------
+uqm_CFILES="utwig.c"
+uqm_HFILES="icode.h resinst.h utwig.h"
+
+
+=== File: ./src/uqm/ships/vux/Makeinfo ===
+Directory: ./src/uqm/ships/vux
+Contents:
+----------------------------------------
+uqm_CFILES="vux.c"
+uqm_HFILES="icode.h resinst.h vux.h"
+
+
+=== File: ./src/uqm/ships/yehat/Makeinfo ===
+Directory: ./src/uqm/ships/yehat
+Contents:
+----------------------------------------
+uqm_CFILES="yehat.c"
+uqm_HFILES="icode.h resinst.h yehat.h"
+
+
+=== File: ./src/uqm/ships/zoqfot/Makeinfo ===
+Directory: ./src/uqm/ships/zoqfot
+Contents:
+----------------------------------------
+uqm_CFILES="zoqfot.c"
+uqm_HFILES="icode.h resinst.h zoqfot.h"
+
+
+=== File: ./src/uqm/supermelee/Makeinfo ===
+Directory: ./src/uqm/supermelee
+Contents:
+----------------------------------------
+uqm_CFILES="buildpick.c loadmele.c melee.c meleesetup.c pickmele.c"
+uqm_HFILES="buildpick.h loadmele.h melee.h meleesetup.h meleeship.h pickmele.h"
+if [ -n "$uqm_NETPLAY" ]; then
+	uqm_SUBDIRS="$uqm_SUBDIRS netplay"
+fi
+
+
+=== File: ./src/uqm/supermelee/netplay/Makeinfo ===
+Directory: ./src/uqm/supermelee/netplay
+Contents:
+----------------------------------------
+uqm_SUBDIRS="proto"
+uqm_CFILES="checkbuf.c checksum.c crc.c netconnection.c netinput.c netmelee.c netmisc.c netoptions.c netrcv.c netsend.c netstate.c notify.c notifyall.c packet.c packethandlers.c packetsenders.c packetq.c"
+uqm_HFILES="checkbuf.h checksum.h crc.h netconnection.h netinput.h netmelee.h netmisc.h netoptions.h netplay.h netrcv.h netsend.h netstate.h notifyall.h notify.h packet.h packethandlers.h packetq.h packetsenders.h"
+
+
+
+=== File: ./src/uqm/supermelee/netplay/proto/Makeinfo ===
+Directory: ./src/uqm/supermelee/netplay/proto
+Contents:
+----------------------------------------
+uqm_CFILES="npconfirm.c ready.c reset.c"
+uqm_HFILES="npconfirm.h ready.h reset.h"
+
+
