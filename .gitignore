@@ -312,3 +312,13 @@ build/win32_install/undlls.nsi
 build/win32_install/UQM-Manual.txt
 build/win32_install/UQM-README.txt
 build/win32_install/version
+
+_deps/
+.ninja_deps
+.ninja_log
+build.ninja
+cmake_install.cmake
+CMakeFiles/
+CMakeCache.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
