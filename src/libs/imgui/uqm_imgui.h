@@ -85,7 +85,6 @@ extern void revalidate_game_state_cache (void);
 	get_cached_gamestate (#SName)
 
 bool UQM_ImGui_ProcessEvent (SDL_Event *event);
-void UQM_ImGui_NewFrame (void);
 void UQM_ImGui_Render ();
 void UQM_ImGui_Shutdown (void);
 void UQM_ImGui_ToggleMenu (void);

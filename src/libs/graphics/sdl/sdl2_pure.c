@@ -617,10 +617,7 @@ TFB_SDL2_Postprocess (bool hd)
 	if (GfxFlags & TFB_GFXFLAGS_SHOWFPS)
 		TFB_SDL2_FPS ();
 
-	if (menu_visible)
-		UQM_ImGui_Render ();
-	else
-		SDL_RenderPresent (renderer);
+	SDL_RenderPresent (renderer);
 }
 
 bool

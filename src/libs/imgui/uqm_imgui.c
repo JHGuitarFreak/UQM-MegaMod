@@ -20,21 +20,19 @@
 #include "libs/graphics/sdl/sdl_common.h"
 
 bool menu_visible = false;
-static bool imgui_initialized;
+static bool imgui_initialized = false;
 static TabState tab_state;
 
-static SDL_Rect old_viewport;
-static SDL_BlendMode old_blend;
 static int old_logical_w, old_logical_h;
 
-bool config_changed;
-bool mmcfg_changed;
-bool cheat_changed;
+bool config_changed = false;
+bool mmcfg_changed = false;
+bool cheat_changed = false;
 bool res_change = false;
 bool gfx_change = false;
 
-SDL_Window *imgui_window = NULL;
-SDL_Renderer *imgui_renderer = NULL;
+static SDL_Window *imgui_window = NULL;
+static SDL_Renderer *imgui_renderer = NULL;
 
 static ImFont *cached_font = NULL;
 
@@ -148,35 +146,71 @@ void UQM_ImGui_NewFrame (void)
 // ImGui implementation below
 
 // Initializes ImGui with SDL2 and SDL_Renderer2
-int UQM_ImGui_Init (SDL_Window *window, SDL_Renderer *renderer)
+static int
+UQM_ImGui_Init (SDL_Window *window)
 {
+	int game_x, game_y, game_w, game_h;
+
 	if (imgui_initialized)
 		return 1;
 
+	SDL_GetWindowPosition (window, &game_x, &game_y);
+	SDL_GetWindowSize (window, &game_w, &game_h);
+
+	imgui_window = SDL_CreateWindow (
+			"ImGui Overlay",
+			game_x, game_y, game_w, game_h,
+			SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALWAYS_ON_TOP |
+			SDL_WINDOW_SKIP_TASKBAR | SDL_WINDOW_POPUP_MENU
+	);
+
+	if (!imgui_window)
+	{
+		log_add (log_Error, "Failed to create ImGui window");
+		return 0;
+	}
+
+	SDL_SetWindowOpacity (imgui_window, 0.90f);
+
+	imgui_renderer = SDL_CreateRenderer (imgui_window, -1,
+			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	if (!imgui_renderer)
+	{
+		SDL_DestroyWindow (imgui_window);
+		return 0;
+	}
+
+	SDL_SetRenderDrawBlendMode (imgui_renderer, SDL_BLENDMODE_BLEND);
+
 	ImGui_CreateContext (NULL);
 
-	ImGui_GetIO()->IniFilename = NULL;
+	ImGui_GetIO ()->IniFilename = NULL;
 
 	ImGui_GetIO ()->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
+	if (!cImGui_ImplSDL2_InitForSDLRenderer (imgui_window, imgui_renderer))
 	{
 		log_add (log_Error, "ERROR: cImGui_ImplSDL2_InitForSDLRenderer "
 				"failed");
+		SDL_DestroyRenderer (imgui_renderer);
+		SDL_DestroyWindow (imgui_window);
 		return 0;
 	}
 
-	if (!cImGui_ImplSDLRenderer2_Init (renderer))
+	if (!cImGui_ImplSDLRenderer2_Init (imgui_renderer))
 	{
 		log_add (log_Error, "ERROR: cImGui_ImplSDLRenderer2_Init failed");
 		cImGui_ImplSDL2_Shutdown ();
+		SDL_DestroyRenderer (imgui_renderer);
+		SDL_DestroyWindow (imgui_window);
 		return 0;
 	}
 
 	ImGui_StyleColorsMyTheme (NULL);
 
-	imgui_initialized = 1;
+	imgui_initialized = true;
 	return 1;
 }
 
@@ -191,12 +225,37 @@ bool UQM_ImGui_ProcessEvent (SDL_Event *event)
 	return ProcessControlEvents (event);
 }
 
+static void
+UQM_ImGui_SyncWindow (void)
+{
+	int imgui_x, imgui_y, imgui_w, imgui_h;
+	int game_x, game_y, game_w, game_h;
+
+	if (!imgui_window || !window)
+		return;
+
+	SDL_GetWindowPosition (window, &game_x, &game_y);
+	SDL_GetWindowSize (window, &game_w, &game_h);
+
+	SDL_GetWindowPosition (imgui_window, &imgui_x, &imgui_y);
+	SDL_GetWindowSize (imgui_window, &imgui_w, &imgui_h);
+
+	if (game_w != imgui_w || game_h != imgui_h
+			|| game_x != imgui_x || game_y != imgui_y)
+	{
+		SDL_SetWindowPosition (imgui_window, game_x, game_y);
+		SDL_SetWindowSize (imgui_window, game_w, game_h);
+		SDL_RaiseWindow (imgui_window);
+	}
+}
+
 // Renders the ImGui draw data
 void UQM_ImGui_Render (void)
 {
-	ApplyResChanges (imgui_window, imgui_renderer);
-	ApplyGfxChanges (imgui_window, imgui_renderer);
+	ApplyResChanges (window, renderer);
+	ApplyGfxChanges (window, renderer);
 
+	UQM_ImGui_SyncWindow ();
 	UQM_ImGui_NewFrame ();
 
 	if (!imgui_initialized)
@@ -221,11 +280,25 @@ void UQM_ImGui_Shutdown (void)
 		gs_cache.count = 0;
 	}
 
+	cached_font = NULL;
+
 	cImGui_ImplSDLRenderer2_Shutdown ();
 	cImGui_ImplSDL2_Shutdown ();
 	ImGui_DestroyContext (NULL);
 
-	imgui_initialized = 0;
+	if (imgui_renderer)
+	{
+		SDL_DestroyRenderer (imgui_renderer);
+		imgui_renderer = NULL;
+	}
+	
+	if (imgui_window)
+	{
+		SDL_DestroyWindow (imgui_window);
+		imgui_window = NULL;
+	}
+
+	imgui_initialized = false; 
 }
 
 static void
@@ -254,33 +327,26 @@ UQM_ImGui_SetNewRenderer (SDL_Window *window)
 // Does what it says on the tin
 void UQM_ImGui_ToggleMenu (void)
 {
-	imgui_window = window;
-	imgui_renderer = renderer;
-
 	menu_visible = !menu_visible;
 
-	if (menu_visible && imgui_window && imgui_renderer)
+	if (menu_visible)
 	{
-		UQM_ImGui_SaveOldRenderer ();
-		UQM_ImGui_SetNewRenderer (imgui_window);
-
-		if (!UQM_ImGui_Init (imgui_window, imgui_renderer))
+		if (!UQM_ImGui_Init (window))
 		{
-			log_add (log_Error, "Failed to initialize ImGui menu");
+			log_add (log_Error, "Failed to initialize ImGui overlay");
 
 			menu_visible = false;
 
-			UQM_ImGui_ResetOldRenderer ();
-			SDL_RenderPresent (imgui_renderer);
 			UQM_ImGui_Shutdown ();
 			return;
 		}
+		else
+			UQM_ImGui_SyncWindow ();
 
 		revalidate_game_state_cache ();
 		return;
 	}
 
-	UQM_ImGui_ResetOldRenderer ();
 	UQM_ImGui_Shutdown ();
 }
 
@@ -294,7 +360,7 @@ UQM_ImGui_ResetMenu (SDL_Window *window, SDL_Renderer *renderer)
 	UQM_ImGui_SaveOldRenderer ();
 	UQM_ImGui_SetNewRenderer (window);
 
-	if (!UQM_ImGui_Init (window, renderer))
+	if (!UQM_ImGui_Init (window))
 	{
 		log_add (log_Error, "Failed to reinitialize ImGui menu");
 

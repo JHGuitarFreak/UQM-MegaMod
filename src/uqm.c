@@ -792,9 +792,8 @@ int main(int argc, char** argv)
 		TFB_FlushGraphics ();
 
 #if SDL_MAJOR_VERSION == 2
-		// So the ImGui menu can be toggled on during pause
 		if (menu_visible)
-			TFB_SwapBuffers (TFB_REDRAW_NO);
+			UQM_ImGui_Render ();
 #endif
 	}
 

@@ -165,12 +165,8 @@ ProcessUtilityKeys (void)
 #if SDL_MAJOR_VERSION == 2
 	if (ImmediateInputState.menu[KEY_IMGUI])
 	{
-		UQM_ImGui_ToggleMenu ();
 		FlushInput ();
-
-		// So the ImGui menu can be toggled off during pause
-		if (!menu_visible)
-			TFB_SwapBuffers (TFB_REDRAW_NO);
+		UQM_ImGui_ToggleMenu ();
 	}
 #endif
 
