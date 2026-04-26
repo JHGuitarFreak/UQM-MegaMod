@@ -16,7 +16,7 @@ set (CMAKE_C_FLAGS_DEBUG "-g -Og -Wall -DDEBUG")
 set (CMAKE_C_FLAGS_RELEASE "-O2 -s -DNDEBUG")
 set (COMMON_C_FLAGS "")
 
-set (CXX_EXTRA_FLAGS "-fno-rtti -fno-exceptions -nostdinc++")
+set (CXX_EXTRA_FLAGS "-fno-rtti" "-fno-exceptions" "-nostdinc++")
 
 set (USE_WINSOCK FALSE)
 set (IS_MINGW FALSE)
@@ -251,6 +251,7 @@ function (parse_makeinfo_with_recurse target_sources)
 	set_env_if (MACRO___MINGW32__       "1"   IS_MINGW)
 	set_env_if (uqm_USE_WINSOCK         "1"   USE_WINSOCK)
 	set_env_if (uqm_GFXMODULE           "sdl" UQM_GFX_BACKEND)
+	set_env_if (uqm_SDL_VERSION         "2"   UQM_GFX_BACKEND)
 
 	if (APPLE)
 		set (ENV{HOST_SYSTEM} "Darwin")
