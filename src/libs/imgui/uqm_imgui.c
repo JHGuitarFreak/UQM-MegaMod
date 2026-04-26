@@ -36,6 +36,8 @@ bool gfx_change = false;
 SDL_Window *imgui_window = NULL;
 SDL_Renderer *imgui_renderer = NULL;
 
+static ImFont *cached_font = NULL;
+
 static ImFont *
 GetFont (ImGuiIO *io)
 {
@@ -44,6 +46,9 @@ GetFont (ImGuiIO *io)
 	size_t base_len;
 	const char *slash;
 	ImFont *font;
+
+	if (cached_font)
+		return cached_font;
 
 	base_len = strlen (baseContentPath);
 	if (base_len > 0)
@@ -66,6 +71,8 @@ GetFont (ImGuiIO *io)
 		font_path, 18, NULL, NULL);
 
 	HFree (font_path);
+
+	cached_font = font;
 
 	return font;
 }
