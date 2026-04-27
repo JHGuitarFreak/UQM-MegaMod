@@ -208,6 +208,124 @@ DangerGradient (void)
 	return MAKE_IV4 (1, (float)c_index / (float)c_count, 0, 1);
 }
 
+static inline ImVec4
+ImLerp_Vec4 (ImVec4 a, ImVec4 b, float t)
+{
+	ImVec4 result;
+	result.x = a.x + (b.x - a.x) * t;
+	result.y = a.y + (b.y - a.y) * t;
+	result.z = a.z + (b.z - a.z) * t;
+	result.w = a.w + (b.w - a.w) * t;
+	return result;
+}
+
+static inline ImVec4
+AlfAdjust (ImVec4 vec, float t)
+{
+	ImVec4 result;
+	result = vec;
+	result.w = t;
+	return result;
+}
+#define ALPHA(vec, a) AlfAdjust(vec, a)
+
+static inline void
+UQM_ImGui_Style (void)
+{
+	ImGuiStyle *style = ImGui_GetStyle ();
+	ImVec4 *colors = style->Colors;
+
+	const ImVec4 bg_dark = MAKE_IV4 (0.06f, 0.06f, 0.06f, 1.00f);
+	const ImVec4 bg_med = MAKE_IV4 (0.16f, 0.16f, 0.16f, 1.00f);
+	const ImVec4 bg_light = MAKE_IV4 (0.26f, 0.26f, 0.26f, 1.00f);
+	const ImVec4 text = MAKE_IV4 (1.00f, 1.00f, 1.00f, 1.00f);
+	const ImVec4 text_dim = MAKE_IV4 (0.50f, 0.50f, 0.50f, 1.00f);
+	const ImVec4 white = MAKE_IV4 (1.00f, 1.00f, 1.00f, 1.00f);
+	const ImVec4 black = MAKE_IV4 (0.00f, 0.00f, 0.00f, 1.00f);
+	const ImVec4 transparent = MAKE_IV4 (0.00f, 0.00f, 0.00f, 0.00f);
+
+	colors[ImGuiCol_WindowBg] = transparent;
+	colors[ImGuiCol_ModalWindowDimBg] = ALPHA (black, 0.64f);
+	colors[ImGuiCol_ChildBg] = ALPHA (bg_dark, 0.95f);
+	colors[ImGuiCol_Border] = transparent;
+	colors[ImGuiCol_BorderShadow] = ALPHA (white, 0.06f);
+
+	colors[ImGuiCol_Text] = text;
+	colors[ImGuiCol_TextDisabled] = text_dim;
+	colors[ImGuiCol_PopupBg] = ALPHA (bg_dark, 0.95f);
+	colors[ImGuiCol_FrameBg] = ALPHA (bg_med, 0.54f);
+	colors[ImGuiCol_FrameBgHovered] = ALPHA (bg_light, 0.40f);
+	colors[ImGuiCol_FrameBgActive] = ALPHA (bg_light, 0.67f);
+	colors[ImGuiCol_TitleBg] = MAKE_IV4 (0.04f, 0.04f, 0.04f, 1.00f);
+	colors[ImGuiCol_TitleBgActive] = bg_med;
+	colors[ImGuiCol_TitleBgCollapsed] = ALPHA (black, 0.51f);
+	colors[ImGuiCol_MenuBarBg] = MAKE_IV4 (0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_ScrollbarBg] = MAKE_IV4 (0.02f, 0.02f, 0.02f, 0.53f);
+	colors[ImGuiCol_ScrollbarGrab] = MAKE_IV4 (0.31f, 0.31f, 0.31f, 1.00f);
+	colors[ImGuiCol_ScrollbarGrabHovered] = MAKE_IV4 (0.41f, 0.41f, 0.41f, 1.00f);
+	colors[ImGuiCol_ScrollbarGrabActive] = MAKE_IV4 (0.51f, 0.51f, 0.51f, 1.00f);
+	colors[ImGuiCol_CheckMark] = MAKE_IV4 (0.41f, 0.41f, 0.41f, 1.00f);
+	colors[ImGuiCol_SliderGrab] = MAKE_IV4 (0.24f, 0.24f, 0.24f, 1.00f);
+	colors[ImGuiCol_SliderGrabActive] = bg_light;
+
+	colors[ImGuiCol_Button] = ALPHA (bg_light, 0.40f);
+	colors[ImGuiCol_ButtonHovered] = bg_light;
+	colors[ImGuiCol_ButtonActive] = bg_dark;
+	colors[ImGuiCol_Header] = ALPHA (bg_light, 0.31f);
+	colors[ImGuiCol_HeaderHovered] = ALPHA (bg_light, 0.80f);
+	colors[ImGuiCol_HeaderActive] = bg_light;
+	colors[ImGuiCol_Separator] = colors[ImGuiCol_FrameBgActive];
+	colors[ImGuiCol_SeparatorHovered] = MAKE_IV4 (0.10f, 0.10f, 0.10f, 0.78f);
+	colors[ImGuiCol_SeparatorActive] = MAKE_IV4 (0.10f, 0.10f, 0.10f, 1.00f);
+
+	colors[ImGuiCol_ResizeGrip] = ALPHA (bg_light, 0.20f);
+	colors[ImGuiCol_ResizeGripHovered] = ALPHA (bg_light, 0.67f);
+	colors[ImGuiCol_ResizeGripActive] = ALPHA (bg_light, 0.95f);
+	colors[ImGuiCol_InputTextCursor] = colors[ImGuiCol_Text];
+	colors[ImGuiCol_TabHovered] = colors[ImGuiCol_FrameBgHovered];
+	colors[ImGuiCol_Tab] = colors[ImGuiCol_FrameBg];
+	colors[ImGuiCol_TabSelected] = colors[ImGuiCol_FrameBgActive];
+	colors[ImGuiCol_TabSelectedOverline] = colors[ImGuiCol_HeaderActive];
+	colors[ImGuiCol_TabDimmed] = ImLerp_Vec4 (colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
+	colors[ImGuiCol_TabDimmedSelected] = ImLerp_Vec4 (colors[ImGuiCol_TabSelected], colors[ImGuiCol_TitleBg], 0.40f);
+	colors[ImGuiCol_TabDimmedSelectedOverline] = transparent;
+
+	colors[ImGuiCol_PlotLines] = MAKE_IV4 (0.61f, 0.61f, 0.61f, 1.00f);
+	colors[ImGuiCol_PlotLinesHovered] = MAKE_IV4 (1.00f, 0.43f, 0.35f, 1.00f);
+	colors[ImGuiCol_PlotHistogram] = ALPHA (bg_light, 0.40f);
+	colors[ImGuiCol_PlotHistogramHovered] = bg_light;
+	colors[ImGuiCol_TableHeaderBg] = MAKE_IV4 (0.19f, 0.19f, 0.19f, 1.00f);
+	colors[ImGuiCol_TableBorderStrong] = MAKE_IV4 (0.31f, 0.31f, 0.31f, 1.00f);
+	colors[ImGuiCol_TableBorderLight] = MAKE_IV4 (0.23f, 0.23f, 0.23f, 1.00f);
+	colors[ImGuiCol_TableRowBg] = ALPHA (black, 0.00f);
+	colors[ImGuiCol_TableRowBgAlt] = ALPHA (white, 0.06f);
+	colors[ImGuiCol_TextLink] = colors[ImGuiCol_HeaderActive];
+	colors[ImGuiCol_TextSelectedBg] = ALPHA (bg_light, 0.75f);
+	colors[ImGuiCol_TreeLines] = colors[ImGuiCol_Border];
+	colors[ImGuiCol_DragDropTarget] = MAKE_IV4 (1.00f, 1.00f, 0.00f, 0.90f);
+	colors[ImGuiCol_DragDropTargetBg] = ALPHA (black, 0.00f);
+	colors[ImGuiCol_UnsavedMarker] = white;
+	colors[ImGuiCol_NavCursor] = MAKE_IV4 (1.0f, 0.0f, 0.50f, 1.00f);
+	colors[ImGuiCol_NavWindowingHighlight] = ALPHA (white, 0.70f);
+	colors[ImGuiCol_NavWindowingDimBg] = ALPHA (black, 0.64f);
+
+	style->WindowBorderSize = 1;
+	style->ChildBorderSize = 1;
+	style->PopupBorderSize = 1;
+	style->FrameBorderSize = 1;
+	style->TabBorderSize = 0;
+	style->WindowRounding = 6;
+	style->ChildRounding = 4;
+	style->FrameRounding = 3;
+	style->PopupRounding = 4;
+	style->ScrollbarRounding = 9;
+	style->GrabRounding = 3;
+	style->LogSliderDeadzone = 4;
+	style->TabRounding = 4;
+	style->SelectablesRounding = 4;
+	style->TabBarBorderSize = 4;
+}
+
 #ifdef __cplusplus
 }
 #endif

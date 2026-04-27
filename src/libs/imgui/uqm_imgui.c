@@ -92,7 +92,7 @@ static void ShowFullScreenMenu (TabState *state)
 		SDL_StopTextInput ();
 
 #define FSM_FLAGS ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | \
-			ImGuiWindowFlags_NoResize
+			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground
 
 	if (!ImGui_Begin ("##FullScreenMenu", NULL, FSM_FLAGS))
 	{
@@ -181,7 +181,6 @@ UQM_ImGui_Init (SDL_Window *window)
 		return 0;
 	}
 
-	SDL_SetRenderDrawBlendMode (imgui_renderer, SDL_BLENDMODE_BLEND);
 
 	ImGui_CreateContext (NULL);
 
@@ -208,7 +207,7 @@ UQM_ImGui_Init (SDL_Window *window)
 		return 0;
 	}
 
-	ImGui_StyleColorsMyTheme (NULL);
+	UQM_ImGui_Style ();
 
 	imgui_initialized = true;
 	return 1;
