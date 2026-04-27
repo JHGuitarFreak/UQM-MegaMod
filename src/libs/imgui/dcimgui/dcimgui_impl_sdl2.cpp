@@ -155,7 +155,7 @@ CIMGUI_IMPL_API void cimgui::cImGui_ImplSDL2_SetGamepadMode(cimgui::ImGui_ImplSD
     ::ImGui_ImplSDL2_SetGamepadMode(static_cast<::ImGui_ImplSDL2_GamepadMode>(mode));
 }
 
-CIMGUI_IMPL_API void cimgui::cImGui_ImplSDL2_SetGamepadModeEx(cimgui::ImGui_ImplSDL2_GamepadMode mode, struct cimgui::_SDL_GameController** manual_gamepads_array, int manual_gamepads_count)
+CIMGUI_IMPL_API void cimgui::cImGui_ImplSDL2_SetGamepadModeEx(cimgui::ImGui_ImplSDL2_GamepadMode mode, cimgui::_SDL_GameController** manual_gamepads_array, int manual_gamepads_count)
 {
     ::ImGui_ImplSDL2_SetGamepadMode(static_cast<::ImGui_ImplSDL2_GamepadMode>(mode), reinterpret_cast<struct ::_SDL_GameController**>(manual_gamepads_array), manual_gamepads_count);
 }
