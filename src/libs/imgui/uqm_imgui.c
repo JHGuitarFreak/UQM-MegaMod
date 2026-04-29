@@ -301,29 +301,6 @@ void UQM_ImGui_Shutdown (void)
 	imgui_initialized = false; 
 }
 
-static void
-UQM_ImGui_SaveOldRenderer ()
-{
-	SDL_RenderGetLogicalSize (renderer, &old_logical_w, &old_logical_h);
-}
-
-static void
-UQM_ImGui_ResetOldRenderer ()
-{
-	TFB_ReInitGraphics (GraphicsDriver, GfxFlags, old_logical_w,
-			old_logical_h, &resolutionFactor, &optWindowType);
-}
-
-static void
-UQM_ImGui_SetNewRenderer (SDL_Window *window)
-{
-	int window_w, window_h;
-
-	SDL_GetWindowSize (window, &window_w, &window_h);
-	TFB_ReInitGraphics (GraphicsDriver, GfxFlags, window_w, window_h,
-			&resolutionFactor, &optWindowType);
-}
-
 // Does what it says on the tin
 void UQM_ImGui_ToggleMenu (void)
 {
@@ -357,16 +334,12 @@ UQM_ImGui_ResetMenu (SDL_Window *window, SDL_Renderer *renderer)
 
 	menu_visible = true;
 
-	UQM_ImGui_SaveOldRenderer ();
-	UQM_ImGui_SetNewRenderer (window);
-
 	if (!UQM_ImGui_Init (window))
 	{
 		log_add (log_Error, "Failed to reinitialize ImGui menu");
 
 		menu_visible = false;
 
-		UQM_ImGui_ResetOldRenderer ();
 		SDL_RenderPresent (renderer);
 		UQM_ImGui_Shutdown ();
 		return;
@@ -379,7 +352,6 @@ void
 ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 {
 	BOOLEAN isExclusive;
-	bool was_visible;
 	int NewGfxFlags;
 	int NewWidth = imgui_SavedWidth;
 	int NewHeight = imgui_SavedHeight;
@@ -398,14 +370,6 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 	SavedHeight = NewHeight;
 
 	isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
-
-	was_visible = menu_visible;
-	if (was_visible)
-	{
-		UQM_ImGui_ResetOldRenderer ();
-		UQM_ImGui_Shutdown ();
-		menu_visible = false;
-	}
 
 	if (optKeepAspectRatio)
 	{
@@ -426,11 +390,6 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				NewWidth, NewHeight);
 	}
-	else if (was_visible)
-	{
-		UQM_ImGui_ResetMenu (window, renderer);
-		return;
-	}
 
 	if (NewGfxFlags != GfxFlags)
 		GfxFlags = NewGfxFlags;
@@ -442,9 +401,6 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				WindowWidth, WindowHeight);
 	}
-
-	if (was_visible)
-		UQM_ImGui_ResetMenu (window, renderer);
 
 	old_logical_w = SavedWidth;
 	old_logical_h = SavedHeight;
@@ -461,7 +417,6 @@ void
 ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 {
 	BOOLEAN isExclusive;
-	bool was_visible;
 	int NewGfxFlags;
 
 	if (!window || !renderer || !gfx_change)
@@ -473,14 +428,6 @@ ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 
 	isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
 
-	was_visible = menu_visible;
-	if (was_visible)
-	{
-		UQM_ImGui_ResetOldRenderer ();
-		UQM_ImGui_Shutdown ();
-		menu_visible = false;
-	}
-
 	if (NewGfxFlags != GfxFlags)
 	{
 		if (isExclusive)
@@ -488,11 +435,6 @@ ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, NewGfxFlags,
 				WindowWidth, WindowHeight);
-	}
-	else if (was_visible)
-	{
-		UQM_ImGui_ResetMenu (window, renderer);
-		return;
 	}
 
 	if (NewGfxFlags != GfxFlags)
@@ -505,9 +447,6 @@ ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				WindowWidth, WindowHeight);
 	}
-
-	if (was_visible)
-		UQM_ImGui_ResetMenu (window, renderer);
 
 	res_PutBoolean ("config.scanlines", GfxFlags & TFB_GFXFLAGS_SCANLINES);
 	res_PutBoolean ("config.showfps", GfxFlags & TFB_GFXFLAGS_SHOWFPS);
