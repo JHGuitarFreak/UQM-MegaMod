@@ -124,7 +124,7 @@ void draw_adv_menu (void)
 			{
 				ImGui_TextWrappedColored (IV4_RED_COLOR,
 						"WARNING! When changing Seed Type in-game make "
-						"sure to do so while it HyperSpace!");
+						"sure to do so while in HyperSpace!");
 				ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
 						"ADDENDUM: Switching to and from MRQ or StarSeed "
 						"only works when changing in the Main Menu and "
@@ -168,7 +168,7 @@ void draw_adv_menu (void)
 			{
 				ImGui_TextWrappedColored (IV4_RED_COLOR,
 					"WARNING! When changing seed in-game make sure to do "
-					"it while it HyperSpace!");
+					"it while in HyperSpace!");
 				ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
 					"ADDENDUM: Changing seeds with MRQ or StarSeed "
 					"enabled only works when changing in the Main Menu "
