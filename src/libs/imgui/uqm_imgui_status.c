@@ -574,7 +574,14 @@ void draw_status_menu (void)
 
 
 				if (gun_slots)
-					ImGui_PushStyleColor (ImGuiCol_FrameBg, U32_GUN_SLOT_COLOR);
+				{
+					ImGui_PushStyleColor (ImGuiCol_FrameBg, U32_FRAMEBG_GS);
+					ImGui_PushStyleColor (ImGuiCol_FrameBgHovered, U32_FRAMEBG_HOV_GS);
+					ImGui_PushStyleColor (ImGuiCol_FrameBgActive, U32_FRAMEBG_ACT_GS);
+					ImGui_PushStyleColor (ImGuiCol_Button, U32_BUTTON_GS);
+					ImGui_PushStyleColor (ImGuiCol_ButtonHovered, U32_BUTTON_HOV_GS);
+					ImGui_PushStyleColor (ImGuiCol_ButtonActive, U32_BUTTON_ACT_GS);
+				}
 
 				snprintf (buf, sizeof buf, "##module%d", i);
 				if (ImGui_ComboChar (buf, &ModuleSlot, ship_modules, 18))
@@ -589,7 +596,7 @@ void draw_status_menu (void)
 				}
 
 				if (gun_slots)
-					ImGui_PopStyleColor ();
+					ImGui_PopStyleColorEx (6);
 			}
 		}
 

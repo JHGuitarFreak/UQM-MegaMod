@@ -181,12 +181,19 @@ void ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
 // Colors
 #define STYLE_COLOR(a) ImGui_GetColorU32 (a)
 
-#define IV4_RED_COLOR ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
+#define IV4_RED_COLOR    ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
 #define IV4_YELLOW_COLOR ((ImVec4){ 1.0f, 1.0f, 0.0f, 1.0f })
 
-#define U32_RED_COLOR IM_COL32 (0xFF, 0x00, 0x00, 0xAF)
-#define U32_GREEN_COLOR IM_COL32 (0x00, 0xFF, 0x00, 0xAF)
-#define U32_GUN_SLOT_COLOR IM_COL32 (0x4F, 0x4F, 0x4F, 0x8A)
+#define U32_RED_COLOR   0xAF0000FF
+#define U32_GREEN_COLOR 0xAF00FF00
+
+#define U32_FRAMEBG_GS     0x8A464646
+#define U32_FRAMEBG_HOV_GS 0x66898989
+#define U32_FRAMEBG_ACT_GS 0xAB898989
+
+#define U32_BUTTON_GS     0x66898989
+#define U32_BUTTON_HOV_GS 0xFF898989
+#define U32_BUTTON_ACT_GS 0xFF404040
 
 static inline ImVec4
 DangerGradient (void)
@@ -235,79 +242,17 @@ UQM_ImGui_Style (void)
 	ImGuiStyle *style = ImGui_GetStyle ();
 	ImVec4 *colors = style->Colors;
 
-	const ImVec4 bg_dark = MAKE_IV4 (0.06f, 0.06f, 0.06f, 1.00f);
-	const ImVec4 bg_med = MAKE_IV4 (0.16f, 0.16f, 0.16f, 1.00f);
-	const ImVec4 bg_light = MAKE_IV4 (0.26f, 0.26f, 0.26f, 1.00f);
-	const ImVec4 text = MAKE_IV4 (1.00f, 1.00f, 1.00f, 1.00f);
-	const ImVec4 text_dim = MAKE_IV4 (0.50f, 0.50f, 0.50f, 1.00f);
-	const ImVec4 white = MAKE_IV4 (1.00f, 1.00f, 1.00f, 1.00f);
-	const ImVec4 black = MAKE_IV4 (0.00f, 0.00f, 0.00f, 1.00f);
-	const ImVec4 transparent = MAKE_IV4 (0.00f, 0.00f, 0.00f, 0.00f);
+	const ImVec4 transparent = { 0 };
+
+	ImGui_StyleColorsDark (NULL);
 
 	colors[ImGuiCol_WindowBg] = transparent;
-	colors[ImGuiCol_ModalWindowDimBg] = ALPHA (black, 0.64f);
-	colors[ImGuiCol_ChildBg] = ALPHA (bg_dark, 0.95f);
+	colors[ImGuiCol_ModalWindowDimBg] = MAKE_IV4 (0, 0, 0, 0.64f);
+	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.95f);
 	colors[ImGuiCol_Border] = transparent;
-	colors[ImGuiCol_BorderShadow] = ALPHA (white, 0.06f);
+	colors[ImGuiCol_BorderShadow] = MAKE_IV4 (1.00f, 1.00f, 1.00f, 0.06f);
 
-	colors[ImGuiCol_Text] = text;
-	colors[ImGuiCol_TextDisabled] = text_dim;
-	colors[ImGuiCol_PopupBg] = ALPHA (bg_dark, 0.95f);
-	colors[ImGuiCol_FrameBg] = ALPHA (bg_med, 0.54f);
-	colors[ImGuiCol_FrameBgHovered] = ALPHA (bg_light, 0.40f);
-	colors[ImGuiCol_FrameBgActive] = ALPHA (bg_light, 0.67f);
-	colors[ImGuiCol_TitleBg] = MAKE_IV4 (0.04f, 0.04f, 0.04f, 1.00f);
-	colors[ImGuiCol_TitleBgActive] = bg_med;
-	colors[ImGuiCol_TitleBgCollapsed] = ALPHA (black, 0.51f);
-	colors[ImGuiCol_MenuBarBg] = MAKE_IV4 (0.14f, 0.14f, 0.14f, 1.00f);
-	colors[ImGuiCol_ScrollbarBg] = MAKE_IV4 (0.02f, 0.02f, 0.02f, 0.53f);
-	colors[ImGuiCol_ScrollbarGrab] = MAKE_IV4 (0.31f, 0.31f, 0.31f, 1.00f);
-	colors[ImGuiCol_ScrollbarGrabHovered] = MAKE_IV4 (0.41f, 0.41f, 0.41f, 1.00f);
-	colors[ImGuiCol_ScrollbarGrabActive] = MAKE_IV4 (0.51f, 0.51f, 0.51f, 1.00f);
-	colors[ImGuiCol_CheckMark] = MAKE_IV4 (0.41f, 0.41f, 0.41f, 1.00f);
-	colors[ImGuiCol_SliderGrab] = MAKE_IV4 (0.24f, 0.24f, 0.24f, 1.00f);
-	colors[ImGuiCol_SliderGrabActive] = bg_light;
-
-	colors[ImGuiCol_Button] = ALPHA (bg_light, 0.40f);
-	colors[ImGuiCol_ButtonHovered] = bg_light;
-	colors[ImGuiCol_ButtonActive] = bg_dark;
-	colors[ImGuiCol_Header] = ALPHA (bg_light, 0.31f);
-	colors[ImGuiCol_HeaderHovered] = ALPHA (bg_light, 0.80f);
-	colors[ImGuiCol_HeaderActive] = bg_light;
-	colors[ImGuiCol_Separator] = colors[ImGuiCol_FrameBgActive];
-	colors[ImGuiCol_SeparatorHovered] = MAKE_IV4 (0.10f, 0.10f, 0.10f, 0.78f);
-	colors[ImGuiCol_SeparatorActive] = MAKE_IV4 (0.10f, 0.10f, 0.10f, 1.00f);
-
-	colors[ImGuiCol_ResizeGrip] = ALPHA (bg_light, 0.20f);
-	colors[ImGuiCol_ResizeGripHovered] = ALPHA (bg_light, 0.67f);
-	colors[ImGuiCol_ResizeGripActive] = ALPHA (bg_light, 0.95f);
-	colors[ImGuiCol_InputTextCursor] = colors[ImGuiCol_Text];
-	colors[ImGuiCol_TabHovered] = colors[ImGuiCol_FrameBgHovered];
-	colors[ImGuiCol_Tab] = colors[ImGuiCol_FrameBg];
-	colors[ImGuiCol_TabSelected] = colors[ImGuiCol_FrameBgActive];
-	colors[ImGuiCol_TabSelectedOverline] = colors[ImGuiCol_HeaderActive];
-	colors[ImGuiCol_TabDimmed] = ImLerp_Vec4 (colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
-	colors[ImGuiCol_TabDimmedSelected] = ImLerp_Vec4 (colors[ImGuiCol_TabSelected], colors[ImGuiCol_TitleBg], 0.40f);
-	colors[ImGuiCol_TabDimmedSelectedOverline] = transparent;
-
-	colors[ImGuiCol_PlotLines] = MAKE_IV4 (0.61f, 0.61f, 0.61f, 1.00f);
-	colors[ImGuiCol_PlotLinesHovered] = MAKE_IV4 (1.00f, 0.43f, 0.35f, 1.00f);
-	colors[ImGuiCol_PlotHistogram] = ALPHA (bg_light, 0.40f);
-	colors[ImGuiCol_PlotHistogramHovered] = bg_light;
-	colors[ImGuiCol_TableHeaderBg] = MAKE_IV4 (0.19f, 0.19f, 0.19f, 1.00f);
-	colors[ImGuiCol_TableBorderStrong] = MAKE_IV4 (0.31f, 0.31f, 0.31f, 1.00f);
-	colors[ImGuiCol_TableBorderLight] = MAKE_IV4 (0.23f, 0.23f, 0.23f, 1.00f);
-	colors[ImGuiCol_TableRowBg] = ALPHA (black, 0.00f);
-	colors[ImGuiCol_TableRowBgAlt] = ALPHA (white, 0.06f);
-	colors[ImGuiCol_TextLink] = colors[ImGuiCol_HeaderActive];
-	colors[ImGuiCol_TextSelectedBg] = ALPHA (bg_light, 0.75f);
-	colors[ImGuiCol_TreeLines] = colors[ImGuiCol_Border];
-	colors[ImGuiCol_DragDropTarget] = MAKE_IV4 (1.00f, 1.00f, 0.00f, 0.90f);
-	colors[ImGuiCol_DragDropTargetBg] = ALPHA (black, 0.00f);
-	colors[ImGuiCol_UnsavedMarker] = white;
-	colors[ImGuiCol_NavCursor] = MAKE_IV4 (1.0f, 0.0f, 0.50f, 1.00f);
-	colors[ImGuiCol_NavWindowingHighlight] = ALPHA (white, 0.70f);
-	colors[ImGuiCol_NavWindowingDimBg] = ALPHA (black, 0.64f);
+	colors[ImGuiCol_PlotHistogram] = MAKE_IV4 (0.48f, 0.48f, 0.48f, 0.54f);
 
 	style->WindowBorderSize = 1;
 	style->ChildBorderSize = 1;
