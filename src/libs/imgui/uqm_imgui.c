@@ -498,7 +498,7 @@ ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 }
 
 void
-ApplyScrRefresh (void) 
+ApplyScrRefresh (void)
 {
 	POINT Log;
 
@@ -506,41 +506,6 @@ ApplyScrRefresh (void)
 		return;
 
 	scr_refresh = false;
-
-	Log = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-		LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
-
-	// TODO: find a better way to do this, perhaps set the titles
-	// forward from callers.
-	if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) == (BYTE)~0
-		&& GET_GAME_STATE (STARBASE_AVAILABLE))
-	{	// Talking to allied Starbase
-		DrawSISMessage (GAME_STRING (STARBASE_STRING_BASE + 1));
-		// "Starbase Commander"
-		DrawSISTitle (GAME_STRING (STARBASE_STRING_BASE + 0));
-		// "Starbase"
-	}
-	else
-	{	// Default titles: star name + planet name
-		DrawSISMessage (NULL);
-		// DrawSISTitle (GLOBAL_SIS (PlanetName));
-
-		if (inHQSpace ())
-		{
-			DrawHyperCoords (GLOBAL (ShipStamp.origin));
-			if (GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1
-				&& GET_GAME_STATE (ARILOU_HOME_VISITS)
-				&& (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y))
-			{
-				DrawSISMessage (GLOBAL_SIS (PlanetName));
-			}
-
-		}
-		else if (GLOBAL (ip_planet) == 0)
-			DrawHyperCoords (CurStarDescPtr->star_pt);
-		else
-			DrawSISTitle (GLOBAL_SIS (PlanetName));
-	}
 
 	DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 

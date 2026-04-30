@@ -481,6 +481,53 @@ void draw_status_menu (void)
 			ImGui_EndDisabled ();
 		}
 
+		//Current Location
+		{
+			char buf[256];
+
+			switch (LOBYTE (GLOBAL (CurrentActivity)))
+			{
+			default:
+			case IN_ENCOUNTER:
+				buf[0] = '\0';
+				break;
+			case IN_LAST_BATTLE:
+			case IN_INTERPLANETARY:
+				GetClusterName (CurStarDescPtr, buf);
+				break;
+			case IN_HYPERSPACE:
+				if (GET_CGAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+				{
+					snprintf (buf, sizeof buf, "%s",
+							GAME_STRING (NAVIGATION_STRING_BASE));
+					// "HyperSpace"
+				}
+				else
+				{
+					POINT Log = MAKE_POINT (
+						LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+						LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
+
+					snprintf (buf, sizeof buf, "%s",
+							GAME_STRING (NAVIGATION_STRING_BASE + 1));
+					// "QuasiSpace"
+
+					if (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y)
+					{
+						snprintf (buf, sizeof buf, "%s",
+								GAME_STRING (STAR_STRING_BASE + 148));
+						// "Falayalaralfali"
+					}
+				}
+				break;
+			}
+
+			ImGui_Text ("Location:");
+			ImGui_BeginDisabled (true);
+			ImGui_InputText ("##Location", buf, sizeof (buf), 0);
+			ImGui_EndDisabled ();
+		}
+
 		// Captain's Name
 		{
 			char CaptainsName[SIS_NAME_SIZE];
