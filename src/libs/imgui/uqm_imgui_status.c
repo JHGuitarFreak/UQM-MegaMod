@@ -27,10 +27,37 @@ static int collapse_module;
 static int collapse_alien;
 static int collapse_flagship;
 
+static BYTE cached_drive_slots[NUM_DRIVE_SLOTS];
+static BYTE cached_jet_slots[NUM_JET_SLOTS];
+static BYTE cached_module_slots[NUM_MODULE_SLOTS];
+bool slots_cached = false;
+
 #define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
 		| ImGuiChildFlags_AlwaysUseWindowPadding
 
-#define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_PadOuterX
+#define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame | \
+					ImGuiTableFlags_PadOuterX
+
+enum
+{
+	CACHE_SLOTS = 0,
+	APPLY_SLOTS = 1
+};
+
+static void module_cache (BOOLEAN apply)
+{
+	if (apply)
+	{
+		memcpy (GLOBAL_SIS (DriveSlots), cached_drive_slots, NUM_DRIVE_SLOTS);
+		memcpy (GLOBAL_SIS (JetSlots), cached_jet_slots, NUM_JET_SLOTS);
+		memcpy (GLOBAL_SIS (ModuleSlots), cached_module_slots, NUM_MODULE_SLOTS);
+		return;
+	}
+
+	memcpy (cached_drive_slots, GLOBAL_SIS (DriveSlots), NUM_DRIVE_SLOTS);
+	memcpy (cached_jet_slots, GLOBAL_SIS (JetSlots), NUM_JET_SLOTS);
+	memcpy (cached_module_slots, GLOBAL_SIS (ModuleSlots), NUM_MODULE_SLOTS);
+}
 
 void draw_status_menu (void)
 {
@@ -436,6 +463,24 @@ void draw_status_menu (void)
 
 		ImGui_SeparatorText ("Flagship Status");
 
+		// Current Coordinates
+		{
+			POINT universe;
+			char buf[SIS_NAME_SIZE];
+
+			universe = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
+
+			snprintf (buf, sizeof buf, "%03u.%01u : %03u.%01u",
+				universe.x / 10, universe.x % 10,
+				universe.y / 10, universe.y % 10);
+
+			ImGui_Text ("Coordinates:");
+			ImGui_BeginDisabled (true);
+			ImGui_InputText ("##Coordinates", buf, sizeof (buf), 0);
+			ImGui_EndDisabled ();
+		}
+
 		// Captain's Name
 		{
 			char CaptainsName[SIS_NAME_SIZE];
@@ -452,6 +497,8 @@ void draw_status_menu (void)
 				snprintf (GLOBAL_SIS (CommanderName),
 					sizeof (GLOBAL_SIS (CommanderName)),
 					"%s", CaptainsName);
+
+				scr_refresh = true;
 			}
 		}
 
@@ -470,6 +517,8 @@ void draw_status_menu (void)
 				snprintf (GLOBAL_SIS (ShipName),
 					sizeof (GLOBAL_SIS (ShipName)),
 					"%s", SISName);
+
+				scr_refresh = true;
 			}
 		}
 
@@ -499,12 +548,20 @@ void draw_status_menu (void)
 					CurrentFuel = volume;
 
 				GLOBAL_SIS (FuelOnBoard) = CurrentFuel;
+
+				scr_refresh = true;
 			}
 		}
 
 		Spacer ();
 
 		// Ship Modules
+		if (!slots_cached)
+		{
+			module_cache (CACHE_SLOTS);
+			slots_cached = true;
+		}
+
 		for (i = num_m_slots-1; i >= 0; i--)
 		{
 			char buf[40];
@@ -513,17 +570,17 @@ void draw_status_menu (void)
 
 			if (i < jt_begin && t_index >= 0)
 			{
-				bool DriveSlot = GLOBAL_SIS (DriveSlots[t_index]) == 1;
+				bool DriveSlot = cached_drive_slots[t_index] == 1;
 
 				ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_RED_COLOR);
 
 				snprintf (buf, sizeof buf, "##thruster%d", t_index);
-				ImGui_Checkbox (buf, &DriveSlot);
+				if (ImGui_Checkbox (buf, &DriveSlot))
 				{
-					if (DriveSlot == true)
-						GLOBAL_SIS (DriveSlots[t_index]) = FUSION_THRUSTER;
-					else
-						GLOBAL_SIS (DriveSlots[t_index]) = EMPTY_SLOT + 0;
+					cached_drive_slots[t_index] =
+							DriveSlot ? FUSION_THRUSTER : (EMPTY_SLOT + 0);
+					module_cache (APPLY_SLOTS);
+					scr_refresh = true;
 				}
 
 				ImGui_PopStyleColor ();
@@ -538,18 +595,17 @@ void draw_status_menu (void)
 
 			if (i < jt_begin && j_index >= 0)
 			{
-				bool JetSlot =
-						GLOBAL_SIS (JetSlots[j_index]) == 2;
+				bool JetSlot = cached_jet_slots[j_index] == 2;
 
 				ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_GREEN_COLOR);
 
 				snprintf (buf, sizeof buf, "##jet%d", j_index);
 				if (ImGui_Checkbox (buf, &JetSlot))
 				{
-					if (JetSlot == true)
-						GLOBAL_SIS (JetSlots[j_index]) = TURNING_JETS;
-					else
-						GLOBAL_SIS (JetSlots[j_index]) = EMPTY_SLOT + 1;
+					cached_jet_slots[j_index] =
+							JetSlot ? TURNING_JETS : (EMPTY_SLOT + 1);
+					module_cache (APPLY_SLOTS);
+					scr_refresh = true;
 				}
 
 				ImGui_PopStyleColor ();
@@ -564,14 +620,12 @@ void draw_status_menu (void)
 
 			{
 				bool gun_slots = i < 2 || i > 12;
-
-				int ModuleSlot = GLOBAL_SIS (ModuleSlots[i]);
+				int ModuleSlot = cached_module_slots[i];
 
 				if (ModuleSlot == EMPTY_SLOT + 2)
 					ModuleSlot = 0;
 				else
 					ModuleSlot -= TURNING_JETS;
-
 
 				if (gun_slots)
 				{
@@ -586,13 +640,10 @@ void draw_status_menu (void)
 				snprintf (buf, sizeof buf, "##module%d", i);
 				if (ImGui_ComboChar (buf, &ModuleSlot, ship_modules, 18))
 				{
-					if (ModuleSlot > 0)
-					{
-						GLOBAL_SIS (ModuleSlots[i]) =
-								ModuleSlot + TURNING_JETS;
-					}
-					else
-						GLOBAL_SIS (ModuleSlots[i]) = EMPTY_SLOT + 2;
+					cached_module_slots[i] = ModuleSlot > 0 ?
+							ModuleSlot + TURNING_JETS : (EMPTY_SLOT + 2);
+					module_cache (APPLY_SLOTS);
+					scr_refresh = true;
 				}
 
 				if (gun_slots)
@@ -617,6 +668,8 @@ void draw_status_menu (void)
 					CurrentCrew = volume;
 
 				GLOBAL_SIS (CrewEnlisted) = CurrentCrew;
+
+				scr_refresh = true;
 			}
 		}
 

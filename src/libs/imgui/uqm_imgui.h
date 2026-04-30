@@ -35,6 +35,10 @@
 #include "libs/input/sdl/keynames.h"
 #include "libs/input/input_common.h"
 #include "uqm/controls.h"
+#include "uqm/gamestr.h"
+#include "uqm/hyper.h"
+#include "uqm/starmap.h"
+#include "uqm/sis.h"
 
 #include <SDL.h>
 
@@ -91,6 +95,7 @@ void UQM_ImGui_ToggleMenu (void);
 int UQM_ImGui_WantCaptureInput (void);
 void ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer);
 void ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer);
+void ApplyScrRefresh (void);
 
 // ImGui Graphics
 extern int imgui_GfxFlags;
@@ -98,6 +103,11 @@ extern int imgui_SavedWidth;
 extern int imgui_SavedHeight;
 extern bool res_change;
 extern bool gfx_change;
+
+//ImGui Status
+extern bool scr_refresh;
+extern bool slots_cached;
+
 
 // ImGui Tabs
 typedef struct
@@ -215,27 +225,6 @@ DangerGradient (void)
 	return MAKE_IV4 (1, (float)c_index / (float)c_count, 0, 1);
 }
 
-static inline ImVec4
-ImLerp_Vec4 (ImVec4 a, ImVec4 b, float t)
-{
-	ImVec4 result;
-	result.x = a.x + (b.x - a.x) * t;
-	result.y = a.y + (b.y - a.y) * t;
-	result.z = a.z + (b.z - a.z) * t;
-	result.w = a.w + (b.w - a.w) * t;
-	return result;
-}
-
-static inline ImVec4
-AlfAdjust (ImVec4 vec, float t)
-{
-	ImVec4 result;
-	result = vec;
-	result.w = t;
-	return result;
-}
-#define ALPHA(vec, a) AlfAdjust(vec, a)
-
 static inline void
 UQM_ImGui_Style (void)
 {
@@ -248,7 +237,7 @@ UQM_ImGui_Style (void)
 
 	colors[ImGuiCol_WindowBg] = transparent;
 	colors[ImGuiCol_ModalWindowDimBg] = MAKE_IV4 (0, 0, 0, 0.64f);
-	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.95f);
+	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.5f);
 	colors[ImGuiCol_Border] = transparent;
 	colors[ImGuiCol_BorderShadow] = MAKE_IV4 (1.00f, 1.00f, 1.00f, 0.06f);
 

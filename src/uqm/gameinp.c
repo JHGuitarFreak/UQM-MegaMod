@@ -38,6 +38,7 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 #include "gameopt.h"
+#include "libs/imgui/uqm_imgui.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
@@ -306,6 +307,10 @@ UpdateInputState (void)
 	if (PulsedInputState.menu[KEY_DEBUG_4])
 		debugKey4PressedSynchronous ();
 #endif
+
+	{
+		ApplyScrRefresh ();
+	}
 }
 
 InputFrameCallback *
