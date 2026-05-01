@@ -31,6 +31,8 @@ static BYTE cached_drive_slots[NUM_DRIVE_SLOTS];
 static BYTE cached_jet_slots[NUM_JET_SLOTS];
 static BYTE cached_module_slots[NUM_MODULE_SLOTS];
 bool slots_cached = false;
+static int cached_landers;
+bool landers_cached = false;
 
 #define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
 		| ImGuiChildFlags_AlwaysUseWindowPadding
@@ -566,6 +568,26 @@ void draw_status_menu (void)
 					"%s", SISName);
 
 				scr_refresh = true;
+			}
+		}
+
+		// Landers
+		{
+			if (!landers_cached)
+			{
+				cached_landers = GLOBAL_SIS (NumLanders);
+				landers_cached = true;
+			}
+
+			ImGui_Text ("Landers:");
+			ImGui_InputInt ("##Landers", &cached_landers);
+			if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& cached_landers <= MAX_LANDERS && cached_landers >= 0)
+			{
+				GLOBAL_SIS (NumLanders) = cached_landers;
+
+				scr_refresh = true;
+				landers_cached = false;
 			}
 		}
 
