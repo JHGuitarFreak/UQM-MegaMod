@@ -36,7 +36,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 			{"Graphics", "PC / 3DO", "Audio", "Controls", "Advanced", "Status"},
 			{"Quality of Life", "Visuals", "Difficulty", "Cheats", NULL, NULL},
 			{"Seed Settings", "Enhancements", NULL, NULL, NULL, NULL},
-			{"General", "Stats", "Console", "Save Editor", NULL, NULL}
+			{"General", "Stats", "Save Editor", NULL, NULL, NULL}
 	};
 
 	int *active_subtab[] =
@@ -81,7 +81,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_Spacing ();
 
-	//ImGui_HorizontalSeparator ("##NavBarSeparator");
+	ImGui_HorizontalSeparator ("##NavBarSeparator");
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
@@ -128,12 +128,12 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_EndChild ();
 	// Sidebar Ends
 
-	//ImGui_SameLine ();
+	ImGui_SameLine ();
 
-	//ImGui_PushStyleColor (ImGuiCol_ChildBg, 0x00000000);
-	//ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
-	//ImGui_EndChild ();
-	//ImGui_PopStyleColor ();
+	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
+	ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
+	ImGui_EndChild ();
+	ImGui_PopStyleColor ();
 
 	ImGui_SameLine ();
 
@@ -172,10 +172,9 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		case 3:
 			switch (*active_subtab[active_tab])
 			{
-				case 0: ImGui_Text ("General Dev Tools"); break;
+				case 0: ImGui_Text ("Dev Tools"); break;
 				case 1: ImGui_Text ("Statistics"); break;
-				case 2: ImGui_Text ("Console"); break;
-				case 3: ImGui_Text ("Save Editor"); break;
+				case 2: ImGui_Text ("Save Editor"); break;
 			}
 			break;
 	}
