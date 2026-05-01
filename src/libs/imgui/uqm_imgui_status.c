@@ -370,64 +370,71 @@ void draw_status_menu (void)
 
 		if (ImGui_BeginTable ("##Aliens", 2, TABLE_FLAGS))
 		{
-			COUNT Index;
 			HFLEETINFO hStarShip, hNextShip;
+			FLEET_INFO *FleetPtr;
+			bool ship_buildable;
+			int race_state;
 
-			const char *allied_states[3] =
-					{ "Dead Guy", "Good Guy", "Bad Guy" };
+			const char *allied_states[3] = {
+					"Dead", "Allied", "Enemy" };
 
-			Index = 0;
+#define COLUMN_FLAGS ImGuiTableColumnFlags_WidthFixed
+
+			ImGui_TableSetupColumn ("Race", COLUMN_FLAGS);
+			ImGui_TableSetupColumn ("Status", COLUMN_FLAGS);
+
+			int Index = 0;
 			for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
-					hStarShip; hStarShip = hNextShip)
+					hStarShip && Index < NUM_BUILDABLE_SHIPS;
+					hStarShip = hNextShip, Index++)
 			{
-				FLEET_INFO *FleetPtr;
-				int race_state;
-				bool ship_buildable;
-				char buf[40];
-
-				if (Index == NUM_BUILDABLE_SHIPS)
-					break;
-
 				FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+
+				ImGui_PushIDInt (Index);
 
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				ImGui_Text (GetStringAddress (SetAbsStringTableIndex (
-						FleetPtr->race_strings, 0)));
+				ship_buildable = FleetPtr->can_build;
+
+				if (ship_buildable)
+				{
+					ImGui_PushStyleColor (ImGuiCol_Button, 0xCC006600);
+					ImGui_PushStyleColor (ImGuiCol_ButtonHovered, 0xCC008800);
+					ImGui_PushStyleColor (ImGuiCol_ButtonActive, 0xCC004400);
+				}
+
+				if (ImGui_ButtonEx (GetStringAddress (
+						SetAbsStringTableIndex (FleetPtr->race_strings, 0)), (ImVec2 ){110.0f, 0.0f }))
+				{
+					FleetPtr->can_build = !ship_buildable;
+				}
+
+				if (ship_buildable)
+					ImGui_PopStyleColorEx (3);
 
 				ImGui_TableNextColumn ();
 
-				race_state = FleetPtr->allied_state;
-				snprintf (buf, sizeof buf, "##AlliedState%d", Index);
+				ImGui_SetNextItemWidth (95.0f);
 
-				if (ImGui_ComboChar (buf, &race_state, allied_states, 3))
+				race_state = FleetPtr->allied_state;
+				if (ImGui_ComboChar ("##AlliedState", &race_state, allied_states, 3))
 				{
 					FleetPtr->allied_state = race_state;
 				}
 
-				ImGui_SameLine ();
+				ImGui_PopID ();
 
-				ship_buildable = FleetPtr->can_build;
-				snprintf (buf, sizeof buf, "##Buildable%d", Index);
-
-				if (ImGui_Checkbox (buf, &ship_buildable))
-				{
-					FleetPtr->can_build = ship_buildable;
-				}
-
-				Index++;
 				hNextShip = _GetSuccLink (FleetPtr);
 				UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 			}
 
 			ImGui_EndTable ();
+
+			ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+				"Clicking on the race name will allow you to build "
+				"their ships regardless of alliance status.");
 		}
-
-		ImGui_NewLine ();
-
-		if (collapse_alien == ImGuiTreeNodeFlags_None)
-			collapse_alien = ImGuiTreeNodeFlags_DefaultOpen;
 	}
 	//else if (collapse_alien = ImGuiTreeNodeFlags_DefaultOpen)
 	//	collapse_alien = ImGuiTreeNodeFlags_None;
