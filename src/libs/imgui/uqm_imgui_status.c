@@ -588,9 +588,13 @@ void draw_status_menu (void)
 
 			ImGui_Text ("Landers:");
 			ImGui_InputInt ("##Landers", &cached_landers);
-			if (ImGui_IsItemDeactivatedAfterEdit ()
-					&& cached_landers <= MAX_LANDERS && cached_landers >= 0)
+			if (ImGui_IsItemDeactivatedAfterEdit ())
 			{
+				if (cached_landers < 0)
+					cached_landers = 0;
+				else if (cached_landers > MAX_LANDERS)
+					cached_landers = MAX_LANDERS;
+
 				GLOBAL_SIS (NumLanders) = cached_landers;
 
 				scr_refresh = true;

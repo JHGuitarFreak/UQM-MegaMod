@@ -171,8 +171,6 @@ UQM_ImGui_Init (SDL_Window *window)
 		return 0;
 	}
 
-	SDL_SetWindowOpacity (imgui_window, 0.75f);
-
 	imgui_renderer = SDL_CreateRenderer (imgui_window, -1,
 			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
@@ -183,6 +181,7 @@ UQM_ImGui_Init (SDL_Window *window)
 	}
 
 	SDL_SetRenderDrawBlendMode (imgui_renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetWindowOpacity (imgui_window, 0.75f);
 
 	ImGui_CreateContext (NULL);
 
