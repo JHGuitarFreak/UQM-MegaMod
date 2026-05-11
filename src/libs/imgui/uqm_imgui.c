@@ -23,8 +23,6 @@ bool menu_visible = false;
 static bool imgui_initialized = false;
 static TabState tab_state;
 
-static int old_logical_w, old_logical_h;
-
 bool config_changed = false;
 bool mmcfg_changed = false;
 bool cheat_changed = false;
@@ -37,8 +35,10 @@ static SDL_Renderer *imgui_renderer = NULL;
 
 static ImFont *cached_font = NULL;
 
+ImGuiIO *io = NULL;
+
 static ImFont *
-GetFont (ImGuiIO *io)
+GetFont (void)
 {
 	char *font_path;
 	int len;
@@ -67,7 +67,7 @@ GetFont (ImGuiIO *io)
 		baseContentPath, slash);
 
 	font = ImFontAtlas_AddFontFromFileTTF (io->Fonts,
-		font_path, 18, NULL, NULL);
+			font_path, 18, NULL, NULL);
 
 	HFree (font_path);
 
@@ -80,28 +80,28 @@ static void ShowFullScreenMenu (TabState *state)
 {
 	float sidebar_width;
 	ImVec2 sidebar_size;
-	ImGuiIO *io = ImGui_GetIO ();
+	ImGuiWindowFlags flags;
 
-	ImGui_PushFont (GetFont (io));
+	ImGui_PushFont (GetFont ());
 
 	ImGui_SetNextWindowPos (ZERO_F, 0);
-	ImGui_SetNextWindowSize (io->DisplaySize, 0);
+	ImGui_SetNextWindowSize (DISPLAY_SIZE, 0);
 
 	if (io->WantTextInput && !SDL_IsTextInputActive ())
 		SDL_StartTextInput ();
 	else if (!io->WantTextInput && SDL_IsTextInputActive ())
 		SDL_StopTextInput ();
 
-#define FSM_FLAGS ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | \
-			ImGuiWindowFlags_NoResize
+	flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
-	if (!ImGui_Begin ("##FullScreenMenu", NULL, FSM_FLAGS))
+	if (!ImGui_Begin ("##FullScreenMenu", NULL, flags))
 	{
 		ImGui_End ();
 		return;
 	}
 
-	sidebar_width = io->DisplaySize.x * 0.12f;
+	sidebar_width = DISPLAY_SIZE.x * 0.12f;
 	if (sidebar_width < 120.0f)
 		sidebar_width = 120.0f;
 	if (sidebar_width > 200.0f)
@@ -128,23 +128,21 @@ static void ShowFullScreenMenu (TabState *state)
 	ImGui_PopFont ();
 }
 
-void UQM_ImGui_NewFrame (void)
-{
-	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
-		return;
-
-	if (!imgui_initialized)
-		return;
-
-	cImGui_ImplSDLRenderer2_NewFrame ();
-	cImGui_ImplSDL2_NewFrame ();
-	ImGui_NewFrame ();
-
-	if (menu_visible)
-		ShowFullScreenMenu (&tab_state);
-}
-
 // ImGui implementation below
+
+static void DestroyOverlay (void)
+{
+	if (imgui_renderer)
+	{
+		SDL_DestroyRenderer (imgui_renderer);
+		imgui_renderer = NULL;
+	}
+	if (imgui_window)
+	{
+		SDL_DestroyWindow (imgui_window);
+		imgui_window = NULL;
+	}	
+}
 
 // Initializes ImGui with SDL2 and SDL_Renderer2
 static int
@@ -176,26 +174,28 @@ UQM_ImGui_Init (SDL_Window *window)
 
 	if (!imgui_renderer)
 	{
-		SDL_DestroyWindow (imgui_window);
+		log_add (log_Error, "ERROR: Could not create ImGui renderer");
+		DestroyOverlay ();
 		return 0;
 	}
 
 	SDL_SetRenderDrawBlendMode (imgui_renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetWindowOpacity (imgui_window, 0.75f);
+	SDL_SetWindowOpacity (imgui_window, 0.85f);
 
 	ImGui_CreateContext (NULL);
 
-	ImGui_GetIO ()->IniFilename = NULL;
+	io = ImGui_GetIO ();
 
-	ImGui_GetIO ()->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io->IniFilename = NULL;
+
+	io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	if (!cImGui_ImplSDL2_InitForSDLRenderer (imgui_window, imgui_renderer))
 	{
 		log_add (log_Error, "ERROR: cImGui_ImplSDL2_InitForSDLRenderer "
 				"failed");
-		SDL_DestroyRenderer (imgui_renderer);
-		SDL_DestroyWindow (imgui_window);
+		DestroyOverlay ();
 		return 0;
 	}
 
@@ -203,8 +203,7 @@ UQM_ImGui_Init (SDL_Window *window)
 	{
 		log_add (log_Error, "ERROR: cImGui_ImplSDLRenderer2_Init failed");
 		cImGui_ImplSDL2_Shutdown ();
-		SDL_DestroyRenderer (imgui_renderer);
-		SDL_DestroyWindow (imgui_window);
+		DestroyOverlay ();
 		return 0;
 	}
 
@@ -225,6 +224,7 @@ bool UQM_ImGui_ProcessEvent (SDL_Event *event)
 	return ProcessControlEvents (event);
 }
 
+// Keeps the ImGui window within the game window.
 static void
 UQM_ImGui_SyncWindow (void)
 {
@@ -252,17 +252,27 @@ UQM_ImGui_SyncWindow (void)
 // Renders the ImGui draw data
 void UQM_ImGui_Render (void)
 {
-	ApplyResChanges (window, renderer);
-	ApplyGfxChanges (window, renderer);
+	ImDrawData *draw_data;
 
-	UQM_ImGui_SyncWindow ();
-	UQM_ImGui_NewFrame ();
+	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
+		return;
 
 	if (!imgui_initialized)
 		return;
 
+	UQM_ImGui_SyncWindow ();
+
+	cImGui_ImplSDLRenderer2_NewFrame ();
+	cImGui_ImplSDL2_NewFrame ();
+	ImGui_NewFrame ();
+
+	if (menu_visible)
+		ShowFullScreenMenu (&tab_state);
+
 	ImGui_Render ();
-	cImGui_ImplSDLRenderer2_RenderDrawData (ImGui_GetDrawData (), imgui_renderer);
+
+	draw_data = ImGui_GetDrawData ();
+	cImGui_ImplSDLRenderer2_RenderDrawData (draw_data, imgui_renderer);
 
 	SDL_RenderPresent (imgui_renderer);
 }
@@ -328,29 +338,9 @@ void UQM_ImGui_ToggleMenu (void)
 	UQM_ImGui_Shutdown ();
 }
 
-static void
-UQM_ImGui_ResetMenu (SDL_Window *window, SDL_Renderer *renderer)
-{
-	SDL_Delay (50);
-
-	menu_visible = true;
-
-	if (!UQM_ImGui_Init (window))
-	{
-		log_add (log_Error, "Failed to reinitialize ImGui menu");
-
-		menu_visible = false;
-
-		SDL_RenderPresent (renderer);
-		UQM_ImGui_Shutdown ();
-		return;
-	}
-
-	revalidate_game_state_cache ();
-}
-
+// Applies resolution changes.
 void
-ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
+ApplyResChanges (void)
 {
 	BOOLEAN isExclusive;
 	int NewGfxFlags;
@@ -403,9 +393,6 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 				WindowWidth, WindowHeight);
 	}
 
-	old_logical_w = SavedWidth;
-	old_logical_h = SavedHeight;
-
 	res_PutBoolean ("config.keepaspectratio", optKeepAspectRatio);
 	res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
 	res_PutInteger ("config.reswidth", SavedWidth);
@@ -414,8 +401,10 @@ ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer)
 	config_changed = true;
 }
 
+// Applies graphics changes such as Full Screen, Exclusive Full Screen,
+// Scanlines, FPS Counter, and Scaler settings
 void
-ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
+ApplyGfxChanges (void)
 {
 	BOOLEAN isExclusive;
 	int NewGfxFlags;
@@ -496,11 +485,11 @@ ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer)
 	config_changed = true;
 }
 
+// Refreshes the Flagship stats when changing Captain/Ship name,
+// Landers, Fuel, Modules, and Crew.
 void
-ApplyScrRefresh (void)
+FlagStatRefresh (void)
 {
-	POINT Log;
-
 	if (!scr_refresh)
 		return;
 
@@ -508,7 +497,7 @@ ApplyScrRefresh (void)
 
 	DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 
-	printf ("Screen refreshed\n");
+	printf ("FlagStats refreshed\n");
 }
 
 // This redirects input to ImGui when the menu is visible

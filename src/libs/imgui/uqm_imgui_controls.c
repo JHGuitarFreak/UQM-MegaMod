@@ -1052,6 +1052,8 @@ WhitelistedPassThru (int action_index)
 	{
 	case KEY_SCREENSHOT:
 	case KEY_IMGUI:
+	case KEY_ABORT:
+	case KEY_FULLSCREEN:
 		return true;
 	default:
 		return false;
@@ -1235,7 +1237,12 @@ ProcessControlEvents (SDL_Event *event)
 
 	switch (event->type)
 	{
+	case SDL_WINDOWEVENT:
+		if (event->window.event == SDL_WINDOWEVENT_CLOSE)
+			QuitPosted = 1;
+		return FALSE;
 	case SDL_QUIT:
+		QuitPosted = 1;
 		return FALSE;
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:

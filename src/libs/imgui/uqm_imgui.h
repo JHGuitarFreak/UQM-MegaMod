@@ -63,6 +63,7 @@ extern bool menu_visible;
 extern bool config_changed;
 extern bool mmcfg_changed;
 extern bool cheat_changed;
+extern ImGuiIO *io;
 
 typedef struct
 {
@@ -93,9 +94,9 @@ void UQM_ImGui_Render ();
 void UQM_ImGui_Shutdown (void);
 void UQM_ImGui_ToggleMenu (void);
 int UQM_ImGui_WantCaptureInput (void);
-void ApplyResChanges (SDL_Window *window, SDL_Renderer *renderer);
-void ApplyGfxChanges (SDL_Window *window, SDL_Renderer *renderer);
-void ApplyScrRefresh (void);
+void ApplyResChanges (void);
+void ApplyGfxChanges (void);
+void FlagStatRefresh (void);
 
 // ImGui Graphics
 extern int imgui_GfxFlags;
@@ -157,7 +158,7 @@ extern FLIGHT_BINDINGS def_fl_bindings[6][NUM_KEYS];
 bool ProcessControlEvents (SDL_Event *event);
 
 // Helpers
-#define DISPLAY_SIZE ImGui_GetIO ()->DisplaySize
+#define DISPLAY_SIZE io->DisplaySize
 #define DISPLAY_BOOL (DISPLAY_SIZE.x > 640.0f ? 3 : 1)
 #define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 

@@ -79,8 +79,6 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_EndChild ();
 	// End NavBar
 
-	ImGui_Spacing ();
-
 	ImGui_HorizontalSeparator ("##NavBarSeparator");
 
 	// Sidebar Begins

@@ -309,7 +309,9 @@ UpdateInputState (void)
 #endif
 
 	{
-		ApplyScrRefresh ();
+		ApplyResChanges ();
+		ApplyGfxChanges ();
+		FlagStatRefresh ();
 	}
 }
 
