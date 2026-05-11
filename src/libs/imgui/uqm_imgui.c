@@ -141,47 +141,21 @@ static void DestroyOverlay (void)
 	{
 		SDL_DestroyWindow (imgui_window);
 		imgui_window = NULL;
-	}	
+	}
 }
 
 // Initializes ImGui with SDL2 and SDL_Renderer2
 static int
-UQM_ImGui_Init (SDL_Window *window)
+UQM_ImGui_Init (void)
 {
-	int game_x, game_y, game_w, game_h;
+	int undef;
+	SDL_WindowFlags wflags = 0;
+	Uint32 rflags = 0;
 
 	if (imgui_initialized)
 		return 1;
 
-	SDL_GetWindowPosition (window, &game_x, &game_y);
-	SDL_GetWindowSize (window, &game_w, &game_h);
-
-	imgui_window = SDL_CreateWindow (
-			"ImGui Overlay",
-			game_x, game_y, game_w, game_h,
-			SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALWAYS_ON_TOP |
-			SDL_WINDOW_SKIP_TASKBAR | SDL_WINDOW_POPUP_MENU
-	);
-
-	if (!imgui_window)
-	{
-		log_add (log_Error, "Failed to create ImGui window");
-		return 0;
-	}
-
-	imgui_renderer = SDL_CreateRenderer (imgui_window, -1,
-			SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-	if (!imgui_renderer)
-	{
-		log_add (log_Error, "ERROR: Could not create ImGui renderer");
-		DestroyOverlay ();
-		return 0;
-	}
-
-	SDL_SetRenderDrawBlendMode (imgui_renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetWindowOpacity (imgui_window, 0.85f);
-
+	CIMGUI_CHECKVERSION ();
 	ImGui_CreateContext (NULL);
 
 	io = ImGui_GetIO ();
@@ -191,37 +165,56 @@ UQM_ImGui_Init (SDL_Window *window)
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+	UQM_ImGui_Style ();
+	
+	wflags |= SDL_WINDOW_BORDERLESS;
+	wflags |= SDL_WINDOW_ALWAYS_ON_TOP;
+	wflags |= SDL_WINDOW_SKIP_TASKBAR;
+	wflags |= SDL_WINDOW_POPUP_MENU;
+
+	undef = SDL_WINDOWPOS_UNDEFINED;
+
+	imgui_window = SDL_CreateWindow ("ImGui", undef, undef, 0, 0, wflags);
+
+	if (!imgui_window)
+	{
+		log_add (log_Error, "Failed to create ImGui window");
+		return 0;
+	}
+
+	rflags |= SDL_RENDERER_ACCELERATED;
+	rflags |= SDL_RENDERER_PRESENTVSYNC;
+
+	imgui_renderer = SDL_CreateRenderer (imgui_window, -1, rflags);
+
+	if (!imgui_renderer)
+	{
+		log_add (log_Error, "Could not create ImGui renderer");
+		DestroyOverlay ();
+		return 0;
+	}
+
 	if (!cImGui_ImplSDL2_InitForSDLRenderer (imgui_window, imgui_renderer))
 	{
-		log_add (log_Error, "ERROR: cImGui_ImplSDL2_InitForSDLRenderer "
-				"failed");
+		log_add (log_Error, "cImGui_ImplSDL2_InitForSDLRenderer failed");
+		cImGui_ImplSDLRenderer2_Shutdown ();
 		DestroyOverlay ();
 		return 0;
 	}
 
 	if (!cImGui_ImplSDLRenderer2_Init (imgui_renderer))
 	{
-		log_add (log_Error, "ERROR: cImGui_ImplSDLRenderer2_Init failed");
+		log_add (log_Error, "cImGui_ImplSDLRenderer2_Init failed");
 		cImGui_ImplSDL2_Shutdown ();
 		DestroyOverlay ();
 		return 0;
 	}
 
-	UQM_ImGui_Style ();
+	SDL_SetRenderDrawBlendMode (imgui_renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetWindowOpacity (imgui_window, 0.85f);
 
 	imgui_initialized = true;
 	return 1;
-}
-
-// Processes SDL events for ImGui
-bool UQM_ImGui_ProcessEvent (SDL_Event *event)
-{
-	if (!imgui_initialized)
-		return false;
-
-	cImGui_ImplSDL2_ProcessEvent (event);
-
-	return ProcessControlEvents (event);
 }
 
 // Keeps the ImGui window within the game window.
@@ -234,7 +227,7 @@ UQM_ImGui_SyncWindow (void)
 	if (!imgui_window || !window)
 		return;
 
-	SDL_GetWindowPosition (window, &game_x, &game_y);
+	SDL_GetWindowPosition (window, &game_x, &game_y); 
 	SDL_GetWindowSize (window, &game_w, &game_h);
 
 	SDL_GetWindowPosition (imgui_window, &imgui_x, &imgui_y);
@@ -260,16 +253,18 @@ void UQM_ImGui_Render (void)
 	if (!imgui_initialized)
 		return;
 
-	UQM_ImGui_SyncWindow ();
 
 	cImGui_ImplSDLRenderer2_NewFrame ();
 	cImGui_ImplSDL2_NewFrame ();
 	ImGui_NewFrame ();
 
-	if (menu_visible)
-		ShowFullScreenMenu (&tab_state);
+	ShowFullScreenMenu (&tab_state);
 
 	ImGui_Render ();
+
+	SDL_SetRenderDrawColor (imgui_renderer, 0,0,0,0);
+	SDL_RenderClear (imgui_renderer);
+	UQM_ImGui_SyncWindow ();
 
 	draw_data = ImGui_GetDrawData ();
 	cImGui_ImplSDLRenderer2_RenderDrawData (draw_data, imgui_renderer);
@@ -295,18 +290,7 @@ void UQM_ImGui_Shutdown (void)
 	cImGui_ImplSDLRenderer2_Shutdown ();
 	cImGui_ImplSDL2_Shutdown ();
 	ImGui_DestroyContext (NULL);
-
-	if (imgui_renderer)
-	{
-		SDL_DestroyRenderer (imgui_renderer);
-		imgui_renderer = NULL;
-	}
-	
-	if (imgui_window)
-	{
-		SDL_DestroyWindow (imgui_window);
-		imgui_window = NULL;
-	}
+	DestroyOverlay ();
 
 	imgui_initialized = false;
 	slots_cached = false;
@@ -319,7 +303,7 @@ void UQM_ImGui_ToggleMenu (void)
 
 	if (menu_visible)
 	{
-		if (!UQM_ImGui_Init (window))
+		if (!UQM_ImGui_Init ())
 		{
 			log_add (log_Error, "Failed to initialize ImGui overlay");
 
@@ -336,6 +320,17 @@ void UQM_ImGui_ToggleMenu (void)
 	}
 
 	UQM_ImGui_Shutdown ();
+}
+
+// Processes SDL events for ImGui
+bool UQM_ImGui_ProcessEvent (SDL_Event *event)
+{
+	if (!imgui_initialized)
+		return false;
+
+	cImGui_ImplSDL2_ProcessEvent (event);
+
+	return ProcessControlEvents (event);
 }
 
 // Applies resolution changes.
