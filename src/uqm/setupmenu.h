@@ -306,19 +306,20 @@ enum {
 };
 
 enum {
-	MENU_QUITSUB,  // Quits settings sub menu
-	MENU_GRAPHICS, // Graphics menu
-	MENU_AUDIO,    // General audio menu (volume, quality etc)
-	MENU_ENGINE,   // Engine behaviour menu (PC/3DO)
-	MENU_CHEATS,   // Cheats menu
-	MENY_KEYCONF,  // Main key configuration menu (input device etc)
-	MENU_ADVANCED, // Advanced settings menu
-	MENU_EDITKEYS, // Key layout editing menu (submenu for KEYCONF)
-	MENU_MUSIC,    // Music menu (remixes)
-	MENU_VISUAL,   // Visual menu
-	MENU_QOL,      // Quality of life features menu
-	MENU_DEVICES,  // Add devices cheat submenu
-	MENU_UPGRADES, // Add upgrades cheat submenu
+	MENU_QUITSUB,      // Quits settings sub menu
+	MENU_GRAPHICS,     // Graphics menu
+	MENU_AUDIO,        // General audio menu (volume, quality etc)
+	MENU_ENGINE,       // Engine behaviour menu (PC/3DO)
+	MENU_CHEATS,       // Cheats menu
+	MENY_KEYCONF,      // Main key configuration menu (input device etc)
+	MENU_ADVANCED,     // Advanced settings menu
+	MENU_EDITKEYS,     // Key layout editing menu (submenu for KEYCONF)
+	MENU_MUSIC,        // Music menu (remixes)
+	MENU_VISUAL,       // Visual menu
+	MENU_QOL,          // Quality of life features menu
+	MENU_DEVICES,      // Add devices cheat submenu
+	MENU_UPGRADES,     // Add upgrades cheat submenu
+	MENU_EDITMENUKEYS, // New menu screen
 	
 	MENU_COUNT
 };
@@ -350,6 +351,10 @@ enum {
 	BTN_DEVMENU,
 	BTN_UPGMENU,
 	BTN_CHTPREV,
+	BTN_EDITMENUKEYS,     // Edit Menu Controls button
+	BTN_SAVEMENUBINDS,    // Save Menu Bindings button
+	BTN_CANCELMENUBINDS,  // Cancel Menu Bindings button
+	BTN_LOADDEFMENUBINDS, // Load Default Menu Bindings button
 
 	BUTTON_COUNT
 };
@@ -387,6 +392,42 @@ enum {
 	CONTROL_THRU,
 
 	CONTROLENTRY_COUNT
+};
+
+enum
+{
+	MENUCONTROL_PAUSE,
+	MENUCONTROL_EXIT,
+	MENUCONTROL_ABORT,
+	MENUCONTROL_DEBUG,
+	MENUCONTROL_FULLSCREEN,
+	MENUCONTROL_UP,
+	MENUCONTROL_DOWN,
+	MENUCONTROL_LEFT,
+	MENUCONTROL_RIGHT,
+	MENUCONTROL_SELECT,
+	MENUCONTROL_CANCEL,
+	MENUCONTROL_SPECIAL,
+	MENUCONTROL_PAGEUP,
+	MENUCONTROL_PAGEDOWN,
+	MENUCONTROL_HOME,
+	MENUCONTROL_END,
+	MENUCONTROL_ZOOMIN,
+	MENUCONTROL_ZOOMOUT,
+	MENUCONTROL_DELETE,
+	MENUCONTROL_BACKSPACE,
+	MENUCONTROL_EDITCANCEL,
+	MENUCONTROL_SEARCH,
+	MENUCONTROL_NEXT,
+	MENUCONTROL_TOGGLEMAP,
+	MENUCONTROL_SCREENSHOT,
+	MENUCONTROL_QUICKSAVE,
+	MENUCONTROL_QUICKLOAD,
+	MENUCONTROL_DEBUG2,
+	MENUCONTROL_DEBUG3,
+	MENUCONTROL_DEBUG4,
+
+	MENUCONTROL_COUNT
 };
 
 #define NUM_UPGRADES 13

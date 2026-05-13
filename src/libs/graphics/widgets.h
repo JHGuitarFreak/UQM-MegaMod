@@ -40,6 +40,7 @@ typedef enum {
 	WIDGET_TYPE_SLIDER,
 	WIDGET_TYPE_TEXTENTRY,
 	WIDGET_TYPE_CONTROLENTRY,
+	WIDGET_TYPE_MENUCONTROLENTRY,
 	NUM_WIDGET_TYPES
 } WIDGET_TYPE;
 
@@ -176,6 +177,24 @@ typedef struct _widget_controlentry {
 	char controlname[2][WIDGET_CONTROLENTRY_WIDTH];
 } WIDGET_CONTROLENTRY;
 
+typedef struct _widget_menucontrolentry
+{
+	WIDGET_TYPE tag;
+	struct _widget *parent;
+	int (*handleEvent)(struct _widget *self, int event);
+	int (*receiveFocus)(struct _widget *self, int event);
+	void (*draw)(struct _widget *self, int x, int y);
+	int (*height)(struct _widget *self);
+	int (*width)(struct _widget *self);
+	void (*onChange)(struct _widget_menucontrolentry *self);
+	void (*onDelete)(struct _widget_menucontrolentry *self);
+	const char *category;
+	int controlindex;
+	int highlighted;
+	char controlname[6][WIDGET_CONTROLENTRY_WIDTH];
+	char controldisplay[6][WIDGET_CONTROLENTRY_WIDTH];
+} WIDGET_MENUCONTROLENTRY;
+
 void DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium);
 void DrawLabelAsWindow (WIDGET_LABEL *label, RECT *windowRect);
 void Widget_SetWindowColors (Color bg, Color dark, Color medium);
@@ -191,12 +210,14 @@ int Widget_ReceiveFocusChoice (WIDGET *_self, int event);
 int Widget_ReceiveFocusSimple (WIDGET *_self, int event);
 int Widget_ReceiveFocusControlEntry (WIDGET *_self, int event);
 int Widget_ReceiveFocusRefuseFocus (WIDGET *_self, int event);
+int Widget_ReceiveFocusMenuControlEntry (WIDGET *_self, int event);
 
 int Widget_HandleEventMenuScreen (WIDGET *_self, int event);
 int Widget_HandleEventChoice (WIDGET *_self, int event);
 int Widget_HandleEventSlider (WIDGET *_self, int event);
 int Widget_HandleEventTextEntry (WIDGET *_self, int event);
 int Widget_HandleEventControlEntry (WIDGET *_self, int event);
+int Widget_HandleEventMenuControlEntry (WIDGET *_self, int event);
 int Widget_HandleEventIgnoreAll (WIDGET *_self, int event);
 
 int Widget_HeightChoice (WIDGET *_self);
@@ -213,6 +234,7 @@ void Widget_DrawLabel (WIDGET *_self, int x, int y);
 void Widget_DrawSlider (WIDGET *_self, int x, int y);
 void Widget_DrawTextEntry (WIDGET *_self, int x, int y);
 void Widget_DrawControlEntry (WIDGET *_self, int x, int y);
+void Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y);
 
 void Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y);
 

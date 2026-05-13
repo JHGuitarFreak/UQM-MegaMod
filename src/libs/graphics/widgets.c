@@ -25,6 +25,7 @@
 #include "uqm/colors.h"
 #include "uqm/units.h"
 #include "uqm/util.h"
+#include "uqm/setup.h"
 
 WIDGET *widget_focus = NULL;
 
@@ -356,19 +357,19 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		{	// Arrows (blue to the right)
 			STAMP arr;
 
-			arr.origin.x = RES_SCALE (290);
+			arr.origin.x = RES_SCALE (309);
 
 			if (offset_t != 0)
 			{
 				arr.frame = SetAbsFrameIndex (arrow_frame, 0); // Up arrow
-				arr.origin.y = RES_SCALE (25);
+				arr.origin.y = DOS_BOOL_SCL (11, 10);
 				DrawStamp (&arr);
 			}
 			if (offset_b != self->num_children - 1)
 			{
 				arr.frame = SetAbsFrameIndex (arrow_frame, 1);
 					// Down arrow
-				arr.origin.y = RES_SCALE (195);
+				arr.origin.y = DOS_BOOL_SCL (218, 178);
 				DrawStamp (&arr);
 			}
 		}
@@ -839,7 +840,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 {	// mappable key name in controls setup
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
 	Color oldtext;
-	Color default_color, selected;
+	Color selected;
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
@@ -847,8 +848,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
-	
-	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
+
 	selected = WIDGET_ACTIVE_COLOR;
 
 	t.baseline.x = x + RES_SCALE (16);
@@ -857,43 +857,98 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	t.CharCount = ~0;
 	t.pStr = self->category;
 	if (widget_focus == _self)
-	{
 		oldtext = SetContextForeGroundColor (selected);
-	}
 	else
-	{
-		oldtext = SetContextForeGroundColor (default_color);
-	}
+		oldtext = SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
 	font_DrawText (&t); // Control Name E.G. Up, Down, Weapon, Thrust
 
 	t.baseline.x -= t.baseline.x;
 
-	home_x = t.baseline.x + (CanvasWidth / 3);
+	home_x = t.baseline.x + (CanvasWidth / 3) + RES_SCALE (8);
 	home_y = t.baseline.y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_CENTER;
 	for (i = 0; i < 2; i++)
 	{
 		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));
 		t.baseline.y = home_y + RES_SCALE (8 * (i / 3));
 		t.pStr = self->controlname[i];
-		if (!t.pStr[0])
-		{
-			t.pStr = "---";
-		}
+
 		if ((widget_focus == _self) && (self->highlighted == i))
-		{
 			SetContextForeGroundColor (selected);
-		}
 		else
 		{
-			SetContextForeGroundColor (default_color);
+			if (!t.pStr[0])
+				SetContextForeGroundColor (WIDGET_WARNING_COLOR);
+			else
+				SetContextForeGroundColor (WIDGET_INACTIVE_COLOR);
 		}
+
+		if (!t.pStr[0])
+			t.pStr = "---";
+
 		font_DrawText (&t);
 	}
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
 		SetContextFont (oldfont);
 	SetContextForeGroundColor (oldtext);
+}
+
+void
+Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
+{
+	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
+	Color OldColor;
+	Color selected;
+	FONT OldFont;
+	FRAME oldFontEffect;
+	TEXT t;
+	int i, home_x;
+
+	selected = WIDGET_ACTIVE_COLOR;
+
+	OldFont = SetContextFont (TinyFontCond);
+	oldFontEffect = SetContextFontEffect (NULL);
+	OldColor = SetContextForeGroundColor (selected);
+
+	t.baseline.x = x + RES_SCALE (4);
+	t.baseline.y = y;
+	t.align = ALIGN_LEFT;
+	t.CharCount = ~0;
+	t.pStr = self->category;
+
+	if (widget_focus != _self)
+		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
+
+	font_DrawText (&t); // Menu Control Name E.G. Pause, Exit, Abort, etc.
+
+	home_x = t.baseline.x + RES_SCALE (66);
+	t.align = ALIGN_CENTER;
+
+	for (i = 0; i < 6; i++)
+	{
+		t.baseline.x = home_x + (i * RES_SCALE (45));
+		t.pStr = self->controldisplay[i];
+
+		if ((widget_focus == _self) && (self->highlighted == i))
+			SetContextForeGroundColor (selected);
+		else
+		{
+			if (!t.pStr[0])
+				SetContextForeGroundColor (WIDGET_WARNING_COLOR);
+			else
+				SetContextForeGroundColor (WIDGET_INACTIVE_COLOR);
+		}
+
+		if (!t.pStr[0])
+			t.pStr = "---";
+
+		font_DrawText (&t);
+	}
+
+	SetContextForeGroundColor (OldColor);
+	SetContextFontEffect (oldFontEffect);
+	SetContextFont (OldFont);
 }
 
 int
@@ -958,6 +1013,23 @@ Widget_ReceiveFocusControlEntry (WIDGET *_self, int event)
 	{
 		oldval = ((WIDGET_CONTROLENTRY *)widget_focus)->highlighted;
 	}
+	widget_focus = _self;
+	self->highlighted = oldval;
+	(void)event;
+	return TRUE;
+}
+
+int
+Widget_ReceiveFocusMenuControlEntry (WIDGET *_self, int event)
+{
+	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
+	int oldval = 0;
+
+	if (widget_focus->tag == WIDGET_TYPE_MENUCONTROLENTRY)
+	{
+		oldval = ((WIDGET_MENUCONTROLENTRY *)widget_focus)->highlighted;
+	}
+
 	widget_focus = _self;
 	self->highlighted = oldval;
 	(void)event;
@@ -1153,6 +1225,37 @@ Widget_HandleEventControlEntry (WIDGET *_self, int event)
 	    (event == WIDGET_EVENT_LEFT))
 	{
 		self->highlighted = 1-self->highlighted;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+int
+Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
+{
+	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
+
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		if (self->onChange)
+		{
+			(self->onChange)(self);
+			return TRUE;
+		}
+	}
+	if (event == WIDGET_EVENT_DELETE)
+	{
+		if (self->onDelete)
+		{
+			(self->onDelete)(self);
+			return TRUE;
+		}
+	}
+	if ((event == WIDGET_EVENT_RIGHT) ||
+	    (event == WIDGET_EVENT_LEFT))
+	{
+		BYTE left = (event == WIDGET_EVENT_LEFT ? 5 : 1);
+		self->highlighted = (self->highlighted + left) % 6;
 		return TRUE;
 	}
 	return FALSE;

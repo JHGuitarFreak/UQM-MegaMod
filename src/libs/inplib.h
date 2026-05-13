@@ -23,6 +23,7 @@
 #include "libs/compiler.h"
 #include "libs/uio.h"
 #include "libs/unicode.h"
+#include "libs/input/sdl/vcontrol.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -55,7 +56,8 @@ UniChar GetLastCharacter (void);
 
 /* Interrogating the current key configuration */
 
-void InterrogateInputState (int templat, int control, int index, char *buffer, int maxlen);
+void InterrogateInputState (int templat, int control, int index,
+		char *buffer, int maxlen, VCONTROL_GESTURE *override);
 void RemoveInputState (int templat, int control, int index);
 void RebindInputState (int templat, int control, int index);
 
@@ -64,6 +66,18 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 /* Separate inputs into frames for dealing with very fast inputs */
 
 void BeginInputFrame (void);
+
+extern const char *menu_res_names[];
+extern volatile int *menu_vec;
+
+#if SDL_MAJOR_VERSION > 1
+extern const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+extern const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+extern const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+extern const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16];
+extern const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
+extern const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+#endif
 
 #if defined(__cplusplus)
 }

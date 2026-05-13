@@ -237,7 +237,7 @@ DoPopup (struct popup_state *self)
 }
 
 void
-DoPopupWindow (const char *msg)
+DoPopupWindowFont (const char *msg, FONT font)
 {
 	stringbank *bank = StringBank_Create ();
 	const char *lines[30];
@@ -250,6 +250,7 @@ DoPopupWindow (const char *msg)
 	MENU_SOUND_FLAGS s0, s1;
 	InputFrameCallback *oldCallback;
 	BOOLEAN FlashPaused;
+	FONT OldFont;
 
 	if (!bank)
 	{
@@ -280,11 +281,12 @@ DoPopupWindow (const char *msg)
 	//   We do not know the dimensions here, and so save the whole context
 	s = SaveContextFrame (NULL);
 
-	Widget_SetFont (StarConFont);
+	OldFont = Widget_SetFont (font);
 	Widget_SetWindowColors (SHADOWBOX_BACKGROUND_COLOR,
 			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
 	DrawLabelAsWindow (&label, &windowRect);
-	// There was a SetSystemRect(&windowRect) call which we don't need anymore
+	// There was a SetSystemRect(&windowRect) call which we don't need
+	// anymore
 
 	GetMenuSounds (&s0, &s1);
 	SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
@@ -307,5 +309,13 @@ DoPopupWindow (const char *msg)
 
 	SetMenuSounds (s0, s1);
 	StringBank_Free (bank);
+
+	Widget_SetFont (OldFont);
+}
+
+void
+DoPopupWindow (const char *msg)
+{
+	DoPopupWindowFont (msg, StarConFont);
 }
 

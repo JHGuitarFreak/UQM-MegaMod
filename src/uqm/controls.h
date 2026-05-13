@@ -22,6 +22,7 @@
 #include "libs/compiler.h"
 #include "libs/strlib.h"
 #include "libs/timelib.h"
+#include "libs/input/sdl/vcontrol.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -73,6 +74,15 @@ enum {
 	KEY_MENU_ANY, /* abstract char key */
 	NUM_MENU_KEYS
 };
+
+typedef struct menu_bindings
+{
+	char action[40];
+	VCONTROL_GESTURE binding[6];
+} MENU_BINDINGS;
+
+extern MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
+extern MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
 
 typedef enum {
 	CONTROL_TEMPLATE_KB_1,
@@ -134,6 +144,7 @@ extern BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player
 
 extern BOOLEAN InPopUp;
 void DoPopupWindow(const char *msg);
+void DoPopupWindowFont (const char *msg, FONT font);
 
 typedef void (InputFrameCallback) (void);
 InputFrameCallback* SetInputCallback (InputFrameCallback *);

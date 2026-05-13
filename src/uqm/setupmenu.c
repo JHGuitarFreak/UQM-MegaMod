@@ -43,6 +43,7 @@
 #include "libs/graphics/bbox.h"
 #include "libs/math/random.h"
 #include "libs/input/input_common.h"
+#include "controls.h"
 
 #include SDL_INCLUDE(SDL_version.h)
 
@@ -71,6 +72,9 @@ const struct option_list_value scalerList[6] =
 	{"triscan",  TFB_GFXFLAGS_SCALE_TRISCAN},
 	{"hq",       TFB_GFXFLAGS_SCALE_HQXX}
 };
+
+static MENU_BINDINGS saved_menu_bindings[NUM_MENU_KEYS];
+static BOOLEAN menu_bindings_dirty = FALSE;
 
 static int SfxVol;
 static int MusVol;
@@ -150,19 +154,24 @@ static int do_qol (WIDGET *self, int event);
 static int do_qol (WIDGET *self, int event);
 static int do_devices (WIDGET *self, int event);
 static int do_upgrades (WIDGET *self, int event);
+static int do_editmenukeys (WIDGET *self, int event);
+static int do_savemenubinds (WIDGET *self, int event);
+static int do_cancelmenubinds (WIDGET *self, int event);
+static int do_loaddefmenubinds (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
 /* The space for our widgets */
-static WIDGET_MENU_SCREEN  menus         [MENU_COUNT        ];
-static WIDGET_CHOICE       choices       [CHOICE_COUNT      ];
-static WIDGET_SLIDER       sliders       [SLIDER_COUNT      ];
-static WIDGET_BUTTON       buttons       [BUTTON_COUNT      ];
-static WIDGET_LABEL        labels        [LABEL_COUNT       ];
-static WIDGET_TEXTENTRY    textentries   [TEXTENTRY_COUNT   ];
-static WIDGET_CONTROLENTRY controlentries[CONTROLENTRY_COUNT];
+static WIDGET_MENU_SCREEN      menus         [MENU_COUNT        ];
+static WIDGET_CHOICE           choices       [CHOICE_COUNT      ];
+static WIDGET_SLIDER           sliders       [SLIDER_COUNT      ];
+static WIDGET_BUTTON           buttons       [BUTTON_COUNT      ];
+static WIDGET_LABEL            labels        [LABEL_COUNT       ];
+static WIDGET_TEXTENTRY        textentries   [TEXTENTRY_COUNT   ];
+static WIDGET_CONTROLENTRY     controlentries[CONTROLENTRY_COUNT];
+static WIDGET_MENUCONTROLENTRY menucontrols  [MENUCONTROL_COUNT ];
 
 /* The hardcoded data that isn't strings */
 
@@ -172,7 +181,8 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
 	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
-	do_cheats };
+	do_cheats, do_editmenukeys, do_savemenubinds, do_cancelmenubinds,
+	do_loaddefmenubinds };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -319,7 +329,8 @@ static WIDGET *keyconfig_widgets[] = {
 
 	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP]), // "To view or edit..."
-	(WIDGET *)(&buttons[BTN_EDITKEYS     ]), // Edit Controls
+	(WIDGET *)(&buttons[BTN_EDITKEYS     ]), // Edit Flight Controls
+	(WIDGET *)(&buttons[BTN_EDITMENUKEYS ]), // Edit Menu Controls
 
 	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
@@ -454,6 +465,48 @@ static WIDGET *upgrades_widgets[] = {
 	(WIDGET *)(&buttons[BTN_CHTPREV        ]), // Back to Cheats
 	NULL };
 
+static WIDGET *editmenukeys_widgets[] = {
+	(WIDGET *)(&labels[LABEL_TAPTOOLTIP]), // "Press return to..."
+	(WIDGET *)(&labels[LABEL_SPACER    ]), // Spacer
+
+	(WIDGET *)(&menucontrols[MENUCONTROL_PAUSE     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_EXIT      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_ABORT     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_FULLSCREEN]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_UP        ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DOWN      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_LEFT      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_RIGHT     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SELECT    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_CANCEL    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SPECIAL   ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_PAGEUP    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_PAGEDOWN  ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_HOME      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_END       ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_ZOOMIN    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_ZOOMOUT   ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DELETE    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_BACKSPACE ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_EDITCANCEL]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SEARCH    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_NEXT      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_TOGGLEMAP ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SCREENSHOT]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_QUICKSAVE ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_QUICKLOAD ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG2    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG3    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG4    ]),
+
+	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
+	(WIDGET *)(&buttons[BTN_LOADDEFMENUBINDS]), // Load Defaults
+	(WIDGET *)(&buttons[BTN_SAVEMENUBINDS   ]), // Save Changes
+	(WIDGET *)(&buttons[BTN_CANCELMENUBINDS ]), // Cancel
+	(WIDGET *)(&buttons[BTN_PREVMENU        ]), // Previous menu
+	NULL };
+
 static const struct
 {
 	WIDGET **widgets;
@@ -474,6 +527,7 @@ menu_defs[] =
 	{qol_widgets, 10},
 	{devices_widgets, 11},
 	{upgrades_widgets, 12},
+	{editmenukeys_widgets, 0},
 	{NULL, 0}
 };
 
@@ -705,7 +759,7 @@ populate_editkeys (int templat)
 		{
 			InterrogateInputState (templat, i, j,
 					controlentries[i].controlname[j],
-					WIDGET_CONTROLENTRY_WIDTH);
+					WIDGET_CONTROLENTRY_WIDTH, NULL);
 		}
 	}
 }
@@ -732,6 +786,232 @@ change_template (WIDGET_CHOICE *self, int oldval)
 {
 	(void) oldval;
 	populate_editkeys (self->selected);
+}
+
+static void
+SaveMenuBindings (void)
+{
+	int i, j;
+	uio_Stream *f;
+	VCONTROL_GESTURE *g;
+	char g_str[128];
+
+	f = uio_fopen (configDir, "override.cfg", "w");
+	if (!f)
+	{
+		log_add (log_Error, "Failed to open override.cfg for writing");
+		return;
+	}
+
+	uio_fprintf (f,
+			"# Custom menu control bindings generated by Setup Menu\n\n");
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		if (menu_res_names[i] == NULL)
+			continue;
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+
+			if (g->type != VCONTROL_NONE)
+			{
+				VControl_DumpGesture (g_str, sizeof (g_str), g);
+				uio_fprintf (f, "%s.%d = STRING:%s\n", menu_res_names[i],
+						j + 1, g_str);
+			}
+			else
+				uio_fprintf (f, "%s.%d =\n", menu_res_names[i], j + 1);
+		}
+	}
+
+	uio_fclose (f);
+	menu_bindings_dirty = FALSE;
+}
+
+static void
+LoadDefaultMenuBindings (void)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		if (menu_res_names[i] == NULL)
+			continue;
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_RemoveGestureBinding (g, (int *)&menu_vec[i]);
+		}
+
+		memcpy (&curr_bindings[i], &def_bindings[i],
+				sizeof (MENU_BINDINGS));
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_AddGestureBinding (g, (int *)&menu_vec[i]);
+		}
+	}
+
+	menu_bindings_dirty = TRUE;
+}
+
+static void
+RestoreMenuBindings (void)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		if (menu_res_names[i] == NULL)
+			continue;
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_RemoveGestureBinding (g, (int *)&menu_vec[i]);
+		}
+
+		memcpy (&curr_bindings[i], &saved_menu_bindings[i],
+				sizeof (MENU_BINDINGS));
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_AddGestureBinding (g, (int *)&menu_vec[i]);
+		}
+	}
+
+	menu_bindings_dirty = FALSE;
+}
+
+static void
+abbreviate_name (const char *name, char *disp)
+{
+	int size = WIDGET_CONTROLENTRY_WIDTH;
+
+	static const char *long_names[] = {
+			"RightControl", "LeftControl", "RightShift", "LeftShift",
+			"RightAlt", "LeftAlt", "PageUp", "PageDown",
+			"Backspace", "Insert", "Delete", "Escape", "Return",
+			"Keypad-0", "Keypad-1", "Keypad-2", "Keypad-3", "Keypad-4",
+			"Keypad-5", "Keypad-6", "Keypad-7", "Keypad-8", "Keypad-9",
+			"Keypad-.", "Keypad-/", "Keypad-*", "Keypad--", "Keypad-+",
+			"Keypad-Enter", "Keypad-=",
+			NULL
+	};
+	static const char *short_names[] = {
+			"RCtrl", "LCtrl", "RShft", "LShft",
+			"RAlt", "LAlt", "PgUp", "PgDn",
+			"BkSp", "Ins", "Del", "Esc", "Enter",
+			"KP 0", "KP 1", "KP 2", "KP 3", "KP 4",
+			"KP 5", "KP 6", "KP 7", "KP 8", "KP 9",
+			"KP .", "KP /", "KP *", "KP -", "KP +",
+			"KP Ent", "KP =",
+			NULL
+	};
+
+	for (int i = 0; long_names[i] != NULL; i++)
+	{
+		if (strcmp (name, long_names[i]) == 0)
+		{
+			strncpy (disp, short_names[i], size);
+			disp[size - 1] = '\0';
+			return;
+		}
+	}
+
+	strncpy (disp, name, size);
+	disp[size - 1] = '\0';
+}
+
+static void
+populate_menukeys (void)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+
+	int size = WIDGET_CONTROLENTRY_WIDTH;
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		for (j = 0; j < 6; j++)
+		{
+			if (curr_bindings[i].binding[j].type != VCONTROL_NONE)
+			{
+				char *name = menucontrols[i].controlname[j];
+				char *disp = menucontrols[i].controldisplay[j];
+
+				g = &curr_bindings[i].binding[j];
+
+				InterrogateInputState (-1, -1, -1, name, size, g);
+
+				abbreviate_name (name, disp);
+			}
+			else
+			{
+				menucontrols[i].controlname[j][0] = '\0';
+				menucontrols[i].controldisplay[j][0] = '\0';
+			}
+		}
+	}
+}
+
+static int
+do_editmenukeys (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[MENU_EDITMENUKEYS]);
+		populate_menukeys ();
+		(*next->receiveFocus)(next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_savemenubinds (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		SaveMenuBindings ();
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_cancelmenubinds (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		RestoreMenuBindings ();
+		populate_menukeys ();
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_loaddefmenubinds (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		LoadDefaultMenuBindings ();
+		populate_menukeys ();
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
 }
 
 static void
@@ -1725,7 +2005,173 @@ clear_control (WIDGET_CONTROLENTRY *widget)
 
 	RemoveInputState (templat, control, index);
 	populate_editkeys (templat);
-}	
+}
+
+static BOOLEAN
+VControl_GestureEqual (VCONTROL_GESTURE *a, VCONTROL_GESTURE *b)
+{
+	if (a->type != b->type)
+		return FALSE;
+
+	switch (a->type)
+	{
+	case VCONTROL_KEY:
+		return a->gesture.key == b->gesture.key;
+	case VCONTROL_JOYBUTTON:
+		return (a->gesture.button.port == b->gesture.button.port &&
+				a->gesture.button.index == b->gesture.button.index);
+	case VCONTROL_JOYAXIS:
+		return (a->gesture.axis.port == b->gesture.axis.port &&
+				a->gesture.axis.index == b->gesture.axis.index &&
+				a->gesture.axis.polarity == b->gesture.axis.polarity);
+	default:
+		return FALSE;
+	}
+}
+
+static BOOLEAN
+BlacklistedBindings (int action_index)
+{
+	switch (action_index)
+	{
+	case KEY_SCREENSHOT:
+	case KEY_EXIT:
+	case KEY_ABORT:
+	case KEY_DEBUG:
+	case KEY_FULLSCREEN:
+	case KEY_DEBUG_2:
+	case KEY_DEBUG_3:
+	case KEY_DEBUG_4:
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+static BOOLEAN
+CheckRebindConflict (int action, VCONTROL_GESTURE *g_compare,
+		char *conflict, size_t size)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+	BOOLEAN binding_special = BlacklistedBindings (action);
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		BOOLEAN key_special;
+
+		if (menu_res_names[i] == NULL || i == action)
+			continue;
+
+		key_special = BlacklistedBindings (i);
+
+		if (binding_special || key_special)
+		{
+			for (j = 0; j < 6; j++)
+			{
+				g = &curr_bindings[i].binding[j];
+
+				if (g->type == VCONTROL_NONE)
+					continue;
+
+				if (VControl_GestureEqual (g, g_compare))
+				{
+					snprintf (conflict, size, "%s", menu_res_names[i]);
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	for (j = 0; j < 6; j++)
+	{
+		if (j == action)
+			continue;
+
+		g = &curr_bindings[action].binding[j];
+
+		if (g->type == VCONTROL_NONE)
+			continue;
+
+		if (VControl_GestureEqual (g, g_compare))
+		{
+			const char *category = menucontrols[action].category;
+			snprintf (conflict, size, "same %s", category);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static void
+rebind_menu_control (WIDGET_MENUCONTROLENTRY *widget)
+{
+	VCONTROL_GESTURE g, *existing;
+	char buff[PATH_MAX];
+	char conflict[64];
+	char bind[32];
+	int index = widget->controlindex;
+	int active = widget->highlighted;
+	int *vec = (int *)&menu_vec[index];
+
+	FlushInput ();
+	DrawLabelAsWindow (&labels[LABEL_PRESSTOEDIT], NULL);
+
+	VControl_ClearGesture ();
+
+	while (!VControl_GetLastGesture (&g)) { TaskSwitch (); }
+
+	if (g.type != VCONTROL_NONE)
+	{
+
+		if (CheckRebindConflict (index, &g, conflict, sizeof (conflict)))
+		{
+			const char *category = menucontrols[index].category;
+
+			InterrogateInputState (-1, -1, -1, bind, sizeof (bind), &g);
+
+			snprintf (buff, sizeof (buff),
+					"Cannot bind to `%s'\n\nUsing the `%s' (%s) binding",
+					category, conflict, bind);
+
+			DoPopupWindowFont (buff, MicroFont);
+
+			populate_menukeys ();
+			FlushInput ();
+			return;
+		}
+
+		if (curr_bindings[index].binding[active].type != VCONTROL_NONE)
+		{
+			existing = &curr_bindings[index].binding[active];
+			VControl_RemoveGestureBinding (existing, vec);
+		}
+
+		curr_bindings[index].binding[active] = g;
+		VControl_AddGestureBinding (&g, vec);
+		menu_bindings_dirty = TRUE;
+	}
+
+	populate_menukeys ();
+	FlushInput ();
+}
+
+static void
+clear_menu_control (WIDGET_MENUCONTROLENTRY *widget)
+{
+	int index = widget->controlindex;
+	int active = widget->highlighted;
+	int *target = (int *)&menu_vec[index];
+	VCONTROL_GESTURE *g = &curr_bindings[index].binding[active];
+
+	if (g->type != VCONTROL_NONE)
+		VControl_RemoveGestureBinding (g, target);
+
+	g->type = VCONTROL_NONE;
+	menu_bindings_dirty = TRUE;
+	populate_menukeys ();
+}
 
 static int
 count_widgets (WIDGET **widgets)
@@ -1743,7 +2189,7 @@ static FRAME setup_frame = NULL;
 #define MAX_BUFF (MENU_COUNT + CHOICE_COUNT + \
 				SLIDER_COUNT + BUTTON_COUNT + \
 				LABEL_COUNT + TEXTENTRY_COUNT + \
-				CONTROLENTRY_COUNT)
+				CONTROLENTRY_COUNT + MENUCONTROL_COUNT)
 
 static void
 init_widgets (void)
@@ -2204,6 +2650,45 @@ init_widgets (void)
 		controlentries[i].controlindex = i;
 		controlentries[i].onChange = rebind_control;
 		controlentries[i].onDelete = clear_control;
+	}
+
+	if (index >= count)
+	{
+		log_add (log_Fatal, "PANIC: String table cut short while reading "
+			"menu control entries");
+		exit (EXIT_FAILURE);
+	}
+
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+		SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
+		!= MENUCONTROL_COUNT)
+	{
+		log_add (log_Fatal, "PANIC: Incorrect number of Menu Control Entries");
+		exit (EXIT_FAILURE);
+	}
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		menucontrols[i].tag = WIDGET_TYPE_MENUCONTROLENTRY;
+		menucontrols[i].parent = NULL;
+		menucontrols[i].handleEvent = Widget_HandleEventMenuControlEntry;
+		menucontrols[i].receiveFocus = Widget_ReceiveFocusMenuControlEntry;
+		menucontrols[i].draw = Widget_DrawMenuControlEntry;
+		menucontrols[i].height = Widget_HeightOneLine;
+		menucontrols[i].width = Widget_WidthFullScreen;
+		menucontrols[i].category = buffer[i];
+		menucontrols[i].highlighted = 0;
+		for (int j = 0; j < 6; j++)
+		{
+			menucontrols[i].controlname[j][0] = 0;
+			menucontrols[i].controldisplay[j][0] = 0;
+		}
+		menucontrols[i].controlindex = i;
+		menucontrols[i].onChange = rebind_menu_control;
+		menucontrols[i].onDelete = clear_menu_control;
+
+		memcpy (&saved_menu_bindings[i], &curr_bindings[i],
+				sizeof (MENU_BINDINGS));
 	}
 
 	/* Check for garbage at the end */

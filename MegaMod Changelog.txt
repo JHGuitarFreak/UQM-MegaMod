@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [v0.8.5]
+
+### Added
+- Full menu control rebinding in the Setup Menu
+
 ## [v0.8.4]
 
 ### Added
