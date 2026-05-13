@@ -174,21 +174,30 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
 	do_cheats };
 
+#define W_MENUS(var)           (WIDGET *)(&menus[var])
+#define W_CHOICES(var)         (WIDGET *)(&choices[var])
+#define W_SLIDERS(var)         (WIDGET *)(&sliders[var])
+#define W_BUTTONS(var)         (WIDGET *)(&buttons[var])
+#define W_LABELS(var)          (WIDGET *)(&labels[var])
+#define W_TEXT_ENTRIES(var)    (WIDGET *)(&textentries[var])
+#define W_CONTROL_ENTRIES(var) (WIDGET *)(&controlentries[var])
+#define W_SPACER               W_LABELS (LABEL_SPACER)
+
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
-	(WIDGET *)(&buttons[BTN_GFXMENU  ]), // Graphics
-	(WIDGET *)(&buttons[BTN_ENGMENU  ]), // PC/3DO
-	(WIDGET *)(&buttons[BTN_VISMENU  ]), // Visuals
-	(WIDGET *)(&buttons[BTN_SNDMENU  ]), // Sound
-	(WIDGET *)(&buttons[BTN_MUSMENU  ]), // Music
-	(WIDGET *)(&buttons[BTN_KEYMENU  ]), // Controls
-	(WIDGET *)(&buttons[BTN_QOLMENU  ]), // Quality of Life
-	(WIDGET *)(&buttons[BTN_ADVMENU  ]), // Advanced
-	(WIDGET *)(&buttons[BTN_CHTMENU  ]), // Cheats
+	W_BUTTONS (BTN_GFXMENU), // Graphics
+	W_BUTTONS (BTN_ENGMENU), // PC/3DO
+	W_BUTTONS (BTN_VISMENU), // Visuals
+	W_BUTTONS (BTN_SNDMENU), // Sound
+	W_BUTTONS (BTN_MUSMENU), // Music
+	W_BUTTONS (BTN_KEYMENU), // Controls
+	W_BUTTONS (BTN_QOLMENU), // Quality of Life
+	W_BUTTONS (BTN_ADVMENU), // Advanced
+	W_BUTTONS (BTN_CHTMENU), // Cheats
 
-	(WIDGET *)(&labels [LABEL_SPACER ]), // Spacer
-	(WIDGET *)(&buttons[BTN_QUITSETUP]), // Quit Setup Menu
+	W_SPACER, // Spacer
+	W_BUTTONS (BTN_QUITSETUP), // Quit Setup Menu
 	NULL };
 
 static WIDGET *graphics_widgets[] = {
