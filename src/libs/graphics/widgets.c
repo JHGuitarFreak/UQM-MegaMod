@@ -898,22 +898,26 @@ void
 Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 {
 	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
-	Color OldColor;
-	Color selected;
-	FONT OldFont;
+	Color OldColor, selected;
+	FONT OldFont = 0;
 	FRAME oldFontEffect;
 	TEXT t;
-	int i, home_x;
+	RECT r;
+	int i, home_x, start_slot;
+	int col_size[2] = { 0 };
+	int num_pages = self->num_pages;
+	int offset = RES_SCALE (22);
 
 	selected = WIDGET_ACTIVE_COLOR;
 
-	OldFont = SetContextFont (TinyFontCond);
+	if (cur_font)
+		OldFont = SetContextFont (cur_font);
 	oldFontEffect = SetContextFontEffect (NULL);
 	OldColor = SetContextForeGroundColor (selected);
 
-	t.baseline.x = x + RES_SCALE (4);
+	t.baseline.x = x + (CanvasWidth / 5) + offset;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
 
@@ -922,16 +926,23 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 
 	font_DrawText (&t); // Menu Control Name E.G. Pause, Exit, Abort, etc.
 
-	home_x = t.baseline.x + RES_SCALE (66);
+	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
+	start_slot = self->current_page * 2;
 
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < 2; i++)
 	{
-		t.baseline.x = home_x + (i * RES_SCALE (45));
-		t.pStr = self->controldisplay[i];
+		int slot = start_slot + i;
+		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));
+		t.pStr = self->controlname[slot];
 
 		if ((widget_focus == _self) && (self->highlighted == i))
+		{
+			const char *tips[3] = {
+					"Press Return to edit", "or Delete to remove", NULL };
+			Widget_DrawToolTips (2, tips);
 			SetContextForeGroundColor (selected);
+		}
 		else
 		{
 			if (!t.pStr[0])
@@ -944,11 +955,68 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 			t.pStr = "---";
 
 		font_DrawText (&t);
+		col_size[i] = t.baseline.x;
+	}
+
+	if (widget_focus == _self && num_pages > 1)
+	{
+		STAMP arrow;
+		int arrow_buffer = RES_SCALE (38);
+
+		GetFrameRect (SetAbsFrameIndex (arrow_frame, 2), &r);
+
+		if (self->current_page > 0)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 2);
+			arrow.origin.x = col_size[0] - arrow_buffer - r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+
+		if (self->current_page < num_pages - 1)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 3);
+			arrow.origin.x = col_size[1] + arrow_buffer + r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+	}
+
+	if (widget_focus == _self && num_pages > 1)
+	{
+		int rect_mid, rect_width, col_mid;
+		int rect_gap = RES_SCALE (4);
+
+		r.extent.width = RES_SCALE (16);
+		r.extent.height = RES_SCALE (2);
+		r.corner.x = 0;
+
+		rect_width = (r.extent.width * num_pages) + (rect_gap * 2);
+		rect_mid = rect_width >> 1;
+
+		if (col_size[0] > 0 && col_size[1] > 0)
+		{
+			col_mid = ((col_size[1] - col_size[0]) >> 1) + col_size[0];
+			r.corner.x = col_mid - rect_mid;
+		}
+
+		r.corner.y = t.baseline.y + r.extent.height;
+
+		for (i = 0; i < num_pages; i++)
+		{
+			if (i > 0)
+				r.corner.x += r.extent.width + rect_gap;
+
+			SetContextForeGroundColor (i == self->current_page ?
+				WIDGET_ENABLED_COLOR : WIDGET_DISABLED_COLOR);
+			DrawFilledRectangle (&r);
+		}
 	}
 
 	SetContextForeGroundColor (OldColor);
 	SetContextFontEffect (oldFontEffect);
-	SetContextFont (OldFont);
+	if (OldFont)
+		SetContextFont (OldFont);
 }
 
 int
@@ -1234,30 +1302,61 @@ int
 Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
 {
 	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
+	int slot_count = 2;  /* Number of visible slots per page */
 
-	if (event == WIDGET_EVENT_SELECT)
+	switch (event)
 	{
+	case WIDGET_EVENT_SELECT:
 		if (self->onChange)
 		{
 			(self->onChange)(self);
 			return TRUE;
 		}
-	}
-	if (event == WIDGET_EVENT_DELETE)
-	{
+		break;
+
+	case WIDGET_EVENT_DELETE:
 		if (self->onDelete)
 		{
 			(self->onDelete)(self);
 			return TRUE;
 		}
-	}
-	if ((event == WIDGET_EVENT_RIGHT) ||
-	    (event == WIDGET_EVENT_LEFT))
-	{
-		BYTE left = (event == WIDGET_EVENT_LEFT ? 5 : 1);
-		self->highlighted = (self->highlighted + left) % 6;
+		break;
+
+	case WIDGET_EVENT_LEFT:
+		/* Move left between bindings, wrap to previous page if needed */
+		if (self->highlighted > 0)
+		{
+			/* Move to previous binding on current page */
+			self->highlighted--;
+		}
+		else if (self->current_page > 0)
+		{
+			/* Go to previous page, last binding */
+			self->current_page--;
+			self->highlighted = slot_count - 1;
+		}
 		return TRUE;
+
+	case WIDGET_EVENT_RIGHT:
+		/* Move right between bindings, wrap to next page if needed */
+		if (self->highlighted < slot_count - 1)
+		{
+			/* Move to next binding on current page */
+			self->highlighted++;
+		}
+		else if (self->current_page < self->num_pages - 1)
+		{
+			/* Go to next page, first binding */
+			self->current_page++;
+			self->highlighted = 0;
+		}
+		return TRUE;
+
+		/* UP/DOWN are NOT handled here - they go to parent menu for action navigation */
+	default:
+		return FALSE;
 	}
+
 	return FALSE;
 }
 

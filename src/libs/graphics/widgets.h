@@ -192,7 +192,8 @@ typedef struct _widget_menucontrolentry
 	int controlindex;
 	int highlighted;
 	char controlname[6][WIDGET_CONTROLENTRY_WIDTH];
-	char controldisplay[6][WIDGET_CONTROLENTRY_WIDTH];
+	int current_page;
+	int num_pages;
 } WIDGET_MENUCONTROLENTRY;
 
 void DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium);

@@ -891,46 +891,6 @@ RestoreMenuBindings (void)
 }
 
 static void
-abbreviate_name (const char *name, char *disp)
-{
-	int size = WIDGET_CONTROLENTRY_WIDTH;
-
-	static const char *long_names[] = {
-			"RightControl", "LeftControl", "RightShift", "LeftShift",
-			"RightAlt", "LeftAlt", "PageUp", "PageDown",
-			"Backspace", "Insert", "Delete", "Escape", "Return",
-			"Keypad-0", "Keypad-1", "Keypad-2", "Keypad-3", "Keypad-4",
-			"Keypad-5", "Keypad-6", "Keypad-7", "Keypad-8", "Keypad-9",
-			"Keypad-.", "Keypad-/", "Keypad-*", "Keypad--", "Keypad-+",
-			"Keypad-Enter", "Keypad-=",
-			NULL
-	};
-	static const char *short_names[] = {
-			"RCtrl", "LCtrl", "RShft", "LShft",
-			"RAlt", "LAlt", "PgUp", "PgDn",
-			"BkSp", "Ins", "Del", "Esc", "Enter",
-			"KP 0", "KP 1", "KP 2", "KP 3", "KP 4",
-			"KP 5", "KP 6", "KP 7", "KP 8", "KP 9",
-			"KP .", "KP /", "KP *", "KP -", "KP +",
-			"KP Ent", "KP =",
-			NULL
-	};
-
-	for (int i = 0; long_names[i] != NULL; i++)
-	{
-		if (strcmp (name, long_names[i]) == 0)
-		{
-			strncpy (disp, short_names[i], size);
-			disp[size - 1] = '\0';
-			return;
-		}
-	}
-
-	strncpy (disp, name, size);
-	disp[size - 1] = '\0';
-}
-
-static void
 populate_menukeys (void)
 {
 	int i, j;
@@ -945,18 +905,14 @@ populate_menukeys (void)
 			if (curr_bindings[i].binding[j].type != VCONTROL_NONE)
 			{
 				char *name = menucontrols[i].controlname[j];
-				char *disp = menucontrols[i].controldisplay[j];
 
 				g = &curr_bindings[i].binding[j];
 
 				InterrogateInputState (-1, -1, -1, name, size, g);
-
-				abbreviate_name (name, disp);
 			}
 			else
 			{
 				menucontrols[i].controlname[j][0] = '\0';
-				menucontrols[i].controldisplay[j][0] = '\0';
 			}
 		}
 	}
@@ -2113,6 +2069,8 @@ rebind_menu_control (WIDGET_MENUCONTROLENTRY *widget)
 	char bind[32];
 	int index = widget->controlindex;
 	int active = widget->highlighted;
+	int page = widget->current_page;
+	int slot = (page * 2) + active;
 	int *vec = (int *)&menu_vec[index];
 
 	FlushInput ();
@@ -2124,7 +2082,6 @@ rebind_menu_control (WIDGET_MENUCONTROLENTRY *widget)
 
 	if (g.type != VCONTROL_NONE)
 	{
-
 		if (CheckRebindConflict (index, &g, conflict, sizeof (conflict)))
 		{
 			const char *category = menucontrols[index].category;
@@ -2132,8 +2089,8 @@ rebind_menu_control (WIDGET_MENUCONTROLENTRY *widget)
 			InterrogateInputState (-1, -1, -1, bind, sizeof (bind), &g);
 
 			snprintf (buff, sizeof (buff),
-					"Cannot bind to `%s'\n\nUsing the `%s' (%s) binding",
-					category, conflict, bind);
+				"Cannot bind to `%s'\n\nUsing the `%s' (%s) binding",
+				category, conflict, bind);
 
 			DoPopupWindowFont (buff, MicroFont);
 
@@ -2142,13 +2099,13 @@ rebind_menu_control (WIDGET_MENUCONTROLENTRY *widget)
 			return;
 		}
 
-		if (curr_bindings[index].binding[active].type != VCONTROL_NONE)
+		if (curr_bindings[index].binding[slot].type != VCONTROL_NONE)
 		{
-			existing = &curr_bindings[index].binding[active];
+			existing = &curr_bindings[index].binding[slot];
 			VControl_RemoveGestureBinding (existing, vec);
 		}
 
-		curr_bindings[index].binding[active] = g;
+		curr_bindings[index].binding[slot] = g;
 		VControl_AddGestureBinding (&g, vec);
 		menu_bindings_dirty = TRUE;
 	}
@@ -2162,8 +2119,10 @@ clear_menu_control (WIDGET_MENUCONTROLENTRY *widget)
 {
 	int index = widget->controlindex;
 	int active = widget->highlighted;
+	int page = widget->current_page;
+	int slot = (page * 2) + active;
 	int *target = (int *)&menu_vec[index];
-	VCONTROL_GESTURE *g = &curr_bindings[index].binding[active];
+	VCONTROL_GESTURE *g = &curr_bindings[index].binding[slot];
 
 	if (g->type != VCONTROL_NONE)
 		VControl_RemoveGestureBinding (g, target);
@@ -2681,11 +2640,12 @@ init_widgets (void)
 		for (int j = 0; j < 6; j++)
 		{
 			menucontrols[i].controlname[j][0] = 0;
-			menucontrols[i].controldisplay[j][0] = 0;
 		}
 		menucontrols[i].controlindex = i;
 		menucontrols[i].onChange = rebind_menu_control;
 		menucontrols[i].onDelete = clear_menu_control;
+		menucontrols[i].current_page = 0;
+		menucontrols[i].num_pages = 3;
 
 		memcpy (&saved_menu_bindings[i], &curr_bindings[i],
 				sizeof (MENU_BINDINGS));
