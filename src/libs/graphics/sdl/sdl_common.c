@@ -182,10 +182,47 @@ TFB_UninitGraphics (void)
 	UnInit_Screen (&format_conv_surf);
 }
 
+const char *SDL_GameControllerTypeToString (SDL_GameControllerType type)
+{
+	static const char *strings[] = {
+		"Unknown",
+		"Xbox 360",
+		"Xbox One",
+		"PlayStation 3",
+		"PlayStation 4",
+		"Nintendo Switch Pro",
+		"Virtual",
+		"PlayStation 5",
+		"Amazon Luna",
+		"Google Stadia",
+		"NVIDIA Shield",
+		"Nintendo Switch Joy-Con (Left)",
+		"Nintendo Switch Joy-Con (Right)",
+		"Nintendo Switch Joy-Con Pair",
+		"MAX (Invalid)"
+	};
+
+	if (type < 0 || type > SDL_CONTROLLER_TYPE_MAX)
+		return "Unknown (Invalid)";
+
+	return strings[type];
+}
+
+typedef struct last_input
+{
+	bool type;
+	int gamepad;
+} LAST_INPUT;
+
+LAST_INPUT input_type[2] = {KEYBOARD_INPUT};
+
 void
 TFB_ProcessEvents ()
 {
 	SDL_Event Event;
+
+	static int i;
+	static LAST_INPUT last_input[2] = { KEYBOARD_INPUT };
 
 	while (SDL_PollEvent (&Event) > 0)
 	{
@@ -216,6 +253,57 @@ TFB_ProcessEvents ()
 				TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
 				break;
 #else
+			//case SDL_CONTROLLERAXISMOTION:
+			//		if (abs (Event.caxis.value) > 30000)
+			//		{
+			//			printf ("Controller axis motion: %s, value: %d\n",
+			//				EventType (Event.type), abs (Event.caxis.value));
+			//			input_type.player_one = CONTROLLER_INPUT;
+			//		}
+			//case SDL_CONTROLLERTOUCHPADDOWN:
+			//case SDL_CONTROLLERTOUCHPADMOTION:
+			//case SDL_CONTROLLERTOUCHPADUP:
+			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_CONTROLLERBUTTONUP:
+			{
+				i = SDL_JoystickGetDevicePlayerIndex (Event.cbutton.which);
+				input_type[i].type = CONTROLLER_INPUT;
+				//printf ("Controller button %s: %s\n", EventType (Event.type),
+				//	SDL_JoystickGetDevicePlayerIndex (Event.cbutton.which)
+				//		== 0 ? "Player 1" : "Player 2");
+				input_type[i].gamepad = SDL_GameControllerGetType (
+						SDL_GameControllerFromInstanceID (Event.cbutton.which));
+
+				switch (input_type[0].gamepad)
+				{
+				case SDL_CONTROLLER_TYPE_PS3:
+				case SDL_CONTROLLER_TYPE_PS4:
+				case SDL_CONTROLLER_TYPE_PS5:
+					optControllerType = 2;
+					break;
+				case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
+				case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+				case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+				case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+					optControllerType = 3;
+					break;
+				case SDL_CONTROLLER_TYPE_XBOX360:
+				case SDL_CONTROLLER_TYPE_XBOXONE:
+				case SDL_CONTROLLER_TYPE_VIRTUAL:
+				default:
+					optControllerType = 1;
+					break;
+				}
+				PlayerControls[0] = 4;
+
+				break;
+			}
+			case SDL_KEYDOWN:
+			case SDL_KEYUP:
+				input_type[0].type = KEYBOARD_INPUT;
+				optControllerType = 0;
+				PlayerControls[0] = 0;
+				break;
 			case SDL_WINDOWEVENT:
 				if (Event.window.event == SDL_WINDOWEVENT_EXPOSED)
 				{
@@ -226,6 +314,24 @@ TFB_ProcessEvents ()
 #endif
 			default:
 				break;
+		}
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		if (last_input[i].type != input_type[i].type)
+		{
+			printf ("Last input player %d: %s",
+				i+1, input_type[i].type == KEYBOARD_INPUT ? "KEYBOARD" : "CONTROLLER");
+			if (input_type[i].type == CONTROLLER_INPUT)
+			{
+				printf (" -> type: %s\n",
+					SDL_GameControllerTypeToString (input_type[i].gamepad));
+			}
+			else
+				printf ("\n");
+
+			last_input[i].type = input_type[i].type;
 		}
 	}
 }
