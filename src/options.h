@@ -58,7 +58,7 @@ extern int timeDilationScale;
 extern OPT_ENABLABLE optBubbleWarp;
 extern OPT_ENABLABLE optUnlockShips;
 extern OPT_ENABLABLE optHeadStart;
-extern OPT_ENABLABLE optUnlockUpgrades;
+extern OPT_ENABLABLE optAutoButtons;
 extern OPT_ENABLABLE optInfiniteRU;
 extern DWORD oldRU;
 extern OPT_ENABLABLE optSkipIntro;
@@ -187,8 +187,6 @@ typedef struct _input_template {
 	 * possibly the whole configuration scheme.  If we do that, we
 	 * can actually ditch much of VControl. */
 } INPUT_TEMPLATE;
-
-extern INPUT_TEMPLATE input_templates[6];
 
 void prepareContentDir (const char *contentDirName, const char *addonDirName, const char *execFile);
 void prepareConfigDir (const char *configDirName);

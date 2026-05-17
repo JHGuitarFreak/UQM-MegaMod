@@ -201,7 +201,7 @@ enum {
 	CHOICE_CHWARP,
 	CHOICE_CHSHIPS,
 	CHOICE_CHHEADSTART,
-	CHOICE_CHUPGRADES,
+	CHOICE_AUTOBUTT,
 	CHOICE_CHINFRU,
 	CHOICE_SKIPINTRO,
 	CHOICE_FUELCIRCLE,
@@ -369,7 +369,6 @@ enum {
 };
 
 enum {
-	TEXT_LOUTNAME,
 	TEXT_GAMESEED,
 	TEXT_CUSTMRES,
 
@@ -419,7 +418,7 @@ typedef struct globalopts_struct {
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
-			unlockShips, headStart, unlockUpgrades, infiniteRU, skipIntro,
+			unlockShips, headStart, autoButtons, infiniteRU, skipIntro,
 			infiniteFuel, partialPickup, submenu, infiniteCredits,
 			customBorder, volasMusic, directionalJoystick, wholeFuel,
 			extended, gameOver, shipDirectionIP, hazardColors, orzCompFont,

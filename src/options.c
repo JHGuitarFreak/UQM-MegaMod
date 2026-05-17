@@ -69,7 +69,7 @@ int timeDilationScale;
 OPT_ENABLABLE optBubbleWarp;
 OPT_ENABLABLE optUnlockShips;
 OPT_ENABLABLE optHeadStart;
-OPT_ENABLABLE optUnlockUpgrades;
+OPT_ENABLABLE optAutoButtons;
 OPT_ENABLABLE optInfiniteRU;
 DWORD oldRU;
 OPT_ENABLABLE optSkipIntro;
@@ -166,8 +166,6 @@ ADDON_COUNT addonList;
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;
-
-INPUT_TEMPLATE input_templates[6];
 
 static const char *findFileInDirs (const char *locs[], int numLocs,
 		const char *file);

@@ -77,14 +77,6 @@ int TFB_SupportsHardwareScaling (void);
 // This function should not be called directly
 void TFB_SwapBuffers (int force_full_redraw);
 
-enum
-{
-	KEYBOARD_INPUT,
-	CONTROLLER_INPUT
-};
-
-extern int last_input_type;
-
 #define GSCALE_IDENTITY 256
 
 typedef enum {

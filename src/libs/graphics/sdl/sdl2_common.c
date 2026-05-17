@@ -63,6 +63,7 @@ TFB_PreInit (void)
 #endif
 
 	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+	SDL_SetHint (SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
 
 	if ((SDL_Init (SDL_INIT_VIDEO) == -1))
 	{

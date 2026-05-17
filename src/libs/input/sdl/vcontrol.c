@@ -105,6 +105,8 @@ static default_binding *default_bindings = NULL;
 static int default_binding_count = 0;
 static int default_binding_capacity = 0;
 
+LAST_INPUT last_input[2] = { 0 };
+
 #endif // SDL_MAJOR_VERSION
 #endif /* HAVE_JOYSTICK */
 
@@ -1575,9 +1577,53 @@ VControl_BeginFrame (void)
 	}
 }
 
+void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
+{
+	switch (e->type)
+	{
+	case SDL_KEYDOWN:
+		if (!e->key.repeat)
+		{	// KEYBOARD
+			last_input[0].type = 0;
+			last_input[0].pressed = true;
+			last_input[0].gamepad = -1;
+		}
+		break;
+	case SDL_CONTROLLERBUTTONDOWN:
+	{
+		int i;
+		SDL_GameController *controller;
+		SDL_GameControllerType controller_type;
+		SDL_JoystickID instance_id = e->cbutton.which;
+		int logical_port = -1;
+
+		for (i = 0; i < 2; i++)
+		{
+			if (controller_assignments[i] == instance_id)
+			{
+				logical_port = i;
+				break;
+			}
+		}
+
+		if (logical_port >= 0 && logical_port < 2)
+		{	// CONTROLLER
+			controller = SDL_GameControllerFromInstanceID (instance_id);
+			controller_type = SDL_GameControllerGetType (controller);
+			last_input[logical_port].type = 1;
+			last_input[logical_port].pressed = true;
+			last_input[logical_port].gamepad = controller_type;
+		}
+		break;
+	}
+	}
+}
+
 void
 VControl_HandleEvent (const SDL_Event *e)
 {
+	VControl_UpdateInputTypeFromEvent (e);
+
 	switch (e->type)
 	{
 		case SDL_KEYDOWN:

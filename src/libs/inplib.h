@@ -23,6 +23,7 @@
 #include "libs/compiler.h"
 #include "libs/uio.h"
 #include "libs/unicode.h"
+#include "libs/input/sdl/vcontrol.h"
 
 #if defined(__cplusplus)
 extern "C" {
