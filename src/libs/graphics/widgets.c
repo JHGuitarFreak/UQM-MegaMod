@@ -1302,61 +1302,55 @@ int
 Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
 {
 	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
-	int slot_count = 2;  /* Number of visible slots per page */
 
-	switch (event)
+	if (event == WIDGET_EVENT_SELECT)
 	{
-	case WIDGET_EVENT_SELECT:
 		if (self->onChange)
 		{
 			(self->onChange)(self);
 			return TRUE;
 		}
-		break;
-
-	case WIDGET_EVENT_DELETE:
+	}
+	if (event == WIDGET_EVENT_DELETE)
+	{
 		if (self->onDelete)
 		{
 			(self->onDelete)(self);
 			return TRUE;
 		}
-		break;
-
-	case WIDGET_EVENT_LEFT:
-		/* Move left between bindings, wrap to previous page if needed */
-		if (self->highlighted > 0)
-		{
-			/* Move to previous binding on current page */
-			self->highlighted--;
-		}
-		else if (self->current_page > 0)
-		{
-			/* Go to previous page, last binding */
-			self->current_page--;
-			self->highlighted = slot_count - 1;
-		}
-		return TRUE;
-
-	case WIDGET_EVENT_RIGHT:
-		/* Move right between bindings, wrap to next page if needed */
-		if (self->highlighted < slot_count - 1)
-		{
-			/* Move to next binding on current page */
+	}
+	if (event == WIDGET_EVENT_RIGHT)
+	{
+		if (self->highlighted < 1)
 			self->highlighted++;
-		}
 		else if (self->current_page < self->num_pages - 1)
 		{
-			/* Go to next page, first binding */
 			self->current_page++;
 			self->highlighted = 0;
 		}
+		else
+		{
+			self->current_page = 0;
+			self->highlighted = 0;
+		}
 		return TRUE;
-
-		/* UP/DOWN are NOT handled here - they go to parent menu for action navigation */
-	default:
-		return FALSE;
 	}
-
+	if (event == WIDGET_EVENT_LEFT)
+	{
+		if (self->highlighted > 0)
+			self->highlighted--;
+		else if (self->current_page > 0)
+		{
+			self->current_page--;
+			self->highlighted = 1;
+		}
+		else
+		{
+			self->current_page = self->num_pages - 1;
+			self->highlighted = 1;
+		}
+		return TRUE;
+	}
 	return FALSE;
 }
 
