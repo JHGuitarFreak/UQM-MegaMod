@@ -1215,6 +1215,22 @@ Widget_HandleEventControlEntry (WIDGET *_self, int event)
 	}
 	if (event == WIDGET_EVENT_RIGHT)
 	{
+		if (self->highlighted < slot_count - 1)
+			self->highlighted++;
+		else if (self->current_page < self->num_pages - 1)
+		{
+			self->current_page++;
+			self->highlighted = 0;
+		}
+		else
+		{
+			self->current_page = 0;
+			self->highlighted = 0;
+		}
+		return TRUE;
+	}
+	if (event == WIDGET_EVENT_LEFT)
+	{
 		if (self->highlighted > 0)
 			self->highlighted--;
 		else if (self->current_page > 0)
@@ -1222,16 +1238,10 @@ Widget_HandleEventControlEntry (WIDGET *_self, int event)
 			self->current_page--;
 			self->highlighted = slot_count - 1;
 		}
-		return TRUE;
-	}
-	if (event == WIDGET_EVENT_LEFT)
-	{
-		if (self->highlighted < slot_count - 1)
-			self->highlighted++;
-		else if (self->current_page < self->num_pages - 1)
+		else
 		{
-			self->current_page++;
-			self->highlighted = 0;
+			self->current_page = self->num_pages - 1;
+			self->highlighted = 1;
 		}
 		return TRUE;
 	}
