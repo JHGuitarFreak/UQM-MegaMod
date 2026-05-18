@@ -272,12 +272,14 @@ DoDiffChooser (MENU_STATE *pMS)
 			LastInputTime = GetTimeCounter ();
 
 		}
+#ifndef DEBUG
 		else if (GetTimeCounter () - LastInputTime > InactTimeOut)
 		{	// timed out
 			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 			done = TRUE;
 			response = FALSE;
 		}
+#endif
 
 		SleepThread (ONE_SECOND / 30);
 	}
@@ -642,6 +644,7 @@ DoRestart (MENU_STATE *pMS)
 
 	//	LastInputTime = GetTimeCounter ();
 	//}
+#ifndef DEBUG
 	else
 	{	// No input received, check if timed out
 		if (GetTimeCounter () - LastInputTime > InactTimeOut)
@@ -650,6 +653,8 @@ DoRestart (MENU_STATE *pMS)
 			return FALSE;
 		}
 	}
+#endif
+#
 
 	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 
@@ -826,6 +831,7 @@ StartGame (void)
 
 				if (optRequiresRestart || optRequiresReload)
 					optRequiresRestart = optRequiresReload = FALSE;
+#ifndef DEBUG
 				else
 				{
 					SplashScreen (0);
@@ -833,6 +839,7 @@ StartGame (void)
 						Drumall ();
 					Credits (FALSE);
 				}
+#endif
 			}
 
 			if (GLOBAL (CurrentActivity) & CHECK_ABORT)
