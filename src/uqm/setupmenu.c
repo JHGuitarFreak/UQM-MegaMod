@@ -1873,6 +1873,7 @@ init_widgets (void)
 	}
 
 	/* Choice 20 has a special onChange handler, too. */
+	choices[CHOICE_KBLAYOUT  ].onChange = change_template;
 	choices[CHOICE_GAMESEED  ].onChange = change_seedtype;
 
 	// Check addon availability for HD mode, DOS/3DO mode, and music remixes
