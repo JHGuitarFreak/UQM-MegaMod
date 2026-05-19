@@ -184,14 +184,14 @@ initKeyConfig (void)
 			break;
 		register_menu_controls (i);
 	}
-	
+
 	LoadResourceIndex (configDir, "flight.cfg", "keys.");
-	if (res_HasKey ("keys.1.name"))
+	if (!res_HasKey ("keys.version"))
 	{
 		/* Either flight.cfg doesn't exist, or we're using an old version
 		   of flight.cfg, and thus we wound up loading untyped values into
-		   'keys.keys.1.name' and such.  Load the defaults from the content
-		   directory. */
+		   'keys.keys.version' and such.  Load the defaults from the
+		   content directory. */
 		LoadResourceIndex (contentDir, "uqm.key", "keys.");
 	}
 
@@ -594,39 +594,43 @@ TFB_ResetControls (void)
 	lastchar = 0;
 }
 
+#if SDL_MAJOR_VERSION > 1
+const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	"A", "B", "X", "Y", "Back", "Guide", "Start", "LS", "RS",
+	"LB", "RB", "Up", "Down", "Left", "Right", "Misc", "Paddle 1",
+	"Paddle 3","Paddle 2","Paddle 4","???"
+};
+
+const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+{ "LS H", "LS V", "RS H", "RS V", "LT", "RT" };
+
+const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE, "Share", "PS",
+	"Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right",
+	"Mic","Paddle 1","Paddle 3","Paddle 2","Paddle 4","TouchPad"
+};
+
+const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+{ "LS H", "LS V", "RS H", "RS V", "L2", "R2" };
+
+const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	"B", "A", "Y", "X", "Minus", "Home", "Plus", "LS", "RS",
+	"L", "R", "Up", "Down", "Left", "Right", "Capture", "Paddle 1",
+	"Paddle 3", "Paddle 2", "Paddle 4", "???"
+};
+
+const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+{ "LS H", "LS V", "RS H", "RS V", "ZL", "ZR" };
+#endif
+
 void
 InterrogateInputState (int templat, int control, int index, char *buffer,
 	int maxlen)
 {
 	VCONTROL_GESTURE *g = CONTROL_PTR (templat, control, index);
-
-#if SDL_MAJOR_VERSION > 1
-	const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		"A", "B", "X", "Y", "Back", "Guide", "Start",
-		"LStick", "RStick", "LShoulder", "RShoulder",
-		"DUp", "DDown", "DLeft", "DRight", "Misc"
-	};
-
-	const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE,
-		"Share", "PS", "Options", "L3", "R3", "L1", "R1",
-		"DUp", "DDown", "DLeft", "DRight", "TouchPad"
-	};
-
-	const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-	{
-		"LStick H", "LStick V", "RStick H", "RStick V",
-		"LTrigger", "RTrigger"
-	};
-
-	const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-	{
-		"LStick H", "LStick V", "RStick H", "RStick V",
-		"L2", "R2"
-	};
-#endif
 
 	if (templat >= num_templ || control >= num_flight
 		|| index >= MAX_FLIGHT_ALTERNATES)
@@ -658,6 +662,12 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 						g->gesture.button.port,
 						ds4_buttons[g->gesture.button.index]);
 			}
+			else if (optControllerType == 3)
+			{
+				snprintf (buffer, maxlen, "[J%d %s]",
+						g->gesture.button.port,
+						nx_buttons[g->gesture.button.index]);
+			}
 			else
 #endif
 			{
@@ -681,6 +691,13 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 				snprintf (buffer, maxlen, "[J%d %s%c]",
 						g->gesture.axis.port,
 						ds4_axes[g->gesture.axis.index],
+						g->gesture.axis.polarity > 0 ? '+' : '-');
+			}
+			else if (optControllerType == 3)
+			{
+				snprintf (buffer, maxlen, "[J%d %s%c]",
+						g->gesture.axis.port,
+						nx_axes[g->gesture.axis.index],
 						g->gesture.axis.polarity > 0 ? '+' : '-');
 			}
 			else

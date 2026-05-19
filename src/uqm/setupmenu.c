@@ -2763,6 +2763,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
 #endif
 
+	res_PutString ("keys.version", MM_BASE_VERSION_S);
+
 /*
  *		Cheats
  */
