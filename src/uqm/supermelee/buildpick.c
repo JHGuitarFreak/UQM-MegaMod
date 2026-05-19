@@ -27,9 +27,6 @@
 
 static FRAME BuildPickFrame;
 
-#define TTIP_FRAME_OFFSET 43
-#define BUILDPICK_FRAME_OFFSET 27
-
 void
 BuildBuildPickFrame (void)
 {
@@ -41,8 +38,7 @@ BuildBuildPickFrame (void)
 	// create team building ship selection box
 	s.origin.x = 0;
 	s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (MeleeFrame,
-			BUILDPICK_FRAME_OFFSET + optControllerType);
+	s.frame = SetAbsFrameIndex (MeleeFrame, SHIP_PICKER);
 			// 5x5 grid of ships to pick from
 	GetFrameRect (s.frame, &r);
 
@@ -116,8 +112,7 @@ RepairBuildPickFrame (RECT *pRect, POINT *origin)
 
 	s.origin.x = pRect->corner.x;
 	s.origin.y = pRect->corner.y;
-	s.frame = SetAbsFrameIndex (MeleeFrame,
-			BUILDPICK_FRAME_OFFSET + optControllerType);
+	s.frame = SetAbsFrameIndex (MeleeFrame, SHIP_PICKER);
 
 	DrawStamp (&s);
 
@@ -166,7 +161,7 @@ DrawTooltipBox (void)
 	STAMP s;
 
 	s.origin.x = s.origin.y = 0;
-	s.frame = SetAbsFrameIndex (MeleeFrame, TTIP_FRAME_OFFSET);
+	s.frame = SetAbsFrameIndex (MeleeFrame, SHIP_DESC);
 
 	DrawStamp (&s);
 }
@@ -174,7 +169,7 @@ DrawTooltipBox (void)
 void
 GetToolTipFrameRect (RECT *r)
 {
-	GetFrameRect (SetAbsFrameIndex (MeleeFrame, TTIP_FRAME_OFFSET), r);
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, SHIP_DESC), r);
 }
 
 #define RACE_NAME_OFFSET 0
