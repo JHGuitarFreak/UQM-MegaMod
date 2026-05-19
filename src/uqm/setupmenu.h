@@ -440,6 +440,8 @@ void SetupMenu (void);
 void GetGlobalOptions (GLOBALOPTS *opts);
 void SetGlobalOptions (GLOBALOPTS *opts);
 
+extern BOOLEAN InSetupMenu;
+
 #if defined(__cplusplus)
 }
 #endif

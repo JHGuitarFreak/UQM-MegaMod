@@ -300,7 +300,7 @@ UpdateInputState (void)
 			QuickSave ();
 	}
 
-	if (optAutoButtons && !IN_MAIN_MENU)
+	if (optAutoButtons && !InSetupMenu)
 		ControllerTypeSwitcher ();
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
@@ -564,7 +564,7 @@ SDL_GameControllerTypeToString (SDL_GameControllerType type)
 	return strings[type];
 }
 
-static LAST_INPUT input_tracker = { 0 };
+static LAST_INPUT input_tracker = { -1 };
 
 static void
 ControllerTypeSwitcher (void)
@@ -577,8 +577,8 @@ ControllerTypeSwitcher (void)
 		return;
 
 	if ((input_tracker.type == 1
-			&& input_tracker.gamepad == last_input[0].gamepad)
-			|| (input_tracker.type == 0 && last_input[0].type == 0))
+		&& input_tracker.gamepad == last_input[0].gamepad)
+		|| (input_tracker.type == 0 && last_input[0].type == 0))
 		return;
 
 #ifdef DEBUG
@@ -591,11 +591,20 @@ ControllerTypeSwitcher (void)
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		if (CurrentInputState.key[PlayerControls[0]][i])
+		{
 			pressed = TRUE;
+		}
+	}
+
+	if (last_input[0].pressed && !pressed)
+	{
+		input_tracker.pressed = 0;
+		last_input[0].pressed = 0;
+		return;
 	}
 
 	if (pressed && last_input[0].type == 1
-			&& input_tracker.gamepad != last_input[0].gamepad)
+		&& input_tracker.gamepad != last_input[0].gamepad)
 	{
 		switch (last_input[0].gamepad)
 		{
@@ -626,7 +635,7 @@ ControllerTypeSwitcher (void)
 	}
 
 	if (pressed && last_input[0].type == 0
-			&& input_tracker.type != last_input[0].type)
+			&& optControllerType > 0)
 	{
 		optControllerType = 0;
 
@@ -635,9 +644,12 @@ ControllerTypeSwitcher (void)
 #endif
 	}
 
-	pressed = FALSE;
-	last_input[0].pressed = pressed;
-	input_tracker = last_input[0];
+	if (pressed && last_input[0].pressed)
+	{
+		pressed = FALSE;
+		last_input[0].pressed = pressed;
+		input_tracker = last_input[0];
+	}
 }
 
 #endif

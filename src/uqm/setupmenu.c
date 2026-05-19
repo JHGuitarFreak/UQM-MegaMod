@@ -77,6 +77,7 @@ static int MusVol;
 static int SpcVol;
 static int optMScale;
 static SOUND testSounds;
+BOOLEAN InSetupMenu = FALSE;
 
 static int
 whichPlatformRef (OPT_CONSOLETYPE opt)
@@ -2240,11 +2241,13 @@ SetupMenu (void)
 {
 	SETUP_MENU_STATE s;
 
+	InSetupMenu = TRUE;
+
 	s.InputFunc = DoSetupMenu;
 	s.initialized = FALSE;
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	SetupTab = CaptureStringTable (LoadStringTable (SETUP_MENU_STRTAB));
-	if (SetupTab) 
+	if (SetupTab)
 	{
 		init_widgets ();
 	}
@@ -2263,6 +2266,8 @@ SetupMenu (void)
 	{
 		clean_up_widgets ();
 	}
+
+	InSetupMenu = FALSE;
 
 	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
 						MENU_SOUND_SELECT);
