@@ -71,6 +71,8 @@ QUEUE race_q[NUM_PLAYERS];
 FRAME ActivityFrame;
 FRAME StatusFrame;
 FRAME SubmenuFrame;
+FRAME KeyAtlasOneFrame;
+FRAME KeyAtlasTwoFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME visitedStarsFrame;
@@ -350,6 +352,10 @@ InitKernel (void)
 	if (SubmenuFrame == NULL)
 		return FALSE;
 	AdvanceLoadProgress ();
+
+	KeyAtlasOneFrame = CaptureDrawable (LoadGraphic (KEY_ATLAS_01_PMAP_ANIM));
+	if (KeyAtlasOneFrame == NULL)
+		return FALSE;
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));
 	if (GameStrings == 0)

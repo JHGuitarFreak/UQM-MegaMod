@@ -227,3 +227,18 @@ VControl_name2code (const char *name)
 		++i;
 	}
 }
+
+int
+VControl_code2index (int code)
+{
+	int i = 0;
+	while (1)
+	{
+		int test = keynames[i].code;
+		if (test == code || !test)
+		{
+			return i;
+		}
+		++i;
+	}
+}

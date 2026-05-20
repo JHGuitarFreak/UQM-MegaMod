@@ -19,4 +19,5 @@
 
 const char *VControl_code2name (int code);
 int VControl_name2code (const char *code);
+int VControl_code2index (int code);
 #endif

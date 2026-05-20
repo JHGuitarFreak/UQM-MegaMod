@@ -34,6 +34,8 @@ extern FRAME Screen;
 extern FRAME ActivityFrame;
 extern FRAME StatusFrame;
 extern FRAME SubmenuFrame;
+extern FRAME KeyAtlasOneFrame;
+extern FRAME KeyAtlasTwoFrame;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME visitedStarsFrame;

@@ -59,6 +59,8 @@
 #define IP_URANUS_MASK_ANIM "graphics.ipuranusmask"
 #define IP_VENUS_MASK_ANIM "graphics.ipvenusmask"
 #define JUPITER_MASK_ANIM "graphics.jupitermask"
+#define KEY_ATLAS_01_PMAP_ANIM "graphics.keyatlasone"
+#define KEY_ATLAS_02_PMAP_ANIM "graphics.keyatlastwo"
 #define LANDER_FONTEFF_PMAP_ANIM "graphics.landerfonteffect"
 #define LANDER_LAUNCH_MASK_PMAP_ANIM "graphics.landerlaunch"
 #define LANDER_MASK_PMAP_ANIM "graphics.lander"
