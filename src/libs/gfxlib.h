@@ -694,6 +694,7 @@ extern BOOLEAN TextRectAlt (TEXT *lpText, RECT *pRect, BYTE *pdelta, BYTE swap, 
 extern BOOLEAN GetContextFontLeading (SIZE *pheight);
 extern BOOLEAN GetContextFontDispHeight (SIZE *pheight);
 extern BOOLEAN GetContextFontDispWidth (SIZE *pwidth);
+extern SBYTE GetContextFontVertAlign (SBYTE *valign);
 extern COUNT GetFrameCount (FRAME Frame);
 extern COUNT GetFrameIndex (FRAME Frame);
 extern FRAME SetAbsFrameIndex (FRAME Frame, COUNT FrameIndex);

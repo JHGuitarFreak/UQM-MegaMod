@@ -36,6 +36,8 @@ extern FRAME StatusFrame;
 extern FRAME SubmenuFrame;
 extern FRAME KeyAtlasOneFrame;
 extern FRAME KeyAtlasTwoFrame;
+extern FRAME ButtonAtlasFrame;
+extern FRAME AxisAtlasFrame;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME visitedStarsFrame;

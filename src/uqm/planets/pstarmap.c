@@ -2580,9 +2580,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			DrawStarMap (0, NULL);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SEARCH]
-			|| (PulsedInputState.menu[KEY_MENU_ZOOM_IN]
-				&& PulsedInputState.menu[KEY_MENU_ZOOM_OUT]))
+	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
 	{
 		FlushInput ();
 
@@ -2986,18 +2984,206 @@ DoneSphereGrowth:
 }
 
 static FRAME
-KeyAtlasIndex (int index)
+KeyAtlas (int menu_index)
 {
-	VCONTROL_GESTURE g = curr_bindings[index].binding[0];
-	int i= VControl_code2index (g.gesture.key);
+	VCONTROL_GESTURE g = curr_bindings[menu_index].binding[0];
+	int i = VControl_code2index (g.gesture.key);
+	const char *key = VControl_code2name (g.gesture.key);
 
+#ifdef DEBUG
+	printf ("Key: %s,%sAtlas Index: %d\n",
+			key, strlen(key) < 2 ? "\t\t" : "\t", i);
+#endif
+	
 	return SetAbsFrameIndex (KeyAtlasOneFrame, i);
 }
 
-static void
-DrawFuelHelper (POINT origin, TEXT t, SIZE leading)
+static FRAME
+ControlAtlas (int menu_index)
 {
+	VCONTROL_GESTURE g;
+	int i;
+
+	if (!optControllerType)
+		return KeyAtlas (menu_index);
+
+	for (i = 0; i < 6; i++)
+	{
+		g = curr_bindings[menu_index].binding[i];
+		if (g.type == VCONTROL_JOYBUTTON || g.type == VCONTROL_JOYAXIS)
+			break;
+	}
+
+	switch (g.type)
+	{
+	case VCONTROL_JOYBUTTON:
+		{
+			int index = g.gesture.button.index;
+			int frame_index = 0;
+
+			if (optControllerType > 1)
+				frame_index = NUM_BUTTONS * (optControllerType - 1);
+
+#ifdef DEBUG
+			printf ("Button: %d, Atlas Index: %d\n", index,
+					index + frame_index);
+#endif
+
+			return SetAbsFrameIndex (ButtonAtlasFrame,
+					index + frame_index);
+		}
+	case VCONTROL_JOYAXIS:
+		{
+			int atlas_index;
+			int index = g.gesture.axis.index;
+			BOOLEAN polarity = g.gesture.axis.polarity < 0 ? 0 : 1;
+			int frame_index = 0;
+
+			if (optControllerType > 1)
+				frame_index = NUM_AXIS * (optControllerType - 1);
+
+			atlas_index = index * 2 + polarity + frame_index;
+
+#ifdef DEBUG
+			printf ("Axis: %d, Polarity: %d, Atlas Index: %d\n",
+				index, polarity, atlas_index);
+#endif
+
+			return SetAbsFrameIndex (AxisAtlasFrame,
+					atlas_index);
+		}
+	default:
+		return KeyAtlas (menu_index);
+	}
+}
+
+static void
+DrawStarmapKeyAtlas (void)
+{
+	CONTEXT OldContext;
+	STAMP s;
+	TEXT t;
 	RECT r;
+	POINT origin;
+	SIZE dheight, spacing;
+	SIZE leading;
+	SBYTE valign;
+	COORD sbottom;
+
+	OldContext = SetContext (StatusContext);
+
+	BatchGraphics ();
+
+	DrawFlagStatDisplay (GAME_STRING (STATUS_STRING_BASE + 7));
+
+	SetContextFont (TinyFontCond);
+	GetContextFontDispHeight (&dheight);
+	GetContextFontVertAlign (&valign);
+	SetContextForeGroundColor (MODULE_NAME_COLOR);
+
+	origin.x = RES_SCALE (4);
+	origin.y = RES_SCALE (34);
+	spacing = RES_SCALE (3);
+
+	// :Maps
+	s.frame = ControlAtlas (KEY_MENU_TOGGLEMAP);
+	s.origin = origin;
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.align = ALIGN_LEFT;
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 12);
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	// :Add->O
+	s.origin.y = sbottom + spacing;
+	s.frame = ControlAtlas (KEY_MENU_SPECIAL);
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 13);
+	font_DrawText (&t);
+
+	r = font_GetTextRect (&t);
+
+	s.origin.x = t.baseline.x + r.extent.width + RES_SCALE (3);
+	s.origin.y = t.baseline.y - RES_SCALE (3);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 108);
+	DrawStamp (&s);
+
+	// Cursor Speed
+	s.origin.y = sbottom + spacing;
+	s.origin.x = origin.x;
+	s.frame = ControlAtlas (KEY_MENU_NEXT);
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
+	t.pStr = ":";
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	s.origin.x = t.baseline.x + RES_SCALE (7);
+	s.origin.y = t.baseline.y - RES_SCALE (3);
+	s.frame = SetAbsFrameIndex (MiscDataFrame, 48);
+	DrawStamp (&s);
+
+	t.baseline.x += RES_SCALE (13);
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 14);
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	// :Search
+	s.frame = ControlAtlas (KEY_MENU_SEARCH);
+	s.origin.y = sbottom + spacing;
+	s.origin.x = origin.x;
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 15);
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	// :Zoom In
+	s.frame = ControlAtlas (KEY_MENU_ZOOM_IN);
+	s.origin.y = sbottom + spacing;
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	// :Zoom Out
+	s.frame = ControlAtlas (KEY_MENU_ZOOM_OUT);
+	s.origin.y = sbottom + RES_SCALE (1);
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - (((r.extent.height * 2 + RES_SCALE (1))
+			- dheight) / 2) - valign;
+	t.pStr = GAME_STRING (STATUS_STRING_BASE + 16);
+	t.CharCount = (COUNT)~0;
+	font_DrawText (&t);
+
+	GetContextFontLeading (&leading);
 
 	// Separator
 	r.corner.x = origin.x;
@@ -3024,132 +3210,6 @@ DrawFuelHelper (POINT origin, TEXT t, SIZE leading)
 	t.pStr = WholeFuelValue ();
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
-}
-
-static void
-DrawStarmapKeyAtlas (void)
-{
-
-	CONTEXT OldContext;
-	STAMP s;
-	TEXT t;
-	RECT r;
-	SIZE leading;
-	POINT origin;
-	COORD old_y;
-
-	OldContext = SetContext (StatusContext);
-
-	BatchGraphics ();
-
-	DrawFlagStatDisplay (GAME_STRING (STATUS_STRING_BASE + 7));
-
-	SetContextFont (TinyFontCond);
-	GetContextFontLeading (&leading);
-
-	origin.x = RES_SCALE (4);
-	origin.y = RES_SCALE (34);
-
-	// :Maps
-	s.frame = KeyAtlasIndex (KEY_MENU_TOGGLEMAP);
-	s.origin = origin;
-	DrawStamp (&s);
-
-	GetFrameRect (s.frame, &r);
-
-	SetContextForeGroundColor (MODULE_NAME_COLOR);
-	t.align = ALIGN_LEFT;
-	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
-	t.baseline.y = s.origin.y + leading;
-	t.pStr = GAME_STRING (STATUS_STRING_BASE + 12);
-	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
-
-	// :Add->O
-	s.origin.y += RES_SCALE (10);
-	s.frame = KeyAtlasIndex (KEY_MENU_SPECIAL);
-	DrawStamp (&s);
-
-	GetFrameRect (s.frame, &r);
-	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
-	t.baseline.y = s.origin.y + leading;
-	t.pStr = GAME_STRING (STATUS_STRING_BASE + 13);
-	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
-
-	old_y = s.origin.y;
-
-	r = font_GetTextRect (&t);
-
-	s.origin.x = t.baseline.x + r.extent.width + RES_SCALE (3);
-	s.origin.y += RES_SCALE (4);
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 108);
-	DrawStamp (&s);
-
-	// Cursor Speed
-	s.origin.x = origin.x;
-	s.origin.y = old_y + RES_SCALE (10);
-	s.frame = KeyAtlasIndex (KEY_MENU_NEXT);
-	DrawStamp (&s);
-
-	GetFrameRect (s.frame, &r);
-
-	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
-	t.baseline.y = s.origin.y + leading;
-	t.pStr = ":";
-	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
-
-	old_y = s.origin.y;
-
-	s.origin.x = t.baseline.x + RES_SCALE (7);
-	s.origin.y += RES_SCALE (4);
-	s.frame = SetAbsFrameIndex (MiscDataFrame, 48);
-	DrawStamp (&s);
-
-	t.baseline.x += RES_SCALE (13);
-	t.pStr = GAME_STRING (STATUS_STRING_BASE + 14);
-	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
-
-	// :Search
-	s.frame = KeyAtlasIndex (KEY_MENU_SEARCH);
-	s.origin.x = origin.x;
-	s.origin.y = old_y + RES_SCALE (10);
-	DrawStamp (&s);
-
-	GetFrameRect (s.frame, &r);
-	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
-	t.baseline.y = s.origin.y + leading;
-	t.pStr = GAME_STRING (STATUS_STRING_BASE + 15);
-	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
-
-	// :Zoom In
-	s.frame = KeyAtlasIndex (KEY_MENU_ZOOM_IN);
-	s.origin.y += RES_SCALE (10);
-	DrawStamp (&s);
-
-	GetFrameRect (s.frame, &r);
-	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
-	t.baseline.y = s.origin.y + leading;
-	t.pStr = ":Zoom In";
-	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
-
-	// :Zoom Out
-	s.frame = KeyAtlasIndex (KEY_MENU_ZOOM_OUT);
-	s.origin.y += RES_SCALE (10);
-	DrawStamp (&s);
-
-	GetFrameRect (s.frame, &r);
-	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
-	t.baseline.y = s.origin.y + leading;
-	t.pStr = ":Zoom Out";
-	t.CharCount = (COUNT)~0;
-	font_DrawText (&t);
-
-	DrawFuelHelper (origin, t, leading);
 
 	UnbatchGraphics ();
 

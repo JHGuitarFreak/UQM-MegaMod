@@ -72,6 +72,8 @@ UninitKernel (void)
 	DestroyDrawable (ReleaseDrawable (StatusFrame));
 	DestroyDrawable (ReleaseDrawable (SubmenuFrame));
 	DestroyDrawable (ReleaseDrawable (KeyAtlasOneFrame));
+	DestroyDrawable (ReleaseDrawable (ButtonAtlasFrame));
+	DestroyDrawable (ReleaseDrawable (AxisAtlasFrame));
 	DestroyDrawable (ReleaseDrawable (ActivityFrame));
 	DestroyFont (TinyFont);
 	DestroyFont (TinyFontBold);

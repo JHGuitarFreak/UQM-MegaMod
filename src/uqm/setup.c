@@ -73,6 +73,8 @@ FRAME StatusFrame;
 FRAME SubmenuFrame;
 FRAME KeyAtlasOneFrame;
 FRAME KeyAtlasTwoFrame;
+FRAME ButtonAtlasFrame;
+FRAME AxisAtlasFrame;
 FRAME FlagStatFrame;
 FRAME MiscDataFrame;
 FRAME visitedStarsFrame;
@@ -355,6 +357,14 @@ InitKernel (void)
 
 	KeyAtlasOneFrame = CaptureDrawable (LoadGraphic (KEY_ATLAS_01_PMAP_ANIM));
 	if (KeyAtlasOneFrame == NULL)
+		return FALSE;
+
+	ButtonAtlasFrame = CaptureDrawable (LoadGraphic (BUTTON_ATLAS_01_PMAP_ANIM));
+	if (ButtonAtlasFrame == NULL)
+		return FALSE;
+
+	AxisAtlasFrame = CaptureDrawable (LoadGraphic (AXIS_ATLAS_01_PMAP_ANIM));
+	if (AxisAtlasFrame == NULL)
 		return FALSE;
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));

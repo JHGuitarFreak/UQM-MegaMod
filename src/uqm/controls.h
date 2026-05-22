@@ -106,7 +106,7 @@ enum
 
 	BUTTON_TOUCHPAD,
 
-	BUTTON_MAX
+	NUM_BUTTONS
 };
 
 enum
@@ -121,8 +121,10 @@ enum
 	AXIS_RS_UP,
 	AXIS_RS_DOWN,
 
-	AXIS_LT,
-	AXIS_RT,
+	AXIS_LT_0,
+	AXIS_LT_1,
+	AXIS_RT_0,
+	AXIS_RT_1,
 
 	NUM_AXIS
 };
@@ -191,8 +193,6 @@ BOOLEAN WaitForActButtonUntil (BOOLEAN newButton, TimeCount timeOut,
 		BOOLEAN resetInput);
 BOOLEAN WaitForNoInput (TimePeriod duration, BOOLEAN resetInput);
 BOOLEAN WaitForNoInputUntil (TimeCount timeOut, BOOLEAN resetInput);
-
-extern BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
 
 extern BOOLEAN InPopUp;
 void DoPopupWindow(const char *msg);
