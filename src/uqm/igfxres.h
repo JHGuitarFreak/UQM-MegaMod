@@ -62,6 +62,7 @@
 #define KEY_ATLAS_PMAP_ANIM "graphics.keyatlas"
 #define AXIS_ATLAS_PMAP_ANIM "graphics.axisatlas"
 #define BUTTON_ATLAS_PMAP_ANIM "graphics.buttonatlas"
+#define SPECIAL_ATLAS_PMAP_ANIM "graphics.specialatlas"
 #define LANDER_FONTEFF_PMAP_ANIM "graphics.landerfonteffect"
 #define LANDER_LAUNCH_MASK_PMAP_ANIM "graphics.landerlaunch"
 #define LANDER_MASK_PMAP_ANIM "graphics.lander"

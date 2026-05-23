@@ -109,7 +109,6 @@ void GetShipBox (RECT *pRect, COUNT side, COUNT row, COUNT col);
 void RepairMeleeFrame (const RECT *pRect);
 void DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip);
 extern FRAME MeleeFrame;
-extern FRAME MeleeAtlas;
 void Melee_flashSelection (MELEE_STATE *pMS);
 extern void QuickRepair (COUNT whichFrame, RECT *pRect);
 

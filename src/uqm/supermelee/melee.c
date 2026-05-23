@@ -226,7 +226,8 @@ enum
 
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
-FRAME MeleeAtlas;
+FRAME AtlasArray[3];
+FRAME SpecialAtlas;
 MELEE_STATE *pMeleeState;
 FONT MicroThinFont;
 FONT ButtonFont;
@@ -496,8 +497,7 @@ DrawShipPickerText (STAMP stamp)
 	pt.x = r.corner.x + SP_X_PADDING;
 	pt.y = r.corner.y + SP_Y_PADDING;
 
-	s.frame = SetAbsFrameIndex (MeleeAtlas,
-			CONFIRM_PC + (optControllerType * 4));
+	s.frame = ControlAtlas (KEY_MENU_SELECT, AtlasArray);
 	s.origin = pt;
 
 	DrawStamp (&s);
@@ -514,8 +514,7 @@ DrawShipPickerText (STAMP stamp)
 	pt.x = r.corner.x + r.extent.width - SP_X_PADDING;
 	pt.y = r.corner.y + SP_Y_PADDING;
 
-	s.frame = SetAbsFrameIndex (MeleeAtlas,
-			SPECIAL_PC + (optControllerType * 4));
+	s.frame = ControlAtlas (KEY_MENU_SPECIAL, AtlasArray);
 
 	GetFrameRect (s.frame, &r);
 	pt.x -= r.extent.width;
@@ -564,8 +563,7 @@ DrawTeamPickerText (STAMP stamp)
 	pt.x = r.corner.x + TP_PADDING;
 	pt.y = r.corner.y + r.extent.height - TP_PADDING;
 
-	s.frame = SetAbsFrameIndex (MeleeAtlas,
-			CONFIRM_PC + (optControllerType * 4));
+	s.frame = ControlAtlas (KEY_MENU_SELECT, AtlasArray);
 
 	GetFrameRect (s.frame, &r);
 	pt.y -= r.extent.height;
@@ -573,8 +571,7 @@ DrawTeamPickerText (STAMP stamp)
 
 	DrawStamp (&s);
 
-	utf8StringCopy (buf, sizeof (buf),
-			GAME_STRING (MELEE_STRING_BASE + 20));
+	utf8StringCopy (buf, sizeof (buf), GAME_STRING (MELEE_STRING_BASE + 20));
 
 	t.baseline.x = r.extent.width + pt.x + TP_PADDING;
 	t.baseline.y = pt.y + leading - RES_SCALE (1);
@@ -583,25 +580,32 @@ DrawTeamPickerText (STAMP stamp)
 	t.pStr = buf;
 	t.CharCount = (COUNT)~0;
 
-	for (i = 0; i < 3; ++i)
-	{
-		font_DrawText (&t);
-		text_r = font_GetTextRect (&t);
+	font_DrawText (&t);
+	text_r = font_GetTextRect (&t);
 
-		if (i == 2)
-			break;
+	s.frame = ControlAtlas (KEY_MENU_CANCEL, AtlasArray);
+	s.origin.x = text_r.extent.width + t.baseline.x + TP_PADDING
+			+ RES_SCALE (1);
+	DrawStamp (&s);
 
-		s.frame = SetAbsFrameIndex (MeleeAtlas,
-				CANCEL_PC + i + (optControllerType * 4));
-		s.origin.x = text_r.extent.width + t.baseline.x + TP_PADDING
-				+ RES_SCALE (1);
-		DrawStamp (&s);
+	utf8StringCopy (buf, sizeof (buf), GAME_STRING (MELEE_STRING_BASE + 21));
+	t.baseline.x = s.origin.x + r.extent.width + TP_PADDING;
+	t.CharCount = (COUNT)~0;
 
-		utf8StringCopy (buf, sizeof (buf),
-				GAME_STRING (MELEE_STRING_BASE + 21 + i));
-		t.baseline.x = s.origin.x + r.extent.width + TP_PADDING;
-		t.CharCount = (COUNT)~0;
-	}
+	font_DrawText (&t);
+	text_r = font_GetTextRect (&t);
+
+	s.frame = SetAbsFrameIndex (SpecialAtlas, optControllerType);
+	s.origin.x = text_r.extent.width + t.baseline.x + TP_PADDING
+			+ RES_SCALE (1);
+	DrawStamp (&s);
+
+	utf8StringCopy (buf, sizeof (buf), GAME_STRING (MELEE_STRING_BASE + 22));
+	t.baseline.x = s.origin.x + r.extent.width + TP_PADDING;
+	t.CharCount = (COUNT)~0;
+
+	font_DrawText (&t);
+	text_r = font_GetTextRect (&t);
 
 	SetContextFont (OldFont);
 	SetContextForeGroundColor (OldColor);
@@ -2059,7 +2063,10 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 {
 	BuildPickMeleeFrame ();
 	MeleeFrame = CaptureDrawable (LoadGraphic (MELEE_SCREEN_PMAP_ANIM));
-	MeleeAtlas = CaptureDrawable (LoadGraphic (MELEE_ATLAS_PMAP_ANIM));
+	AtlasArray[0] = CaptureDrawable (LoadGraphic (KEY_ATLAS_PMAP_ANIM));
+	AtlasArray[1] = CaptureDrawable (LoadGraphic (AXIS_ATLAS_PMAP_ANIM));
+	AtlasArray[2] = CaptureDrawable (LoadGraphic (BUTTON_ATLAS_PMAP_ANIM));
+	SpecialAtlas = CaptureDrawable (LoadGraphic (SPECIAL_ATLAS_PMAP_ANIM));
 	BuildBuildPickFrame ();
 	MicroThinFont = LoadFont (MICRO_THIN_FONT);
 	ButtonFont = LoadFont (BUTTON_FONT);
@@ -2074,6 +2081,8 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 static void
 FreeMeleeInfo (MELEE_STATE *pMS)
 {
+	int i;
+
 	DestroyDirEntryTable (ReleaseDirEntryTable (pMS->load.dirEntries));
 	pMS->load.dirEntries = 0;
 
@@ -2088,8 +2097,12 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	DestroyPickMeleeFrame ();
 	DestroyDrawable (ReleaseDrawable (MeleeFrame));
 	MeleeFrame = 0;
-	DestroyDrawable (ReleaseDrawable (MeleeAtlas));
-	MeleeAtlas = 0;
+
+	for (i = 0; i < 3; i++)
+	{
+		DestroyDrawable (ReleaseDrawable (AtlasArray[i]));
+		AtlasArray[i] = 0;
+	}
 
 	DestroyBuildPickFrame ();
 	DestroyFont (MicroThinFont);
