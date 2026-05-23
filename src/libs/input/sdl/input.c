@@ -145,17 +145,6 @@ register_flight_controls (void)
 
 	for (i = 0; i < num_templ; i++)
 	{
-		/* Copy in name */
-		snprintf (buf, 39, "keys.%d.name", i+1);
-		if (res_IsString (buf))
-		{
-			strncpy (input_templates[i].name, res_GetString (buf), 29);
-			input_templates[i].name[29] = '\0';
-		}
-		else
-		{
-			input_templates[i].name[0] = '\0';
-		}
 		for (j = 0; j < num_flight; j++)
 		{
 			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
@@ -233,12 +222,12 @@ initKeyConfig (void)
 	GetMenuBindings (curr_bindings);
 
 	LoadResourceIndex (configDir, "flight.cfg", "keys.");
-	if (!res_HasKey ("keys.1.name"))
+	if (!res_HasKey ("keys.version"))
 	{
 		/* Either flight.cfg doesn't exist, or we're using an old version
 		   of flight.cfg, and thus we wound up loading untyped values into
-		   'keys.keys.1.name' and such.  Load the defaults from the content
-		   directory. */
+		   'keys.keys.version' and such.  Load the defaults from the
+		   content directory. */
 		LoadResourceIndex (contentDir, "uqm.key", "keys.");
 	}
 
@@ -704,19 +693,25 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		break;
 	case VCONTROL_JOYBUTTON:
 #if SDL_MAJOR_VERSION > 1
-		if (optControllerType == 1)
-		{
-			snprintf (buffer, maxlen, "J%d %s",
-					g->gesture.button.port,
-					xbx_buttons[g->gesture.button.index]);
-		}
-		else if (optControllerType == 2)
-		{
-			snprintf (buffer, maxlen, "J%d %s",
-					g->gesture.button.port,
-					ds4_buttons[g->gesture.button.index]);
-		}
-		else
+			if (optControllerType == 1)
+			{
+				snprintf (buffer, maxlen, "[J%d %s]",
+						g->gesture.button.port,
+						xbx_buttons[g->gesture.button.index]);
+			}
+			else if (optControllerType == 2)
+			{
+				snprintf (buffer, maxlen, "[J%d %s]",
+						g->gesture.button.port,
+						ds4_buttons[g->gesture.button.index]);
+			}
+			else if (optControllerType == 3)
+			{
+				snprintf (buffer, maxlen, "[J%d %s]",
+						g->gesture.button.port,
+						nx_buttons[g->gesture.button.index]);
+			}
+			else
 #endif
 		{
 			snprintf (buffer, maxlen, "J%d B%d",
@@ -727,21 +722,28 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		break;
 	case VCONTROL_JOYAXIS:
 #if SDL_MAJOR_VERSION > 1
-		if (optControllerType == 1)
-		{
-			snprintf (buffer, maxlen, "J%d %s%c",
-					g->gesture.axis.port,
-					xbx_axes[g->gesture.axis.index],
-					g->gesture.axis.polarity > 0 ? '+' : '-');
-		}
-		else if (optControllerType == 2)
-		{
-			snprintf (buffer, maxlen, "J%d %s%c",
-					g->gesture.axis.port,
-					ds4_axes[g->gesture.axis.index],
-					g->gesture.axis.polarity > 0 ? '+' : '-');
-		}
-		else
+			if (optControllerType == 1)
+			{
+				snprintf (buffer, maxlen, "[J%d %s%c]",
+						g->gesture.axis.port,
+						xbx_axes[g->gesture.axis.index],
+						g->gesture.axis.polarity > 0 ? '+' : '-');
+			}
+			else if (optControllerType == 2)
+			{
+				snprintf (buffer, maxlen, "[J%d %s%c]",
+						g->gesture.axis.port,
+						ds4_axes[g->gesture.axis.index],
+						g->gesture.axis.polarity > 0 ? '+' : '-');
+			}
+			else if (optControllerType == 3)
+			{
+				snprintf (buffer, maxlen, "[J%d %s%c]",
+						g->gesture.axis.port,
+						nx_axes[g->gesture.axis.index],
+						g->gesture.axis.polarity > 0 ? '+' : '-');
+			}
+			else
 #endif
 		{
 			snprintf (buffer, maxlen, "J%d A%d %c",

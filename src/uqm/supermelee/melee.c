@@ -226,6 +226,7 @@ enum
 
 		// Loaded from melee/melebkgd.ani
 FRAME MeleeFrame;
+FRAME MeleeAtlas;
 MELEE_STATE *pMeleeState;
 FONT MicroThinFont;
 FONT ButtonFont;
@@ -495,7 +496,7 @@ DrawShipPickerText (STAMP stamp)
 	pt.x = r.corner.x + SP_X_PADDING;
 	pt.y = r.corner.y + SP_Y_PADDING;
 
-	s.frame = SetAbsFrameIndex (MeleeFrame,
+	s.frame = SetAbsFrameIndex (MeleeAtlas,
 			CONFIRM_PC + (optControllerType * 4));
 	s.origin = pt;
 
@@ -513,7 +514,7 @@ DrawShipPickerText (STAMP stamp)
 	pt.x = r.corner.x + r.extent.width - SP_X_PADDING;
 	pt.y = r.corner.y + SP_Y_PADDING;
 
-	s.frame = SetAbsFrameIndex (MeleeFrame,
+	s.frame = SetAbsFrameIndex (MeleeAtlas,
 			SPECIAL_PC + (optControllerType * 4));
 
 	GetFrameRect (s.frame, &r);
@@ -563,7 +564,7 @@ DrawTeamPickerText (STAMP stamp)
 	pt.x = r.corner.x + TP_PADDING;
 	pt.y = r.corner.y + r.extent.height - TP_PADDING;
 
-	s.frame = SetAbsFrameIndex (MeleeFrame,
+	s.frame = SetAbsFrameIndex (MeleeAtlas,
 			CONFIRM_PC + (optControllerType * 4));
 
 	GetFrameRect (s.frame, &r);
@@ -590,7 +591,7 @@ DrawTeamPickerText (STAMP stamp)
 		if (i == 2)
 			break;
 
-		s.frame = SetAbsFrameIndex (MeleeFrame,
+		s.frame = SetAbsFrameIndex (MeleeAtlas,
 				CANCEL_PC + i + (optControllerType * 4));
 		s.origin.x = text_r.extent.width + t.baseline.x + TP_PADDING
 				+ RES_SCALE (1);
@@ -650,9 +651,7 @@ WhichText (COUNT which_icon)
 		case BATTLE_BUTTON:
 		case BATTLE_BUTTON_HL:
 			return 2;
-		case TEAM_PICK_KB:
-		case TEAM_PICK_XB:
-		case TEAM_PICK_PS:
+		case TEAM_PICKER:
 			return 4;
 		default:
 			return 0;
@@ -2060,6 +2059,7 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 {
 	BuildPickMeleeFrame ();
 	MeleeFrame = CaptureDrawable (LoadGraphic (MELEE_SCREEN_PMAP_ANIM));
+	MeleeAtlas = CaptureDrawable (LoadGraphic (MELEE_ATLAS_PMAP_ANIM));
 	BuildBuildPickFrame ();
 	MicroThinFont = LoadFont (MICRO_THIN_FONT);
 	ButtonFont = LoadFont (BUTTON_FONT);
@@ -2088,6 +2088,8 @@ FreeMeleeInfo (MELEE_STATE *pMS)
 	DestroyPickMeleeFrame ();
 	DestroyDrawable (ReleaseDrawable (MeleeFrame));
 	MeleeFrame = 0;
+	DestroyDrawable (ReleaseDrawable (MeleeAtlas));
+	MeleeAtlas = 0;
 
 	DestroyBuildPickFrame ();
 	DestroyFont (MicroThinFont);

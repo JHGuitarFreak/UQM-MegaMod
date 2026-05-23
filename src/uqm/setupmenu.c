@@ -81,6 +81,7 @@ static int MusVol;
 static int SpcVol;
 static int optMScale;
 static SOUND testSounds;
+BOOLEAN InSetupMenu = FALSE;
 
 static int
 whichPlatformRef (OPT_CONSOLETYPE opt)
@@ -305,7 +306,6 @@ static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_CHWARP      ]), // Bubble Warp
 	(WIDGET *)(&choices[CHOICE_CHHEADSTART ]), // Head Start
 	(WIDGET *)(&choices[CHOICE_CHSHIPS     ]), // Unlock Ships
-//	(WIDGET *)(&choices[CHOICE_CHUPGRADES  ]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_CHINFRU     ]), // Infinite RU
 	(WIDGET *)(&choices[CHOICE_CHINFFUEL   ]), // Infinite Fuel
 	(WIDGET *)(&choices[CHOICE_CHINFCRD    ]), // Infinite Credits
@@ -317,11 +317,12 @@ static WIDGET *cheat_widgets[] = {
 static WIDGET *keyconfig_widgets[] = {
 
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
+	(WIDGET *)(&choices[CHOICE_AUTOBUTT]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
 #endif
 
-	(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Bottom Player
-	(WIDGET *)(&choices[CHOICE_TOPPLAYER ]), // Top Player
+	//(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Player 1
+	//(WIDGET *)(&choices[CHOICE_TOPPLAYER ]), // Player 2
 
 #ifdef DIRECTIONAL_JOY
 	(WIDGET *)(&choices[CHOICE_JOYSTICK  ]), // Directional Joystick toggle
@@ -402,8 +403,11 @@ static WIDGET *qol_widgets[] = {
 
 static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&choices       [CHOICE_KBLAYOUT ]), // Current layout
-	(WIDGET *)(&textentries   [TEXT_LOUTNAME   ]), // Layout name
+
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	(WIDGET *)(&labels        [LABEL_TAPTOOLTIP]), // "Press return to..."
+
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	(WIDGET *)(&controlentries[CONTROL_UP      ]), // Up
 	(WIDGET *)(&controlentries[CONTROL_DOWN    ]), // Down
 	(WIDGET *)(&controlentries[CONTROL_LEFT    ]), // Left
@@ -412,7 +416,9 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&controlentries[CONTROL_SPEC    ]), // Special
 	(WIDGET *)(&controlentries[CONTROL_ESC     ]), // Escape
 	(WIDGET *)(&controlentries[CONTROL_THRU    ]), // Thrust
-	(WIDGET *)(&buttons       [BTN_PREVMENU    ]), // Previous menu
+
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
 	NULL };
 
 static WIDGET *devices_widgets[] = {
@@ -749,13 +755,9 @@ populate_editkeys (int templat)
 {
 	int i, j;
 	
-	strncpy (textentries[TEXT_LOUTNAME].value, input_templates[templat].name,
-			textentries[TEXT_LOUTNAME].maxlen);
-	textentries[TEXT_LOUTNAME].value[textentries[TEXT_LOUTNAME].maxlen-1] = 0;
-	
 	for (i = 0; i < NUM_KEYS; i++)
 	{
-		for (j = 0; j < 2; j++)
+		for (j = 0; j < 4; j++)
 		{
 			InterrogateInputState (templat, i, j,
 					controlentries[i].controlname[j],
@@ -1076,18 +1078,6 @@ check_availability (WIDGET_CHOICE *self, int oldval)
 	{
 		check_dos_3do_modes (self, oldval);
 	}
-}
-
-static void
-rename_template (WIDGET_TEXTENTRY *self)
-{
-	/* TODO: This will have to change if the size of the
-	   input_templates name is changed.  It would probably be nice
-	   to track this symbolically or ensure that self->value's
-	   buffer is always at least this big; this will require some
-	   reworking of widgets */
-	strncpy (input_templates[choices[CHOICE_KBLAYOUT].selected].name, self->value, 30);
-	input_templates[choices[CHOICE_KBLAYOUT].selected].name[29] = 0;
 }
 
 static void
@@ -1428,8 +1418,8 @@ SetDefaults (void)
 	choices[CHOICE_SNDDRIVER    ].selected = opts.adriver;
 	choices[CHOICE_SNDQUALITY   ].selected = opts.aquality;
 	choices[CHOICE_SLVSHIELD    ].selected = opts.shield;
-	choices[CHOICE_BTMPLAYER    ].selected = opts.player1;
-	choices[CHOICE_TOPPLAYER    ].selected = opts.player2;
+	//choices[CHOICE_BTMPLAYER    ].selected = opts.player1;
+	//choices[CHOICE_TOPPLAYER    ].selected = opts.player2;
 	choices[CHOICE_KBLAYOUT     ].selected = 0;
 	choices[CHOICE_REMIXES2     ].selected = opts.musicremix;
 	choices[CHOICE_SPEECH       ].selected = opts.speech;
@@ -1440,7 +1430,7 @@ SetDefaults (void)
 	choices[CHOICE_CHWARP       ].selected = opts.bubbleWarp;
 	choices[CHOICE_CHSHIPS      ].selected = opts.unlockShips;
 	choices[CHOICE_CHHEADSTART  ].selected = opts.headStart;
-//	choices[CHOICE_CHUPGRADES   ].selected = opts.unlockUpgrades;
+	choices[CHOICE_AUTOBUTT     ].selected = opts.autoButtons;
 	choices[CHOICE_CHINFRU      ].selected = opts.infiniteRU;
 	choices[CHOICE_SKIPINTRO    ].selected = opts.skipIntro;
 	choices[CHOICE_FUELCIRCLE   ].selected = opts.fuelRange;
@@ -1556,8 +1546,8 @@ PropagateResults (void)
 	opts.adriver =          choices[CHOICE_SNDDRIVER    ].selected;
 	opts.aquality =         choices[CHOICE_SNDQUALITY   ].selected;
 	opts.shield =           choices[CHOICE_SLVSHIELD    ].selected;
-	opts.player1 =          choices[CHOICE_BTMPLAYER    ].selected;
-	opts.player2 =          choices[CHOICE_TOPPLAYER    ].selected;
+	//opts.player1 =          choices[CHOICE_BTMPLAYER    ].selected;
+	//opts.player2 =          choices[CHOICE_TOPPLAYER    ].selected;
 	opts.musicremix =       choices[CHOICE_REMIXES2     ].selected;
 	opts.speech =           choices[CHOICE_SPEECH       ].selected;
 	opts.keepaspect =       choices[CHOICE_ASPRATIO     ].selected;
@@ -1567,7 +1557,7 @@ PropagateResults (void)
 	opts.bubbleWarp =       choices[CHOICE_CHWARP       ].selected;
 	opts.unlockShips =      choices[CHOICE_CHSHIPS      ].selected;
 	opts.headStart =        choices[CHOICE_CHHEADSTART  ].selected;
-//	opts.unlockUpgrades =   choices[CHOICE_CHUPGRADES   ].selected;
+	opts.autoButtons =   choices[CHOICE_AUTOBUTT   ].selected;
 	opts.infiniteRU =       choices[CHOICE_CHINFRU      ].selected;
 	opts.skipIntro =        choices[CHOICE_SKIPINTRO    ].selected;
 	opts.fuelRange =        choices[CHOICE_FUELCIRCLE   ].selected;
@@ -2290,24 +2280,6 @@ init_widgets (void)
 		}
 	}
 
-	// Code to swap resolution optnames for correct ones
-	/*for (i = 0; i < choices[CHOICE_RESOLUTION].numopts - 1; i++)
-	{
-		snprintf(choices[CHOICE_RESOLUTION].options[i].optname,
-			strlen(choices[CHOICE_RESOLUTION].options[i].optname),
-			"%dx%d", RES_DESCALE (CanvasWidth)*(i+1), 
-			RES_DESCALE (CanvasHeight)* (i + 1));
-	}*/
-
-	// Choices 18-20 are also special, being the names of the key
-	// configurations
-	for (i = 0; i < 6; i++)
-	{
-		choices[CHOICE_BTMPLAYER].options[i].optname = input_templates[i].name;
-		choices[CHOICE_TOPPLAYER].options[i].optname = input_templates[i].name;
-		choices[CHOICE_KBLAYOUT ].options[i].optname = input_templates[i].name;
-	}
-
 	/* Choice 20 has a special onChange handler, too. */
 	choices[CHOICE_KBLAYOUT  ].onChange = change_template;
 	choices[CHOICE_GAMESEED  ].onChange = change_seedtype;
@@ -2574,7 +2546,6 @@ init_widgets (void)
 		}
 	}
 
-	textentries[TEXT_LOUTNAME].onChange = rename_template;
 	textentries[TEXT_GAMESEED].onChange = change_seed;
 	textentries[TEXT_CUSTMRES].onChange = change_res;
 
@@ -2606,9 +2577,13 @@ init_widgets (void)
 		controlentries[i].highlighted = 0;
 		controlentries[i].controlname[0][0] = 0;
 		controlentries[i].controlname[1][0] = 0;
+		controlentries[i].controlname[2][0] = 0;
+		controlentries[i].controlname[3][0] = 0;
 		controlentries[i].controlindex = i;
 		controlentries[i].onChange = rebind_control;
 		controlentries[i].onDelete = clear_control;
+		controlentries[i].current_page = 0;
+		controlentries[i].num_pages = 2;
 	}
 
 	if (index >= count)
@@ -2713,11 +2688,13 @@ SetupMenu (void)
 {
 	SETUP_MENU_STATE s;
 
+	InSetupMenu = TRUE;
+
 	s.InputFunc = DoSetupMenu;
 	s.initialized = FALSE;
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	SetupTab = CaptureStringTable (LoadStringTable (SETUP_MENU_STRTAB));
-	if (SetupTab) 
+	if (SetupTab)
 	{
 		init_widgets ();
 	}
@@ -2736,6 +2713,8 @@ SetupMenu (void)
 	{
 		clean_up_widgets ();
 	}
+
+	InSetupMenu = FALSE;
 
 	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
 						MENU_SOUND_SELECT);
@@ -2894,8 +2873,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 			(OPT_MELEEZOOM)(optMeleeScale == TFB_SCALE_STEP ?
 			OPTVAL_PC : OPTVAL_3DO);
 #endif
-	opts->controllerType = optControllerType;
-	opts->directionalJoystick = optDirectionalJoystick; // For Android
 	opts->dateType = optDateFormat;
 	opts->customBorder = optCustomBorder;
 	opts->flagshipColor = is3DO (optFlagshipColor);
@@ -2951,6 +2928,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->shipDirectionIP = optShipDirectionIP;
 
 	// Controls
+	opts->autoButtons = optAutoButtons;
+	opts->controllerType = optControllerType;
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
@@ -2969,7 +2948,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->bubbleWarp = optBubbleWarp;
 	opts->unlockShips = optUnlockShips;
 	opts->headStart = optHeadStart;
-	//opts->unlockUpgrades = optUnlockUpgrades;
 	opts->infiniteCredits = optInfiniteCredits;
 	opts->infiniteRU = optInfiniteRU;
 	opts->infiniteFuel = optInfiniteFuel;
@@ -3161,13 +3139,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		res_PutBoolean ("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
 #endif
 	}
-#if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
-		opts->controllerType = 0;
-#endif
-	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
-#ifdef DIRECTIONAL_JOY
-	PutBoolOpt (&optDirectionalJoystick, &opts->directionalJoystick, "mm.directionalJoystick", FALSE);
-#endif
 	PutIntOpt  (&optDateFormat, (int*)(&opts->dateType), "mm.dateFormat", FALSE);
 	PutBoolOpt (&optCustomBorder, &opts->customBorder, "mm.customBorder", FALSE);
 	PutConsOpt (&optFlagshipColor, &opts->flagshipColor, "mm.flagshipColor", FALSE);
@@ -3236,19 +3207,15 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optShipDirectionIP, &opts->shipDirectionIP, "mm.shipDirectionIP", FALSE);
 
 	// Controls
-	PlayerControls[0] = opts->player1;
-	PlayerControls[1] = opts->player2;
+	PutBoolOpt (&optAutoButtons, &opts->autoButtons, "mm.autoButtons", FALSE);
 
-	res_PutInteger ("config.player1control", opts->player1);
-	res_PutInteger ("config.player2control", opts->player2);
+#if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
+	opts->controllerType = 0;
+#else
+	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
+#endif
 
-	res_PutString ("keys.1.name", input_templates[0].name);
-	res_PutString ("keys.2.name", input_templates[1].name);
-	res_PutString ("keys.3.name", input_templates[2].name);
-	res_PutString ("keys.4.name", input_templates[3].name);
-	res_PutString ("keys.5.name", input_templates[4].name);
-	res_PutString ("keys.6.name", input_templates[5].name);
-
+	res_PutString ("keys.version", MM_BASE_VERSION_S);
 
 /*
  *		Cheats
@@ -3259,7 +3226,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optBubbleWarp, &opts->bubbleWarp, "cheat.bubbleWarp", FALSE);
 	PutBoolOpt (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", FALSE);
 	PutBoolOpt (&optHeadStart, &opts->headStart, "cheat.headStart", FALSE);
-	//PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
 	PutBoolOpt (&optInfiniteCredits, &opts->infiniteCredits, "cheat.infiniteCredits", FALSE);
 	PutBoolOpt (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", FALSE);
 	PutBoolOpt (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", FALSE);

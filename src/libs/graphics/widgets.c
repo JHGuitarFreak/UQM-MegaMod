@@ -26,6 +26,7 @@
 #include "uqm/units.h"
 #include "uqm/util.h"
 #include "uqm/setup.h"
+#include "uqm/gamestr.h"
 
 WIDGET *widget_focus = NULL;
 
@@ -260,7 +261,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	int widget_index, height, widget_y, on_screen;	
+	int widget_index, height, widget_y, on_screen;
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
 
@@ -839,42 +840,49 @@ void
 Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 {	// mappable key name in controls setup
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
-	Color oldtext;
-	Color selected;
+	Color oldcolor, selected;
 	FONT  oldfont = 0;
-	FRAME oldFontEffect = SetContextFontEffect (NULL);
+	FRAME oldFontEffect;
 	TEXT t;
-	int i, home_x, home_y;
+	RECT r;
+	int i, home_x, start_slot;
+	int col_size[2] = { 0 };
+	int num_pages = self->num_pages;
+	int offset = RES_SCALE (5);
+
+	selected = WIDGET_ACTIVE_COLOR;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
 
-	selected = WIDGET_ACTIVE_COLOR;
+	oldFontEffect = SetContextFontEffect (NULL);
+	oldcolor = SetContextForeGroundColor (selected);
 
-	t.baseline.x = x + RES_SCALE (16);
+	t.baseline.x = x + (CanvasWidth / 5) + offset;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
-	if (widget_focus == _self)
-		oldtext = SetContextForeGroundColor (selected);
-	else
-		oldtext = SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
+
+	if (widget_focus != _self)
+		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
+
 	font_DrawText (&t); // Control Name E.G. Up, Down, Weapon, Thrust
 
-	t.baseline.x -= t.baseline.x;
-
-	home_x = t.baseline.x + (CanvasWidth / 3) + RES_SCALE (8);
-	home_y = t.baseline.y;
+	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
+	start_slot = self->current_page * 2;
+
 	for (i = 0; i < 2; i++)
 	{
+		int slot = start_slot + i;
 		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));
-		t.baseline.y = home_y + RES_SCALE (8 * (i / 3));
-		t.pStr = self->controlname[i];
+		t.pStr = self->controlname[slot];
 
 		if ((widget_focus == _self) && (self->highlighted == i))
+		{
 			SetContextForeGroundColor (selected);
+		}
 		else
 		{
 			if (!t.pStr[0])
@@ -887,12 +895,92 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 			t.pStr = "---";
 
 		font_DrawText (&t);
+		col_size[i] = t.baseline.x;
 	}
+
+	if (widget_focus == _self && num_pages > 1)
+	{
+		STAMP arrow;
+		int arrow_buffer = RES_SCALE (38);
+
+		GetFrameRect (SetAbsFrameIndex (arrow_frame, 2), &r);
+
+		if (self->current_page > 0)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 2);
+			arrow.origin.x = col_size[0] - arrow_buffer - r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+
+		if (self->current_page < num_pages - 1)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 3);
+			arrow.origin.x = col_size[1] + arrow_buffer + r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+	}
+
+	if (widget_focus == _self && num_pages > 1)
+	{
+		int rect_mid, rect_width, col_mid = 0;
+		int rect_gap = RES_SCALE (4);
+		SIZE leading;
+		int height, corrected_y, index;
+		WIDGET_CONTROLENTRY *current;
+		char buf[12];
+
+		r.extent.width = RES_SCALE (16);
+		r.extent.height = RES_SCALE (2);
+		r.corner.x = 0;
+
+		rect_width = (r.extent.width * num_pages) + (rect_gap * 2);
+		rect_mid = rect_width >> 1;
+
+		if (col_size[0] > 0 && col_size[1] > 0)
+		{
+			col_mid = ((col_size[1] - col_size[0]) >> 1) + col_size[0];
+			r.corner.x = col_mid - rect_mid;
+		}
+
+		GetContextFontLeading (&leading);
+
+		current = (WIDGET_CONTROLENTRY *)_self;
+		index = current->controlindex;
+		height = (*_self->height)(_self);
+		corrected_y = leading + index * (height + RES_SCALE (5));
+
+		r.corner.y = t.baseline.y - r.extent.height - corrected_y;
+
+		for (i = 0; i < num_pages; i++)
+		{
+			if (i > 0)
+				r.corner.x += r.extent.width + rect_gap;
+
+			SetContextForeGroundColor (i == self->current_page ?
+				WIDGET_ENABLED_COLOR : WIDGET_DISABLED_COLOR);
+			DrawFilledRectangle (&r);
+		}
+
+		SetContextForeGroundColor (WIDGET_TOOLTIP_COLOR);
+
+		snprintf (buf, sizeof (buf),
+			GAME_STRING (MAINMENU_STRING_BASE + 37),
+			self->current_page + 1, num_pages);
+
+		t.baseline.y = r.corner.y - (height >> 1);
+		t.baseline.x = col_mid;
+		t.pStr = buf;
+		font_DrawText (&t);
+	}
+
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
 		SetContextFont (oldfont);
-	SetContextForeGroundColor (oldtext);
+	SetContextForeGroundColor (oldcolor);
 }
+
 
 void
 Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
@@ -1269,10 +1357,33 @@ Widget_HandleEventTextEntry (WIDGET *_self, int event)
 	return FALSE;
 }
 
+static void
+SyncControlPages (WIDGET_CONTROLENTRY *self, int new_page)
+{
+	int i;
+	WIDGET_MENU_SCREEN *parent;
+	WIDGET_CONTROLENTRY *child;
+
+	parent = (WIDGET_MENU_SCREEN *)self->parent;
+	for (i = 0; i < parent->num_children; i++)
+	{
+		if (parent->child[i]->tag == WIDGET_TYPE_CONTROLENTRY)
+		{
+			child = (WIDGET_CONTROLENTRY *)parent->child[i];
+			child->current_page = new_page;
+		}
+	}
+}
+
 int
 Widget_HandleEventControlEntry (WIDGET *_self, int event)
 {
+	int current_page, num_pages, new_page;
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
+
+	current_page = self->current_page;
+	num_pages = self->num_pages;
+
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		if (self->onChange)
@@ -1289,10 +1400,32 @@ Widget_HandleEventControlEntry (WIDGET *_self, int event)
 			return TRUE;
 		}
 	}
-	if ((event == WIDGET_EVENT_RIGHT) ||
-	    (event == WIDGET_EVENT_LEFT))
+	if (event == WIDGET_EVENT_RIGHT)
 	{
-		self->highlighted = 1-self->highlighted;
+		if (self->highlighted < 1)
+		{
+			self->highlighted++;
+			return TRUE;
+		}
+
+		new_page = (current_page < num_pages - 1) ? current_page + 1 : 0;
+
+		SyncControlPages (self, new_page);
+		self->highlighted = 0;
+		return TRUE;
+	}
+	if (event == WIDGET_EVENT_LEFT)
+	{
+		if (self->highlighted > 0)
+		{
+			self->highlighted--;
+			return TRUE;
+		}
+
+		new_page = (current_page > 0) ? current_page - 1 : num_pages - 1;
+
+		SyncControlPages (self, new_page);
+		self->highlighted = (new_page == num_pages - 1) ? 1 : 0;
 		return TRUE;
 	}
 	return FALSE;

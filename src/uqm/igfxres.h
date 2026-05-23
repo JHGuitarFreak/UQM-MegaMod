@@ -101,6 +101,7 @@
 #define MAIDENS_MASK_PMAP_ANIM "graphics.maidens"
 #define MARS_MASK_ANIM "graphics.marsmask"
 #define MELEE_PICK_MASK_PMAP_ANIM "graphics.meleepickship"
+#define MELEE_ATLAS_PMAP_ANIM "graphics.meleeatlas"
 #define MELEE_SCREEN_PMAP_ANIM "graphics.meleemenu"
 #define MENUBKG_PMAP_ANIM "graphics.setupmenu"
 #define MENUARR_PMAP_ANIM "graphics.setupmenuarrows"

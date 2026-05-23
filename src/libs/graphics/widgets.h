@@ -174,7 +174,9 @@ typedef struct _widget_controlentry {
 	const char *category;
 	int controlindex;
 	int highlighted;
-	char controlname[2][WIDGET_CONTROLENTRY_WIDTH];
+	char controlname[4][WIDGET_CONTROLENTRY_WIDTH];
+	int current_page;
+	int num_pages;
 } WIDGET_CONTROLENTRY;
 
 typedef struct _widget_menucontrolentry

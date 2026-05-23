@@ -147,7 +147,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  bubbleWarp);
 	DECL_CONFIG_OPTION(bool,  unlockShips);
 	DECL_CONFIG_OPTION(bool,  headStart);
-	DECL_CONFIG_OPTION(bool,  unlockUpgrades);
+	DECL_CONFIG_OPTION(bool,  autoButtons);
 	DECL_CONFIG_OPTION(bool,  infiniteRU);
 	DECL_CONFIG_OPTION(bool,  skipIntro);
 	DECL_CONFIG_OPTION(bool,  mainMenuMusic);
@@ -358,7 +358,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  bubbleWarp,        false ),
 		INIT_CONFIG_OPTION(  unlockShips,       false ),
 		INIT_CONFIG_OPTION(  headStart,         false ),
-		INIT_CONFIG_OPTION(  unlockUpgrades,    false ),
+		INIT_CONFIG_OPTION(  autoButtons,       true ),
 		INIT_CONFIG_OPTION(  infiniteRU,        false ),
 		INIT_CONFIG_OPTION(  skipIntro,         false ),
 		INIT_CONFIG_OPTION(  mainMenuMusic,     true ),
@@ -532,8 +532,8 @@ int main(int argc, char** argv)
 	initIO ();
 	prepareConfigDir (options.configDir);
 
-	PlayerControls[0] = CONTROL_TEMPLATE_KB_1;
-	PlayerControls[1] = CONTROL_TEMPLATE_JOY_1;
+	PlayerControls[0] = CONTROL_TEMPLATE_PL_1;
+	PlayerControls[1] = CONTROL_TEMPLATE_PL_2;
 
 	// Fill in the options struct based on uqm.cfg
 	if (!options.safeMode.value)
@@ -589,7 +589,7 @@ int main(int argc, char** argv)
 	optBubbleWarp = options.bubbleWarp.value;
 	optUnlockShips = options.unlockShips.value;
 	optHeadStart = options.headStart.value;
-	//optUnlockUpgrades = options.unlockUpgrades.value;
+	optAutoButtons = options.autoButtons.value;
 	optInfiniteRU = options.infiniteRU.value;
 	optSkipIntro = options.skipIntro.value;
 	optMainMenuMusic = options.mainMenuMusic.value;
@@ -1049,7 +1049,7 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->bubbleWarp, "cheat.bubbleWarp");
 	getBoolConfigValue (&options->unlockShips, "cheat.unlockShips");
 	getBoolConfigValue (&options->headStart, "cheat.headStart");
-	//getBoolConfigValue (&options->unlockUpgrades, "cheat.unlockUpgrades");
+	getBoolConfigValue (&options->autoButtons, "mm.autoButtons");
 	getBoolConfigValue (&options->infiniteRU, "cheat.infiniteRU");
 	getBoolConfigValue (&options->skipIntro, "mm.skipIntro");
 	getBoolConfigValue (&options->mainMenuMusic, "mm.mainMenuMusic");
@@ -1215,30 +1215,6 @@ getUserConfigOptions (struct options_struct *options)
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
-	
-	if (res_IsInteger ("config.player1control"))
-	{
-		PlayerControls[0] = res_GetInteger ("config.player1control");
-		/* This is an unsigned, so no < 0 check is necessary */
-		if (PlayerControls[0] >= NUM_TEMPLATES)
-		{
-			log_add (log_Error, "Illegal control template '%d' for Player "
-					"One.", PlayerControls[0]);
-			PlayerControls[0] = CONTROL_TEMPLATE_KB_1;
-		}
-	}
-	
-	if (res_IsInteger ("config.player2control"))
-	{
-		/* This is an unsigned, so no < 0 check is necessary */
-		PlayerControls[1] = res_GetInteger ("config.player2control");
-		if (PlayerControls[1] >= NUM_TEMPLATES)
-		{
-			log_add (log_Error, "Illegal control template '%d' for Player "
-					"Two.", PlayerControls[1]);
-			PlayerControls[1] = CONTROL_TEMPLATE_JOY_1;
-		}
-	}
 }
 
 enum
@@ -1261,7 +1237,7 @@ enum
 	BWARP_OPT,
 	UNLOCKSHIPS_OPT,
 	HEADSTART_OPT,
-	UPGRADES_OPT,
+	AUTOBUTT_OPT,
 	INFINITERU_OPT,
 	SKIPINTRO_OPT,
 	MENUMUS_OPT,
@@ -1379,7 +1355,7 @@ static struct option longOptions[] =
 	{"bubblewarp", 0, NULL, BWARP_OPT},
 	{"unlockships", 0, NULL, UNLOCKSHIPS_OPT},
 	{"headstart", 0, NULL, HEADSTART_OPT},
-	{"unlockupgrades", 0, NULL, UPGRADES_OPT},
+	{"autobuttons", 0, NULL, AUTOBUTT_OPT},
 	{"infiniteru", 0, NULL, INFINITERU_OPT},
 	{"skipintro", 0, NULL, SKIPINTRO_OPT},
 	{"mainmenumusic", 0, NULL, MENUMUS_OPT},
@@ -1825,8 +1801,8 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case HEADSTART_OPT:
 				setBoolOption (&options->headStart, true);
 				break;
-			case UPGRADES_OPT:
-				//setBoolOption (&options->unlockUpgrades, true);
+			case AUTOBUTT_OPT:
+				setBoolOption (&options->autoButtons, true);
 				break;
 			case INFINITERU_OPT:
 				setBoolOption (&options->infiniteRU, true);
@@ -2517,9 +2493,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --headstart : Gives you an extra storage bay full of"
 			"minerals, Fwiffo, and the Moonbase during a new game (default: %s)",
 			boolOptString (&defaults->headStart));
-	log_add (log_User, "  --unlockupgrades : Unlocks every upgrade for your flagship "
-			"and landers. (default: %s)",
-			boolOptString (&defaults->unlockUpgrades));
+	log_add (log_User, "  --autobuttons : Automatically detect gamepad "
+			"button type to display (default: %s)",
+			boolOptString (&defaults->autoButtons));
 	log_add (log_User, "  --infiniteru : Gives you infinite R.U. as long as the"
 			"cheat is on (default: %s)",
 			boolOptString (&defaults->infiniteRU));

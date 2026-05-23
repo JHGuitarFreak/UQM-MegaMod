@@ -31,7 +31,7 @@ enum
 extern int TFB_InitInput (int driver, int flags);
 extern void TFB_UninitInput (void);
 
-#define MAX_FLIGHT_ALTERNATES 2
+#define MAX_FLIGHT_ALTERNATES 4
 
 extern void TFB_SetInputVectors (volatile int menu[], int num_menu,
 		volatile int flight[], int num_templ, int num_flight);
