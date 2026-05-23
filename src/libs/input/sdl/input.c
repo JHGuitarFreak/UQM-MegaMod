@@ -835,3 +835,60 @@ BeginInputFrame (void)
 {
 	VControl_BeginFrame ();
 }
+
+static FRAME
+KeyAtlas (int menu_index, FRAME k_atlas)
+{
+	VCONTROL_GESTURE g = curr_bindings[menu_index].binding[0];
+	int i = VControl_code2index (g.gesture.key);
+	const char *key = VControl_code2name (g.gesture.key);
+
+	return SetAbsFrameIndex (k_atlas, i);
+}
+
+FRAME
+ControlAtlas (int menu_index, FRAME atlas_array[])
+{
+	VCONTROL_GESTURE g;
+	int i;
+
+	if (!optControllerType)
+		return KeyAtlas (menu_index, atlas_array[0]);
+
+	for (i = 0; i < 6; i++)
+	{
+		g = curr_bindings[menu_index].binding[i];
+		if (g.type == VCONTROL_JOYBUTTON || g.type == VCONTROL_JOYAXIS)
+			break;
+	}
+
+	switch (g.type)
+	{
+	case VCONTROL_JOYBUTTON:
+	{
+		int index = g.gesture.button.index;
+		int frame_index = 0;
+
+		if (optControllerType > 1)
+			frame_index = NUM_BUTTONS * (optControllerType - 1);
+
+		return SetAbsFrameIndex (atlas_array[2], index + frame_index);
+	}
+	case VCONTROL_JOYAXIS:
+	{
+		int atlas_index;
+		int index = g.gesture.axis.index;
+		BOOLEAN polarity = g.gesture.axis.polarity < 0 ? 0 : 1;
+		int frame_index = 0;
+
+		if (optControllerType > 1)
+			frame_index = NUM_AXIS * (optControllerType - 1);
+
+		atlas_index = index * 2 + polarity + frame_index;
+
+		return SetAbsFrameIndex (atlas_array[1], atlas_index);
+	}
+	default:
+		return KeyAtlas (menu_index, atlas_array[0]);
+	}
+}

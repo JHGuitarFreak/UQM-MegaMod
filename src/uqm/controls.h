@@ -138,6 +138,8 @@ typedef struct menu_bindings
 extern MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 extern MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
 
+extern FRAME ControlAtlas (int menu_index, FRAME atlas_array[]);
+
 typedef enum {
 	CONTROL_TEMPLATE_KB_1,
 	CONTROL_TEMPLATE_KB_2,

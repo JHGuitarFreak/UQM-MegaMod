@@ -52,7 +52,8 @@
 #include "../build.h"
 		// For StartSphereTracking()
 #include "uqm/setupmenu.h"
-#include "libs/input/sdl/keynames.h"
+#include "uqm/igfxres.h"
+#include "uqm/nameref.h"
 
 typedef enum {
 	NORMAL_STARMAP,
@@ -2983,80 +2984,6 @@ DoneSphereGrowth:
 	}
 }
 
-static FRAME
-KeyAtlas (int menu_index)
-{
-	VCONTROL_GESTURE g = curr_bindings[menu_index].binding[0];
-	int i = VControl_code2index (g.gesture.key);
-	const char *key = VControl_code2name (g.gesture.key);
-
-#ifdef DEBUG
-	printf ("Key: %s,%sAtlas Index: %d\n",
-			key, strlen(key) < 2 ? "\t\t" : "\t", i);
-#endif
-	
-	return SetAbsFrameIndex (KeyAtlasOneFrame, i);
-}
-
-static FRAME
-ControlAtlas (int menu_index)
-{
-	VCONTROL_GESTURE g;
-	int i;
-
-	if (!optControllerType)
-		return KeyAtlas (menu_index);
-
-	for (i = 0; i < 6; i++)
-	{
-		g = curr_bindings[menu_index].binding[i];
-		if (g.type == VCONTROL_JOYBUTTON || g.type == VCONTROL_JOYAXIS)
-			break;
-	}
-
-	switch (g.type)
-	{
-	case VCONTROL_JOYBUTTON:
-		{
-			int index = g.gesture.button.index;
-			int frame_index = 0;
-
-			if (optControllerType > 1)
-				frame_index = NUM_BUTTONS * (optControllerType - 1);
-
-#ifdef DEBUG
-			printf ("Button: %d, Atlas Index: %d\n", index,
-					index + frame_index);
-#endif
-
-			return SetAbsFrameIndex (ButtonAtlasFrame,
-					index + frame_index);
-		}
-	case VCONTROL_JOYAXIS:
-		{
-			int atlas_index;
-			int index = g.gesture.axis.index;
-			BOOLEAN polarity = g.gesture.axis.polarity < 0 ? 0 : 1;
-			int frame_index = 0;
-
-			if (optControllerType > 1)
-				frame_index = NUM_AXIS * (optControllerType - 1);
-
-			atlas_index = index * 2 + polarity + frame_index;
-
-#ifdef DEBUG
-			printf ("Axis: %d, Polarity: %d, Atlas Index: %d\n",
-				index, polarity, atlas_index);
-#endif
-
-			return SetAbsFrameIndex (AxisAtlasFrame,
-					atlas_index);
-		}
-	default:
-		return KeyAtlas (menu_index);
-	}
-}
-
 static void
 DrawStarmapKeyAtlas (void)
 {
@@ -3069,6 +2996,7 @@ DrawStarmapKeyAtlas (void)
 	SIZE leading;
 	SBYTE valign;
 	COORD sbottom;
+	FRAME atlas_array[3];
 
 	OldContext = SetContext (StatusContext);
 
@@ -3083,10 +3011,14 @@ DrawStarmapKeyAtlas (void)
 
 	origin.x = RES_SCALE (4);
 	origin.y = RES_SCALE (34);
-	spacing = RES_SCALE (3);
+	spacing = RES_SCALE (1);
+
+	atlas_array[0] = CaptureDrawable (LoadGraphic (KEY_ATLAS_PMAP_ANIM));
+	atlas_array[1] = CaptureDrawable (LoadGraphic (AXIS_ATLAS_PMAP_ANIM));
+	atlas_array[2] = CaptureDrawable (LoadGraphic (BUTTON_ATLAS_PMAP_ANIM));
 
 	// :Maps
-	s.frame = ControlAtlas (KEY_MENU_TOGGLEMAP);
+	s.frame = ControlAtlas (KEY_MENU_TOGGLEMAP, atlas_array);
 	s.origin = origin;
 	DrawStamp (&s);
 
@@ -3102,7 +3034,7 @@ DrawStarmapKeyAtlas (void)
 
 	// :Add->O
 	s.origin.y = sbottom + spacing;
-	s.frame = ControlAtlas (KEY_MENU_SPECIAL);
+	s.frame = ControlAtlas (KEY_MENU_SPECIAL, atlas_array);
 	DrawStamp (&s);
 
 	GetFrameRect (s.frame, &r);
@@ -3123,7 +3055,7 @@ DrawStarmapKeyAtlas (void)
 	// Cursor Speed
 	s.origin.y = sbottom + spacing;
 	s.origin.x = origin.x;
-	s.frame = ControlAtlas (KEY_MENU_NEXT);
+	s.frame = ControlAtlas (KEY_MENU_NEXT, atlas_array);
 	DrawStamp (&s);
 
 	GetFrameRect (s.frame, &r);
@@ -3146,7 +3078,7 @@ DrawStarmapKeyAtlas (void)
 	font_DrawText (&t);
 
 	// :Search
-	s.frame = ControlAtlas (KEY_MENU_SEARCH);
+	s.frame = ControlAtlas (KEY_MENU_SEARCH, atlas_array);
 	s.origin.y = sbottom + spacing;
 	s.origin.x = origin.x;
 	DrawStamp (&s);
@@ -3161,24 +3093,22 @@ DrawStarmapKeyAtlas (void)
 	font_DrawText (&t);
 
 	// :Zoom In
-	s.frame = ControlAtlas (KEY_MENU_ZOOM_IN);
+	s.frame = ControlAtlas (KEY_MENU_ZOOM_OUT, atlas_array);
 	s.origin.y = sbottom + spacing;
 	DrawStamp (&s);
 
 	GetFrameRect (s.frame, &r);
-	sbottom = s.origin.y + r.extent.height;
 
 	// :Zoom Out
-	s.frame = ControlAtlas (KEY_MENU_ZOOM_OUT);
-	s.origin.y = sbottom + RES_SCALE (1);
+	s.frame = ControlAtlas (KEY_MENU_ZOOM_IN, atlas_array);
+	s.origin.x = s.origin.x + r.extent.width + RES_SCALE (1);
 	DrawStamp (&s);
 
 	GetFrameRect (s.frame, &r);
 	sbottom = s.origin.y + r.extent.height;
 
 	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
-	t.baseline.y = sbottom - (((r.extent.height * 2 + RES_SCALE (1))
-			- dheight) / 2) - valign;
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 16);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
@@ -3214,6 +3144,10 @@ DrawStarmapKeyAtlas (void)
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
+
+	DestroyDrawable (ReleaseDrawable (atlas_array[0]));
+	DestroyDrawable (ReleaseDrawable (atlas_array[1]));
+	DestroyDrawable (ReleaseDrawable (atlas_array[2]));
 }
 
 BOOLEAN
@@ -3269,7 +3203,9 @@ StarMap (void)
 	}
 
 	if (optSubmenu)
+	{
 		DrawStarmapKeyAtlas ();
+	}
 
 	DrawStarMap (0, (RECT*)-1);
 	transition_pending = FALSE;
@@ -3300,7 +3236,9 @@ StarMap (void)
 	DrawStatusMessage (NULL);
 	
 	if (optSubmenu)
+	{
 		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
+	}
 
 	/*if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)
