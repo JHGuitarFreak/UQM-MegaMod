@@ -898,6 +898,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		col_size[i] = t.baseline.x;
 	}
 
+	// Draw arrows
 	if (widget_focus == _self && num_pages > 1)
 	{
 		STAMP arrow;
@@ -922,6 +923,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		}
 	}
 
+	// Draw page indicator
 	if (widget_focus == _self && num_pages > 1)
 	{
 		int rect_mid, rect_width, col_mid = 0;
@@ -949,8 +951,8 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		current = (WIDGET_CONTROLENTRY *)_self;
 		index = current->controlindex;
 		height = (*_self->height)(_self);
-		corrected_y = leading + index * (height + RES_SCALE (5));
 
+		corrected_y = leading + index * (height + RES_SCALE (5));
 		r.corner.y = t.baseline.y - r.extent.height - corrected_y;
 
 		for (i = 0; i < num_pages; i++)
@@ -1070,10 +1072,15 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 		}
 	}
 
+	// Draw page indicator
 	if (widget_focus == _self && num_pages > 1)
 	{
-		int rect_mid, rect_width, col_mid;
+		int rect_mid, rect_width, col_mid = 0;
 		int rect_gap = RES_SCALE (4);
+		SIZE leading;
+		int height, corrected_y, index;
+		WIDGET_MENUCONTROLENTRY *current;
+		char buf[12];
 
 		r.extent.width = RES_SCALE (16);
 		r.extent.height = RES_SCALE (2);
@@ -1088,7 +1095,20 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 			r.corner.x = col_mid - rect_mid;
 		}
 
-		r.corner.y = t.baseline.y + r.extent.height;
+		GetContextFontLeading (&leading);
+
+		current = (WIDGET_MENUCONTROLENTRY *)_self;
+		index = current->controlindex;
+		height = (*_self->height)(_self);
+
+		index = index > 9 ? 10 : index;
+
+		corrected_y = leading + index * (height + RES_SCALE (5));
+
+		r.corner.y = t.baseline.y - r.extent.height - corrected_y;
+
+		if (r.corner.y < RES_SCALE (22))
+			r.corner.y = RES_SCALE (22);
 
 		for (i = 0; i < num_pages; i++)
 		{
@@ -1099,6 +1119,17 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 				WIDGET_ENABLED_COLOR : WIDGET_DISABLED_COLOR);
 			DrawFilledRectangle (&r);
 		}
+
+		SetContextForeGroundColor (WIDGET_TOOLTIP_COLOR);
+
+		snprintf (buf, sizeof (buf),
+			GAME_STRING (MAINMENU_STRING_BASE + 37),
+			self->current_page + 1, num_pages);
+
+		t.baseline.y = r.corner.y - (height >> 1);
+		t.baseline.x = col_mid;
+		t.pStr = buf;
+		font_DrawText (&t);
 	}
 
 	SetContextForeGroundColor (OldColor);
@@ -1431,6 +1462,24 @@ Widget_HandleEventControlEntry (WIDGET *_self, int event)
 	return FALSE;
 }
 
+static void
+SyncMenuControlPages (WIDGET_MENUCONTROLENTRY *self, int new_page)
+{
+	int i;
+	WIDGET_MENU_SCREEN *parent;
+	WIDGET_MENUCONTROLENTRY *child;
+
+	parent = (WIDGET_MENU_SCREEN *)self->parent;
+	for (i = 0; i < parent->num_children; i++)
+	{
+		if (parent->child[i]->tag == WIDGET_TYPE_MENUCONTROLENTRY)
+		{
+			child = (WIDGET_MENUCONTROLENTRY *)parent->child[i];
+			child->current_page = new_page;
+		}
+	}
+}
+
 int
 Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
 {
@@ -1455,15 +1504,18 @@ Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
 	if (event == WIDGET_EVENT_RIGHT)
 	{
 		if (self->highlighted < 1)
-			self->highlighted++;
-		else if (self->current_page < self->num_pages - 1)
 		{
-			self->current_page++;
-			self->highlighted = 0;
+			self->highlighted++;
 		}
 		else
 		{
-			self->current_page = 0;
+			int new_page;
+			if (self->current_page < self->num_pages - 1)
+				new_page = self->current_page + 1;
+			else
+				new_page = 0;
+
+			SyncMenuControlPages (self, new_page);  // Sync all menu control entries
 			self->highlighted = 0;
 		}
 		return TRUE;
@@ -1471,15 +1523,18 @@ Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
 	if (event == WIDGET_EVENT_LEFT)
 	{
 		if (self->highlighted > 0)
-			self->highlighted--;
-		else if (self->current_page > 0)
 		{
-			self->current_page--;
-			self->highlighted = 1;
+			self->highlighted--;
 		}
 		else
 		{
-			self->current_page = self->num_pages - 1;
+			int new_page;
+			if (self->current_page > 0)
+				new_page = self->current_page - 1;
+			else
+				new_page = self->num_pages - 1;
+
+			SyncMenuControlPages (self, new_page);  // Sync all menu control entries
 			self->highlighted = 1;
 		}
 		return TRUE;
