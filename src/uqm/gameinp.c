@@ -38,6 +38,7 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 #include "gameopt.h"
+#include "libs/log/uqmlog.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
@@ -581,13 +582,6 @@ ControllerTypeSwitcher (void)
 		|| (input_tracker.type == 0 && last_input[0].type == 0))
 		return;
 
-#ifdef DEBUG
-	{
-		static int j;
-		printf ("Leak Test %d\n", j++);
-	}
-#endif
-
 	for (i = 0; i < NUM_KEYS; i++)
 	{
 		if (CurrentInputState.key[PlayerControls[0]][i])
@@ -606,6 +600,8 @@ ControllerTypeSwitcher (void)
 	if (pressed && last_input[0].type == 1
 		&& input_tracker.gamepad != last_input[0].gamepad)
 	{
+		const char *gamepad;
+
 		switch (last_input[0].gamepad)
 		{
 		case SDL_CONTROLLER_TYPE_PS3:
@@ -627,11 +623,9 @@ ControllerTypeSwitcher (void)
 			break;
 		}
 
-#ifdef DEBUG
-		const char *gamepad;
 		gamepad = SDL_GameControllerTypeToString (last_input[0].gamepad);
-		printf ("Last input player 1: CONTROLLER -> type: %s\n", gamepad);
-#endif
+		log_add (log_Info, "Last input player 1: CONTROLLER -> type: %s",
+				gamepad);
 	}
 
 	if (pressed && last_input[0].type == 0
@@ -639,9 +633,7 @@ ControllerTypeSwitcher (void)
 	{
 		optControllerType = 0;
 
-#ifdef DEBUG
-		printf ("Last input player 1: KEYBOARD\n");
-#endif
+		log_add (log_Info, "Last input player 1: KEYBOARD");
 	}
 
 	if (pressed && last_input[0].pressed)

@@ -1515,7 +1515,7 @@ Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
 			else
 				new_page = 0;
 
-			SyncMenuControlPages (self, new_page);  // Sync all menu control entries
+			SyncMenuControlPages (self, new_page);
 			self->highlighted = 0;
 		}
 		return TRUE;
@@ -1534,7 +1534,7 @@ Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
 			else
 				new_page = self->num_pages - 1;
 
-			SyncMenuControlPages (self, new_page);  // Sync all menu control entries
+			SyncMenuControlPages (self, new_page);
 			self->highlighted = 1;
 		}
 		return TRUE;
