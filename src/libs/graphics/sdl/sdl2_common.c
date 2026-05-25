@@ -34,7 +34,7 @@
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 static void TFB_PreQuit (void);
 

@@ -268,14 +268,14 @@ initJoystick (void)
 {
 	int nJoysticks;
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	char *mapping_db;
 	int len;
 	size_t base_len;
 	const char *slash;
 #endif
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	if ((SDL_InitSubSystem (SDL_INIT_GAMECONTROLLER)) == -1)
 #else
 	if ((SDL_InitSubSystem (SDL_INIT_JOYSTICK)) == -1)
@@ -286,7 +286,7 @@ initJoystick (void)
 		exit (EXIT_FAILURE);
 	}
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	SDL_GameControllerEventState (SDL_ENABLE);
 
 	base_len = strlen (baseContentPath);
@@ -328,7 +328,7 @@ initJoystick (void)
 		log_add (log_Info, "The names of the joysticks are:");
 		for (i = 0; i < nJoysticks; i++)
 		{
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 			if (SDL_IsGameController (i))
 			{
 				log_add (log_Info, "    %s (controller)",
@@ -630,7 +630,7 @@ TFB_ResetControls (void)
 	lastchar = 0;
 }
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
 {
 	"A", "B", "X", "Y", "Back", "Guide", "Start", "LS", "RS",
@@ -692,7 +692,7 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		buffer[maxlen - 1] = 0;
 		break;
 	case VCONTROL_JOYBUTTON:
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 			if (optControllerType == 1)
 			{
 				snprintf (buffer, maxlen, "[J%d %s]",
@@ -721,7 +721,7 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		buffer[maxlen - 1] = 0;
 		break;
 	case VCONTROL_JOYAXIS:
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 			if (optControllerType == 1)
 			{
 				snprintf (buffer, maxlen, "[J%d %s%c]",

@@ -70,7 +70,7 @@ void BeginInputFrame (void);
 extern const char *menu_res_names[];
 extern volatile int *menu_vec;
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 extern const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
 extern const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16];
 extern const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16];

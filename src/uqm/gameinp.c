@@ -78,7 +78,7 @@ volatile BOOLEAN OnScreenKeyboardLocked;
 
 static InputFrameCallback *inputCallback;
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 static void ControllerTypeSwitcher (void);
 
@@ -305,7 +305,7 @@ UpdateInputState (void)
 			QuickSave ();
 	}
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 	if (optAutoButtons && !InSetupMenu)
 		ControllerTypeSwitcher ();
@@ -544,7 +544,7 @@ ActKeysPress (void)
 	);
 }
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 static const char *
 SDL_GameControllerTypeToString (SDL_GameControllerType type)
