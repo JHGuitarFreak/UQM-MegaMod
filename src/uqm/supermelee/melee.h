@@ -178,13 +178,8 @@ enum
 	BATTLE_BUTTON,
 	BATTLE_BUTTON_HL,
 
-	SHIP_PICK_KB,
-	SHIP_PICK_XB,
-	SHIP_PICK_PS,
-
-	TEAM_PICK_KB,
-	TEAM_PICK_XB,
-	TEAM_PICK_PS,
+	SHIP_PICKER,
+	TEAM_PICKER,
 
 	QUIT_BUTTON,
 	QUIT_BUTTON_HL,
@@ -201,7 +196,10 @@ enum
 	NET_BUTTON_BOTT_HL,
 
 	SHIP_DESC,
+};
 
+enum
+{	// meleeatlas.ani enumerator
 	CONFIRM_PC,
 	CANCEL_PC,
 	UP_DOWN_PC,
@@ -216,6 +214,11 @@ enum
 	CANCEL_PS,
 	UP_DOWN_PS,
 	SPECIAL_PS,
+
+	CONFIRM_NX,
+	CANCEL_NX,
+	UP_DOWN_NX,
+	SPECIAL_NX,
 };
 
 #if defined(__cplusplus)

@@ -58,7 +58,7 @@ extern int timeDilationScale;
 extern OPT_ENABLABLE optBubbleWarp;
 extern OPT_ENABLABLE optUnlockShips;
 extern OPT_ENABLABLE optHeadStart;
-extern OPT_ENABLABLE optUnlockUpgrades;
+extern OPT_ENABLABLE optAutoButtons;
 extern OPT_ENABLABLE optInfiniteRU;
 extern DWORD oldRU;
 extern OPT_ENABLABLE optSkipIntro;
@@ -174,8 +174,7 @@ extern ADDON_COUNT addonList;
 #define THREEDO_MODE(a)  ((a) ? "3do-mode-hd" : "3do-mode-sd")
 #define WINDOW_MODE(a,b) ((b) == 0 ? DOS_MODE(a) : THREEDO_MODE(a))
 
-#define BASE_CONTENT_NAME "mm-" UQM_MAJOR_VERSION_S "." \
-		UQM_MINOR_VERSION_S "." UQM_PATCH_VERSION_S "-content.uqm"
+#define BASE_CONTENT_NAME "mm-" MM_BASE_VERSION_S "-content.uqm"
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
@@ -187,8 +186,6 @@ typedef struct _input_template {
 	 * possibly the whole configuration scheme.  If we do that, we
 	 * can actually ditch much of VControl. */
 } INPUT_TEMPLATE;
-
-extern INPUT_TEMPLATE input_templates[6];
 
 void prepareContentDir (const char *contentDirName, const char *addonDirName, const char *execFile);
 void prepareConfigDir (const char *configDirName);

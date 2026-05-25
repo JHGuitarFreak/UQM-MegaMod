@@ -38,9 +38,12 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 #include "gameopt.h"
+#include "libs/log/uqmlog.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
+
+#define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
 typedef struct
 {
@@ -74,6 +77,12 @@ volatile BOOLEAN GamePaused;
 volatile BOOLEAN OnScreenKeyboardLocked;
 
 static InputFrameCallback *inputCallback;
+
+#if SDL_MAJOR_VERSION == 2
+
+static void ControllerTypeSwitcher (void);
+
+#endif
 
 static void
 _clear_menu_state (void)
@@ -295,6 +304,13 @@ UpdateInputState (void)
 		if (inSavablePos ())
 			QuickSave ();
 	}
+
+#if SDL_MAJOR_VERSION == 2
+
+	if (optAutoButtons && !InSetupMenu)
+		ControllerTypeSwitcher ();
+
+#endif
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])
@@ -527,6 +543,116 @@ ActKeysPress (void)
 		CurrentInputState.menu[KEY_MENU_SPECIAL]
 	);
 }
+
+#if SDL_MAJOR_VERSION == 2
+
+static const char *
+SDL_GameControllerTypeToString (SDL_GameControllerType type)
+{
+	static const char *strings[] = {
+		"Unknown",
+		"Xbox 360",
+		"Xbox One",
+		"PlayStation 3",
+		"PlayStation 4",
+		"Nintendo Switch Pro",
+		"Virtual",
+		"PlayStation 5",
+		"Amazon Luna",
+		"Google Stadia",
+		"NVIDIA Shield",
+		"Nintendo Switch Joy-Con (Left)",
+		"Nintendo Switch Joy-Con (Right)",
+		"Nintendo Switch Joy-Con Pair",
+		"MAX (Invalid)"
+	};
+
+	if (type < 0 || type > SDL_CONTROLLER_TYPE_MAX)
+		return "Unknown (Invalid)";
+
+	return strings[type];
+}
+
+static LAST_INPUT input_tracker = { -1 };
+
+static void
+ControllerTypeSwitcher (void)
+{
+	int i;
+
+	BOOLEAN pressed = FALSE;
+
+	if (!last_input[0].pressed)
+		return;
+
+	if ((input_tracker.type == 1
+		&& input_tracker.gamepad == last_input[0].gamepad)
+		|| (input_tracker.type == 0 && last_input[0].type == 0))
+		return;
+
+	for (i = 0; i < NUM_KEYS; i++)
+	{
+		if (CurrentInputState.key[PlayerControls[0]][i])
+		{
+			pressed = TRUE;
+		}
+	}
+
+	if (last_input[0].pressed && !pressed)
+	{
+		input_tracker.pressed = 0;
+		last_input[0].pressed = 0;
+		return;
+	}
+
+	if (pressed && last_input[0].type == 1
+		&& input_tracker.gamepad != last_input[0].gamepad)
+	{
+		const char *gamepad;
+
+		switch (last_input[0].gamepad)
+		{
+		case SDL_CONTROLLER_TYPE_PS3:
+		case SDL_CONTROLLER_TYPE_PS4:
+		case SDL_CONTROLLER_TYPE_PS5:
+			optControllerType = 2;
+			break;
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+			optControllerType = 3;
+			break;
+		case SDL_CONTROLLER_TYPE_XBOX360:
+		case SDL_CONTROLLER_TYPE_XBOXONE:
+		case SDL_CONTROLLER_TYPE_VIRTUAL:
+		default:
+			optControllerType = 1;
+			break;
+		}
+
+		gamepad = SDL_GameControllerTypeToString (last_input[0].gamepad);
+		log_add (log_Info, "Last input player 1: CONTROLLER -> type: %s",
+				gamepad);
+	}
+
+	if (pressed && last_input[0].type == 0
+			&& optControllerType > 0)
+	{
+		optControllerType = 0;
+
+		log_add (log_Info, "Last input player 1: KEYBOARD");
+	}
+
+	if (pressed && last_input[0].pressed)
+	{
+		pressed = FALSE;
+		last_input[0].pressed = pressed;
+		input_tracker = last_input[0];
+	}
+}
+
+#endif
 
 BOOLEAN
 ConfirmExit (void)

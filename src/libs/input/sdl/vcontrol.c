@@ -60,7 +60,7 @@ typedef struct vcontrol_joystick_hat {
 } hat_type;
 
 typedef struct vcontrol_joystick {
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	SDL_GameController *stick;
 #else
 	SDL_Joystick *stick;
@@ -78,7 +78,7 @@ static joystick *joysticks;
 static unsigned int joycount;
 #endif // SDL_MAJOR_VERSION
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 typedef struct vcontrol_controller_list
 {
@@ -104,6 +104,8 @@ typedef struct
 static default_binding *default_bindings = NULL;
 static int default_binding_count = 0;
 static int default_binding_capacity = 0;
+
+LAST_INPUT last_input[2] = { 0 };
 
 #endif // SDL_MAJOR_VERSION
 #endif /* HAVE_JOYSTICK */
@@ -147,7 +149,7 @@ free_key_pool (keypool *x)
 }
 
 #ifdef HAVE_JOYSTICK
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 static void
 store_default_binding (int is_axis_binding, int axis, int polarity,
@@ -453,7 +455,7 @@ key_init (void)
 		bindings[i] = NULL;
 
 #ifdef HAVE_JOYSTICK
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	for (i = 0; i < 2; i++)
 	{
 		controller_assignments[i] = -1;
@@ -486,7 +488,7 @@ key_init (void)
 	}
 #endif // SDL_MAJOR_VERSION
 #else
-# if SDL_MAJOR_VERSION > 1
+# if SDL_MAJOR_VERSION == 2
 	active_controller_count = 0;
 # else
 	joycount = 0;
@@ -504,7 +506,7 @@ key_uninit (void)
 	pool = NULL;
 
 #ifdef HAVE_JOYSTICK
-# if SDL_MAJOR_VERSION > 1
+# if SDL_MAJOR_VERSION == 2
 	controller_list *current = controller_list_head;
 	controller_list *next;
 	
@@ -716,7 +718,7 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 		g->gesture.key = e->key.keysym.sym;
 		break;
 #ifdef HAVE_JOYSTICK
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	case SDL_CONTROLLERAXISMOTION:
 		g->type = VCONTROL_JOYAXIS;
 		g->gesture.axis.port = e->caxis.which;
@@ -1575,13 +1577,64 @@ VControl_BeginFrame (void)
 	}
 }
 
-void
-VControl_HandleEvent (const SDL_Event *e)
+#if SDL_MAJOR_VERSION == 2
+
+void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
 {
 	switch (e->type)
 	{
+	case SDL_KEYDOWN:
+		if (!e->key.repeat)
+		{	// KEYBOARD
+			last_input[0].type = 0;
+			last_input[0].pressed = true;
+			last_input[0].gamepad = -1;
+		}
+		break;
+	case SDL_CONTROLLERBUTTONDOWN:
+	{
+		int i;
+		SDL_GameController *controller;
+		SDL_GameControllerType controller_type;
+		SDL_JoystickID instance_id = e->cbutton.which;
+		int logical_port = -1;
+
+		for (i = 0; i < 2; i++)
+		{
+			if (controller_assignments[i] == instance_id)
+			{
+				logical_port = i;
+				break;
+			}
+		}
+
+		if (logical_port >= 0 && logical_port < 2)
+		{	// CONTROLLER
+			controller = SDL_GameControllerFromInstanceID (instance_id);
+			controller_type = SDL_GameControllerGetType (controller);
+			last_input[logical_port].type = 1;
+			last_input[logical_port].pressed = true;
+			last_input[logical_port].gamepad = controller_type;
+		}
+		break;
+	}
+	}
+}
+
+#endif
+
+void
+VControl_HandleEvent (const SDL_Event *e)
+{
+
+#if SDL_MAJOR_VERSION == 2
+	VControl_UpdateInputTypeFromEvent (e);
+#endif
+
+	switch (e->type)
+	{
 		case SDL_KEYDOWN:
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 			if (!e->key.repeat)
 #endif
 			{
@@ -1595,7 +1648,7 @@ VControl_HandleEvent (const SDL_Event *e)
 			break;
 
 #ifdef HAVE_JOYSTICK
-# if SDL_MAJOR_VERSION > 1
+# if SDL_MAJOR_VERSION == 2
 		case SDL_CONTROLLERAXISMOTION:
 			VControl_ProcessJoyAxis (e->caxis.which, e->caxis.axis,
 					e->caxis.value);

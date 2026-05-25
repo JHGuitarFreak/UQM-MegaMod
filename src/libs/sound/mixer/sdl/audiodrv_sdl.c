@@ -26,7 +26,7 @@
 
 /* SDL2 wants to talk to a specific device. We'll let SDL1 use the same
  * function names and just throw the device argument away. */
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 static SDL_AudioDeviceID dev;
 #else
 #define SDL_CloseAudioDevice(x) SDL_CloseAudio ()
@@ -194,7 +194,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	desired.callback = audioCallback;
 	
 	log_add (log_Info, "Opening SDL audio device.");
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	dev = SDL_OpenAudioDevice (NULL, 0, &desired, &obtained,
 			SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE
 #ifdef SDL_AUDIO_ALLOW_SAMPLES_CHANGE
@@ -226,7 +226,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 		(obtained.channels != 1 && obtained.channels != 2))
 	{
 		log_add (log_Error, "Unable to obtain desired audio format.");
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 		SDL_CloseAudioDevice (dev);
 #else
 		SDL_CloseAudio ();
@@ -255,7 +255,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	{
 		log_add (log_Error, "Mixer initialization failed: %x",
 				mixer_GetError ());
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 		SDL_CloseAudioDevice (dev);
 #else
 		SDL_CloseAudio ();
@@ -269,7 +269,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	if (SoundDecoder_Init (flags, &formats))
 	{
 		log_add (log_Error, "Sound decoders initialization failed.");
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 		SDL_CloseAudioDevice (dev);
 #else
 		SDL_CloseAudio ();
@@ -291,7 +291,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 	{
 		log_add (log_Error, "Stream decoder initialization failed.");
 		// TODO: cleanup source mutexes [or is it "muti"? :) ]
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 		SDL_CloseAudioDevice (dev);
 #else
 		SDL_CloseAudio ();
@@ -302,7 +302,7 @@ mixSDL_Init (audio_Driver *driver, sint32 flags)
 		return -1;
 	}
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	SDL_PauseAudioDevice (dev, 0);
 #else
 	SDL_PauseAudio (0);
@@ -336,7 +336,7 @@ mixSDL_Uninit (void)
 		mixSDL_DeleteSources (1, &soundSource[i].handle);
 	}
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	SDL_CloseAudioDevice (dev);
 #else
 	SDL_CloseAudio ();

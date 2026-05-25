@@ -346,9 +346,6 @@ InitKernel (void)
 		return FALSE;
 	AdvanceLoadProgress ();
 
-	SubmenuFrame = CaptureDrawable (LoadGraphic (SUBMENU_MASK_PMAP_ANIM));
-	if (SubmenuFrame == NULL)
-		return FALSE;
 	AdvanceLoadProgress ();
 
 	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));

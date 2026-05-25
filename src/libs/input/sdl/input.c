@@ -46,7 +46,7 @@ static BOOLEAN set_character_mode = FALSE;
 		// on this setting
 #endif // SDL_MAJOR_VERSION
 
-static volatile int *menu_vec;
+volatile int *menu_vec;
 static int num_menu;
 // The last vector element is the character repeat "key"
 // This is only used in SDL1 input but it's mostly harmless everywhere else
@@ -59,7 +59,10 @@ static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
 
-static const char *menu_res_names[] = {
+MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
+MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
+
+const char *menu_res_names[] = {
 	"pause",
 	"exit",
 	"abort",
@@ -113,17 +116,18 @@ register_menu_controls (int index)
 	buf[39] = '\0';
 	
 	i = 1;
-	while (TRUE)
+
+	for (i = 1; i <= 6; i++)
 	{
 		VCONTROL_GESTURE g;
 
-		snprintf (buf, 39, "menu.%s.%d", menu_res_names[index], i);
+		snprintf (buf, sizeof (buf), "menu.%s.%d", menu_res_names[index], i);
 
 		if (!res_IsString (buf))
-			break;
+			continue;
+
 		VControl_ParseGesture (&g, res_GetString (buf));
 		VControl_AddGestureBinding (&g, (int *)&menu_vec[index]);
-		i++;
 	}
 }
 
@@ -141,17 +145,6 @@ register_flight_controls (void)
 
 	for (i = 0; i < num_templ; i++)
 	{
-		/* Copy in name */
-		snprintf (buf, 39, "keys.%d.name", i+1);
-		if (res_IsString (buf))
-		{
-			strncpy (input_templates[i].name, res_GetString (buf), 29);
-			input_templates[i].name[29] = '\0';
-		}
-		else
-		{
-			input_templates[i].name[0] = '\0';
-		}
 		for (j = 0; j < num_flight; j++)
 		{
 			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
@@ -173,6 +166,35 @@ register_flight_controls (void)
 }
 
 static void
+GetMenuBindings (MENU_BINDINGS *bindings)
+{
+	int i, j;
+	char buf[40];
+
+	for (i = 0; menu_res_names[i] != NULL; i++)
+	{
+		snprintf (bindings[i].action,
+			sizeof (bindings[i].action), "%s", menu_res_names[i]);
+
+		for (j = 1; j <= 6; j++)
+		{
+			snprintf (buf, sizeof (buf), "menu.%s.%d",
+				menu_res_names[i], j);
+
+			if (res_IsString (buf))
+			{
+				VControl_ParseGesture (&bindings[i].binding[j - 1],
+					res_GetString (buf));
+			}
+			else
+			{
+				bindings[i].binding[j - 1].type = VCONTROL_NONE;
+			}
+		}
+	}
+}
+
+static void
 initKeyConfig (void)
 {
 	int i;
@@ -184,10 +206,12 @@ initKeyConfig (void)
 	}
 
 	controls = HCalloc (sizeof (*controls) * num_templ * num_flight
-			* MAX_FLIGHT_ALTERNATES);
+		* MAX_FLIGHT_ALTERNATES);
 
 	/* First, load in the menu keys */
 	LoadResourceIndex (contentDir, "menu.key", "menu.");
+	GetMenuBindings (def_bindings);
+
 	LoadResourceIndex (configDir, "override.cfg", "menu.");
 	for (i = 0; i < num_menu; i++)
 	{
@@ -195,14 +219,15 @@ initKeyConfig (void)
 			break;
 		register_menu_controls (i);
 	}
-	
+	GetMenuBindings (curr_bindings);
+
 	LoadResourceIndex (configDir, "flight.cfg", "keys.");
-	if (!res_HasKey ("keys.1.name"))
+	if (!res_HasKey ("keys.version"))
 	{
 		/* Either flight.cfg doesn't exist, or we're using an old version
 		   of flight.cfg, and thus we wound up loading untyped values into
-		   'keys.keys.1.name' and such.  Load the defaults from the content
-		   directory. */
+		   'keys.keys.version' and such.  Load the defaults from the
+		   content directory. */
 		LoadResourceIndex (contentDir, "uqm.key", "keys.");
 	}
 
@@ -243,14 +268,14 @@ initJoystick (void)
 {
 	int nJoysticks;
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	char *mapping_db;
 	int len;
 	size_t base_len;
 	const char *slash;
 #endif
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	if ((SDL_InitSubSystem (SDL_INIT_GAMECONTROLLER)) == -1)
 #else
 	if ((SDL_InitSubSystem (SDL_INIT_JOYSTICK)) == -1)
@@ -261,7 +286,7 @@ initJoystick (void)
 		exit (EXIT_FAILURE);
 	}
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	SDL_GameControllerEventState (SDL_ENABLE);
 
 	base_len = strlen (baseContentPath);
@@ -303,7 +328,7 @@ initJoystick (void)
 		log_add (log_Info, "The names of the joysticks are:");
 		for (i = 0; i < nJoysticks; i++)
 		{
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 			if (SDL_IsGameController (i))
 			{
 				log_add (log_Info, "    %s (controller)",
@@ -605,58 +630,69 @@ TFB_ResetControls (void)
 	lastchar = 0;
 }
 
-void
-InterrogateInputState (int templat, int control, int index, char *buffer,
-	int maxlen)
+#if SDL_MAJOR_VERSION == 2
+const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
 {
-	VCONTROL_GESTURE *g = CONTROL_PTR (templat, control, index);
+	"A", "B", "X", "Y", "Back", "Guide", "Start", "LS", "RS",
+	"LB", "RB", "Up", "Down", "Left", "Right", "Misc", "Paddle 1",
+	"Paddle 3","Paddle 2","Paddle 4","???"
+};
 
-#if SDL_MAJOR_VERSION > 1
-	const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		"A", "B", "X", "Y", "Back", "Guide", "Start",
-		"LStick", "RStick", "LShoulder", "RShoulder",
-		"DUp", "DDown", "DLeft", "DRight", "Misc"
-	};
+const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+{ "LS H", "LS V", "RS H", "RS V", "LT", "RT" };
 
-	const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
-	{
-		STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE,
-		"Share", "PS", "Options", "L3", "R3", "L1", "R1",
-		"DUp", "DDown", "DLeft", "DRight", "TouchPad"
-	};
+const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	STR_CROSS, STR_CIRCLE, STR_SQUARE, STR_TRIANGLE, "Share", "PS",
+	"Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right",
+	"Mic","Paddle 1","Paddle 3","Paddle 2","Paddle 4","TouchPad"
+};
 
-	const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-	{
-		"LStick H", "LStick V", "RStick H", "RStick V",
-		"LTrigger", "RTrigger"
-	};
+const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+{ "LS H", "LS V", "RS H", "RS V", "L2", "R2" };
 
-	const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16] =
-	{
-		"LStick H", "LStick V", "RStick H", "RStick V",
-		"L2", "R2"
-	};
+const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16] =
+{
+	"B", "A", "Y", "X", "Minus", "Home", "Plus", "LS", "RS",
+	"L", "R", "Up", "Down", "Left", "Right", "Capture", "Paddle 1",
+	"Paddle 3", "Paddle 2", "Paddle 4", "???"
+};
+
+const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16] =
+{ "LS H", "LS V", "RS H", "RS V", "ZL", "ZR" };
 #endif
 
-	if (templat >= num_templ || control >= num_flight
-		|| index >= MAX_FLIGHT_ALTERNATES)
+void
+InterrogateInputState (int templat, int control, int index, char *buffer,
+		int maxlen, VCONTROL_GESTURE *g_override)
+{
+	VCONTROL_GESTURE *g;
+
+	if (g_override != NULL)
+		g = g_override;
+	else
 	{
-		log_add (log_Warning,
-				"InterrogateInputState(): invalid control index");
-		buffer[0] = 0;
-		return;
+		g = CONTROL_PTR (templat, control, index);
+
+		if (templat >= num_templ || control >= num_flight
+				|| index >= MAX_FLIGHT_ALTERNATES)
+		{
+			log_add (log_Warning,
+					"InterrogateInputState(): invalid control index");
+			buffer[0] = 0;
+			return;
+		}
 	}
 
 	switch (g->type)
 	{
-		case VCONTROL_KEY:
-			snprintf (buffer, maxlen, "%s",
-					VControl_code2name (g->gesture.key));
-			buffer[maxlen - 1] = 0;
-			break;
-		case VCONTROL_JOYBUTTON:
-#if SDL_MAJOR_VERSION > 1
+	case VCONTROL_KEY:
+		snprintf (buffer, maxlen, "%s",
+				VControl_code2name (g->gesture.key));
+		buffer[maxlen - 1] = 0;
+		break;
+	case VCONTROL_JOYBUTTON:
+#if SDL_MAJOR_VERSION == 2
 			if (optControllerType == 1)
 			{
 				snprintf (buffer, maxlen, "[J%d %s]",
@@ -669,17 +705,23 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 						g->gesture.button.port,
 						ds4_buttons[g->gesture.button.index]);
 			}
+			else if (optControllerType == 3)
+			{
+				snprintf (buffer, maxlen, "[J%d %s]",
+						g->gesture.button.port,
+						nx_buttons[g->gesture.button.index]);
+			}
 			else
 #endif
-			{
-				snprintf (buffer, maxlen, "[J%d B%d]",
-						g->gesture.button.port,
-						g->gesture.button.index);
-			}
-			buffer[maxlen - 1] = 0;
-			break;
-		case VCONTROL_JOYAXIS:
-#if SDL_MAJOR_VERSION > 1
+		{
+			snprintf (buffer, maxlen, "J%d B%d",
+					g->gesture.button.port,
+					g->gesture.button.index);
+		}
+		buffer[maxlen - 1] = 0;
+		break;
+	case VCONTROL_JOYAXIS:
+#if SDL_MAJOR_VERSION == 2
 			if (optControllerType == 1)
 			{
 				snprintf (buffer, maxlen, "[J%d %s%c]",
@@ -694,26 +736,33 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 						ds4_axes[g->gesture.axis.index],
 						g->gesture.axis.polarity > 0 ? '+' : '-');
 			}
-			else
-#endif
+			else if (optControllerType == 3)
 			{
-				snprintf (buffer, maxlen, "[J%d A%d %c]",
+				snprintf (buffer, maxlen, "[J%d %s%c]",
 						g->gesture.axis.port,
-						g->gesture.axis.index,
+						nx_axes[g->gesture.axis.index],
 						g->gesture.axis.polarity > 0 ? '+' : '-');
 			}
-			buffer[maxlen - 1] = 0;
-			break;
-#if SDL_MAJOR_VERSION == 1
-		case VCONTROL_JOYHAT:
-			snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port,
-					g->gesture.hat.index, g->gesture.hat.dir);
-			break;
+			else
 #endif
-		default:
-			/* Something we don't handle yet */
-			buffer[0] = 0;
-			break;
+		{
+			snprintf (buffer, maxlen, "J%d A%d %c",
+					g->gesture.axis.port,
+					g->gesture.axis.index,
+					g->gesture.axis.polarity > 0 ? '+' : '-');
+		}
+		buffer[maxlen - 1] = 0;
+		break;
+#if SDL_MAJOR_VERSION == 1
+	case VCONTROL_JOYHAT:
+		snprintf (buffer, maxlen, "[J%d H%d %d]", g->gesture.hat.port,
+				g->gesture.hat.index, g->gesture.hat.dir);
+		break;
+#endif
+	default:
+		/* Something we don't handle yet */
+		buffer[0] = 0;
+		break;
 	}
 	return;
 }
@@ -787,4 +836,61 @@ void
 BeginInputFrame (void)
 {
 	VControl_BeginFrame ();
+}
+
+static FRAME
+KeyAtlas (int menu_index, FRAME k_atlas)
+{
+	VCONTROL_GESTURE g = curr_bindings[menu_index].binding[0];
+	int i = VControl_code2index (g.gesture.key);
+	const char *key = VControl_code2name (g.gesture.key);
+
+	return SetAbsFrameIndex (k_atlas, i);
+}
+
+FRAME
+ControlAtlas (int menu_index, FRAME atlas_array[])
+{
+	VCONTROL_GESTURE g;
+	int i;
+
+	if (!optControllerType)
+		return KeyAtlas (menu_index, atlas_array[0]);
+
+	for (i = 0; i < 6; i++)
+	{
+		g = curr_bindings[menu_index].binding[i];
+		if (g.type == VCONTROL_JOYBUTTON || g.type == VCONTROL_JOYAXIS)
+			break;
+	}
+
+	switch (g.type)
+	{
+	case VCONTROL_JOYBUTTON:
+	{
+		int index = g.gesture.button.index;
+		int frame_index = 0;
+
+		if (optControllerType > 1)
+			frame_index = NUM_BUTTONS * (optControllerType - 1);
+
+		return SetAbsFrameIndex (atlas_array[2], index + frame_index);
+	}
+	case VCONTROL_JOYAXIS:
+	{
+		int atlas_index;
+		int index = g.gesture.axis.index;
+		BOOLEAN polarity = g.gesture.axis.polarity < 0 ? 0 : 1;
+		int frame_index = 0;
+
+		if (optControllerType > 1)
+			frame_index = NUM_AXIS * (optControllerType - 1);
+
+		atlas_index = index * 2 + polarity + frame_index;
+
+		return SetAbsFrameIndex (atlas_array[1], atlas_index);
+	}
+	default:
+		return KeyAtlas (menu_index, atlas_array[0]);
+	}
 }

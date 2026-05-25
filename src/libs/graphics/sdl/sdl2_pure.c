@@ -23,7 +23,7 @@
 #include "png2sdl.h"
 #include "options.h"
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 typedef struct tfb_sdl2_screeninfo_s {
 	SDL_Surface *scaled;
@@ -666,4 +666,4 @@ TFB_SDL2_GetDisplaySize (SDL_Rect *bounds)
 		printf ("%s\n", SDL_GetError ());
 }
 
-#endif /* SDL_MAJOR_VERSION > 1 */
+#endif /* SDL_MAJOR_VERSION == 2 */

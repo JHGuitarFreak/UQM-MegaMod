@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [v0.8.5]
+
+### Added
+- Full menu control rebinding in the Setup Menu
+- Auto-Switching option for button icons, detects Player 1's input and sets the correct icons automagically
+
+### Changed
+- Flight controls have been changed from 6 profiles of 2 key layers to 2 profiles of 4 key layers
+- Flight control profiles are now Player 1 and Player 2
+- Merged Gamepad 1 & 2 profiles into Player 1 & 2 profiles respectively
+- Made flight control editing paginated with 2 pages and 2 columns visually with page indicators
+
+### Fixed
+- 
+
 ## [v0.8.4]
 
 ### Added

@@ -31,9 +31,9 @@ sdl_surface_to_bitmap (SDL_Surface *surface)
 	HBITMAP hbitmap;
 
 	// Convert to 32-bit BGRA (required for Windows DIB)
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 	format.format = SDL_PIXELFORMAT_BGRA32;
-#endif /* SDL_MAJOR_VERSION > 1 */
+#endif /* SDL_MAJOR_VERSION == 2 */
 	format.palette = NULL;
 	format.BitsPerPixel = 32;
 	format.BytesPerPixel = 4;

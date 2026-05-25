@@ -25,6 +25,8 @@
 #include "uqm/colors.h"
 #include "uqm/units.h"
 #include "uqm/util.h"
+#include "uqm/setup.h"
+#include "uqm/gamestr.h"
 
 WIDGET *widget_focus = NULL;
 
@@ -259,7 +261,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	int widget_index, height, widget_y, on_screen;	
+	int widget_index, height, widget_y, on_screen;
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
 
@@ -356,19 +358,19 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		{	// Arrows (blue to the right)
 			STAMP arr;
 
-			arr.origin.x = RES_SCALE (290);
+			arr.origin.x = RES_SCALE (309);
 
 			if (offset_t != 0)
 			{
 				arr.frame = SetAbsFrameIndex (arrow_frame, 0); // Up arrow
-				arr.origin.y = RES_SCALE (25);
+				arr.origin.y = DOS_BOOL_SCL (11, 10);
 				DrawStamp (&arr);
 			}
 			if (offset_b != self->num_children - 1)
 			{
 				arr.frame = SetAbsFrameIndex (arrow_frame, 1);
 					// Down arrow
-				arr.origin.y = RES_SCALE (195);
+				arr.origin.y = DOS_BOOL_SCL (218, 178);
 				DrawStamp (&arr);
 			}
 		}
@@ -838,62 +840,302 @@ void
 Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 {	// mappable key name in controls setup
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
-	Color oldtext;
-	Color default_color, selected;
+	Color oldcolor, selected;
 	FONT  oldfont = 0;
-	FRAME oldFontEffect = SetContextFontEffect (NULL);
+	FRAME oldFontEffect;
 	TEXT t;
-	int i, home_x, home_y;
+	RECT r;
+	int i, home_x, start_slot;
+	int col_size[2] = { 0 };
+	int num_pages = self->num_pages;
+	int offset = RES_SCALE (5);
+
+	selected = WIDGET_ACTIVE_COLOR;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
-	
-	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
-	selected = WIDGET_ACTIVE_COLOR;
 
-	t.baseline.x = x + RES_SCALE (16);
+	oldFontEffect = SetContextFontEffect (NULL);
+	oldcolor = SetContextForeGroundColor (selected);
+
+	t.baseline.x = x + (CanvasWidth / 5) + offset;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
-	if (widget_focus == _self)
-	{
-		oldtext = SetContextForeGroundColor (selected);
-	}
-	else
-	{
-		oldtext = SetContextForeGroundColor (default_color);
-	}
+
+	if (widget_focus != _self)
+		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
+
 	font_DrawText (&t); // Control Name E.G. Up, Down, Weapon, Thrust
 
-	t.baseline.x -= t.baseline.x;
+	home_x = (t.baseline.x << 1) - offset;
+	t.align = ALIGN_CENTER;
+	start_slot = self->current_page * 2;
 
-	home_x = t.baseline.x + (CanvasWidth / 3);
-	home_y = t.baseline.y;
-	t.align = ALIGN_LEFT;
 	for (i = 0; i < 2; i++)
 	{
+		int slot = start_slot + i;
 		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));
-		t.baseline.y = home_y + RES_SCALE (8 * (i / 3));
-		t.pStr = self->controlname[i];
-		if (!t.pStr[0])
-		{
-			t.pStr = "---";
-		}
+		t.pStr = self->controlname[slot];
+
 		if ((widget_focus == _self) && (self->highlighted == i))
 		{
 			SetContextForeGroundColor (selected);
 		}
 		else
 		{
-			SetContextForeGroundColor (default_color);
+			if (!t.pStr[0])
+				SetContextForeGroundColor (WIDGET_WARNING_COLOR);
+			else
+				SetContextForeGroundColor (WIDGET_INACTIVE_COLOR);
 		}
+
+		if (!t.pStr[0])
+			t.pStr = "---";
+
+		font_DrawText (&t);
+		col_size[i] = t.baseline.x;
+	}
+
+	// Draw arrows
+	if (widget_focus == _self && num_pages > 1)
+	{
+		STAMP arrow;
+		int arrow_buffer = RES_SCALE (38);
+
+		GetFrameRect (SetAbsFrameIndex (arrow_frame, 2), &r);
+
+		if (self->current_page > 0)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 2);
+			arrow.origin.x = col_size[0] - arrow_buffer - r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+
+		if (self->current_page < num_pages - 1)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 3);
+			arrow.origin.x = col_size[1] + arrow_buffer + r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+	}
+
+	// Draw page indicator
+	if (widget_focus == _self && num_pages > 1)
+	{
+		int rect_mid, rect_width, col_mid = 0;
+		int rect_gap = RES_SCALE (4);
+		SIZE leading;
+		int height, corrected_y, index;
+		WIDGET_CONTROLENTRY *current;
+		char buf[12];
+
+		r.extent.width = RES_SCALE (16);
+		r.extent.height = RES_SCALE (2);
+		r.corner.x = 0;
+
+		rect_width = (r.extent.width * num_pages) + (rect_gap * 2);
+		rect_mid = rect_width >> 1;
+
+		if (col_size[0] > 0 && col_size[1] > 0)
+		{
+			col_mid = ((col_size[1] - col_size[0]) >> 1) + col_size[0];
+			r.corner.x = col_mid - rect_mid;
+		}
+
+		GetContextFontLeading (&leading);
+
+		current = (WIDGET_CONTROLENTRY *)_self;
+		index = current->controlindex;
+		height = (*_self->height)(_self);
+
+		corrected_y = leading + index * (height + RES_SCALE (5));
+		r.corner.y = t.baseline.y - r.extent.height - corrected_y;
+
+		for (i = 0; i < num_pages; i++)
+		{
+			if (i > 0)
+				r.corner.x += r.extent.width + rect_gap;
+
+			SetContextForeGroundColor (i == self->current_page ?
+				WIDGET_ENABLED_COLOR : WIDGET_DISABLED_COLOR);
+			DrawFilledRectangle (&r);
+		}
+
+		SetContextForeGroundColor (WIDGET_TOOLTIP_COLOR);
+
+		snprintf (buf, sizeof (buf),
+			GAME_STRING (MAINMENU_STRING_BASE + 37),
+			self->current_page + 1, num_pages);
+
+		t.baseline.y = r.corner.y - (height >> 1);
+		t.baseline.x = col_mid;
+		t.pStr = buf;
 		font_DrawText (&t);
 	}
+
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
 		SetContextFont (oldfont);
-	SetContextForeGroundColor (oldtext);
+	SetContextForeGroundColor (oldcolor);
+}
+
+
+void
+Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
+{
+	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
+	Color OldColor, selected;
+	FONT OldFont = 0;
+	FRAME oldFontEffect;
+	TEXT t;
+	RECT r;
+	int i, home_x, start_slot;
+	int col_size[2] = { 0 };
+	int num_pages = self->num_pages;
+	int offset = RES_SCALE (22);
+
+	selected = WIDGET_ACTIVE_COLOR;
+
+	if (cur_font)
+		OldFont = SetContextFont (cur_font);
+	oldFontEffect = SetContextFontEffect (NULL);
+	OldColor = SetContextForeGroundColor (selected);
+
+	t.baseline.x = x + (CanvasWidth / 5) + offset;
+	t.baseline.y = y;
+	t.align = ALIGN_RIGHT;
+	t.CharCount = ~0;
+	t.pStr = self->category;
+
+	if (widget_focus != _self)
+		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
+
+	font_DrawText (&t); // Menu Control Name E.G. Pause, Exit, Abort, etc.
+
+	home_x = (t.baseline.x << 1) - offset;
+	t.align = ALIGN_CENTER;
+	start_slot = self->current_page * 2;
+
+	for (i = 0; i < 2; i++)
+	{
+		int slot = start_slot + i;
+		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));
+		t.pStr = self->controlname[slot];
+
+		if ((widget_focus == _self) && (self->highlighted == i))
+		{
+			const char *tips[3] = {
+					"Press Return to edit", "or Delete to remove", NULL };
+			Widget_DrawToolTips (2, tips);
+			SetContextForeGroundColor (selected);
+		}
+		else
+		{
+			if (!t.pStr[0])
+				SetContextForeGroundColor (WIDGET_WARNING_COLOR);
+			else
+				SetContextForeGroundColor (WIDGET_INACTIVE_COLOR);
+		}
+
+		if (!t.pStr[0])
+			t.pStr = "---";
+
+		font_DrawText (&t);
+		col_size[i] = t.baseline.x;
+	}
+
+	if (widget_focus == _self && num_pages > 1)
+	{
+		STAMP arrow;
+		int arrow_buffer = RES_SCALE (38);
+
+		GetFrameRect (SetAbsFrameIndex (arrow_frame, 2), &r);
+
+		if (self->current_page > 0)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 2);
+			arrow.origin.x = col_size[0] - arrow_buffer - r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+
+		if (self->current_page < num_pages - 1)
+		{
+			arrow.frame = SetAbsFrameIndex (arrow_frame, 3);
+			arrow.origin.x = col_size[1] + arrow_buffer + r.extent.width;
+			arrow.origin.y = y;
+			DrawStamp (&arrow);
+		}
+	}
+
+	// Draw page indicator
+	if (widget_focus == _self && num_pages > 1)
+	{
+		int rect_mid, rect_width, col_mid = 0;
+		int rect_gap = RES_SCALE (4);
+		SIZE leading;
+		int height, corrected_y, index;
+		WIDGET_MENUCONTROLENTRY *current;
+		char buf[12];
+
+		r.extent.width = RES_SCALE (16);
+		r.extent.height = RES_SCALE (2);
+		r.corner.x = 0;
+
+		rect_width = (r.extent.width * num_pages) + (rect_gap * 2);
+		rect_mid = rect_width >> 1;
+
+		if (col_size[0] > 0 && col_size[1] > 0)
+		{
+			col_mid = ((col_size[1] - col_size[0]) >> 1) + col_size[0];
+			r.corner.x = col_mid - rect_mid;
+		}
+
+		GetContextFontLeading (&leading);
+
+		current = (WIDGET_MENUCONTROLENTRY *)_self;
+		index = current->controlindex;
+		height = (*_self->height)(_self);
+
+		index = index > 9 ? 10 : index;
+
+		corrected_y = leading + index * (height + RES_SCALE (5));
+
+		r.corner.y = t.baseline.y - r.extent.height - corrected_y;
+
+		if (r.corner.y < RES_SCALE (22))
+			r.corner.y = RES_SCALE (22);
+
+		for (i = 0; i < num_pages; i++)
+		{
+			if (i > 0)
+				r.corner.x += r.extent.width + rect_gap;
+
+			SetContextForeGroundColor (i == self->current_page ?
+				WIDGET_ENABLED_COLOR : WIDGET_DISABLED_COLOR);
+			DrawFilledRectangle (&r);
+		}
+
+		SetContextForeGroundColor (WIDGET_TOOLTIP_COLOR);
+
+		snprintf (buf, sizeof (buf),
+			GAME_STRING (MAINMENU_STRING_BASE + 37),
+			self->current_page + 1, num_pages);
+
+		t.baseline.y = r.corner.y - (height >> 1);
+		t.baseline.x = col_mid;
+		t.pStr = buf;
+		font_DrawText (&t);
+	}
+
+	SetContextForeGroundColor (OldColor);
+	SetContextFontEffect (oldFontEffect);
+	if (OldFont)
+		SetContextFont (OldFont);
 }
 
 int
@@ -958,6 +1200,23 @@ Widget_ReceiveFocusControlEntry (WIDGET *_self, int event)
 	{
 		oldval = ((WIDGET_CONTROLENTRY *)widget_focus)->highlighted;
 	}
+	widget_focus = _self;
+	self->highlighted = oldval;
+	(void)event;
+	return TRUE;
+}
+
+int
+Widget_ReceiveFocusMenuControlEntry (WIDGET *_self, int event)
+{
+	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
+	int oldval = 0;
+
+	if (widget_focus->tag == WIDGET_TYPE_MENUCONTROLENTRY)
+	{
+		oldval = ((WIDGET_MENUCONTROLENTRY *)widget_focus)->highlighted;
+	}
+
 	widget_focus = _self;
 	self->highlighted = oldval;
 	(void)event;
@@ -1129,10 +1388,33 @@ Widget_HandleEventTextEntry (WIDGET *_self, int event)
 	return FALSE;
 }
 
+static void
+SyncControlPages (WIDGET_CONTROLENTRY *self, int new_page)
+{
+	int i;
+	WIDGET_MENU_SCREEN *parent;
+	WIDGET_CONTROLENTRY *child;
+
+	parent = (WIDGET_MENU_SCREEN *)self->parent;
+	for (i = 0; i < parent->num_children; i++)
+	{
+		if (parent->child[i]->tag == WIDGET_TYPE_CONTROLENTRY)
+		{
+			child = (WIDGET_CONTROLENTRY *)parent->child[i];
+			child->current_page = new_page;
+		}
+	}
+}
+
 int
 Widget_HandleEventControlEntry (WIDGET *_self, int event)
 {
+	int current_page, num_pages, new_page;
 	WIDGET_CONTROLENTRY *self = (WIDGET_CONTROLENTRY *)_self;
+
+	current_page = self->current_page;
+	num_pages = self->num_pages;
+
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		if (self->onChange)
@@ -1149,10 +1431,112 @@ Widget_HandleEventControlEntry (WIDGET *_self, int event)
 			return TRUE;
 		}
 	}
-	if ((event == WIDGET_EVENT_RIGHT) ||
-	    (event == WIDGET_EVENT_LEFT))
+	if (event == WIDGET_EVENT_RIGHT)
 	{
-		self->highlighted = 1-self->highlighted;
+		if (self->highlighted < 1)
+		{
+			self->highlighted++;
+			return TRUE;
+		}
+
+		new_page = (current_page < num_pages - 1) ? current_page + 1 : 0;
+
+		SyncControlPages (self, new_page);
+		self->highlighted = 0;
+		return TRUE;
+	}
+	if (event == WIDGET_EVENT_LEFT)
+	{
+		if (self->highlighted > 0)
+		{
+			self->highlighted--;
+			return TRUE;
+		}
+
+		new_page = (current_page > 0) ? current_page - 1 : num_pages - 1;
+
+		SyncControlPages (self, new_page);
+		self->highlighted = (new_page == num_pages - 1) ? 1 : 0;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static void
+SyncMenuControlPages (WIDGET_MENUCONTROLENTRY *self, int new_page)
+{
+	int i;
+	WIDGET_MENU_SCREEN *parent;
+	WIDGET_MENUCONTROLENTRY *child;
+
+	parent = (WIDGET_MENU_SCREEN *)self->parent;
+	for (i = 0; i < parent->num_children; i++)
+	{
+		if (parent->child[i]->tag == WIDGET_TYPE_MENUCONTROLENTRY)
+		{
+			child = (WIDGET_MENUCONTROLENTRY *)parent->child[i];
+			child->current_page = new_page;
+		}
+	}
+}
+
+int
+Widget_HandleEventMenuControlEntry (WIDGET *_self, int event)
+{
+	WIDGET_MENUCONTROLENTRY *self = (WIDGET_MENUCONTROLENTRY *)_self;
+
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		if (self->onChange)
+		{
+			(self->onChange)(self);
+			return TRUE;
+		}
+	}
+	if (event == WIDGET_EVENT_DELETE)
+	{
+		if (self->onDelete)
+		{
+			(self->onDelete)(self);
+			return TRUE;
+		}
+	}
+	if (event == WIDGET_EVENT_RIGHT)
+	{
+		if (self->highlighted < 1)
+		{
+			self->highlighted++;
+		}
+		else
+		{
+			int new_page;
+			if (self->current_page < self->num_pages - 1)
+				new_page = self->current_page + 1;
+			else
+				new_page = 0;
+
+			SyncMenuControlPages (self, new_page);
+			self->highlighted = 0;
+		}
+		return TRUE;
+	}
+	if (event == WIDGET_EVENT_LEFT)
+	{
+		if (self->highlighted > 0)
+		{
+			self->highlighted--;
+		}
+		else
+		{
+			int new_page;
+			if (self->current_page > 0)
+				new_page = self->current_page - 1;
+			else
+				new_page = self->num_pages - 1;
+
+			SyncMenuControlPages (self, new_page);
+			self->highlighted = 1;
+		}
 		return TRUE;
 	}
 	return FALSE;

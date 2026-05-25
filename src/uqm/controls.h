@@ -22,6 +22,7 @@
 #include "libs/compiler.h"
 #include "libs/strlib.h"
 #include "libs/timelib.h"
+#include "libs/input/sdl/vcontrol.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -74,13 +75,74 @@ enum {
 	NUM_MENU_KEYS
 };
 
+enum
+{
+	BUTTON_A,
+	BUTTON_B,
+	BUTTON_X,
+	BUTTON_Y,
+
+	BUTTON_BACK,
+	BUTTON_GUIDE,
+	BUTTON_START,
+
+	BUTTON_LS,
+	BUTTON_RS,
+
+	BUTTON_LB,
+	BUTTON_RB,
+
+	BUTTON_UP,
+	BUTTON_DOWN,
+	BUTTON_LEFT,
+	BUTTON_RIGHT,
+
+	BUTTON_MISC,
+
+	BUTTON_PADDLE1,
+	BUTTON_PADDLE3,
+	BUTTON_PADDLE2,
+	BUTTON_PADDLE4,
+
+	BUTTON_TOUCHPAD,
+
+	NUM_BUTTONS
+};
+
+enum
+{
+	AXIS_LS_LEFT,
+	AXIS_LS_RIGHT,
+	AXIS_LS_UP,
+	AXIS_LS_DOWN,
+
+	AXIS_RS_LEFT,
+	AXIS_RS_RIGHT,
+	AXIS_RS_UP,
+	AXIS_RS_DOWN,
+
+	AXIS_LT_0,
+	AXIS_LT_1,
+	AXIS_RT_0,
+	AXIS_RT_1,
+
+	NUM_AXIS
+};
+
+typedef struct menu_bindings
+{
+	char action[40];
+	VCONTROL_GESTURE binding[6];
+} MENU_BINDINGS;
+
+extern MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
+extern MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
+
+extern FRAME ControlAtlas (int menu_index, FRAME atlas_array[]);
+
 typedef enum {
-	CONTROL_TEMPLATE_KB_1,
-	CONTROL_TEMPLATE_KB_2,
-	CONTROL_TEMPLATE_KB_3,
-	CONTROL_TEMPLATE_JOY_1,
-	CONTROL_TEMPLATE_JOY_2,
-	CONTROL_TEMPLATE_JOY_3,
+	CONTROL_TEMPLATE_PL_1,
+	CONTROL_TEMPLATE_PL_2,
 	NUM_TEMPLATES
 } CONTROL_TEMPLATE;
 
@@ -130,10 +192,9 @@ BOOLEAN WaitForActButtonUntil (BOOLEAN newButton, TimeCount timeOut,
 BOOLEAN WaitForNoInput (TimePeriod duration, BOOLEAN resetInput);
 BOOLEAN WaitForNoInputUntil (TimeCount timeOut, BOOLEAN resetInput);
 
-extern BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
-
 extern BOOLEAN InPopUp;
 void DoPopupWindow(const char *msg);
+void DoPopupWindowFont (const char *msg, FONT font);
 
 typedef void (InputFrameCallback) (void);
 InputFrameCallback* SetInputCallback (InputFrameCallback *);

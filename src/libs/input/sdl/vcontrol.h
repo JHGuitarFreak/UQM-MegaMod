@@ -53,6 +53,14 @@ typedef struct {
 	} gesture;
 } VCONTROL_GESTURE;
 
+typedef struct {
+	int type;
+	int gamepad;
+	int pressed;
+} LAST_INPUT;
+
+extern LAST_INPUT last_input[];
+
 /* Control of bindings */
 int  VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target);
 void VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target);

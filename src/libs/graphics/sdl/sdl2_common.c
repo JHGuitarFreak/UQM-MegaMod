@@ -34,7 +34,7 @@
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
 
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION == 2
 
 static void TFB_PreQuit (void);
 
@@ -63,6 +63,7 @@ TFB_PreInit (void)
 #endif
 
 	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+	SDL_SetHint (SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
 
 	if ((SDL_Init (SDL_INIT_VIDEO) == -1))
 	{
