@@ -1577,6 +1577,8 @@ VControl_BeginFrame (void)
 	}
 }
 
+#if SDL_MAJOR_VERSION > 1
+
 void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
 {
 	switch (e->type)
@@ -1619,10 +1621,15 @@ void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
 	}
 }
 
+#endif
+
 void
 VControl_HandleEvent (const SDL_Event *e)
 {
+
+#if SDL_MAJOR_VERSION > 1
 	VControl_UpdateInputTypeFromEvent (e);
+#endif
 
 	switch (e->type)
 	{

@@ -78,7 +78,11 @@ volatile BOOLEAN OnScreenKeyboardLocked;
 
 static InputFrameCallback *inputCallback;
 
+#if SDL_MAJOR_VERSION > 1
+
 static void ControllerTypeSwitcher (void);
+
+#endif
 
 static void
 _clear_menu_state (void)
@@ -301,8 +305,12 @@ UpdateInputState (void)
 			QuickSave ();
 	}
 
+#if SDL_MAJOR_VERSION > 1
+
 	if (optAutoButtons && !InSetupMenu)
 		ControllerTypeSwitcher ();
+
+#endif
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])

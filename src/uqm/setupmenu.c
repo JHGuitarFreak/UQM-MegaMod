@@ -160,7 +160,6 @@ static int do_savemenubinds (WIDGET *self, int event);
 static int do_cancelmenubinds (WIDGET *self, int event);
 static int do_loaddefmenubinds (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
-static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 
@@ -315,20 +314,12 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
-
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[CHOICE_AUTOBUTT]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
-#endif
-
-	//(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Player 1
-	//(WIDGET *)(&choices[CHOICE_TOPPLAYER ]), // Player 2
-
-#ifdef DIRECTIONAL_JOY
-	(WIDGET *)(&choices[CHOICE_JOYSTICK  ]), // Directional Joystick toggle
-#endif
 
 	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+#endif
 	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP]), // "To view or edit..."
 	(WIDGET *)(&buttons[BTN_EDITKEYS     ]), // Edit Flight Controls
 	(WIDGET *)(&buttons[BTN_EDITMENUKEYS ]), // Edit Menu Controls
