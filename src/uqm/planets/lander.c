@@ -2173,17 +2173,36 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	{
 		if (crew_left)
 		{
+			BATTLE_INPUT_STATE InputState;
 			SIZE index = GetFrameIndex (LanderFrame[0]);
+			BOOLEAN turn_left = FALSE;
+			BOOLEAN turn_right = FALSE;
+			BOOLEAN thrust = FALSE;
+
+			if (optDirectJoystick)
+			{
+				InputState = GetDirectionalJoystickInput (index, 0);
+				turn_left = (InputState & BATTLE_LEFT) != 0;
+				turn_right = (InputState & BATTLE_RIGHT) != 0;
+				thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
+						|| (InputState & BATTLE_THRUST) != 0;
+			}
+			else
+			{
+				turn_left = CurrentInputState.key[PlayerControls[0]][KEY_LEFT];
+				turn_right = CurrentInputState.key[PlayerControls[0]][KEY_RIGHT];
+				thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
+						|| CurrentInputState.key[PlayerControls[0]][KEY_UP];
+			}
 
 			if (turn_wait)
 				--turn_wait;
-			else if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
-				CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
+			else if (turn_left || turn_right)
 			{
 				COUNT landerSpeedNumer;
 				COUNT angle;
 
-				if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT])
+				if (turn_left)
 					--index;
 				else
 					++index;
@@ -2208,12 +2227,9 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
-			if (CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
-					|| CurrentInputState.key[PlayerControls[0]][KEY_UP])
-			{
-				GetNextVelocityComponents (
-						&GLOBAL (velocity), &dx, &dy, 1);
-			}
+
+			if (thrust)
+				GetNextVelocityComponents (&GLOBAL (velocity), &dx, &dy, 1);
 			else
 				dx = dy = 0;
 

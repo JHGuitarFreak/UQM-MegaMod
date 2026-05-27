@@ -167,7 +167,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   spaceMusic);
 	DECL_CONFIG_OPTION(bool,  volasMusic);
 	DECL_CONFIG_OPTION(bool,  wholeFuel);
-	DECL_CONFIG_OPTION(bool,  directionalJoystick);
+	DECL_CONFIG_OPTION(int,   directJoystick);
 	DECL_CONFIG_OPTION(int,   landerHold);
 	DECL_CONFIG_OPTION(int,   scrTrans);
 	DECL_CONFIG_OPTION(int,   optDifficulty);
@@ -378,7 +378,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  spaceMusic,        0 ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
-		INIT_CONFIG_OPTION(  directionalJoystick, false ),
+		INIT_CONFIG_OPTION(  directJoystick,    0 ),
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  scrTrans,          OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
@@ -612,7 +612,7 @@ int main(int argc, char** argv)
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
-	optDirectionalJoystick = options.directionalJoystick.value;
+	optDirectJoystick = options.directJoystick.value;
 	optLanderHold = options.landerHold.value;
 	optScrTrans = options.scrTrans.value;
 	optDifficulty = options.optDifficulty.value;
@@ -1089,9 +1089,11 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
-#ifdef DIRECTIONAL_JOY
-	getBoolConfigValue (&options->directionalJoystick,
-			"mm.directionalJoystick"); // For Android
+#if SDL_MAJOR_VERSION == 2
+	if (res_IsInteger ("mm.directJoystick") && !options->directJoystick.set)
+	{
+		options->directJoystick.value = res_GetInteger ("mm.directJoystick");
+	}
 #endif
 
 	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
@@ -1374,7 +1376,7 @@ static struct option longOptions[] =
 	{"spherecolors", 0, NULL, SPHERECOLORS_OPT},
 	{"spacemusic", 1, NULL, SPACEMUSIC_OPT},
 	{"wholefuel", 0, NULL, WHOLEFUEL_OPT},
-	{"dirjoystick", 0, NULL, DIRJOY_OPT},
+	{"dirjoystick", 1, NULL, DIRJOY_OPT},
 	{"landerhold", 0, NULL, LANDHOLD_OPT},
 	{"scrtrans", 1, NULL, SCRTRANS_OPT},
 	{"melee", 0, NULL, MELEE_OPT},
@@ -1946,9 +1948,30 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case WHOLEFUEL_OPT:
 				setBoolOption (&options->wholeFuel, true);
 				break;
+#if SDL_MAJOR_VERSION == 2
 			case DIRJOY_OPT:
-				setBoolOption (&options->directionalJoystick, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp,
+						"Directional Joystick") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nDirectional Joystick has to be "
+						"0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->directJoystick.value = temp;
+					options->directJoystick.set = true;
+				}
 				break;
+			}
+#endif
 			case LANDHOLD_OPT:
 				if (!setChoiceOption (&options->landerHold, optarg)) {
 					InvalidArgument (optarg, "--landerhold");
@@ -2552,9 +2575,10 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --wholefuel : Enables the display of the whole "
 			"fuel value in the ship status (default: %s)",
 			boolOptString (&defaults->wholeFuel));
+#if SDL_MAJOR_VERSION == 2
 	log_add (log_User, "  --dirjoystick : Enables the use of directional"
-			"joystick controls for Android (default: %s)",
-			boolOptString (&defaults->directionalJoystick));
+			"joystick controls (default: 0)");
+#endif
 	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander "
 			"hold, pc=64, 3do=50 (default: %s)",
 			choiceOptString (&defaults->landerHold));

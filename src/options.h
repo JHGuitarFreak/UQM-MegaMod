@@ -83,7 +83,7 @@ extern int spaceMusicBySOI;
 extern int optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
 extern OPT_ENABLABLE optWholeFuel;
-extern OPT_ENABLABLE optDirectionalJoystick;
+extern int optDirectJoystick;
 extern int optLanderHold;
 extern int optScrTrans;
 extern int optDifficulty;

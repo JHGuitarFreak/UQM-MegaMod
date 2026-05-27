@@ -170,6 +170,13 @@ typedef enum {
 	OPTVAL_ADD_THING
 } OPT_ADD_REMOVE;
 
+typedef enum
+{
+	OPTVAL_NORMAL_CONTROL,
+	OPTVAL_DIRECTIONAL_CONTROL,
+	OPTVAL_DIRECTIONAL_THRUST
+} OPT_DIRECTJOY;
+
 enum {
 	CHOICE_GRAPHICS,
 	CHOICE_FRBUFFER,
@@ -456,12 +463,13 @@ typedef struct globalopts_struct {
 	OPT_SPHERECOLORS sphereColors;
 	OPT_SPACEMUSIC spaceMusic;
 	OPT_ADD_REMOVE deviceArray[28], upgradeArray[NUM_UPGRADES];
+	OPT_DIRECTJOY directJoystick;
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
 			unlockShips, headStart, autoButtons, infiniteRU, skipIntro,
 			infiniteFuel, partialPickup, submenu, infiniteCredits,
-			customBorder, volasMusic, directionalJoystick, wholeFuel,
+			customBorder, volasMusic, wholeFuel,
 			extended, gameOver, shipDirectionIP, hazardColors, orzCompFont,
 			smartAutoPilot, nonStopOscill, hyperStars, planetTexture,
 			noHQEncounters, deCleansing, meleeObstacles, showVisitedStars,

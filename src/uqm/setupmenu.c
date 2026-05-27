@@ -315,8 +315,9 @@ static WIDGET *cheat_widgets[] = {
 	
 static WIDGET *keyconfig_widgets[] = {
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
-	(WIDGET *)(&choices[CHOICE_AUTOBUTT]), // Unlock Upgrades
+	(WIDGET *)(&choices[CHOICE_AUTOBUTT  ]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
+	(WIDGET *)(&choices[CHOICE_JOYSTICK  ]), // Directional Joystick
 
 	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 #endif
@@ -1440,9 +1441,7 @@ SetDefaults (void)
 	choices[CHOICE_IPMUSIC      ].selected = opts.spaceMusic;
 	choices[CHOICE_REMIXES3     ].selected = opts.volasMusic;
 	choices[CHOICE_FUELDECIM    ].selected = opts.wholeFuel;
-#ifdef DIRECTIONAL_JOY
-	choices[CHOICE_JOYSTICK     ].selected = opts.directionalJoystick;
-#endif
+	choices[CHOICE_JOYSTICK     ].selected = opts.directJoystick;
 #ifdef MELEE_ZOOM
 	choices[CHOICE_ANDRZOOM     ].selected = opts.meleezoom;
 #endif
@@ -1548,7 +1547,7 @@ PropagateResults (void)
 	opts.bubbleWarp =       choices[CHOICE_CHWARP       ].selected;
 	opts.unlockShips =      choices[CHOICE_CHSHIPS      ].selected;
 	opts.headStart =        choices[CHOICE_CHHEADSTART  ].selected;
-	opts.autoButtons =   choices[CHOICE_AUTOBUTT   ].selected;
+	opts.autoButtons =      choices[CHOICE_AUTOBUTT     ].selected;
 	opts.infiniteRU =       choices[CHOICE_CHINFRU      ].selected;
 	opts.skipIntro =        choices[CHOICE_SKIPINTRO    ].selected;
 	opts.fuelRange =        choices[CHOICE_FUELCIRCLE   ].selected;
@@ -1567,9 +1566,7 @@ PropagateResults (void)
 	opts.spaceMusic =       choices[CHOICE_IPMUSIC      ].selected;
 	opts.volasMusic =       choices[CHOICE_REMIXES3     ].selected;
 	opts.wholeFuel =        choices[CHOICE_FUELDECIM    ].selected;
-#ifdef DIRECTIONAL_JOY
-	opts.directionalJoystick = choices[CHOICE_JOYSTICK  ].selected;
-#endif
+	opts.directJoystick = choices[CHOICE_JOYSTICK  ].selected;
 #ifdef MELEE_ZOOM
 	opts.meleezoom =           choices[CHOICE_ANDRZOOM  ].selected;
 #endif
@@ -2921,6 +2918,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	// Controls
 	opts->autoButtons = optAutoButtons;
 	opts->controllerType = optControllerType;
+	opts->directJoystick = optDirectJoystick;
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
@@ -3204,6 +3202,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	opts->controllerType = 0;
 #else
 	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
+	PutIntOpt (&optDirectJoystick, (int *)(&opts->directJoystick), "mm.directJoystick", FALSE);
 #endif
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);

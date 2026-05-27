@@ -45,10 +45,10 @@ computer_intelligence (ComputerInputContext *context, STARSHIP *StarShipPtr)
 			// Allow a player to warp-escape in cyborg mode
 			if (StarShipPtr->playerNr == RPG_PLAYER_NUM)
 				InputState |= CurrentInputToBattleInput (
-						context->playerNr) & BATTLE_ESCAPE;
+						context->playerNr, -1) & BATTLE_ESCAPE;
 		}
 		else
-			InputState = CurrentInputToBattleInput (context->playerNr);
+			InputState = CurrentInputToBattleInput (context->playerNr, -1);
 	}
 	else if (!(PlayerControl[context->playerNr] & PSYTRON_CONTROL))
 		InputState = 0;

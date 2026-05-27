@@ -894,3 +894,78 @@ ControlAtlas (int menu_index, FRAME atlas_array[])
 		return KeyAtlas (menu_index, atlas_array[0]);
 	}
 }
+
+VCONTROL_GESTURE *
+GetBindingForAction (int player, int action, int alt_index)
+{
+	if (player < 0 || player >= num_templ ||
+		action < 0 || action >= num_flight ||
+		alt_index < 0 || alt_index >= MAX_FLIGHT_ALTERNATES)
+	{
+		return NULL;
+	}
+
+	return CONTROL_PTR (player, action, alt_index);
+}
+
+int GetActionFromEvent (const SDL_Event *e, int player)
+{
+	if (!e) return -1;
+
+	switch (e->type)
+	{
+	case SDL_KEYDOWN:
+	case SDL_KEYUP:
+	{
+		sdl_key_t key = e->key.keysym.sym;
+		for (int action = 0; action < NUM_KEYS; action++)
+		{
+			for (int alt = 0; alt < MAX_FLIGHT_ALTERNATES; alt++)
+			{
+				VCONTROL_GESTURE *g = GetBindingForAction (player, action, alt);
+				if (g && g->type == VCONTROL_KEY && g->gesture.key == key)
+				{
+					return action;
+				}
+			}
+		}
+		for (int menu_action = 0; menu_action < NUM_MENU_KEYS; menu_action++)
+		{
+			for (int alt = 0; alt < 6; alt++)
+			{
+				VCONTROL_GESTURE *g = &curr_bindings[menu_action].binding[alt];
+				if (g->type == VCONTROL_KEY && g->gesture.key == key)
+				{
+					return menu_action + NUM_KEYS;
+				}
+			}
+		}
+		break;
+	}
+
+	case SDL_CONTROLLERBUTTONDOWN:
+	case SDL_CONTROLLERBUTTONUP:
+	{
+		int button = e->cbutton.button;
+		for (int action = 0; action < NUM_KEYS; action++)
+		{
+			for (int alt = 0; alt < MAX_FLIGHT_ALTERNATES; alt++)
+			{
+				VCONTROL_GESTURE *g = GetBindingForAction (player, action, alt);
+				if (g && g->type == VCONTROL_JOYBUTTON &&
+					g->gesture.button.index == button)
+				{
+					return action;
+				}
+			}
+		}
+		break;
+	}
+	case SDL_CONTROLLERAXISMOTION:
+	{
+		// Do Nothing
+	}
+	}
+
+	return -1;
+}

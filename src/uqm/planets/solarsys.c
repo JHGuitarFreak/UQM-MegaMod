@@ -1508,19 +1508,42 @@ ProcessShipControls (void)
 	COUNT index;
 	SIZE delta_x, delta_y;
 
-	if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
-			|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
-		delta_y = -1;
+	if (optDirectJoystick)
+	{
+		index = GetFrameIndex (GLOBAL (ShipStamp.frame));
+		BATTLE_INPUT_STATE InputState = GetDirectionalJoystickInput (index, 0);
+
+		if (InputState & BATTLE_THRUST
+				|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
+		{
+			delta_y = -1;
+		}
+		else
+			delta_y = 0;
+
+		delta_x = 0;
+		if (InputState & BATTLE_LEFT)
+			delta_x -= 1;
+		if (InputState & BATTLE_RIGHT)
+			delta_x += 1;
+	}
 	else
-		delta_y = 0;
+	{
+		if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
+				|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
+		{
+			delta_y = -1;
+		}
+		else
+			delta_y = 0;
 
-	delta_x = 0;
+		delta_x = 0;
+		if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT])
+			delta_x -= 1;
+		if (CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
+			delta_x += 1;
+	}
 
-	if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT])
-		delta_x -= 1;
-	if (CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
-		delta_x += 1;
-		
 	if (delta_x || delta_y < 0)
 	{
 		GLOBAL (autopilot.x) = ~0;
@@ -1555,7 +1578,7 @@ ProcessShipControls (void)
 			index = NORMALIZE_FACING (index + 1);
 
 		GLOBAL (ShipStamp.frame) =
-				SetAbsFrameIndex (GLOBAL (ShipStamp.frame), index);
+			SetAbsFrameIndex (GLOBAL (ShipStamp.frame), index);
 
 		pSolarSysState->turn_counter = pSolarSysState->turn_wait;
 	}

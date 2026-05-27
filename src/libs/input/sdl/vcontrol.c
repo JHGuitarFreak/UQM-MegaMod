@@ -52,6 +52,7 @@ typedef struct vcontrol_keypool {
 typedef struct vcontrol_joystick_axis {
 	keybinding *neg, *pos;
 	int polarity;
+	int value;
 } axis_type;
 
 typedef struct vcontrol_joystick_hat {
@@ -1579,25 +1580,46 @@ VControl_BeginFrame (void)
 
 #if SDL_MAJOR_VERSION == 2
 
+extern int GetActionFromEvent (const SDL_Event *e, int player);
+
 void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
 {
+	int i;
+	int action;
+	int logical_port;
+	SDL_JoystickID instance_id;
+	SDL_GameController *controller;
+	SDL_GameControllerType controller_type;
+	int abs_value;
+
 	switch (e->type)
 	{
 	case SDL_KEYDOWN:
 		if (!e->key.repeat)
-		{	// KEYBOARD
-			last_input[0].type = 0;
-			last_input[0].pressed = true;
-			last_input[0].gamepad = -1;
+		{
+			action = GetActionFromEvent (e, 0);
+			if (action >= 0)
+			{
+				last_input[0].type = 0;
+				last_input[0].pressed = true;
+				last_input[0].device_id = -1;
+				last_input[0].gamepad = -1;
+				last_input[0].actions = action;
+			}
 		}
 		break;
+
+	case SDL_KEYUP:
+		action = GetActionFromEvent (e, 0);
+		if (action >= 0)
+		{
+			last_input[0].pressed = false;
+		}
+		break;
+
 	case SDL_CONTROLLERBUTTONDOWN:
-	{
-		int i;
-		SDL_GameController *controller;
-		SDL_GameControllerType controller_type;
-		SDL_JoystickID instance_id = e->cbutton.which;
-		int logical_port = -1;
+		instance_id = e->cbutton.which;
+		logical_port = -1;
 
 		for (i = 0; i < 2; i++)
 		{
@@ -1609,15 +1631,81 @@ void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
 		}
 
 		if (logical_port >= 0 && logical_port < 2)
-		{	// CONTROLLER
+		{
+			action = GetActionFromEvent (e, logical_port);
 			controller = SDL_GameControllerFromInstanceID (instance_id);
 			controller_type = SDL_GameControllerGetType (controller);
+
 			last_input[logical_port].type = 1;
 			last_input[logical_port].pressed = true;
+			last_input[logical_port].device_id = instance_id;
 			last_input[logical_port].gamepad = controller_type;
+			last_input[logical_port].actions = action;
 		}
 		break;
-	}
+
+	case SDL_CONTROLLERBUTTONUP:
+		instance_id = e->cbutton.which;
+		logical_port = -1;
+
+		for (i = 0; i < 2; i++)
+		{
+			if (controller_assignments[i] == instance_id)
+			{
+				logical_port = i;
+				break;
+			}
+		}
+
+		if (logical_port >= 0 && logical_port < 2)
+		{
+			action = GetActionFromEvent (e, logical_port);
+			if (action >= 0)
+			{
+				last_input[logical_port].pressed = false;
+			}
+		}
+		break;
+
+	case SDL_CONTROLLERAXISMOTION:
+		instance_id = e->caxis.which;
+		logical_port = -1;
+		abs_value = abs (e->caxis.value);
+
+		for (i = 0; i < 2; i++)
+		{
+			if (controller_assignments[i] == instance_id)
+			{
+				logical_port = i;
+				break;
+			}
+		}
+
+		if (logical_port >= 0 && logical_port < 2)
+		{
+			if (abs_value > 8000)
+			{
+				action = GetActionFromEvent (e, logical_port);
+				controller = SDL_GameControllerFromInstanceID (instance_id);
+				controller_type = SDL_GameControllerGetType (controller);
+
+				last_input[logical_port].type = 2;
+				last_input[logical_port].pressed = true;
+				last_input[logical_port].device_id = instance_id;
+				last_input[logical_port].gamepad = controller_type;
+				last_input[logical_port].actions = action;
+			}
+			else if (abs_value < 8000 && last_input[logical_port].pressed
+					&& last_input[logical_port].type == 2)
+			{
+				action = GetActionFromEvent (e, logical_port);
+				if (action >= 0)
+				{
+					last_input[logical_port].pressed = false;
+				}
+			}
+		}
+		break;
 	}
 }
 
@@ -2037,3 +2125,47 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 			return 0;
 	}
 }
+
+int
+VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
+{
+#ifdef HAVE_JOYSTICK
+#	if SDL_MAJOR_VERSION == 2
+	controller_list *current = controller_list_head;
+
+	while (current)
+	{
+		if (current->instance_id == port)
+		{
+			joystick *j = &current->gamepad;
+			if (!j->stick || j->numaxes <= axis)
+				return 0;
+
+			SDL_GameController *controller = j->stick;
+
+			if (axis >= SDL_CONTROLLER_AXIS_LEFTX
+					&& axis <= SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+			{
+				return SDL_GameControllerGetAxis (controller, axis);
+			}
+			return 0;
+		}
+		current = current->next;
+	}
+	return 0;
+#	endif
+#else
+	(void)port;
+	(void)axis;
+	return 0;
+#endif /* HAVE_JOYSTICK */
+}
+
+#if SDL_MAJOR_VERSION == 2
+SDL_JoystickID VControl_GetControllerAssignment (int player)
+{
+	if (player >= 0 && player < 2)
+		return controller_assignments[player];
+	return -1;
+}
+#endif

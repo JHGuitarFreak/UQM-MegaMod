@@ -94,7 +94,7 @@ int spaceMusicBySOI;
 int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
-OPT_ENABLABLE optDirectionalJoystick;
+int optDirectJoystick;
 int optLanderHold;
 int optScrTrans;
 int optDifficulty;

@@ -57,6 +57,8 @@ typedef struct {
 	int type;
 	int gamepad;
 	int pressed;
+	int device_id;
+	int actions;
 } LAST_INPUT;
 
 extern LAST_INPUT last_input[];
@@ -98,6 +100,10 @@ void VControl_ProcessKeyUp (sdl_key_t symbol);
 void VControl_ProcessJoyButtonDown (int port, int button);
 void VControl_ProcessJoyButtonUp (int port, int button);
 void VControl_ProcessJoyAxis (int port, int axis, int value);
+int VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis);
+#if SDL_MAJOR_VERSION == 2
+SDL_JoystickID VControl_GetControllerAssignment (int player);
+#endif
 #if SDL_MAJOR_VERSION == 1
 void VControl_ProcessJoyHat (int port, int which, Uint8 value);
 #endif // SDL_MAJOR_VERSION
