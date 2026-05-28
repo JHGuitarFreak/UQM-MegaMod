@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Added
 - Full menu control rebinding in the Setup Menu
 - Auto-Switching option for button icons, detects Player 1's input and sets the correct icons automagically
+- Added optional directional joystick controls for gamepads, first entry only turns the ship towards intended facing, and the second entry auto-thrusts into the intended direction (partial stick push turns the ship towards intended facing without thrusting)
+- Added deadzone editing for Player 1 and Player 2, left and right analog sticks for gamepads
 
 ### Changed
 - Flight controls have been changed from 6 profiles of 2 key layers to 2 profiles of 4 key layers
