@@ -791,7 +791,16 @@ BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
 
 		// Thrust when facing the intended direction
 		if (optDirectJoystick == 2 && (diff > 6 && diff < 10))
-			InputState |= BATTLE_THRUST;
+		{
+			int dzone = instance_id ? optDeadZoneLeftP2 : optDeadZoneLeftP1;
+			int undead_zone = ((float)(MAX_DEADZONE - dzone) * 0.65) + dzone;
+
+			if (dzone >= (MAX_DEADZONE * 0.35))
+				undead_zone = 0;
+
+			if (abs (axisX) > undead_zone || abs (axisY) > undead_zone)
+				InputState |= BATTLE_THRUST;
+		}
 	}
 
 	return InputState;
