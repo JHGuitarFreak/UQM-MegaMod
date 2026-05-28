@@ -313,20 +313,21 @@ enum {
 };
 
 enum {
-	MENU_QUITSUB,      // Quits settings sub menu
-	MENU_GRAPHICS,     // Graphics menu
-	MENU_AUDIO,        // General audio menu (volume, quality etc)
-	MENU_ENGINE,       // Engine behaviour menu (PC/3DO)
-	MENU_CHEATS,       // Cheats menu
-	MENY_KEYCONF,      // Main key configuration menu (input device etc)
-	MENU_ADVANCED,     // Advanced settings menu
-	MENU_EDITKEYS,     // Key layout editing menu (submenu for KEYCONF)
-	MENU_MUSIC,        // Music menu (remixes)
-	MENU_VISUAL,       // Visual menu
-	MENU_QOL,          // Quality of life features menu
-	MENU_DEVICES,      // Add devices cheat submenu
-	MENU_UPGRADES,     // Add upgrades cheat submenu
-	MENU_EDITMENUKEYS, // New menu screen
+	MENU_QUITSUB,
+	MENU_GRAPHICS,
+	MENU_AUDIO,
+	MENU_ENGINE,
+	MENU_CHEATS,
+	MENY_KEYCONF,
+	MENU_ADVANCED,
+	MENU_EDITKEYS,
+	MENU_MUSIC,
+	MENU_VISUAL,
+	MENU_QOL,
+	MENU_DEVICES,
+	MENU_UPGRADES,
+	MENU_EDITMENUKEYS,
+	MENU_DEADZONES,
 	
 	MENU_COUNT
 };
@@ -337,6 +338,10 @@ enum {
 	SLIDER_SPCHVOLUME,
 	SLIDER_GAMMA,
 	SLIDER_NEBULA,
+	SLIDER_DEADZONE_00,
+	SLIDER_DEADZONE_01,
+	SLIDER_DEADZONE_02,
+	SLIDER_DEADZONE_03,
 
 	SLIDER_COUNT
 };
@@ -358,10 +363,11 @@ enum {
 	BTN_DEVMENU,
 	BTN_UPGMENU,
 	BTN_CHTPREV,
-	BTN_EDITMENUKEYS,     // Edit Menu Controls button
-	BTN_SAVEMENUBINDS,    // Save Menu Bindings button
-	BTN_CANCELMENUBINDS,  // Cancel Menu Bindings button
-	BTN_LOADDEFMENUBINDS, // Load Default Menu Bindings button
+	BTN_EDITMENUKEYS,
+	BTN_SAVEMENUBINDS,
+	BTN_CANCELMENUBINDS,
+	BTN_LOADDEFMENUBINDS,
+	BTN_EDIT_DEADZONES,
 
 	BUTTON_COUNT
 };
@@ -481,7 +487,8 @@ typedef struct globalopts_struct {
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
-	int gamma, starBackground;
+	int gamma, starBackground, deadZoneLeftP1, deadZoneRightP1, deadZoneLeftP2,
+			deadZoneRightP2;
 } GLOBALOPTS;
 
 void SetupMenu (void);

@@ -908,6 +908,8 @@ GetBindingForAction (int player, int action, int alt_index)
 	return CONTROL_PTR (player, action, alt_index);
 }
 
+#if SDL_MAJOR_VERSION == 2
+
 int GetActionFromEvent (const SDL_Event *e, int player)
 {
 	if (!e) return -1;
@@ -969,3 +971,5 @@ int GetActionFromEvent (const SDL_Event *e, int player)
 
 	return -1;
 }
+
+#endif

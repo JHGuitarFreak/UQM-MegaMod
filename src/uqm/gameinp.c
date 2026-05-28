@@ -306,10 +306,8 @@ UpdateInputState (void)
 	}
 
 #if SDL_MAJOR_VERSION == 2
-
 	if (optAutoButtons && !InSetupMenu)
 		ControllerTypeSwitcher ();
-
 #endif
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
@@ -722,7 +720,7 @@ static inline int atan2i (int y, int x)
 		angle = atan2i_coeff_2 - atan2i_coeff_1 * (x + abs_y) / (abs_y - x);
 
 	if (y < 0)
-		return(-angle);     // negate if in quad III or IV
+		return(-angle); // negate if in quad III or IV
 	else
 		return(angle);
 }
@@ -734,23 +732,13 @@ BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
 	SDL_JoystickID instance_id = -1;
 	BOOLEAN btnUsed = FALSE;
 
-	if (player == 0)
-		instance_id = VControl_GetControllerAssignment (0);
-	else
-		instance_id = VControl_GetControllerAssignment (1);
+	instance_id = VControl_GetControllerAssignment (player);
 
 	if (instance_id == -1)
 		return InputState;
 
 	axisX = VControl_GetJoyAxis (instance_id, SDL_CONTROLLER_AXIS_LEFTX);
 	axisY = VControl_GetJoyAxis (instance_id, SDL_CONTROLLER_AXIS_LEFTY);
-
-	// Basic deadzone check
-	if (abs (axisX) < 8000 && abs (axisY) < 8000)
-	{
-		axisX = 0;
-		axisY = 0;
-	}
 
 	// we should always process keys/buttons over the analog stick
 	if (last_input[player].type < 2 && last_input[player].pressed)

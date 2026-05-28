@@ -141,6 +141,10 @@ OPT_ENABLABLE optDosMenus;
 OPT_ADD_REMOVE optDeviceArray[28];
 OPT_ADD_REMOVE optUpgradeArray[13];
 int optHyperSpaceColor;
+int optDeadZoneLeftP1;
+int optDeadZoneRightP1;
+int optDeadZoneLeftP2;
+int optDeadZoneRightP2;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

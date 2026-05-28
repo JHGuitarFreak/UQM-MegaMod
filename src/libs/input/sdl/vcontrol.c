@@ -24,6 +24,7 @@
 #include "keynames.h"
 #include "libs/log.h"
 #include "libs/reslib.h"
+#include "options.h"
 
  /* How many binding slots are allocated at once. */
 #define POOL_CHUNK_SIZE 64
@@ -1393,6 +1394,37 @@ VControl_ProcessJoyButtonUp (int port, int button)
 #endif /* HAVE_JOYSTICK */
 }
 
+#if SDL_MAJOR_VERSION == 2
+
+static int
+VControl_GetAxisThreshold (int port, int axis)
+{
+	int threshold = 3277;
+
+	if (port == 0)
+	{
+		if (axis == SDL_CONTROLLER_AXIS_LEFTX ||
+			axis == SDL_CONTROLLER_AXIS_LEFTY)
+			threshold = optDeadZoneLeftP1;
+		else if (axis == SDL_CONTROLLER_AXIS_RIGHTX ||
+			axis == SDL_CONTROLLER_AXIS_RIGHTY)
+			threshold = optDeadZoneRightP1;
+	}
+	else if (port == 1)
+	{
+		if (axis == SDL_CONTROLLER_AXIS_LEFTX ||
+			axis == SDL_CONTROLLER_AXIS_LEFTY)
+			threshold = optDeadZoneLeftP2;
+		else if (axis == SDL_CONTROLLER_AXIS_RIGHTX ||
+			axis == SDL_CONTROLLER_AXIS_RIGHTY)
+			threshold = optDeadZoneRightP2;
+	}
+
+	return threshold;
+}
+
+#endif
+
 void
 VControl_ProcessJoyAxis (int port, int axis, int value)
 {
@@ -1446,6 +1478,18 @@ VControl_ProcessJoyAxis (int port, int axis, int value)
 		{
 			joystick *j = &current->gamepad;
 			int t = j->threshold;
+			int logical_port = -1;
+
+			for (int i = 0; i < 2; i++)
+			{
+				if (controller_assignments[i] == port)
+				{
+					logical_port = i;
+					break;
+				}
+			}
+
+			t = VControl_GetAxisThreshold (logical_port, axis);
 
 			if (axis < 0 || axis >= j->numaxes)
 				return;
@@ -2126,11 +2170,12 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 	}
 }
 
+#if SDL_MAJOR_VERSION == 2
+
 int
 VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 {
 #ifdef HAVE_JOYSTICK
-#	if SDL_MAJOR_VERSION == 2
 	controller_list *current = controller_list_head;
 
 	while (current)
@@ -2138,22 +2183,42 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 		if (current->instance_id == port)
 		{
 			joystick *j = &current->gamepad;
+			int raw_value;
+			int threshold;
+			int logical_port = -1;
+
 			if (!j->stick || j->numaxes <= axis)
 				return 0;
 
 			SDL_GameController *controller = j->stick;
 
 			if (axis >= SDL_CONTROLLER_AXIS_LEFTX
-					&& axis <= SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+				&& axis <= SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
 			{
-				return SDL_GameControllerGetAxis (controller, axis);
+				raw_value = SDL_GameControllerGetAxis (controller, axis);
 			}
-			return 0;
+			else
+				return 0;
+
+			for (int i = 0; i < 2; i++)
+			{
+				if (controller_assignments[i] == port)
+				{
+					logical_port = i;
+					break;
+				}
+			}
+
+			threshold = VControl_GetAxisThreshold (logical_port, axis);
+
+			if (raw_value > -threshold && raw_value < threshold)
+				return 0;
+
+			return raw_value;
 		}
 		current = current->next;
 	}
 	return 0;
-#	endif
 #else
 	(void)port;
 	(void)axis;
@@ -2161,7 +2226,6 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 #endif /* HAVE_JOYSTICK */
 }
 
-#if SDL_MAJOR_VERSION == 2
 SDL_JoystickID VControl_GetControllerAssignment (int player)
 {
 	if (player >= 0 && player < 2)

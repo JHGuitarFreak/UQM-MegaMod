@@ -131,6 +131,12 @@ extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 extern int optHyperSpaceColor;
 
+#define MAX_DEADZONE SINT16_MAX
+extern int optDeadZoneLeftP1;
+extern int optDeadZoneRightP1;
+extern int optDeadZoneLeftP2;
+extern int optDeadZoneRightP2;
+
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
 extern OPT_ENABLABLE optSpeech;

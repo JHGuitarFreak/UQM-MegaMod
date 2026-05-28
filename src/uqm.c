@@ -210,6 +210,10 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  captainNames);
 	DECL_CONFIG_OPTION(bool,  dosMenus);
 	DECL_CONFIG_OPTION(int,   hyperSpaceColor);
+	DECL_CONFIG_OPTION(int,   deadZoneLeftP1);
+	DECL_CONFIG_OPTION(int,   deadZoneRightP1);
+	DECL_CONFIG_OPTION(int,   deadZoneLeftP2);
+	DECL_CONFIG_OPTION(int,   deadZoneRightP2);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -421,6 +425,10 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  captainNames,      false ),
 		INIT_CONFIG_OPTION(  dosMenus,          false ),
 		INIT_CONFIG_OPTION(  hyperSpaceColor,   OPT_3DO ),
+		INIT_CONFIG_OPTION(  deadZoneLeftP1,    3277),
+		INIT_CONFIG_OPTION(  deadZoneRightP1,   3277),
+		INIT_CONFIG_OPTION(  deadZoneLeftP2,    3277),
+		INIT_CONFIG_OPTION(  deadZoneRightP2,   3277),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -654,6 +662,10 @@ int main(int argc, char** argv)
 	optCaptainNames = options.captainNames.value;
 	optDosMenus = options.dosMenus.value;
 	optHyperSpaceColor = options.hyperSpaceColor.value;
+	optDeadZoneLeftP1 = options.deadZoneLeftP1.value;
+	optDeadZoneRightP1 = options.deadZoneRightP1.value;
+	optDeadZoneLeftP2 = options.deadZoneLeftP2.value;
+	optDeadZoneRightP2 = options.deadZoneRightP2.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1214,6 +1226,44 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValueXlat (&options->hyperSpaceColor, "mm.hyperSpaceColor",
 			OPT_3DO, OPT_PC);
 
+
+	if (res_IsInteger ("mm.deadZoneLeftP1") && !options->deadZoneLeftP1.set)
+	{
+		options->deadZoneLeftP1.value = res_GetInteger ("mm.deadZoneLeftP1");
+		if (options->deadZoneLeftP1.value > MAX_DEADZONE ||
+			options->deadZoneLeftP1.value < 0)
+		{
+			options->deadZoneLeftP1.value = 3277;
+		}
+	}
+	if (res_IsInteger ("mm.deadZoneRightP1") && !options->deadZoneRightP1.set)
+	{
+		options->deadZoneRightP1.value = res_GetInteger ("mm.deadZoneRightP1");
+		if (options->deadZoneRightP1.value > MAX_DEADZONE ||
+			options->deadZoneRightP1.value < 0)
+		{
+			options->deadZoneRightP1.value = 3277;
+		}
+	}
+	if (res_IsInteger ("mm.deadZoneLeftP2") && !options->deadZoneLeftP2.set)
+	{
+		options->deadZoneLeftP2.value = res_GetInteger ("mm.deadZoneLeftP2");
+		if (options->deadZoneLeftP2.value > MAX_DEADZONE ||
+			options->deadZoneLeftP2.value < 0)
+		{
+			options->deadZoneLeftP2.value = 3277;
+		}
+	}
+	if (res_IsInteger ("mm.deadZoneRightP2") && !options->deadZoneRightP2.set)
+	{
+		options->deadZoneRightP2.value = res_GetInteger ("mm.deadZoneRightP2");
+		if (options->deadZoneRightP2.value > MAX_DEADZONE ||
+			options->deadZoneRightP2.value < 0)
+		{
+			options->deadZoneRightP2.value = 3277;
+		}
+	}
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1303,6 +1353,10 @@ enum
 	NEBUVOL_OPT,
 	CLAPAK_OPT,
 	HSCOLOR_OPT,
+	DZLP1_OPT,
+	DZRP1_OPT,
+	DZLP2_OPT,
+	DZRP2_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1420,6 +1474,10 @@ static struct option longOptions[] =
 	{"captainnames", 0, NULL, CAPTNAMES_OPT},
 	{"dosmenus", 0, NULL, DOSMENUS_OPT},
 	{"hyperspacecolor", 1, NULL, HSCOLOR_OPT},
+	{"deadzoneleftp1", 1, NULL, DZLP1_OPT},
+	{"deadzonerightp1", 1, NULL, DZRP1_OPT},
+	{"deadzoneleftp2", 1, NULL, DZLP2_OPT},
+	{"deadzonerightp2", 1, NULL, DZRP2_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2304,6 +2362,29 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				{
 					options->nebulaevol.value = temp;
 					options->nebulaevol.set = true;
+				}
+				break;
+			}
+			case DZLP1_OPT:
+			case DZRP1_OPT:
+			case DZLP2_OPT:
+			case DZRP2_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Deadzone") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > MAX_DEADZONE)
+				{
+					saveError ("\nDeadzone has to be between 0-50\n");
+					badArg = true;
+				}
+				else
+				{
+					options->deadZoneLeftP1.value = temp;
+					options->deadZoneLeftP1.set = true;
 				}
 				break;
 			}

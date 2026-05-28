@@ -152,7 +152,6 @@ static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
 static int do_qol (WIDGET *self, int event);
-static int do_qol (WIDGET *self, int event);
 static int do_devices (WIDGET *self, int event);
 static int do_upgrades (WIDGET *self, int event);
 static int do_editmenukeys (WIDGET *self, int event);
@@ -162,6 +161,7 @@ static int do_loaddefmenubinds (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
+static int do_deadzones (WIDGET *self, int event);
 
 /* The space for our widgets */
 static WIDGET_MENU_SCREEN      menus         [MENU_COUNT        ];
@@ -182,7 +182,7 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
 	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
 	do_cheats, do_editmenukeys, do_savemenubinds, do_cancelmenubinds,
-	do_loaddefmenubinds };
+	do_loaddefmenubinds, do_deadzones };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -321,11 +321,12 @@ static WIDGET *keyconfig_widgets[] = {
 
 	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 #endif
-	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP]), // "To view or edit..."
-	(WIDGET *)(&buttons[BTN_EDITKEYS     ]), // Edit Flight Controls
-	(WIDGET *)(&buttons[BTN_EDITMENUKEYS ]), // Edit Menu Controls
+	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP ]), // "To view or edit..."
+	(WIDGET *)(&buttons[BTN_EDITKEYS      ]), // Edit Flight Controls
+	(WIDGET *)(&buttons[BTN_EDITMENUKEYS  ]), // Edit Menu Controls
+	(WIDGET *)(&buttons[BTN_EDIT_DEADZONES]), // Edit Axis Deadzones
 
-	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
@@ -505,6 +506,18 @@ static WIDGET *editmenukeys_widgets[] = {
 	(WIDGET *)(&buttons[BTN_PREVMENU        ]), // Previous menu
 	NULL };
 
+static WIDGET *editdeadzone_widgets[] = {
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_00]), // Player 1 Left Stick Deadzone
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_01]), // Player 1 Right Stick Deadzone
+
+	(WIDGET *)(&labels [LABEL_SPACER      ]), // Spacer
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_02]), // Player 2 Left Stick Deadzone
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_03]), // Player 2 Right Stick Deadzone
+
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
+	NULL };
+
 static const struct
 {
 	WIDGET **widgets;
@@ -525,7 +538,8 @@ menu_defs[] =
 	{qol_widgets, 10},
 	{devices_widgets, 11},
 	{upgrades_widgets, 12},
-	{editmenukeys_widgets, 0},
+	{editmenukeys_widgets, 13},
+	{editdeadzone_widgets, 14},
 	{NULL, 0}
 };
 
@@ -768,6 +782,19 @@ do_editkeys (WIDGET *self, int event)
 		choices[CHOICE_KBLAYOUT].selected = 0;
 		
 		populate_editkeys (0);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_deadzones (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[MENU_DEADZONES]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -1501,11 +1528,15 @@ SetDefaults (void)
 	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
 	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
 
-	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
-	sliders[SLIDER_SFXVOLUME ].value = opts.sfxvol;
-	sliders[SLIDER_SPCHVOLUME].value = opts.speechvol;
-	sliders[SLIDER_GAMMA     ].value = opts.gamma;
-	sliders[SLIDER_NEBULA    ].value = opts.nebulaevol;
+	sliders[SLIDER_MUSVOLUME  ].value = opts.musicvol;
+	sliders[SLIDER_SFXVOLUME  ].value = opts.sfxvol;
+	sliders[SLIDER_SPCHVOLUME ].value = opts.speechvol;
+	sliders[SLIDER_GAMMA      ].value = opts.gamma;
+	sliders[SLIDER_NEBULA     ].value = opts.nebulaevol;
+	sliders[SLIDER_DEADZONE_00].value = opts.deadZoneLeftP1;
+	sliders[SLIDER_DEADZONE_01].value = opts.deadZoneRightP1;
+	sliders[SLIDER_DEADZONE_02].value = opts.deadZoneLeftP2;
+	sliders[SLIDER_DEADZONE_03].value = opts.deadZoneRightP2;
 }
 
 static void
@@ -1630,6 +1661,11 @@ PropagateResults (void)
 	opts.speechvol  = sliders[SLIDER_SPCHVOLUME].value;
 	opts.gamma      = sliders[SLIDER_GAMMA     ].value;
 	opts.nebulaevol = sliders[SLIDER_NEBULA    ].value;
+
+	opts.deadZoneLeftP1  =  sliders[SLIDER_DEADZONE_00].value;
+	opts.deadZoneRightP1 =  sliders[SLIDER_DEADZONE_01].value;
+	opts.deadZoneLeftP2  =  sliders[SLIDER_DEADZONE_02].value;
+	opts.deadZoneRightP2 =  sliders[SLIDER_DEADZONE_03].value;
 
 	SetGlobalOptions (&opts);
 }
@@ -1914,6 +1950,57 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 	t.pStr = buf;
 
 	font_DrawText (&t);
+}
+
+static inline int
+deadzoneToSlider (int deadzone)
+{
+	return (deadzone * 100) / MAX_DEADZONE;
+}
+
+static inline int
+sliderToDeadzone (int value)
+{
+	return (value * MAX_DEADZONE) / 100;
+}
+
+static void
+deadzone_DrawValue (WIDGET_SLIDER *self, int x, int y)
+{
+	TEXT t;
+	char buf[16];
+
+	snprintf (buf, sizeof (buf), "%d%%", self->value);
+
+	t.baseline.x = x + RES_SCALE (6);
+	t.baseline.y = y;
+	t.align = ALIGN_LEFT;
+	t.CharCount = ~0;
+	t.pStr = buf;
+
+	font_DrawText (&t);
+}
+
+static void
+adjustDeadzone (WIDGET_SLIDER *self)
+{
+	int deadzone = sliderToDeadzone (self->value);
+
+	switch (self - sliders)
+	{
+	case SLIDER_DEADZONE_00:
+		optDeadZoneLeftP1 = deadzone;
+		break;
+	case SLIDER_DEADZONE_01:
+		optDeadZoneRightP1 = deadzone;
+		break;
+	case SLIDER_DEADZONE_02:
+		optDeadZoneLeftP2 = deadzone;
+		break;
+	case SLIDER_DEADZONE_03:
+		optDeadZoneRightP2 = deadzone;
+		break;
+	}
 }
 
 static void
@@ -2337,6 +2424,18 @@ init_widgets (void)
 	// nebulaevol is a special case
 	sliders[SLIDER_NEBULA].step = 1;
 	sliders[SLIDER_NEBULA].max = 50;
+
+	{	// Deadzone sliders are a special case
+		int j;
+
+		for (j = SLIDER_DEADZONE_00; j <= SLIDER_DEADZONE_03; j++)
+		{
+			sliders[j].step = 1;
+			sliders[j].max = 100;
+			sliders[j].draw_value = deadzone_DrawValue;
+			sliders[j].onChange = adjustDeadzone;
+		}
+	}
 
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{
@@ -2919,6 +3018,10 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->autoButtons = optAutoButtons;
 	opts->controllerType = optControllerType;
 	opts->directJoystick = optDirectJoystick;
+	opts->deadZoneLeftP1 = deadzoneToSlider (optDeadZoneLeftP1);
+	opts->deadZoneRightP1 = deadzoneToSlider (optDeadZoneRightP1);
+	opts->deadZoneLeftP2 = deadzoneToSlider (optDeadZoneLeftP2);
+	opts->deadZoneRightP2 = deadzoneToSlider (optDeadZoneRightP2);
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
@@ -3203,6 +3306,11 @@ SetGlobalOptions (GLOBALOPTS *opts)
 #else
 	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
 	PutIntOpt (&optDirectJoystick, (int *)(&opts->directJoystick), "mm.directJoystick", FALSE);
+
+	res_PutInteger ("mm.deadZoneLeftP1", optDeadZoneLeftP1);
+	res_PutInteger ("mm.deadZoneRightP1", optDeadZoneRightP1);
+	res_PutInteger ("mm.deadZoneLeftP2", optDeadZoneLeftP2);
+	res_PutInteger ("mm.deadZoneRightP2", optDeadZoneRightP2);
 #endif
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
