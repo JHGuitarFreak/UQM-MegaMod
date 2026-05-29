@@ -1494,6 +1494,9 @@ VControl_ProcessJoyAxis (int port, int axis, int value)
 			if (axis < 0 || axis >= j->numaxes)
 				return;
 
+			if (optDirectJoystick && axis < 2)
+				return;
+
 			if (value > t)
 			{
 				if (j->axes[axis].polarity != 1)

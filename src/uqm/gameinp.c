@@ -460,18 +460,14 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 {
 	BATTLE_INPUT_STATE InputState = 0;
 
-	if (direction < 0 || !optDirectJoystick)
-	{
-		if (keyState[KEY_LEFT])
-			InputState |= BATTLE_LEFT;
-		if (keyState[KEY_RIGHT])
-			InputState |= BATTLE_RIGHT;
-		if (keyState[KEY_UP])
-			InputState |= BATTLE_THRUST;
-	}
-	else
-		InputState |= GetDirectionalJoystickInput (direction, player);
+	InputState |= GetDirectionalJoystickInput (direction, player);
 
+	if (keyState[KEY_LEFT])
+		InputState |= BATTLE_LEFT;
+	if (keyState[KEY_RIGHT])
+		InputState |= BATTLE_RIGHT;
+	if (keyState[KEY_UP])
+		InputState |= BATTLE_THRUST;
 	if (keyState[KEY_WEAPON])
 		InputState |= BATTLE_WEAPON;
 	if (keyState[KEY_SPECIAL])
@@ -739,30 +735,6 @@ BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
 
 	axisX = VControl_GetJoyAxis (instance_id, SDL_CONTROLLER_AXIS_LEFTX);
 	axisY = VControl_GetJoyAxis (instance_id, SDL_CONTROLLER_AXIS_LEFTY);
-
-	// we should always process keys/buttons over the analog stick
-	if (last_input[player].type < 2 && last_input[player].pressed)
-	{
-		if (last_input[player].actions == KEY_LEFT)
-		{
-			InputState |= BATTLE_LEFT;
-			btnUsed = TRUE;
-		}
-		if (last_input[player].actions == KEY_RIGHT)
-		{
-			InputState |= BATTLE_RIGHT;
-			btnUsed = TRUE;
-		}
-		if (last_input[player].actions == KEY_UP ||
-			last_input[player].actions == KEY_THRUST)
-		{
-			InputState |= BATTLE_THRUST;
-			btnUsed = TRUE;
-		}
-
-		if (btnUsed == TRUE)
-			return InputState;
-	}
 
 	// Process analog stick input
 	if (axisX != 0 || axisY != 0)
