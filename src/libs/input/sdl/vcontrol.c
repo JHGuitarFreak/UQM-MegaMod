@@ -1629,131 +1629,63 @@ VControl_BeginFrame (void)
 
 extern int GetActionFromEvent (const SDL_Event *e, int player);
 
-void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
+static void
+ProcessLastButton (const SDL_Event *e)
 {
-	int i;
-	int action;
-	int logical_port;
-	SDL_JoystickID instance_id;
-	SDL_GameController *controller;
-	SDL_GameControllerType controller_type;
-	int abs_value;
+	int action, i;
+	SDL_GameController *controller = NULL;
+	SDL_JoystickID instance_id = e->cbutton.which;
+	int logical_port = -1;
 
-	switch (e->type)
+	for (i = 0; i < 2; i++)
 	{
-	case SDL_KEYDOWN:
-		if (!e->key.repeat)
+		if (controller_assignments[i] == instance_id)
 		{
-			action = GetActionFromEvent (e, 0);
-			if (action >= 0)
-			{
-				last_input[0].type = 0;
-				last_input[0].pressed = true;
-				last_input[0].device_id = -1;
-				last_input[0].gamepad = -1;
-				last_input[0].actions = action;
-			}
+			logical_port = i;
+			break;
 		}
-		break;
-
-	case SDL_KEYUP:
-		action = GetActionFromEvent (e, 0);
-		if (action >= 0)
-		{
-			last_input[0].pressed = false;
-		}
-		break;
-
-	case SDL_CONTROLLERBUTTONDOWN:
-		instance_id = e->cbutton.which;
-		logical_port = -1;
-
-		for (i = 0; i < 2; i++)
-		{
-			if (controller_assignments[i] == instance_id)
-			{
-				logical_port = i;
-				break;
-			}
-		}
-
-		if (logical_port >= 0 && logical_port < 2)
-		{
-			action = GetActionFromEvent (e, logical_port);
-			controller = SDL_GameControllerFromInstanceID (instance_id);
-			controller_type = SDL_GameControllerGetType (controller);
-
-			last_input[logical_port].type = 1;
-			last_input[logical_port].pressed = true;
-			last_input[logical_port].device_id = instance_id;
-			last_input[logical_port].gamepad = controller_type;
-			last_input[logical_port].actions = action;
-		}
-		break;
-
-	case SDL_CONTROLLERBUTTONUP:
-		instance_id = e->cbutton.which;
-		logical_port = -1;
-
-		for (i = 0; i < 2; i++)
-		{
-			if (controller_assignments[i] == instance_id)
-			{
-				logical_port = i;
-				break;
-			}
-		}
-
-		if (logical_port >= 0 && logical_port < 2)
-		{
-			action = GetActionFromEvent (e, logical_port);
-			if (action >= 0)
-			{
-				last_input[logical_port].pressed = false;
-			}
-		}
-		break;
-
-	case SDL_CONTROLLERAXISMOTION:
-		instance_id = e->caxis.which;
-		logical_port = -1;
-		abs_value = abs (e->caxis.value);
-
-		for (i = 0; i < 2; i++)
-		{
-			if (controller_assignments[i] == instance_id)
-			{
-				logical_port = i;
-				break;
-			}
-		}
-
-		if (logical_port >= 0 && logical_port < 2)
-		{
-			if (abs_value > 8000)
-			{
-				action = GetActionFromEvent (e, logical_port);
-				controller = SDL_GameControllerFromInstanceID (instance_id);
-				controller_type = SDL_GameControllerGetType (controller);
-
-				last_input[logical_port].type = 2;
-				last_input[logical_port].pressed = true;
-				last_input[logical_port].device_id = instance_id;
-				last_input[logical_port].gamepad = controller_type;
-				last_input[logical_port].actions = action;
-			}
-			else if (abs_value < 8000 && last_input[logical_port].pressed
-					&& last_input[logical_port].type == 2)
-			{
-				action = GetActionFromEvent (e, logical_port);
-				if (action >= 0)
-				{
-					last_input[logical_port].pressed = false;
-				}
-			}
-		}
-		break;
 	}
+
+	if (logical_port == -1)
+		return;
+
+	action = GetActionFromEvent (e, logical_port);
+	if (action == -1)
+		return;
+
+	if (e->type == SDL_CONTROLLERBUTTONUP)
+	{
+		last_input[logical_port].pressed = false;
+		return;
+	}
+
+	controller = SDL_GameControllerFromInstanceID (instance_id);
+
+	last_input[logical_port].type = 1;
+	last_input[logical_port].pressed = true;
+	last_input[logical_port].gamepad = SDL_GameControllerGetType (controller);
+	last_input[logical_port].actions = action;
+}
+
+static void
+ProcessLastKey (const SDL_Event *e)
+{
+	int action = GetActionFromEvent (e, 0);
+
+	if (action == -1)
+		return;
+
+	if (e->type == SDL_CONTROLLERBUTTONUP)
+	{
+		last_input[0].pressed = false;
+		return;
+	}
+
+	last_input[0].type = 0;
+	last_input[0].pressed = true;
+	last_input[0].gamepad = -1;
+	last_input[0].actions = action;
+
 }
 
 #endif
@@ -1761,11 +1693,6 @@ void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
 void
 VControl_HandleEvent (const SDL_Event *e)
 {
-
-#if SDL_MAJOR_VERSION == 2
-	VControl_UpdateInputTypeFromEvent (e);
-#endif
-
 	switch (e->type)
 	{
 		case SDL_KEYDOWN:
@@ -1774,12 +1701,14 @@ VControl_HandleEvent (const SDL_Event *e)
 #endif
 			{
 				VControl_ProcessKeyDown (e->key.keysym.sym);
+				ProcessLastKey (e);
 				last_interesting = *e;
 				event_ready = 1;
 			}
 			break;
 		case SDL_KEYUP:
 			VControl_ProcessKeyUp (e->key.keysym.sym);
+				ProcessLastKey (e);
 			break;
 
 #ifdef HAVE_JOYSTICK
@@ -1796,12 +1725,14 @@ VControl_HandleEvent (const SDL_Event *e)
 		case SDL_CONTROLLERBUTTONDOWN:
 			VControl_ProcessJoyButtonDown (e->cbutton.which,
 					e->cbutton.button);
+			ProcessLastButton (e);
 			last_interesting = *e;
 			event_ready = 1;
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			VControl_ProcessJoyButtonUp (e->cbutton.which,
 					e->cbutton.button);
+			ProcessLastButton (e);
 			break;
 		case SDL_CONTROLLERDEVICEADDED:
 			create_joystick (e->cdevice.which);

@@ -57,7 +57,6 @@ typedef struct {
 	int type;
 	int gamepad;
 	int pressed;
-	int device_id;
 	int actions;
 } LAST_INPUT;
 

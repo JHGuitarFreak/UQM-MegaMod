@@ -910,63 +910,31 @@ GetBindingForAction (int player, int action, int alt_index)
 
 #if SDL_MAJOR_VERSION == 2
 
-int GetActionFromEvent (const SDL_Event *e, int player)
+int GetActionFromEvent (const SDL_Event *event, int player)
 {
-	if (!e) return -1;
+	int i;
+	VCONTROL_GESTURE *g;
 
-	switch (e->type)
-	{
-	case SDL_KEYDOWN:
-	case SDL_KEYUP:
-	{
-		sdl_key_t key = e->key.keysym.sym;
-		for (int action = 0; action < NUM_KEYS; action++)
-		{
-			for (int alt = 0; alt < MAX_FLIGHT_ALTERNATES; alt++)
-			{
-				VCONTROL_GESTURE *g = GetBindingForAction (player, action, alt);
-				if (g && g->type == VCONTROL_KEY && g->gesture.key == key)
-				{
-					return action;
-				}
-			}
-		}
-		for (int menu_action = 0; menu_action < NUM_MENU_KEYS; menu_action++)
-		{
-			for (int alt = 0; alt < 6; alt++)
-			{
-				VCONTROL_GESTURE *g = &curr_bindings[menu_action].binding[alt];
-				if (g->type == VCONTROL_KEY && g->gesture.key == key)
-				{
-					return menu_action + NUM_KEYS;
-				}
-			}
-		}
-		break;
-	}
+	if (!event)
+		return -1;
 
-	case SDL_CONTROLLERBUTTONDOWN:
-	case SDL_CONTROLLERBUTTONUP:
+	for (i = 0; i < NUM_KEYS; i++)
 	{
-		int button = e->cbutton.button;
-		for (int action = 0; action < NUM_KEYS; action++)
+		for (int alt = 0; alt < MAX_FLIGHT_ALTERNATES; alt++)
 		{
-			for (int alt = 0; alt < MAX_FLIGHT_ALTERNATES; alt++)
+			g = GetBindingForAction (player, i, alt);
+
+			if (g == NULL)
+				return -1;
+
+			if ((g->type == VCONTROL_KEY &&
+				g->gesture.key == event->key.keysym.sym) ||
+					(g->type == VCONTROL_JOYBUTTON &&
+					g->gesture.button.index == event->cbutton.button))
 			{
-				VCONTROL_GESTURE *g = GetBindingForAction (player, action, alt);
-				if (g && g->type == VCONTROL_JOYBUTTON &&
-					g->gesture.button.index == button)
-				{
-					return action;
-				}
+				return i;
 			}
 		}
-		break;
-	}
-	case SDL_CONTROLLERAXISMOTION:
-	{
-		// Do Nothing
-	}
 	}
 
 	return -1;

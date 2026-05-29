@@ -598,7 +598,7 @@ ControllerTypeSwitcher (void)
 		}
 	}
 
-	if (last_input[0].pressed && !pressed)
+	if (last_input[0].pressed && last_input[0].actions == -1)
 	{
 		input_tracker.pressed = 0;
 		last_input[0].pressed = 0;
