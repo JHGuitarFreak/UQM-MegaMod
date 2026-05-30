@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Made flight control editing paginated with 2 pages and 2 columns visually with page indicators
 
 ### Fixed
-- 
+- STARSEED: Fixed Ur-Quan crash site and Utwig Bomb locations not having the proper amount of worlds
 
 ## [v0.8.4]
 
