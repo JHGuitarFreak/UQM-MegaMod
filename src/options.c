@@ -94,7 +94,7 @@ int spaceMusicBySOI;
 int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
-int optDirectJoystick;
+int optDirJoy[2];
 int optLanderHold;
 int optScrTrans;
 int optDifficulty;
@@ -167,6 +167,8 @@ char baseContentPath[PATH_MAX];
 
 // addon availability
 ADDON_COUNT addonList;
+
+BOOLEAN DirJoyActive = FALSE;
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;

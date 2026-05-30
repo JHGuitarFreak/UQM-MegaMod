@@ -1507,42 +1507,30 @@ ProcessShipControls (void)
 {
 	COUNT index;
 	SIZE delta_x, delta_y;
+	BATTLE_INPUT_STATE InputState = 0;
+	BOOLEAN turn_left, turn_right, thrust;
 
-	if (optDirectJoystick)
-	{
-		index = GetFrameIndex (GLOBAL (ShipStamp.frame));
-		BATTLE_INPUT_STATE InputState = GetDirectionalJoystickInput (index, 0);
+	index = GetFrameIndex (GLOBAL (ShipStamp.frame));
+	InputState = GetDirectionalJoystickInput (index, 0);
 
-		if (InputState & BATTLE_THRUST
-				|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
-		{
-			delta_y = -1;
-		}
-		else
-			delta_y = 0;
+	turn_left = CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
+			(InputState & BATTLE_LEFT);
+	turn_right = CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+			(InputState & BATTLE_RIGHT);
+	thrust = CurrentInputState.key[PlayerControls[0]][KEY_UP] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
+			(InputState & BATTLE_THRUST);
 
-		delta_x = 0;
-		if (InputState & BATTLE_LEFT)
-			delta_x -= 1;
-		if (InputState & BATTLE_RIGHT)
-			delta_x += 1;
-	}
+	if (thrust)
+		delta_y = -1;
 	else
-	{
-		if (CurrentInputState.key[PlayerControls[0]][KEY_UP]
-				|| CurrentInputState.key[PlayerControls[0]][KEY_THRUST])
-		{
-			delta_y = -1;
-		}
-		else
-			delta_y = 0;
+		delta_y = 0;
 
-		delta_x = 0;
-		if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT])
-			delta_x -= 1;
-		if (CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
-			delta_x += 1;
-	}
+	delta_x = 0;
+	if (turn_left)
+		delta_x -= 1;
+	if (turn_right)
+		delta_x += 1;
 
 	if (delta_x || delta_y < 0)
 	{
@@ -3182,14 +3170,17 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 
 	if (pSS->InOrbit)
 	{	// CheckShipLocation() or InitSolarSys() sent us to orbital
+		DirJoyActive = FALSE;
 		EnterPlanetOrbit ();
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
 		pSS->InOrbit = FALSE;
 	}
 	else if (!NewGameInit && (cancel || LastActivity == CHECK_LOAD))
 	{
+		DirJoyActive = FALSE;
 		SolarSysMenu ();
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
+
 	}
 	else if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{
@@ -3197,6 +3188,8 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 		TimeCount Now = GetTimeCounter ();
 
 		assert (pSS->InIpFlight);
+
+		DirJoyActive = TRUE;
 
 		if (Now >= TimeOutClock)
 		{
@@ -3212,6 +3205,7 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 
 		if (NewGameInit)
 		{
+			DirJoyActive = FALSE;
 			SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 			SettingsMenu (FALSE);
 			SolarSysMenu ();

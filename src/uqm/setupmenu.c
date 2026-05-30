@@ -317,7 +317,8 @@ static WIDGET *keyconfig_widgets[] = {
 #if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[CHOICE_AUTOBUTT  ]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
-	(WIDGET *)(&choices[CHOICE_JOYSTICK  ]), // Directional Joystick
+	(WIDGET *)(&choices[CHOICE_DIRJOYP1  ]), // Directional Joystick P1
+	(WIDGET *)(&choices[CHOICE_DIRJOYP2  ]), // Directional Joystick P2
 
 	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 #endif
@@ -1468,7 +1469,7 @@ SetDefaults (void)
 	choices[CHOICE_IPMUSIC      ].selected = opts.spaceMusic;
 	choices[CHOICE_REMIXES3     ].selected = opts.volasMusic;
 	choices[CHOICE_FUELDECIM    ].selected = opts.wholeFuel;
-	choices[CHOICE_JOYSTICK     ].selected = opts.directJoystick;
+	choices[CHOICE_DIRJOYP1     ].selected = opts.dirJoy[0];
 #ifdef MELEE_ZOOM
 	choices[CHOICE_ANDRZOOM     ].selected = opts.meleezoom;
 #endif
@@ -1509,6 +1510,7 @@ SetDefaults (void)
 	choices[CHOICE_LANDERUPGMASK].selected = opts.showUpgrades;
 	choices[CHOICE_FLEETPOINT   ].selected = opts.fleetPointSys;
 	choices[CHOICE_HSCOLOR      ].selected = opts.hyperSpaceColor;
+	choices[CHOICE_DIRJOYP2     ].selected = opts.dirJoy[1];
 
 	// Devices
 	for (i = DEVICE_START; i < DEVICE_START
@@ -1597,7 +1599,7 @@ PropagateResults (void)
 	opts.spaceMusic =       choices[CHOICE_IPMUSIC      ].selected;
 	opts.volasMusic =       choices[CHOICE_REMIXES3     ].selected;
 	opts.wholeFuel =        choices[CHOICE_FUELDECIM    ].selected;
-	opts.directJoystick = choices[CHOICE_JOYSTICK  ].selected;
+	opts.dirJoy[0] =        choices[CHOICE_DIRJOYP1     ].selected;
 #ifdef MELEE_ZOOM
 	opts.meleezoom =           choices[CHOICE_ANDRZOOM  ].selected;
 #endif
@@ -1638,6 +1640,7 @@ PropagateResults (void)
 	opts.showUpgrades =     choices[CHOICE_LANDERUPGMASK].selected;
 	opts.fleetPointSys =    choices[CHOICE_FLEETPOINT   ].selected;
 	opts.hyperSpaceColor =  choices[CHOICE_HSCOLOR      ].selected;
+	opts.dirJoy[1] =        choices[CHOICE_DIRJOYP2     ].selected;
 
 	// Devices
 	for (i = DEVICE_START;
@@ -3017,11 +3020,13 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	// Controls
 	opts->autoButtons = optAutoButtons;
 	opts->controllerType = optControllerType;
-	opts->directJoystick = optDirectJoystick;
+	opts->dirJoy[0] = optDirJoy[0];
+	opts->dirJoy[1] = optDirJoy[1];
 	opts->deadZoneLeftP1 = deadzoneToSlider (optDeadZoneLeftP1);
 	opts->deadZoneRightP1 = deadzoneToSlider (optDeadZoneRightP1);
 	opts->deadZoneLeftP2 = deadzoneToSlider (optDeadZoneLeftP2);
 	opts->deadZoneRightP2 = deadzoneToSlider (optDeadZoneRightP2);
+
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
@@ -3305,7 +3310,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	opts->controllerType = 0;
 #else
 	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
-	PutIntOpt (&optDirectJoystick, (int *)(&opts->directJoystick), "mm.directJoystick", FALSE);
+	PutIntOpt (&optDirJoy[0], (int *)(&opts->dirJoy[0]), "mm.dirJoyP1", FALSE);
+	PutIntOpt (&optDirJoy[1], (int *)(&opts->dirJoy[1]), "mm.dirJoyP2", FALSE);
 
 	res_PutInteger ("mm.deadZoneLeftP1", optDeadZoneLeftP1);
 	res_PutInteger ("mm.deadZoneRightP1", optDeadZoneRightP1);

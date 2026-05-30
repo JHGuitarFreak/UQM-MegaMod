@@ -2111,6 +2111,8 @@ DoPlanetSide (LanderInputState *pMS)
 		COUNT angle;
 
 		pMS->Initialized = TRUE;
+
+		DirJoyActive = TRUE;
 		
 		turn_wait = 0;
 		weapon_wait = 0;
@@ -2135,6 +2137,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL])
 			|| planetSideDesc->InTransit))
 	{
+		DirJoyActive = FALSE;
 		return FALSE;
 	}
 
@@ -2149,6 +2152,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	{	// Dead, damage dealt, and exploding
 		if (explosion_index > EXPLOSION_LIFE + EXPLOSION_WAIT_FRAMES)
 			return FALSE;
+
+		DirJoyActive = FALSE;
 		
 		if (explosion_index > EXPLOSION_LIFE)
 		{	// Keep going until the wait expires
@@ -2173,27 +2178,19 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	{
 		if (crew_left)
 		{
-			BATTLE_INPUT_STATE InputState;
 			SIZE index = GetFrameIndex (LanderFrame[0]);
-			BOOLEAN turn_left = FALSE;
-			BOOLEAN turn_right = FALSE;
-			BOOLEAN thrust = FALSE;
+			BATTLE_INPUT_STATE InputState = 0;
+			BOOLEAN turn_left, turn_right, thrust;
 
-			if (optDirectJoystick)
-			{
-				InputState = GetDirectionalJoystickInput (index, 0);
-				turn_left = (InputState & BATTLE_LEFT) != 0;
-				turn_right = (InputState & BATTLE_RIGHT) != 0;
-				thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
-						|| (InputState & BATTLE_THRUST) != 0;
-			}
-			else
-			{
-				turn_left = CurrentInputState.key[PlayerControls[0]][KEY_LEFT];
-				turn_right = CurrentInputState.key[PlayerControls[0]][KEY_RIGHT];
-				thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
-						|| CurrentInputState.key[PlayerControls[0]][KEY_UP];
-			}
+			InputState = GetDirectionalJoystickInput (index, 0);
+
+			turn_left = CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
+					(InputState & BATTLE_LEFT);
+			turn_right = CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+					(InputState & BATTLE_RIGHT);
+			thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
+					CurrentInputState.key[PlayerControls[0]][KEY_UP] ||
+					(InputState & BATTLE_THRUST);
 
 			if (turn_wait)
 				--turn_wait;
@@ -2228,10 +2225,13 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
 
-			if (thrust)
-				GetNextVelocityComponents (&GLOBAL (velocity), &dx, &dy, 1);
+			if (!thrust)
+			{
+				dx = 0;
+				dy = 0;
+			}
 			else
-				dx = dy = 0;
+				GetNextVelocityComponents (&GLOBAL (velocity), &dx, &dy, 1);
 
 			if (weapon_wait)
 				--weapon_wait;

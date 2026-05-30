@@ -83,7 +83,7 @@ extern int spaceMusicBySOI;
 extern int optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
 extern OPT_ENABLABLE optWholeFuel;
-extern int optDirectJoystick;
+extern int optDirJoy[2];
 extern int optLanderHold;
 extern int optScrTrans;
 extern int optDifficulty;
@@ -159,6 +159,8 @@ extern char *contentDirPath;
 extern char *addonDirPath;
 
 extern const char **optAddons;
+
+extern BOOLEAN DirJoyActive;
 
 // addon availability
 typedef struct

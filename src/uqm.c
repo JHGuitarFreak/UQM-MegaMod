@@ -167,7 +167,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   spaceMusic);
 	DECL_CONFIG_OPTION(bool,  volasMusic);
 	DECL_CONFIG_OPTION(bool,  wholeFuel);
-	DECL_CONFIG_OPTION(int,   directJoystick);
+	DECL_CONFIG_OPTION(int,   dirJoyP1);
 	DECL_CONFIG_OPTION(int,   landerHold);
 	DECL_CONFIG_OPTION(int,   scrTrans);
 	DECL_CONFIG_OPTION(int,   optDifficulty);
@@ -214,6 +214,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   deadZoneRightP1);
 	DECL_CONFIG_OPTION(int,   deadZoneLeftP2);
 	DECL_CONFIG_OPTION(int,   deadZoneRightP2);
+	DECL_CONFIG_OPTION(int,   dirJoyP2);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -382,7 +383,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  spaceMusic,        0 ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
-		INIT_CONFIG_OPTION(  directJoystick,    0 ),
+		INIT_CONFIG_OPTION(  dirJoyP1,          0 ),
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  scrTrans,          OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
@@ -425,10 +426,11 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  captainNames,      false ),
 		INIT_CONFIG_OPTION(  dosMenus,          false ),
 		INIT_CONFIG_OPTION(  hyperSpaceColor,   OPT_3DO ),
-		INIT_CONFIG_OPTION(  deadZoneLeftP1,    3277),
-		INIT_CONFIG_OPTION(  deadZoneRightP1,   3277),
-		INIT_CONFIG_OPTION(  deadZoneLeftP2,    3277),
-		INIT_CONFIG_OPTION(  deadZoneRightP2,   3277),
+		INIT_CONFIG_OPTION(  deadZoneLeftP1,    3277 ),
+		INIT_CONFIG_OPTION(  deadZoneRightP1,   3277 ),
+		INIT_CONFIG_OPTION(  deadZoneLeftP2,    3277 ),
+		INIT_CONFIG_OPTION(  deadZoneRightP2,   3277 ),
+		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -620,7 +622,7 @@ int main(int argc, char** argv)
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
-	optDirectJoystick = options.directJoystick.value;
+	optDirJoy[0] = options.dirJoyP1.value;
 	optLanderHold = options.landerHold.value;
 	optScrTrans = options.scrTrans.value;
 	optDifficulty = options.optDifficulty.value;
@@ -666,6 +668,7 @@ int main(int argc, char** argv)
 	optDeadZoneRightP1 = options.deadZoneRightP1.value;
 	optDeadZoneLeftP2 = options.deadZoneLeftP2.value;
 	optDeadZoneRightP2 = options.deadZoneRightP2.value;
+	optDirJoy[1] = options.dirJoyP2.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1102,9 +1105,9 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
 #if SDL_MAJOR_VERSION == 2
-	if (res_IsInteger ("mm.directJoystick") && !options->directJoystick.set)
+	if (res_IsInteger ("mm.dirJoyP1") && !options->dirJoyP1.set)
 	{
-		options->directJoystick.value = res_GetInteger ("mm.directJoystick");
+		options->dirJoyP1.value = res_GetInteger ("mm.dirJoyP1");
 	}
 #endif
 
@@ -1263,6 +1266,13 @@ getUserConfigOptions (struct options_struct *options)
 			options->deadZoneRightP2.value = 3277;
 		}
 	}
+
+#if SDL_MAJOR_VERSION == 2
+	if (res_IsInteger ("mm.dirJoyP2") && !options->dirJoyP2.set)
+	{
+		options->dirJoyP2.value = res_GetInteger ("mm.dirJoyP2");
+	}
+#endif
 
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
@@ -2019,13 +2029,13 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				else if (temp < 0 || temp > 2)
 				{
 					saveError ("\nDirectional Joystick has to be "
-						"0, 1, or 2.\n");
+						"0, 1, 2, 3, or 4.\n");
 					badArg = true;
 				}
 				else
 				{
-					options->directJoystick.value = temp;
-					options->directJoystick.set = true;
+					options->dirJoyP1.value = temp;
+					options->dirJoyP1.set = true;
 				}
 				break;
 			}
@@ -2369,25 +2379,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case DZRP1_OPT:
 			case DZLP2_OPT:
 			case DZRP2_OPT:
-			{
-				int temp;
-				if (parseIntOption (optarg, &temp, "Deadzone") == -1)
-				{
-					badArg = true;
-					break;
-				}
-				else if (temp < 0 || temp > MAX_DEADZONE)
-				{
-					saveError ("\nDeadzone has to be between 0-50\n");
-					badArg = true;
-				}
-				else
-				{
-					options->deadZoneLeftP1.value = temp;
-					options->deadZoneLeftP1.set = true;
-				}
-				break;
-			}
+				saveError ("\nEditing Deadzone in commandline has not yet been"
+						" implemented\n");
+				badArg = true;
 			case CLAPAK_OPT:
 				optNoClassic = TRUE;
 				break;

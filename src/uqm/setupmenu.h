@@ -173,8 +173,10 @@ typedef enum {
 typedef enum
 {
 	OPTVAL_NORMAL_CONTROL,
-	OPTVAL_DIRECTIONAL_CONTROL,
-	OPTVAL_DIRECTIONAL_THRUST
+	OPTVAL_DIRECTIONAL_LS_CONTROL,
+	OPTVAL_DIRECTIONAL_RS_CONTROL,
+	OPTVAL_DIRECTIONAL_LS_THRUST,
+	OPTVAL_DIRECTIONAL_RS_THRUST
 } OPT_DIRECTJOY;
 
 enum {
@@ -227,7 +229,7 @@ enum {
 	CHOICE_IPMUSIC,
 	CHOICE_REMIXES3,
 	CHOICE_FUELDECIM,
-	CHOICE_JOYSTICK,
+	CHOICE_DIRJOYP1,
 	CHOICE_ANDRZOOM,
 	CHOICE_LANDERHOLD,
 	CHOICE_SCRMELT,
@@ -308,6 +310,7 @@ enum {
 	CHOICE_CAPTNAMES,
 	CHOICE_DOSMENUS,
 	CHOICE_HSCOLOR,
+	CHOICE_DIRJOYP2,
 
 	CHOICE_COUNT
 };
@@ -469,7 +472,7 @@ typedef struct globalopts_struct {
 	OPT_SPHERECOLORS sphereColors;
 	OPT_SPACEMUSIC spaceMusic;
 	OPT_ADD_REMOVE deviceArray[28], upgradeArray[NUM_UPGRADES];
-	OPT_DIRECTJOY directJoystick;
+	OPT_DIRECTJOY dirJoy[2];
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
 			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,

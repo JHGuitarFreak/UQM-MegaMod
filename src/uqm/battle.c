@@ -482,6 +482,8 @@ Battle (BattleFrameCallback *callback)
 
 		BattleSong (TRUE);
 
+		DirJoyActive = TRUE;
+
 		bs.NextTime = 0;
 #ifdef NETPLAY
 		initBattleStateDataConnections ();
@@ -524,6 +526,8 @@ AbortBattle:
 				MeleeGameOver ();
 			}
 		}
+
+		DirJoyActive = FALSE;
 
 #ifdef NETPLAY
 		uninitBattleInputBuffers();
