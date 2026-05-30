@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Added
 - Full menu control rebinding in the Setup Menu
 - Auto-Switching option for button icons, detects Player 1's input and sets the correct icons automagically
-- Added optional directional joystick controls for gamepads, first entry only turns the ship towards intended facing, and the second entry auto-thrusts into the intended direction (partial stick push turns the ship towards intended facing without thrusting)
+- Added two optional directional joystick control types for gamepads, first type only turns the ship towards intended facing (you press the thrust key/button),
+	- and the second entry auto-thrusts into the intended direction (partial stick push turns the ship towards intended facing without thrusting)
+	- Along with the being able choose your stick preference (left or right stick)
 - Added deadzone editing for Player 1 and Player 2, left and right analog sticks for gamepads
 
 ### Changed
