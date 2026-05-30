@@ -329,6 +329,32 @@ destroy_joystick (SDL_JoystickID instance_id)
 		}
 	}
 
+	for (int i = 0; i < 2; i++)
+	{
+		if (controller_assignments[i] != -1)
+		{
+			int found = 0;
+			controller_list *verify = controller_list_head;
+			while (verify)
+			{
+				if (verify->instance_id == controller_assignments[i])
+				{
+					found = 1;
+					break;
+				}
+				verify = verify->next;
+			}
+			if (!found)
+			{
+				log_add (log_Info, "Stale assignment found: port %d points to "
+						"instance %d which doesn't exist, clearing",
+						i, controller_assignments[i]);
+				controller_assignments[i] = -1;
+				active_controller_count--;
+			}
+		}
+	}
+
 	prev = &controller_list_head;
 	current = controller_list_head;
 
@@ -336,11 +362,9 @@ destroy_joystick (SDL_JoystickID instance_id)
 	{
 		if (current->instance_id == instance_id)
 		{
-			joystick *x;
-
+			joystick *x = &current->gamepad;
 			*prev = current->next;
 
-			x = &current->gamepad;
 			if (x->stick)
 			{
 				SDL_GameControllerClose (x->stick);
@@ -351,8 +375,7 @@ destroy_joystick (SDL_JoystickID instance_id)
 			HFree (x->buttons);
 			HFree (current);
 
-			log_add (log_Info,
-					"Controller instance %d removed", instance_id);
+			log_add (log_Info, "Controller instance %d removed", instance_id);
 			return;
 		}
 		prev = &current->next;
@@ -2118,11 +2141,19 @@ int
 VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 {
 #ifdef HAVE_JOYSTICK
+	SDL_JoystickID instance_id;
 	controller_list *current = controller_list_head;
+
+	if (port < 0 || port > 1)
+		return 0;
+
+	instance_id = controller_assignments[port];
+	if (instance_id == -1)
+		return 0;
 
 	while (current)
 	{
-		if (current->instance_id == port)
+		if (current->instance_id == instance_id)
 		{
 			joystick *j = &current->gamepad;
 			int raw_value;
@@ -2144,7 +2175,7 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 
 			for (int i = 0; i < 2; i++)
 			{
-				if (controller_assignments[i] == port)
+				if (controller_assignments[i] == instance_id)
 				{
 					logical_port = i;
 					break;
