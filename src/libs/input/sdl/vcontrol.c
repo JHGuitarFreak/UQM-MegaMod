@@ -24,6 +24,7 @@
 #include "keynames.h"
 #include "libs/log.h"
 #include "libs/reslib.h"
+#include "options.h"
 
  /* How many binding slots are allocated at once. */
 #define POOL_CHUNK_SIZE 64
@@ -52,6 +53,7 @@ typedef struct vcontrol_keypool {
 typedef struct vcontrol_joystick_axis {
 	keybinding *neg, *pos;
 	int polarity;
+	int value;
 } axis_type;
 
 typedef struct vcontrol_joystick_hat {
@@ -275,7 +277,7 @@ create_joystick (int device_index)
 		x->buttons[j] = NULL;
 	}
 	x->stick = gamecontroller;
-	x->threshold = 10000;
+	x->threshold = DEFAULT_DZONE;
 
 	new_controller->instance_id = instance_id;
 	new_controller->next = controller_list_head;
@@ -327,6 +329,32 @@ destroy_joystick (SDL_JoystickID instance_id)
 		}
 	}
 
+	for (int i = 0; i < 2; i++)
+	{
+		if (controller_assignments[i] != -1)
+		{
+			int found = 0;
+			controller_list *verify = controller_list_head;
+			while (verify)
+			{
+				if (verify->instance_id == controller_assignments[i])
+				{
+					found = 1;
+					break;
+				}
+				verify = verify->next;
+			}
+			if (!found)
+			{
+				log_add (log_Info, "Stale assignment found: port %d points to "
+						"instance %d which doesn't exist, clearing",
+						i, controller_assignments[i]);
+				controller_assignments[i] = -1;
+				active_controller_count--;
+			}
+		}
+	}
+
 	prev = &controller_list_head;
 	current = controller_list_head;
 
@@ -334,11 +362,9 @@ destroy_joystick (SDL_JoystickID instance_id)
 	{
 		if (current->instance_id == instance_id)
 		{
-			joystick *x;
-
+			joystick *x = &current->gamepad;
 			*prev = current->next;
 
-			x = &current->gamepad;
 			if (x->stick)
 			{
 				SDL_GameControllerClose (x->stick);
@@ -349,8 +375,7 @@ destroy_joystick (SDL_JoystickID instance_id)
 			HFree (x->buttons);
 			HFree (current);
 
-			log_add (log_Info,
-					"Controller instance %d removed", instance_id);
+			log_add (log_Info, "Controller instance %d removed", instance_id);
 			return;
 		}
 		prev = &current->next;
@@ -479,7 +504,7 @@ key_init (void)
 			joysticks[i].numaxes = joysticks[i].numbuttons = 0;
 			joysticks[i].axes = NULL;
 			joysticks[i].buttons = NULL;
-			joysticks[i].threshold = 10000;
+			joysticks[i].threshold = DEFAULT_DZONE;
 		}
 	}
 	else
@@ -1392,6 +1417,25 @@ VControl_ProcessJoyButtonUp (int port, int button)
 #endif /* HAVE_JOYSTICK */
 }
 
+#if SDL_MAJOR_VERSION == 2
+
+static int
+VControl_GetAxisThreshold (int port, int axis)
+{
+	int threshold = DEFAULT_DZONE;
+
+	if (axis == SDL_CONTROLLER_AXIS_LEFTX ||
+		axis == SDL_CONTROLLER_AXIS_LEFTY)
+		threshold = DeadZoneLeftStick[port];
+	else if (axis == SDL_CONTROLLER_AXIS_RIGHTX ||
+		axis == SDL_CONTROLLER_AXIS_RIGHTY)
+		threshold = DeadZoneRightStick[port];
+
+	return threshold;
+}
+
+#endif
+
 void
 VControl_ProcessJoyAxis (int port, int axis, int value)
 {
@@ -1445,9 +1489,32 @@ VControl_ProcessJoyAxis (int port, int axis, int value)
 		{
 			joystick *j = &current->gamepad;
 			int t = j->threshold;
+			int logical_port = -1;
+
+			for (int i = 0; i < 2; i++)
+			{
+				if (controller_assignments[i] == port)
+				{
+					logical_port = i;
+					break;
+				}
+			}
+
+			t = VControl_GetAxisThreshold (logical_port, axis);
 
 			if (axis < 0 || axis >= j->numaxes)
 				return;
+
+			if (logical_port >=0 && optDirJoy[logical_port] && DirJoyActive)
+			{
+				if (((optDirJoy[logical_port] == 1 ||
+					optDirJoy[logical_port] == 3) && axis < 2) ||
+					((optDirJoy[logical_port] == 2 ||
+					optDirJoy[logical_port] == 4) && (axis > 1 && axis < 4)))
+				{
+					return;
+				}
+			}
 
 			if (value > t)
 			{
@@ -1579,46 +1646,65 @@ VControl_BeginFrame (void)
 
 #if SDL_MAJOR_VERSION == 2
 
-void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
+extern int GetActionFromEvent (const SDL_Event *e, int player);
+
+static void
+ProcessLastButton (const SDL_Event *e)
 {
-	switch (e->type)
-	{
-	case SDL_KEYDOWN:
-		if (!e->key.repeat)
-		{	// KEYBOARD
-			last_input[0].type = 0;
-			last_input[0].pressed = true;
-			last_input[0].gamepad = -1;
-		}
-		break;
-	case SDL_CONTROLLERBUTTONDOWN:
-	{
-		int i;
-		SDL_GameController *controller;
-		SDL_GameControllerType controller_type;
-		SDL_JoystickID instance_id = e->cbutton.which;
-		int logical_port = -1;
+	int action, i;
+	SDL_GameController *controller = NULL;
+	SDL_JoystickID instance_id = e->cbutton.which;
+	int logical_port = -1;
 
-		for (i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
+	{
+		if (controller_assignments[i] == instance_id)
 		{
-			if (controller_assignments[i] == instance_id)
-			{
-				logical_port = i;
-				break;
-			}
+			logical_port = i;
+			break;
 		}
+	}
 
-		if (logical_port >= 0 && logical_port < 2)
-		{	// CONTROLLER
-			controller = SDL_GameControllerFromInstanceID (instance_id);
-			controller_type = SDL_GameControllerGetType (controller);
-			last_input[logical_port].type = 1;
-			last_input[logical_port].pressed = true;
-			last_input[logical_port].gamepad = controller_type;
-		}
-		break;
+	if (logical_port == -1)
+		return;
+
+	action = GetActionFromEvent (e, logical_port);
+	if (action == -1)
+		return;
+
+	if (e->type == SDL_CONTROLLERBUTTONUP)
+	{
+		last_input[logical_port].pressed = false;
+		return;
 	}
+
+	controller = SDL_GameControllerFromInstanceID (instance_id);
+
+	last_input[logical_port].type = 1;
+	last_input[logical_port].pressed = true;
+	last_input[logical_port].gamepad = SDL_GameControllerGetType (controller);
+	last_input[logical_port].actions = action;
+}
+
+static void
+ProcessLastKey (const SDL_Event *e)
+{
+	int action = GetActionFromEvent (e, 0);
+
+	if (action == -1)
+		return;
+
+	if (e->type == SDL_CONTROLLERBUTTONUP)
+	{
+		last_input[0].pressed = false;
+		return;
 	}
+
+	last_input[0].type = 0;
+	last_input[0].pressed = true;
+	last_input[0].gamepad = -1;
+	last_input[0].actions = action;
+
 }
 
 #endif
@@ -1626,11 +1712,6 @@ void VControl_UpdateInputTypeFromEvent (const SDL_Event *e)
 void
 VControl_HandleEvent (const SDL_Event *e)
 {
-
-#if SDL_MAJOR_VERSION == 2
-	VControl_UpdateInputTypeFromEvent (e);
-#endif
-
 	switch (e->type)
 	{
 		case SDL_KEYDOWN:
@@ -1639,12 +1720,14 @@ VControl_HandleEvent (const SDL_Event *e)
 #endif
 			{
 				VControl_ProcessKeyDown (e->key.keysym.sym);
+				ProcessLastKey (e);
 				last_interesting = *e;
 				event_ready = 1;
 			}
 			break;
 		case SDL_KEYUP:
 			VControl_ProcessKeyUp (e->key.keysym.sym);
+				ProcessLastKey (e);
 			break;
 
 #ifdef HAVE_JOYSTICK
@@ -1661,12 +1744,14 @@ VControl_HandleEvent (const SDL_Event *e)
 		case SDL_CONTROLLERBUTTONDOWN:
 			VControl_ProcessJoyButtonDown (e->cbutton.which,
 					e->cbutton.button);
+			ProcessLastButton (e);
 			last_interesting = *e;
 			event_ready = 1;
 			break;
 		case SDL_CONTROLLERBUTTONUP:
 			VControl_ProcessJoyButtonUp (e->cbutton.which,
 					e->cbutton.button);
+			ProcessLastButton (e);
 			break;
 		case SDL_CONTROLLERDEVICEADDED:
 			create_joystick (e->cdevice.which);
@@ -2037,3 +2122,75 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 			return 0;
 	}
 }
+
+#if SDL_MAJOR_VERSION == 2
+
+int
+VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
+{
+#ifdef HAVE_JOYSTICK
+	SDL_JoystickID instance_id;
+	controller_list *current = controller_list_head;
+
+	if (port < 0 || port > 1)
+		return 0;
+
+	instance_id = controller_assignments[port];
+	if (instance_id == -1)
+		return 0;
+
+	while (current)
+	{
+		if (current->instance_id == instance_id)
+		{
+			joystick *j = &current->gamepad;
+			int raw_value;
+			int threshold;
+			int logical_port = -1;
+
+			if (!j->stick || j->numaxes <= axis)
+				return 0;
+
+			SDL_GameController *controller = j->stick;
+
+			if (axis >= SDL_CONTROLLER_AXIS_LEFTX
+				&& axis <= SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+			{
+				raw_value = SDL_GameControllerGetAxis (controller, axis);
+			}
+			else
+				return 0;
+
+			for (int i = 0; i < 2; i++)
+			{
+				if (controller_assignments[i] == instance_id)
+				{
+					logical_port = i;
+					break;
+				}
+			}
+
+			threshold = VControl_GetAxisThreshold (logical_port, axis);
+
+			if (raw_value > -threshold && raw_value < threshold)
+				return 0;
+
+			return raw_value;
+		}
+		current = current->next;
+	}
+	return 0;
+#else
+	(void)port;
+	(void)axis;
+	return 0;
+#endif /* HAVE_JOYSTICK */
+}
+
+SDL_JoystickID VControl_GetControllerAssignment (int player)
+{
+	if (player >= 0 && player < 2)
+		return controller_assignments[player];
+	return -1;
+}
+#endif

@@ -1799,7 +1799,6 @@ InitPlanetSide (POINT pt)
 		UnbatchGraphics ();
 	}
 
-
 	SET_GAME_STATE (PLANETARY_LANDING, 1);
 }
 
@@ -2174,16 +2173,27 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		if (crew_left)
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
+			BATTLE_INPUT_STATE InputState = 0;
+			BOOLEAN turn_left, turn_right, thrust;
+
+			InputState = GetDirectionalJoystickInput (index, 0);
+
+			turn_left = CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
+					(InputState & BATTLE_LEFT);
+			turn_right = CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+					(InputState & BATTLE_RIGHT);
+			thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
+					CurrentInputState.key[PlayerControls[0]][KEY_UP] ||
+					(InputState & BATTLE_THRUST);
 
 			if (turn_wait)
 				--turn_wait;
-			else if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
-				CurrentInputState.key[PlayerControls[0]][KEY_RIGHT])
+			else if (turn_left || turn_right)
 			{
 				COUNT landerSpeedNumer;
 				COUNT angle;
 
-				if (CurrentInputState.key[PlayerControls[0]][KEY_LEFT])
+				if (turn_left)
 					--index;
 				else
 					++index;
@@ -2208,14 +2218,14 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
-			if (CurrentInputState.key[PlayerControls[0]][KEY_THRUST]
-					|| CurrentInputState.key[PlayerControls[0]][KEY_UP])
+
+			if (!thrust)
 			{
-				GetNextVelocityComponents (
-						&GLOBAL (velocity), &dx, &dy, 1);
+				dx = 0;
+				dy = 0;
 			}
 			else
-				dx = dy = 0;
+				GetNextVelocityComponents (&GLOBAL (velocity), &dx, &dy, 1);
 
 			if (weapon_wait)
 				--weapon_wait;
@@ -2578,6 +2588,8 @@ PlanetSide (POINT planetLoc)
 	LanderInputState landerInputState;
 	PLANETSIDE_DESC PSD;
 
+	DirJoyActive = TRUE;
+
 	memset (&PSD, 0, sizeof (PSD));
 	PSD.InTransit = TRUE;
 
@@ -2726,6 +2738,8 @@ PlanetSide (POINT planetLoc)
 
 	ZeroVelocityComponents (&GLOBAL (velocity));
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+
+	DirJoyActive = FALSE;
 }
 
 static void

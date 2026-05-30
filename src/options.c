@@ -94,7 +94,7 @@ int spaceMusicBySOI;
 int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
-OPT_ENABLABLE optDirectionalJoystick;
+int optDirJoy[2];
 int optLanderHold;
 int optScrTrans;
 int optDifficulty;
@@ -141,6 +141,8 @@ OPT_ENABLABLE optDosMenus;
 OPT_ADD_REMOVE optDeviceArray[28];
 OPT_ADD_REMOVE optUpgradeArray[13];
 int optHyperSpaceColor;
+int DeadZoneLeftStick[2];
+int DeadZoneRightStick[2];
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;
@@ -163,6 +165,8 @@ char baseContentPath[PATH_MAX];
 
 // addon availability
 ADDON_COUNT addonList;
+
+BOOLEAN DirJoyActive = FALSE;
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;

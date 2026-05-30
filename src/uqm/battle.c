@@ -143,7 +143,8 @@ BATTLE_INPUT_STATE
 frameInputHuman (HumanInputContext *context, STARSHIP *StarShipPtr)
 {
 	(void) StarShipPtr;
-	return CurrentInputToBattleInput (context->playerNr);
+	return CurrentInputToBattleInput (context->playerNr,
+			StarShipPtr ? StarShipPtr->ShipFacing : -1);
 }
 
 static void
@@ -481,6 +482,8 @@ Battle (BattleFrameCallback *callback)
 
 		BattleSong (TRUE);
 
+		DirJoyActive = TRUE;
+
 		bs.NextTime = 0;
 #ifdef NETPLAY
 		initBattleStateDataConnections ();
@@ -523,6 +526,8 @@ AbortBattle:
 				MeleeGameOver ();
 			}
 		}
+
+		DirJoyActive = FALSE;
 
 #ifdef NETPLAY
 		uninitBattleInputBuffers();

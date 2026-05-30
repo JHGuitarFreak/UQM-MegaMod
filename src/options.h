@@ -83,7 +83,7 @@ extern int spaceMusicBySOI;
 extern int optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
 extern OPT_ENABLABLE optWholeFuel;
-extern OPT_ENABLABLE optDirectionalJoystick;
+extern int optDirJoy[2];
 extern int optLanderHold;
 extern int optScrTrans;
 extern int optDifficulty;
@@ -131,6 +131,11 @@ extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 extern int optHyperSpaceColor;
 
+#define MAX_DEADZONE SINT16_MAX
+#define DEFAULT_DZONE 6881
+extern int DeadZoneLeftStick[2];
+extern int DeadZoneRightStick[2];
+
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
 extern OPT_ENABLABLE optSpeech;
@@ -153,6 +158,8 @@ extern char *contentDirPath;
 extern char *addonDirPath;
 
 extern const char **optAddons;
+
+extern BOOLEAN DirJoyActive;
 
 // addon availability
 typedef struct

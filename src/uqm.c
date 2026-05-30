@@ -167,7 +167,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   spaceMusic);
 	DECL_CONFIG_OPTION(bool,  volasMusic);
 	DECL_CONFIG_OPTION(bool,  wholeFuel);
-	DECL_CONFIG_OPTION(bool,  directionalJoystick);
+	DECL_CONFIG_OPTION(int,   dirJoyP1);
 	DECL_CONFIG_OPTION(int,   landerHold);
 	DECL_CONFIG_OPTION(int,   scrTrans);
 	DECL_CONFIG_OPTION(int,   optDifficulty);
@@ -210,6 +210,11 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  captainNames);
 	DECL_CONFIG_OPTION(bool,  dosMenus);
 	DECL_CONFIG_OPTION(int,   hyperSpaceColor);
+	DECL_CONFIG_OPTION(int,   deadZoneLeftP1);
+	DECL_CONFIG_OPTION(int,   deadZoneRightP1);
+	DECL_CONFIG_OPTION(int,   deadZoneLeftP2);
+	DECL_CONFIG_OPTION(int,   deadZoneRightP2);
+	DECL_CONFIG_OPTION(int,   dirJoyP2);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -378,7 +383,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  spaceMusic,        0 ),
 		INIT_CONFIG_OPTION(  volasMusic,        false ),
 		INIT_CONFIG_OPTION(  wholeFuel,         false ),
-		INIT_CONFIG_OPTION(  directionalJoystick, false ),
+		INIT_CONFIG_OPTION(  dirJoyP1,          0 ),
 		INIT_CONFIG_OPTION(  landerHold,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  scrTrans,          OPT_3DO ),
 		INIT_CONFIG_OPTION(  optDifficulty,     0 ),
@@ -421,6 +426,11 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  captainNames,      false ),
 		INIT_CONFIG_OPTION(  dosMenus,          false ),
 		INIT_CONFIG_OPTION(  hyperSpaceColor,   OPT_3DO ),
+		INIT_CONFIG_OPTION(  deadZoneLeftP1,    DEFAULT_DZONE ),
+		INIT_CONFIG_OPTION(  deadZoneRightP1,   DEFAULT_DZONE ),
+		INIT_CONFIG_OPTION(  deadZoneLeftP2,    DEFAULT_DZONE ),
+		INIT_CONFIG_OPTION(  deadZoneRightP2,   DEFAULT_DZONE ),
+		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -612,7 +622,7 @@ int main(int argc, char** argv)
 	optSpaceMusic = options.spaceMusic.value;
 	optVolasMusic = options.volasMusic.value;
 	optWholeFuel = options.wholeFuel.value;
-	optDirectionalJoystick = options.directionalJoystick.value;
+	optDirJoy[0] = options.dirJoyP1.value;
 	optLanderHold = options.landerHold.value;
 	optScrTrans = options.scrTrans.value;
 	optDifficulty = options.optDifficulty.value;
@@ -654,6 +664,11 @@ int main(int argc, char** argv)
 	optCaptainNames = options.captainNames.value;
 	optDosMenus = options.dosMenus.value;
 	optHyperSpaceColor = options.hyperSpaceColor.value;
+	DeadZoneLeftStick[0] = options.deadZoneLeftP1.value;
+	DeadZoneRightStick[0] = options.deadZoneRightP1.value;
+	DeadZoneLeftStick[1] = options.deadZoneLeftP2.value;
+	DeadZoneRightStick[1] = options.deadZoneRightP2.value;
+	optDirJoy[1] = options.dirJoyP2.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -941,6 +956,22 @@ getListConfigValue (struct int_option *option, const char *config_val,
 	return found;
 }
 
+static void getDeadzoneConfigValue (struct int_option *option,
+		const char *config_val)
+{
+	if (!res_IsInteger (config_val))
+		return;
+
+	if (option->set)
+		return;
+
+	option->value = res_GetInteger (config_val);
+	option->set = true;
+
+	if (option->value > MAX_DEADZONE || option->value < 0)
+		option->value = DEFAULT_DZONE;
+}
+
 static void
 getUserConfigOptions (struct options_struct *options)
 {
@@ -1089,9 +1120,11 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
-#ifdef DIRECTIONAL_JOY
-	getBoolConfigValue (&options->directionalJoystick,
-			"mm.directionalJoystick"); // For Android
+#if SDL_MAJOR_VERSION == 2
+	if (res_IsInteger ("mm.dirJoyP1") && !options->dirJoyP1.set)
+	{
+		options->dirJoyP1.value = res_GetInteger ("mm.dirJoyP1");
+	}
 #endif
 
 	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
@@ -1212,6 +1245,18 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValueXlat (&options->hyperSpaceColor, "mm.hyperSpaceColor",
 			OPT_3DO, OPT_PC);
 
+	getDeadzoneConfigValue (&options->deadZoneLeftP1,  "mm.deadZoneLeftP1");
+	getDeadzoneConfigValue (&options->deadZoneRightP1, "mm.deadZoneRightP1");
+	getDeadzoneConfigValue (&options->deadZoneLeftP2,  "mm.deadZoneLeftP2");
+	getDeadzoneConfigValue (&options->deadZoneRightP2, "mm.deadZoneRightP2");
+
+#if SDL_MAJOR_VERSION == 2
+	if (res_IsInteger ("mm.dirJoyP2") && !options->dirJoyP2.set)
+	{
+		options->dirJoyP2.value = res_GetInteger ("mm.dirJoyP2");
+	}
+#endif
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1301,6 +1346,10 @@ enum
 	NEBUVOL_OPT,
 	CLAPAK_OPT,
 	HSCOLOR_OPT,
+	DZLP1_OPT,
+	DZRP1_OPT,
+	DZLP2_OPT,
+	DZRP2_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1374,7 +1423,7 @@ static struct option longOptions[] =
 	{"spherecolors", 0, NULL, SPHERECOLORS_OPT},
 	{"spacemusic", 1, NULL, SPACEMUSIC_OPT},
 	{"wholefuel", 0, NULL, WHOLEFUEL_OPT},
-	{"dirjoystick", 0, NULL, DIRJOY_OPT},
+	{"dirjoystick", 1, NULL, DIRJOY_OPT},
 	{"landerhold", 0, NULL, LANDHOLD_OPT},
 	{"scrtrans", 1, NULL, SCRTRANS_OPT},
 	{"melee", 0, NULL, MELEE_OPT},
@@ -1418,6 +1467,10 @@ static struct option longOptions[] =
 	{"captainnames", 0, NULL, CAPTNAMES_OPT},
 	{"dosmenus", 0, NULL, DOSMENUS_OPT},
 	{"hyperspacecolor", 1, NULL, HSCOLOR_OPT},
+	{"deadzoneleftp1", 1, NULL, DZLP1_OPT},
+	{"deadzonerightp1", 1, NULL, DZRP1_OPT},
+	{"deadzoneleftp2", 1, NULL, DZLP2_OPT},
+	{"deadzonerightp2", 1, NULL, DZRP2_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1946,9 +1999,30 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case WHOLEFUEL_OPT:
 				setBoolOption (&options->wholeFuel, true);
 				break;
+#if SDL_MAJOR_VERSION == 2
 			case DIRJOY_OPT:
-				setBoolOption (&options->directionalJoystick, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp,
+						"Directional Joystick") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nDirectional Joystick has to be "
+						"0, 1, 2, 3, or 4.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->dirJoyP1.value = temp;
+					options->dirJoyP1.set = true;
+				}
 				break;
+			}
+#endif
 			case LANDHOLD_OPT:
 				if (!setChoiceOption (&options->landerHold, optarg)) {
 					InvalidArgument (optarg, "--landerhold");
@@ -2284,6 +2358,13 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
+			case DZLP1_OPT:
+			case DZRP1_OPT:
+			case DZLP2_OPT:
+			case DZRP2_OPT:
+				saveError ("\nEditing Deadzone in commandline has not yet been"
+						" implemented\n");
+				badArg = true;
 			case CLAPAK_OPT:
 				optNoClassic = TRUE;
 				break;
@@ -2552,9 +2633,10 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --wholefuel : Enables the display of the whole "
 			"fuel value in the ship status (default: %s)",
 			boolOptString (&defaults->wholeFuel));
+#if SDL_MAJOR_VERSION == 2
 	log_add (log_User, "  --dirjoystick : Enables the use of directional"
-			"joystick controls for Android (default: %s)",
-			boolOptString (&defaults->directionalJoystick));
+			"joystick controls (default: 0)");
+#endif
 	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander "
 			"hold, pc=64, 3do=50 (default: %s)",
 			choiceOptString (&defaults->landerHold));

@@ -894,3 +894,50 @@ ControlAtlas (int menu_index, FRAME atlas_array[])
 		return KeyAtlas (menu_index, atlas_array[0]);
 	}
 }
+
+VCONTROL_GESTURE *
+GetBindingForAction (int player, int action, int alt_index)
+{
+	if (player < 0 || player >= num_templ ||
+		action < 0 || action >= num_flight ||
+		alt_index < 0 || alt_index >= MAX_FLIGHT_ALTERNATES)
+	{
+		return NULL;
+	}
+
+	return CONTROL_PTR (player, action, alt_index);
+}
+
+#if SDL_MAJOR_VERSION == 2
+
+int GetActionFromEvent (const SDL_Event *event, int player)
+{
+	int i;
+	VCONTROL_GESTURE *g;
+
+	if (!event)
+		return -1;
+
+	for (i = 0; i < NUM_KEYS; i++)
+	{
+		for (int alt = 0; alt < MAX_FLIGHT_ALTERNATES; alt++)
+		{
+			g = GetBindingForAction (player, i, alt);
+
+			if (g == NULL)
+				return -1;
+
+			if ((g->type == VCONTROL_KEY &&
+				g->gesture.key == event->key.keysym.sym) ||
+					(g->type == VCONTROL_JOYBUTTON &&
+					g->gesture.button.index == event->cbutton.button))
+			{
+				return i;
+			}
+		}
+	}
+
+	return -1;
+}
+
+#endif
