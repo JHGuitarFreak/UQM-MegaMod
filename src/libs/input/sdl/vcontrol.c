@@ -277,7 +277,7 @@ create_joystick (int device_index)
 		x->buttons[j] = NULL;
 	}
 	x->stick = gamecontroller;
-	x->threshold = 10000;
+	x->threshold = DEFAULT_DZONE;
 
 	new_controller->instance_id = instance_id;
 	new_controller->next = controller_list_head;
@@ -504,7 +504,7 @@ key_init (void)
 			joysticks[i].numaxes = joysticks[i].numbuttons = 0;
 			joysticks[i].axes = NULL;
 			joysticks[i].buttons = NULL;
-			joysticks[i].threshold = 10000;
+			joysticks[i].threshold = DEFAULT_DZONE;
 		}
 	}
 	else
@@ -1422,26 +1422,14 @@ VControl_ProcessJoyButtonUp (int port, int button)
 static int
 VControl_GetAxisThreshold (int port, int axis)
 {
-	int threshold = 3277;
+	int threshold = DEFAULT_DZONE;
 
-	if (port == 0)
-	{
-		if (axis == SDL_CONTROLLER_AXIS_LEFTX ||
-			axis == SDL_CONTROLLER_AXIS_LEFTY)
-			threshold = optDeadZoneLeftP1;
-		else if (axis == SDL_CONTROLLER_AXIS_RIGHTX ||
-			axis == SDL_CONTROLLER_AXIS_RIGHTY)
-			threshold = optDeadZoneRightP1;
-	}
-	else if (port == 1)
-	{
-		if (axis == SDL_CONTROLLER_AXIS_LEFTX ||
-			axis == SDL_CONTROLLER_AXIS_LEFTY)
-			threshold = optDeadZoneLeftP2;
-		else if (axis == SDL_CONTROLLER_AXIS_RIGHTX ||
-			axis == SDL_CONTROLLER_AXIS_RIGHTY)
-			threshold = optDeadZoneRightP2;
-	}
+	if (axis == SDL_CONTROLLER_AXIS_LEFTX ||
+		axis == SDL_CONTROLLER_AXIS_LEFTY)
+		threshold = DeadZoneLeftStick[port];
+	else if (axis == SDL_CONTROLLER_AXIS_RIGHTX ||
+		axis == SDL_CONTROLLER_AXIS_RIGHTY)
+		threshold = DeadZoneRightStick[port];
 
 	return threshold;
 }

@@ -770,8 +770,15 @@ BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
 		// Thrust when facing the intended direction
 		if (optDirJoy[player] > 2 && (diff > 6 && diff < 10))
 		{
-			int dzone = player ? optDeadZoneLeftP2 : optDeadZoneLeftP1;
-			int undead_zone = ((float)(MAX_DEADZONE - dzone) * 0.65) + dzone;
+			int undead_zone;
+			int dzone = DEFAULT_DZONE;
+
+			if (optDirJoy[player] == 1 || optDirJoy[player] == 2)
+				dzone = DeadZoneLeftStick[player];
+			if (optDirJoy[player] == 3 || optDirJoy[player] == 4)
+				dzone = DeadZoneRightStick[player];
+
+			undead_zone = ((float)(MAX_DEADZONE - dzone) * 0.65) + dzone;
 
 			if (dzone >= (MAX_DEADZONE * 0.35))
 				undead_zone = 0;

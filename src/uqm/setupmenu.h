@@ -490,8 +490,7 @@ typedef struct globalopts_struct {
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
-	int gamma, starBackground, deadZoneLeftP1, deadZoneRightP1, deadZoneLeftP2,
-			deadZoneRightP2;
+	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2];
 } GLOBALOPTS;
 
 void SetupMenu (void);

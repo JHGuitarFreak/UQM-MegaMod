@@ -1535,10 +1535,10 @@ SetDefaults (void)
 	sliders[SLIDER_SPCHVOLUME ].value = opts.speechvol;
 	sliders[SLIDER_GAMMA      ].value = opts.gamma;
 	sliders[SLIDER_NEBULA     ].value = opts.nebulaevol;
-	sliders[SLIDER_DEADZONE_00].value = opts.deadZoneLeftP1;
-	sliders[SLIDER_DEADZONE_01].value = opts.deadZoneRightP1;
-	sliders[SLIDER_DEADZONE_02].value = opts.deadZoneLeftP2;
-	sliders[SLIDER_DEADZONE_03].value = opts.deadZoneRightP2;
+	sliders[SLIDER_DEADZONE_00].value = opts.deadZoneLeftStick[0];
+	sliders[SLIDER_DEADZONE_01].value = opts.deadZoneRightStick[0];
+	sliders[SLIDER_DEADZONE_02].value = opts.deadZoneLeftStick[1];
+	sliders[SLIDER_DEADZONE_03].value = opts.deadZoneRightStick[1];
 }
 
 static void
@@ -1665,10 +1665,10 @@ PropagateResults (void)
 	opts.gamma      = sliders[SLIDER_GAMMA     ].value;
 	opts.nebulaevol = sliders[SLIDER_NEBULA    ].value;
 
-	opts.deadZoneLeftP1  =  sliders[SLIDER_DEADZONE_00].value;
-	opts.deadZoneRightP1 =  sliders[SLIDER_DEADZONE_01].value;
-	opts.deadZoneLeftP2  =  sliders[SLIDER_DEADZONE_02].value;
-	opts.deadZoneRightP2 =  sliders[SLIDER_DEADZONE_03].value;
+	opts.deadZoneLeftStick[0]  =  sliders[SLIDER_DEADZONE_00].value;
+	opts.deadZoneRightStick[0] =  sliders[SLIDER_DEADZONE_01].value;
+	opts.deadZoneLeftStick[1]  =  sliders[SLIDER_DEADZONE_02].value;
+	opts.deadZoneRightStick[1] =  sliders[SLIDER_DEADZONE_03].value;
 
 	SetGlobalOptions (&opts);
 }
@@ -1992,16 +1992,16 @@ adjustDeadzone (WIDGET_SLIDER *self)
 	switch (self - sliders)
 	{
 	case SLIDER_DEADZONE_00:
-		optDeadZoneLeftP1 = deadzone;
+		DeadZoneLeftStick[0] = deadzone;
 		break;
 	case SLIDER_DEADZONE_01:
-		optDeadZoneRightP1 = deadzone;
+		DeadZoneRightStick[0] = deadzone;
 		break;
 	case SLIDER_DEADZONE_02:
-		optDeadZoneLeftP2 = deadzone;
+		DeadZoneLeftStick[1] = deadzone;
 		break;
 	case SLIDER_DEADZONE_03:
-		optDeadZoneRightP2 = deadzone;
+		DeadZoneRightStick[1] = deadzone;
 		break;
 	}
 }
@@ -3022,10 +3022,10 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->controllerType = optControllerType;
 	opts->dirJoy[0] = optDirJoy[0];
 	opts->dirJoy[1] = optDirJoy[1];
-	opts->deadZoneLeftP1 = deadzoneToSlider (optDeadZoneLeftP1);
-	opts->deadZoneRightP1 = deadzoneToSlider (optDeadZoneRightP1);
-	opts->deadZoneLeftP2 = deadzoneToSlider (optDeadZoneLeftP2);
-	opts->deadZoneRightP2 = deadzoneToSlider (optDeadZoneRightP2);
+	opts->deadZoneLeftStick[0] = deadzoneToSlider (DeadZoneLeftStick[0]);
+	opts->deadZoneRightStick[0] = deadzoneToSlider (DeadZoneRightStick[0]);
+	opts->deadZoneLeftStick[1] = deadzoneToSlider (DeadZoneLeftStick[1]);
+	opts->deadZoneRightStick[1] = deadzoneToSlider (DeadZoneRightStick[1]);
 
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
@@ -3313,10 +3313,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt (&optDirJoy[0], (int *)(&opts->dirJoy[0]), "mm.dirJoyP1", FALSE);
 	PutIntOpt (&optDirJoy[1], (int *)(&opts->dirJoy[1]), "mm.dirJoyP2", FALSE);
 
-	res_PutInteger ("mm.deadZoneLeftP1", optDeadZoneLeftP1);
-	res_PutInteger ("mm.deadZoneRightP1", optDeadZoneRightP1);
-	res_PutInteger ("mm.deadZoneLeftP2", optDeadZoneLeftP2);
-	res_PutInteger ("mm.deadZoneRightP2", optDeadZoneRightP2);
+	res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
+	res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
+	res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
+	res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 #endif
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);

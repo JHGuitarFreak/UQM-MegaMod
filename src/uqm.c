@@ -426,10 +426,10 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  captainNames,      false ),
 		INIT_CONFIG_OPTION(  dosMenus,          false ),
 		INIT_CONFIG_OPTION(  hyperSpaceColor,   OPT_3DO ),
-		INIT_CONFIG_OPTION(  deadZoneLeftP1,    3277 ),
-		INIT_CONFIG_OPTION(  deadZoneRightP1,   3277 ),
-		INIT_CONFIG_OPTION(  deadZoneLeftP2,    3277 ),
-		INIT_CONFIG_OPTION(  deadZoneRightP2,   3277 ),
+		INIT_CONFIG_OPTION(  deadZoneLeftP1,    DEFAULT_DZONE ),
+		INIT_CONFIG_OPTION(  deadZoneRightP1,   DEFAULT_DZONE ),
+		INIT_CONFIG_OPTION(  deadZoneLeftP2,    DEFAULT_DZONE ),
+		INIT_CONFIG_OPTION(  deadZoneRightP2,   DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
 	};
 	struct options_struct defaults = options;
@@ -664,10 +664,10 @@ int main(int argc, char** argv)
 	optCaptainNames = options.captainNames.value;
 	optDosMenus = options.dosMenus.value;
 	optHyperSpaceColor = options.hyperSpaceColor.value;
-	optDeadZoneLeftP1 = options.deadZoneLeftP1.value;
-	optDeadZoneRightP1 = options.deadZoneRightP1.value;
-	optDeadZoneLeftP2 = options.deadZoneLeftP2.value;
-	optDeadZoneRightP2 = options.deadZoneRightP2.value;
+	DeadZoneLeftStick[0] = options.deadZoneLeftP1.value;
+	DeadZoneRightStick[0] = options.deadZoneRightP1.value;
+	DeadZoneLeftStick[1] = options.deadZoneLeftP2.value;
+	DeadZoneRightStick[1] = options.deadZoneRightP2.value;
 	optDirJoy[1] = options.dirJoyP2.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
@@ -956,6 +956,22 @@ getListConfigValue (struct int_option *option, const char *config_val,
 	return found;
 }
 
+static void getDeadzoneConfigValue (struct int_option *option,
+		const char *config_val)
+{
+	if (!res_IsInteger (config_val))
+		return;
+
+	if (option->set)
+		return;
+
+	option->value = res_GetInteger (config_val);
+	option->set = true;
+
+	if (option->value > MAX_DEADZONE || option->value < 0)
+		option->value = DEFAULT_DZONE;
+}
+
 static void
 getUserConfigOptions (struct options_struct *options)
 {
@@ -1229,43 +1245,10 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValueXlat (&options->hyperSpaceColor, "mm.hyperSpaceColor",
 			OPT_3DO, OPT_PC);
 
-
-	if (res_IsInteger ("mm.deadZoneLeftP1") && !options->deadZoneLeftP1.set)
-	{
-		options->deadZoneLeftP1.value = res_GetInteger ("mm.deadZoneLeftP1");
-		if (options->deadZoneLeftP1.value > MAX_DEADZONE ||
-			options->deadZoneLeftP1.value < 0)
-		{
-			options->deadZoneLeftP1.value = 3277;
-		}
-	}
-	if (res_IsInteger ("mm.deadZoneRightP1") && !options->deadZoneRightP1.set)
-	{
-		options->deadZoneRightP1.value = res_GetInteger ("mm.deadZoneRightP1");
-		if (options->deadZoneRightP1.value > MAX_DEADZONE ||
-			options->deadZoneRightP1.value < 0)
-		{
-			options->deadZoneRightP1.value = 3277;
-		}
-	}
-	if (res_IsInteger ("mm.deadZoneLeftP2") && !options->deadZoneLeftP2.set)
-	{
-		options->deadZoneLeftP2.value = res_GetInteger ("mm.deadZoneLeftP2");
-		if (options->deadZoneLeftP2.value > MAX_DEADZONE ||
-			options->deadZoneLeftP2.value < 0)
-		{
-			options->deadZoneLeftP2.value = 3277;
-		}
-	}
-	if (res_IsInteger ("mm.deadZoneRightP2") && !options->deadZoneRightP2.set)
-	{
-		options->deadZoneRightP2.value = res_GetInteger ("mm.deadZoneRightP2");
-		if (options->deadZoneRightP2.value > MAX_DEADZONE ||
-			options->deadZoneRightP2.value < 0)
-		{
-			options->deadZoneRightP2.value = 3277;
-		}
-	}
+	getDeadzoneConfigValue (&options->deadZoneLeftP1,  "mm.deadZoneLeftP1");
+	getDeadzoneConfigValue (&options->deadZoneRightP1, "mm.deadZoneRightP1");
+	getDeadzoneConfigValue (&options->deadZoneLeftP2,  "mm.deadZoneLeftP2");
+	getDeadzoneConfigValue (&options->deadZoneRightP2, "mm.deadZoneRightP2");
 
 #if SDL_MAJOR_VERSION == 2
 	if (res_IsInteger ("mm.dirJoyP2") && !options->dirJoyP2.set)
