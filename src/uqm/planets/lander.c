@@ -1799,7 +1799,6 @@ InitPlanetSide (POINT pt)
 		UnbatchGraphics ();
 	}
 
-
 	SET_GAME_STATE (PLANETARY_LANDING, 1);
 }
 
@@ -2111,8 +2110,6 @@ DoPlanetSide (LanderInputState *pMS)
 		COUNT angle;
 
 		pMS->Initialized = TRUE;
-
-		DirJoyActive = TRUE;
 		
 		turn_wait = 0;
 		weapon_wait = 0;
@@ -2137,7 +2134,6 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL])
 			|| planetSideDesc->InTransit))
 	{
-		DirJoyActive = FALSE;
 		return FALSE;
 	}
 
@@ -2152,8 +2148,6 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	{	// Dead, damage dealt, and exploding
 		if (explosion_index > EXPLOSION_LIFE + EXPLOSION_WAIT_FRAMES)
 			return FALSE;
-
-		DirJoyActive = FALSE;
 		
 		if (explosion_index > EXPLOSION_LIFE)
 		{	// Keep going until the wait expires
@@ -2594,6 +2588,8 @@ PlanetSide (POINT planetLoc)
 	LanderInputState landerInputState;
 	PLANETSIDE_DESC PSD;
 
+	DirJoyActive = TRUE;
+
 	memset (&PSD, 0, sizeof (PSD));
 	PSD.InTransit = TRUE;
 
@@ -2742,6 +2738,8 @@ PlanetSide (POINT planetLoc)
 
 	ZeroVelocityComponents (&GLOBAL (velocity));
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+
+	DirJoyActive = FALSE;
 }
 
 static void
