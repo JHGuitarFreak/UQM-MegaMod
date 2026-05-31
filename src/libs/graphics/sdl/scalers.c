@@ -31,10 +31,6 @@
 #	endif /* MMX_ASM */
 #endif /* USE_PLATFORM_ACCEL */
 
-#if SDL_MAJOR_VERSION == 1
-#define SDL_HasMMX SDL_HasMMXExt
-#endif
-
 typedef enum
 {
 	SCALEPLAT_NULL    = PLATFORM_NULL,

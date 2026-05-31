@@ -746,12 +746,7 @@ int main(int argc, char** argv)
 	NetManager_init ();
 #endif
 
-#if SDL_MAJOR_VERSION == 1
-	gfxDriver = options.opengl.value ?
-			TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE;
-#else
 	gfxDriver = TFB_GFXDRIVER_SDL_PURE;
-#endif
 	gfxFlags = options.scaler.value;
 	if (options.fullscreen.value)
 	{
@@ -1120,12 +1115,10 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->volasMusic, "mm.volasMusic");
 	getBoolConfigValue (&options->wholeFuel, "mm.wholeFuel");
 
-#if SDL_MAJOR_VERSION == 2
 	if (res_IsInteger ("mm.dirJoyP1") && !options->dirJoyP1.set)
 	{
 		options->dirJoyP1.value = res_GetInteger ("mm.dirJoyP1");
 	}
-#endif
 
 	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
 		OPT_3DO, OPT_PC);
@@ -1250,12 +1243,10 @@ getUserConfigOptions (struct options_struct *options)
 	getDeadzoneConfigValue (&options->deadZoneLeftP2,  "mm.deadZoneLeftP2");
 	getDeadzoneConfigValue (&options->deadZoneRightP2, "mm.deadZoneRightP2");
 
-#if SDL_MAJOR_VERSION == 2
 	if (res_IsInteger ("mm.dirJoyP2") && !options->dirJoyP2.set)
 	{
 		options->dirJoyP2.value = res_GetInteger ("mm.dirJoyP2");
 	}
-#endif
 
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
@@ -1999,7 +1990,6 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case WHOLEFUEL_OPT:
 				setBoolOption (&options->wholeFuel, true);
 				break;
-#if SDL_MAJOR_VERSION == 2
 			case DIRJOY_OPT:
 			{
 				int temp;
@@ -2022,7 +2012,6 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
-#endif
 			case LANDHOLD_OPT:
 				if (!setChoiceOption (&options->landerHold, optarg)) {
 					InvalidArgument (optarg, "--landerhold");
@@ -2633,10 +2622,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --wholefuel : Enables the display of the whole "
 			"fuel value in the ship status (default: %s)",
 			boolOptString (&defaults->wholeFuel));
-#if SDL_MAJOR_VERSION == 2
 	log_add (log_User, "  --dirjoystick : Enables the use of directional"
 			"joystick controls (default: 0)");
-#endif
 	log_add (log_User, "  --landerhold : Switch between PC/3DO max lander "
 			"hold, pc=64, 3do=50 (default: %s)",
 			choiceOptString (&defaults->landerHold));

@@ -345,13 +345,8 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	// to DrawStamp won't re-blit the frame unless scale has changed.
 }
 
-#if SDL_MAJOR_VERSION == 1
-#define ZOOM_RATE  RES_BOOL (24, 42)
-#else
 #define ZOOM_RATE  RES_SCALE (35)
-#endif
 #define ZOOM_TIME  (ONE_SECOND * 6 / 5)
-
 
 // This takes care of zooming the planet sphere into place
 // when entering orbit
@@ -433,11 +428,7 @@ ZoomInPlanetSphere (void)
 	}
 }
 
-#if SDL_MAJOR_VERSION == 1
-#define PLANET_ROTATION_FPS (ONE_SECOND / RES_BOOL (24, 42))
-#else
 #define PLANET_ROTATION_FPS (ONE_SECOND / 60)
-#endif
 
 void
 RotatePlanetSphere (BOOLEAN keepRate, STAMP *onTop)

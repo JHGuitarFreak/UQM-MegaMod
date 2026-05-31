@@ -41,39 +41,6 @@ SYSTEM_HOST_LDFLAGS=""
 ##############################################################################
 
 
-### SDL ###
-LIB_SDL_NAME="Simple DirectMedia Layer"
-case "$HOST_SYSTEM" in
-	WINSCW|GCCE)
-		LIB_SDL_CFLAGS='-I$BUILD_EPOCROOT/epoc32/include/SDL'
-		LIB_SDL_LDFLAGS=''		
-		LIB_SDL_VERSION='1.2.13'
-		LIB_SDL_DETECT="true"
-		;;
-	ARMV5)
-		LIB_SDL_CFLAGS='-J$BUILD_EPOCROOT/epoc32/include/SDL'
-		LIB_SDL_LDFLAGS=''		
-		LIB_SDL_VERSION='1.2.13'
-		LIB_SDL_DETECT="true"
-		;;
-	Darwin)
-		if not have_framework SDL; then
-			LIB_SDL_DETECT="have_command sdl-config"
-			LIB_SDL_CFLAGS='$(sdl-config --cflags)'
-			LIB_SDL_LDFLAGS='$(sdl-config --libs)'
-			LIB_SDL_VERSION='$(sdl-config --version)'
-		fi
-		LIB_SDL_LDFLAGS="$LIB_SDL_LDFLAGS -lobjc -framework Cocoa"
-		;;		
-	*)
-		LIB_SDL_DETECT="have_command sdl-config"
-		LIB_SDL_CFLAGS='$(sdl-config --cflags)'
-		LIB_SDL_LDFLAGS='$(sdl-config --libs)'
-		LIB_SDL_VERSION='$(sdl-config --version)'
-		;;
-esac
-
-
 ### SDL2 ###
 LIB_SDL2_NAME="Simple DirectMedia Layer version 2.x"
 case "$HOST_SYSTEM" in
@@ -148,32 +115,6 @@ case "$HOST_SYSTEM" in
 		LIB_openal_DEPEND_DETECT_BIN="pkgconfig"
 		;;
 esac
-
-
-### OpenGL ###
-LIB_opengl_NAME="OpenGL"
-case "$HOST_SYSTEM" in
-	FreeBSD|OpenBSD)
-		LIB_opengl_CFLAGS="-I/usr/X11R6/include -D_THREAD_SAFE"
-		LIB_opengl_LDFLAGS="-L/usr/X11R6/lib -lX11 -lXext -pthread -lGL"
-		;;
-	MINGW32*|CYGWIN*|cegcc)
-		LIB_opengl_CFLAGS=""
-		LIB_opengl_LDFLAGS="-lopengl32"
-		;;
-	Darwin)
-		LIB_opengl_CFLAGS=""
-		LIB_opengl_LDFLAGS="-framework OpenGL"
-		;;
-	ARMV5|WINSCW|GCCE)
-		LIB_opengl_DETECT="false"
-		;;
-	*)
-		LIB_opengl_CFLAGS=""
-		LIB_opengl_LDFLAGS="-lGL"
-		;;
-esac
-LIB_opengl_VERSION=""
 
 
 ### Vorbisfile ###

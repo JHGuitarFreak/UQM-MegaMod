@@ -7,23 +7,11 @@
     <LocalDebuggerCommandArguments>--log=debug.log --noclassic</LocalDebuggerCommandArguments>
     <LocalDebuggerCommandArgumentsHistory>--log=debug.log --noclassic|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug SDL1|Win32'">
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>--log=debug.log</LocalDebuggerCommandArguments>
-    <LocalDebuggerCommandArgumentsHistory>--log=debug.log|</LocalDebuggerCommandArgumentsHistory>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SDL1|Win32'">
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
   </PropertyGroup>
 </Project>

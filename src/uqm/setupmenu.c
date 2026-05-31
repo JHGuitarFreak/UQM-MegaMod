@@ -205,20 +205,12 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices    [CHOICE_GRAPHICS  ]), // Graphics
 	(WIDGET *)(&choices    [CHOICE_RESOLUTION]), // Resolution
 	(WIDGET *)(&textentries[TEXT_CUSTMRES    ]), // Custom resolution entry
-#if	SDL_MAJOR_VERSION == 1
-#if defined (HAVE_OPENGL)
-	(WIDGET *)(&choices    [CHOICE_FRBUFFER  ]), // Use Framebuffer
-#endif
-#endif
 	(WIDGET *)(&choices    [CHOICE_ASPRATIO  ]), // Aspect Ratio
 	(WIDGET *)(&choices    [CHOICE_DISPLAY   ]), // Display Mode
 	(WIDGET *)(&sliders    [SLIDER_GAMMA     ]), // Gamma Correction
 	(WIDGET *)(&choices    [CHOICE_SCALER    ]), // Scaler
 	(WIDGET *)(&choices    [CHOICE_SCANLINE  ]), // Scanlines
-
-#if	SDL_MAJOR_VERSION == 2
 	(WIDGET *)(&choices    [CHOICE_SHOWFPS   ]), // Show FPS
-#endif
 
 	(WIDGET *)(&labels     [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&buttons    [BTN_QUITSUBMENU  ]), // Exit to Menu
@@ -314,14 +306,12 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
-#if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
 	(WIDGET *)(&choices[CHOICE_AUTOBUTT  ]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
 	(WIDGET *)(&choices[CHOICE_DIRJOYP1  ]), // Directional Joystick P1
 	(WIDGET *)(&choices[CHOICE_DIRJOYP2  ]), // Directional Joystick P2
 
-	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
-#endif
+	(WIDGET *)(&labels [LABEL_SPACER      ]), // Spacer
 	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP ]), // "To view or edit..."
 	(WIDGET *)(&buttons[BTN_EDITKEYS      ]), // Edit Flight Controls
 	(WIDGET *)(&buttons[BTN_EDITMENUKEYS  ]), // Edit Menu Controls
@@ -3305,10 +3295,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 
 	// Controls
 	PutBoolOpt (&optAutoButtons, &opts->autoButtons, "mm.autoButtons", FALSE);
-
-#if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
-	opts->controllerType = 0;
-#else
 	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
 	PutIntOpt (&optDirJoy[0], (int *)(&opts->dirJoy[0]), "mm.dirJoyP1", FALSE);
 	PutIntOpt (&optDirJoy[1], (int *)(&opts->dirJoy[1]), "mm.dirJoyP2", FALSE);
@@ -3317,7 +3303,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
 	res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
 	res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
-#endif
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
 

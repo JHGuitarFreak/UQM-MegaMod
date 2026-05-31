@@ -29,10 +29,6 @@
 #include <sys/resource.h>
 #endif
 
-#if SDL_MAJOR_VERSION == 1
-typedef Uint32 SDL_threadID;
-#endif
-
 typedef struct _thread {
 	void *native;
 #ifdef NAMED_SYNCHRO
@@ -260,10 +256,7 @@ CreateThread_SDL (ThreadFunction func, void *data, SDWORD stackSize
 	startInfo->sem = SDL_CreateSemaphore (0);
 	startInfo->thread = thread;
 
-#if SDL_MAJOR_VERSION == 1
-	// SDL1 case
-	thread->native = SDL_CreateThread (ThreadHelper, (void *) startInfo);
-#elif defined(NAMED_SYNCHRO)
+#if defined(NAMED_SYNCHRO)
 	// SDL2 with UQM-aware named threads case
 	thread->native = SDL_CreateThread (ThreadHelper, thread->name, (void *) startInfo);
 #else

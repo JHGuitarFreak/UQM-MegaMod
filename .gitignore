@@ -322,3 +322,5 @@ CMakeFiles/
 CMakeCache.txt
 CPackConfig.cmake
 CPackSourceConfig.cmake
+cmake-build-debug
+cmake-build-release

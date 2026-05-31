@@ -78,9 +78,7 @@ volatile BOOLEAN OnScreenKeyboardLocked;
 
 static InputFrameCallback *inputCallback;
 
-#if SDL_MAJOR_VERSION == 2
 static void ControllerTypeSwitcher (void);
-#endif
 
 BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
 
@@ -305,10 +303,8 @@ UpdateInputState (void)
 			QuickSave ();
 	}
 
-#if SDL_MAJOR_VERSION == 2
 	if (optAutoButtons && !InSetupMenu)
 		ControllerTypeSwitcher ();
-#endif
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])
@@ -544,8 +540,6 @@ ActKeysPress (void)
 	);
 }
 
-#if SDL_MAJOR_VERSION == 2
-
 static const char *
 SDL_GameControllerTypeToString (SDL_GameControllerType type)
 {
@@ -651,8 +645,6 @@ ControllerTypeSwitcher (void)
 	}
 }
 
-#endif
-
 BOOLEAN
 ConfirmExit (void)
 {
@@ -678,8 +670,6 @@ TestSpeechSound (STRING snd)
 {
 	PlaySpeechEffect ((SOUND)snd, NotPositional (), NULL, 0);
 }
-
-#if SDL_MAJOR_VERSION == 2
 
 // directional joystick input code, taken from the android port of UQM
 // https://github.com/pelya/commandergenius
@@ -790,10 +780,3 @@ BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
 
 	return InputState;
 }
-#else
-BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
-{
-	(void)direction;
-	(void)player;
-}
-#endif
