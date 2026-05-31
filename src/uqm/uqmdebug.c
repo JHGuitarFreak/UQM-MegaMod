@@ -320,10 +320,6 @@ debugKeyPressed (void)
 {
 	if (EnableDebugEvents)
 	{
-#if	SDL_MAJOR_VERSION == 1
-		// Tests
-		Scale_PerfTest ();
-#endif
 		// Informational:
 		dumpStrings (stdout);
 		dumpPlanetTypes (stderr);

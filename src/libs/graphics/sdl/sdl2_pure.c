@@ -23,8 +23,6 @@
 #include "png2sdl.h"
 #include "options.h"
 
-#if SDL_MAJOR_VERSION == 2
-
 typedef struct tfb_sdl2_screeninfo_s {
 	SDL_Surface *scaled;
 	SDL_Texture *texture;
@@ -651,7 +649,7 @@ TFB_SDL_ScreenShot (const char *path)
 		successful = TRUE;
 
 	if (successful && CopySurfaceToClipboard (tmp) != 0)
-		log_add (log_Warning, "Failed to copy PNG to clipboard\n");
+		log_add (log_Error, "Failed to copy PNG to clipboard\n");
 
 	SDL_UnlockSurface (tmp);
 	SDL_FreeSurface (tmp);
@@ -665,5 +663,3 @@ TFB_SDL2_GetDisplaySize (SDL_Rect *bounds)
 	if (SDL_GetDisplayBounds (0, bounds) != 0)
 		printf ("%s\n", SDL_GetError ());
 }
-
-#endif /* SDL_MAJOR_VERSION == 2 */

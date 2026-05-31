@@ -1,6 +1,4 @@
-if [ "$uqm_GFXMODULE" = "sdl" ]; then
-	uqm_SUBDIRS="sdl"
-fi
+uqm_SUBDIRS="sdl"
 
 uqm_CFILES="input_common.c"
 uqm_HFILES="inpintrn.h input_common.h"

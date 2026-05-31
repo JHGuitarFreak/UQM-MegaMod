@@ -46,11 +46,8 @@ ColorToNative (Color color)
 	native.r = color.r;
 	native.g = color.g;
 	native.b = color.b;
-#if SDL_MAJOR_VERSION == 1
-	native.unused = 0;
-#else
 	native.a = color.a;
-#endif
+
 	return native;
 }
 

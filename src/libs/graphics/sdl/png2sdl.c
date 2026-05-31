@@ -209,11 +209,7 @@ TFB_png_to_sdl (SDL_RWops *src)
 					(Uint8)transv->green,
 					(Uint8)transv->blue);
 		}
-#if SDL_MAJOR_VERSION == 2
 		SDL_SetColorKey (surface, SDL_TRUE, ckey);
-#else
-		SDL_SetColorKey (surface, SDL_SRCCOLORKEY, ckey);
-#endif
 	}
 
 	SDL_LockSurface (surface);
@@ -266,13 +262,8 @@ TFB_png_to_sdl (SDL_RWops *src)
 				palette[i].r = png_palette[i].red;
 			}
 		}
-#if SDL_MAJOR_VERSION == 2
 		SDL_SetPaletteColors (surface->format->palette, palette,
 				0, png_num_palette);
-#else
-		SDL_SetPalette (surface, SDL_LOGPAL, palette,
-				0, png_num_palette);
-#endif
 	}
 
 done:	/* Clean up and return */
