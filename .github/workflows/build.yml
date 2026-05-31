@@ -13,10 +13,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v6
-      with:
-      sparse-checkout: |
-        build
-        src
     
     - name: Install Linux Dependencies
       run: |
@@ -48,10 +44,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v6
-      with:
-      sparse-checkout: |
-        build
-        src
 
     - name: Setup MSYS2 for 32-bit
       uses: msys2/setup-msys2@v2
