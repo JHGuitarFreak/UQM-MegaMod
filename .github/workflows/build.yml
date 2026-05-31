@@ -1,4 +1,4 @@
-name: Build UQM Binaries
+name: Build UQM-MegaMod Binaries
 
 on:
   push:
@@ -60,7 +60,6 @@ jobs:
     - name: Setup MSYS2 for 32-bit
       uses: msys2/setup-msys2@v2
       with:
-        update: true
         msystem: MINGW32
         install: >-
           base-devel
@@ -72,7 +71,6 @@ jobs:
           mingw-w64-i686-libogg
           mingw-w64-i686-libvorbis
           mingw-w64-i686-zlib
-        cache: true
     
     - name: Build Windows 32-bit Binary
       shell: msys2 {0}
