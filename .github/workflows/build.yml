@@ -3,8 +3,20 @@ name: Build UQM Binaries
 on:
   push:
     branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - 'build/**'
+      - 'CMakeLists.txt'
+      - 'helpers.cmake'
+      - '.github/workflows/build.yml'
   pull_request:
     branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - 'build/**'
+      - 'CMakeLists.txt'
+      - 'helpers.cmake'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 jobs:
