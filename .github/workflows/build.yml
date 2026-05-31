@@ -12,7 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+      with:
+      sparse-checkout: |
+        build
+        src
     
     - name: Install Linux Dependencies
       run: |
@@ -20,7 +24,12 @@ jobs:
         sudo apt-get install -y \
           build-essential \
           cmake \
-          ninja-build
+          ninja-build \
+          libsdl2-dev \
+          libpng-dev \
+          libogg-dev \
+          libvorbis-dev \
+          zlib1g-dev
     
     - name: Build Linux Binary
       run: |
@@ -28,7 +37,7 @@ jobs:
         ./cmake-build.sh
     
     - name: Upload Linux Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: UrQuanMastersDebug-Linux
         path: ./UrQuanMastersDebug
@@ -38,8 +47,12 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4
-    
+    - uses: actions/checkout@v6
+      with:
+      sparse-checkout: |
+        build
+        src
+
     - name: Setup MSYS2 for 32-bit
       uses: msys2/setup-msys2@v2
       with:
@@ -50,6 +63,11 @@ jobs:
           mingw-w64-i686-toolchain
           mingw-w64-i686-cmake
           mingw-w64-i686-ninja
+          mingw-w64-i686-SDL2
+          mingw-w64-i686-libpng
+          mingw-w64-i686-libogg
+          mingw-w64-i686-libvorbis
+          mingw-w64-i686-zlib
         cache: true
     
     - name: Build Windows 32-bit Binary
@@ -57,7 +75,7 @@ jobs:
       run: ./cmake-build.sh
     
     - name: Upload Windows 32-bit Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: UrQuanMastersDebug-Windows
         path: ./UrQuanMastersDebug.exe
