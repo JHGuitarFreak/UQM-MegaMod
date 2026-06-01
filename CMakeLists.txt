@@ -21,7 +21,12 @@ set (CXX_EXTRA_FLAGS "-fno-rtti -fno-exceptions -nostdinc++")
 set (USE_WINSOCK FALSE)
 set (IS_MINGW FALSE)
 set (IS_WINDOWS FALSE)
+SET (IS_LINUX FALSE)
 set (ZLIB_FETCHED FALSE)
+
+if (UNIX AND NOT APPLE AND NOT ANDROID)
+	set (IS_LINUX TRUE)
+endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	set (IS_WINDOWS TRUE)
@@ -40,6 +45,7 @@ endif ()
 
 if (NOT CMAKE_BUILD_TYPE)
 	option (UQM_DEBUG           "Enable debug build"                ON)
+	set (CMAKE_BUILD_TYPE "Debug")
 endif ()
 option (UQM_STRICT_DEBUG        "Enable strict debug checks"        OFF)
 option (UQM_USE_INTERNAL_MIKMOD "Use included libmikmod"            ON)
@@ -59,19 +65,38 @@ endif ()
 
 # Find/Fetch the dependencies
 
-if (NOT ANDROID)
+if (IS_LINUX)
+	find_package (PkgConfig REQUIRED)
+else ()
 	find_package (PkgConfig QUIET)
 endif ()
+
 if (PkgConfig_FOUND)
 	message (STATUS "Found pkg-config: ${PkgConfig_VERSION}")
 else ()
 	message (STATUS "pkg-config not found")
 endif ()
 
-if (PkgConfig_FOUND)
-	pkg_check_modules (SDL2 QUIET sdl2)
-else ()
-	find_package (SDL2 QUIET)
+if (NOT IS_LINUX)
+	if (PkgConfig_FOUND)
+		pkg_check_modules (SDL2 QUIET sdl2)
+	else ()
+		find_package (SDL2 QUIET)
+	endif ()
+endif ()
+
+if (IS_LINUX)
+	# Video drivers
+	pkg_check_modules (X11 REQUIRED x11)
+	message (STATUS "x11 found")
+	pkg_check_modules (WAYLAND REQUIRED wayland-client)
+	message (STATUS "Wayland found")
+
+	# Audio drivers
+	pkg_check_modules (ALSA REQUIRED alsa)
+	message (STATUS "ALSA found")
+	pkg_check_modules (PULSE REQUIRED libpulse)
+	message (STATUS "Pulse Audio found")
 endif ()
 
 if (SDL2_FOUND)
@@ -382,7 +407,7 @@ set (UQM_COMPILE_OPTIONS
 
 target_compile_options (UrQuanMasters PRIVATE ${UQM_COMPILE_OPTIONS})
 
-append_list (UQM_DEFINITIONS GFXMODULE_SDL          IS_WINDOWS)
+#append_list (UQM_DEFINITIONS GFXMODULE_SDL          IS_WINDOWS)
 append_list (UQM_DEFINITIONS "SDL_MAIN_HANDLED"     IS_WINDOWS)
 append_list (UQM_DEFINITIONS HAVE_OPENAL            HAVE_OPENAL)
 append_list (UQM_DEFINITIONS USE_INTERNAL_MIKMOD    USE_INTERNAL_MIKMOD)
@@ -438,8 +463,7 @@ target_link_libraries (UrQuanMasters ${UQM_LINK_LIBRARIES})
 message (STATUS "")
 message (STATUS "=== UQM-MegaMod Configuration ===")
 message (STATUS "Build Type:       ${CMAKE_BUILD_TYPE}")
-message (STATUS "Graphics Engine:  ${UQM_GFX_BACKEND} "
-		"(SDL_DIR: ${SDL_DIR})")
+message (STATUS "Graphics Engine:  SDL2 (SDL_DIR: ${SDL_DIR})")
 message (STATUS "Sound Backend:    ${UQM_SOUND_BACKEND}")
 message (STATUS "Ogg Vorbis Codec: ${UQM_OGG_CODEC}")
 message (STATUS "Thread Library:   ${UQM_THREAD_LIB}")

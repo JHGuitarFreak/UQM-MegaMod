@@ -73,7 +73,11 @@ endmacro ()
 function (FetchSDL)
 	message (STATUS "Fetching SDL2...")
 
-	set (SDL_SHARED ON  CACHE BOOL "Build SDL2 as a shared library")
+	if (ANDROID)
+		set (SDL_SHARED ON  CACHE BOOL "Build SDL2 as a shared library")
+	else ()
+		set (SDL_SHARED OFF  CACHE BOOL "Build SDL2 as a shared library")
+	endif ()
 	set (SDL_STATIC ON  CACHE BOOL "Build SDL2 as a static library")
 	set (SDL_TEST   OFF CACHE BOOL "Build the SDL2_test library")
 	set (SDL_TESTS  OFF CACHE BOOL "Build the test directory")
@@ -93,7 +97,13 @@ function (FetchSDL)
 
 	# Set variables
 	set (SDL2_FOUND TRUE PARENT_SCOPE)
-	set (SDL2_LIBRARIES SDL2 PARENT_SCOPE)
+
+	if (ANDROID)
+		set (SDL2_LIBRARIES SDL2 PARENT_SCOPE)
+	else ()
+		set (SDL2_LIBRARIES SDL2-static PARENT_SCOPE)
+	endif ()
+
 	set (SDL2_INCLUDE_DIRS
 			${CMAKE_CURRENT_BINARY_DIR}/thirdparty/SDL2/include
 			${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL2/include
@@ -106,7 +116,7 @@ function (FetchSDL)
 	)
 	set (SDL_DIR           "${SDL2_REL_PATH}" PARENT_SCOPE)
 	set (SDL2_CFLAGS_OTHER ""                 PARENT_SCOPE)
-	set (SDL2_VERSION      "2.32.8"           PARENT_SCOPE)
+	set (SDL2_VERSION      "2.32.10"           PARENT_SCOPE)
 endfunction ()
 
 function (FetchZLIB)
