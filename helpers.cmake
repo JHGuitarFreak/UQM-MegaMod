@@ -73,7 +73,7 @@ endmacro ()
 function (FetchSDL)
 	message (STATUS "Fetching SDL2...")
 
-	if (ANDROID)
+	if (NOT IS_LINUX OR ANDROID)
 		set (SDL_SHARED ON  CACHE BOOL "Build SDL2 as a shared library")
 	else ()
 		set (SDL_SHARED OFF  CACHE BOOL "Build SDL2 as a shared library")
@@ -98,7 +98,7 @@ function (FetchSDL)
 	# Set variables
 	set (SDL2_FOUND TRUE PARENT_SCOPE)
 
-	if (ANDROID)
+	if (NOT IS_LINUX OR ANDROID)
 		set (SDL2_LIBRARIES SDL2 PARENT_SCOPE)
 	else ()
 		set (SDL2_LIBRARIES SDL2-static PARENT_SCOPE)
