@@ -486,6 +486,7 @@ static WIDGET *editmenukeys_widgets[] = {
 	(WIDGET *)(&menucontrols[MENUCONTROL_SCREENSHOT]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_QUICKSAVE ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_QUICKLOAD ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_IMGUI     ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG2    ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG3    ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG4    ]),

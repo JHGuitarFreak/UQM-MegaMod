@@ -238,20 +238,6 @@ void GetDefaultFlightBindings(void)
 
 	for (i = 0; i < num_templ; i++)
 	{
-		snprintf(buf, 39, "keys.%d.name", i + 1);
-		if (res_IsString(buf))
-		{
-			strncpy(def_template_names[i], res_GetString(buf), 29);
-			def_template_names[i][29] = '\0';
-		}
-		else
-		{
-			def_template_names[i][0] = '\0';
-		}
-	}
-
-	for (i = 0; i < num_templ; i++)
-	{
 		for (j = 0; flight_res_names[j] != NULL; j++)
 		{
 			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)

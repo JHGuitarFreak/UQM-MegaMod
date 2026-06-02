@@ -137,23 +137,16 @@ typedef struct
 
 extern REBIND_STATE rebind_state;
 
-typedef struct menu_bindings
-{
-	char action[40];
-	VCONTROL_GESTURE binding[6];
-} MENU_BINDINGS;
-
 typedef struct flight_bindings
 {
 	char action[40];
-	VCONTROL_GESTURE binding[2];
+	VCONTROL_GESTURE binding[MAX_FLIGHT_ALTERNATES];
 } FLIGHT_BINDINGS;
 
-extern char def_template_names[6][40];
 extern MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 extern MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
-extern FLIGHT_BINDINGS curr_fl_bindings[6][NUM_KEYS];
-extern FLIGHT_BINDINGS def_fl_bindings[6][NUM_KEYS];
+extern FLIGHT_BINDINGS curr_fl_bindings[2][NUM_KEYS];
+extern FLIGHT_BINDINGS def_fl_bindings[2][NUM_KEYS];
 
 bool ProcessControlEvents (SDL_Event *event);
 

@@ -34,16 +34,14 @@ static DIRTY_BINDINGS bindings_dirty = { FALSE, FALSE };
 REBIND_STATE rebind_state = { 0 };
 static MENU_BINDINGS saved_menu_bindings[NUM_MENU_KEYS];
 static FLIGHT_BINDINGS saved_flight_bindings[6][NUM_KEYS];
-static char saved_template_names[6][30];
 static BOOLEAN binds_backed_up = FALSE;
 
 static int template_id = 0;
 
-char def_template_names[6][40];
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
-FLIGHT_BINDINGS curr_fl_bindings[6][NUM_KEYS];
-FLIGHT_BINDINGS def_fl_bindings[6][NUM_KEYS];
+FLIGHT_BINDINGS curr_fl_bindings[2][NUM_KEYS];
+FLIGHT_BINDINGS def_fl_bindings[2][NUM_KEYS];
 
 // ImGui Menu Functions
 static void Control_Tabs (void);
@@ -70,8 +68,8 @@ static const char *pretty_menu_actions[] =
 	"Left", "Right", "Select", "Cancel", "Special", "Page-Up",
 	"Page-Down", "Home", "End", "Zoom-In", "Zoom-Out", "Delete",
 	"Backspace", "Cancel Edit", "Star Search", "Tab / Next",
-	"Toggle StarMaps", "Screenshot", "ImGui Toggle", "Debug 2",
-	"Debug 3", "Debug 4", NULL
+	"Toggle StarMaps", "Screenshot", "QuickSave", "QuickLoad", "ImGui Toggle",
+	"Debug 2", "Debug 3", "Debug 4", NULL
 };
 
 static const char *pretty_flight_actions[] =
@@ -85,9 +83,7 @@ static const char *pretty_flight_actions[] =
 void
 draw_controls_menu (void)
 {
-	int i;
-	const char *control_display[] = { "Keyboard", "Xbox", "PlayStation" };
-	const char *player_controls[6];
+	char *control_display[] = { "Keyboard", "Xbox", "PlayStation", "Switch Pro" };
 
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
@@ -100,31 +96,10 @@ draw_controls_menu (void)
 
 		ImGui_Text ("Control Display:");
 		if (ImGui_ComboChar ("##ControlDisplay",
-				(int *)&optControllerType, control_display, 3))
+				(int *)&optControllerType, control_display, 4))
 		{
 			res_PutInteger ("mm.controllerType", optControllerType);
 			mmcfg_changed = true;
-		}
-
-		Spacer ();
-
-		for (i = 0; i < 6; i++)
-			player_controls[i] = input_templates[i].name;
-
-		ImGui_Text ("Player 1:");
-		if (ImGui_ComboChar ("##BottomPlayer",
-				(int *)&PlayerControls[0], player_controls, 6))
-		{
-			res_PutInteger ("config.player1control", PlayerControls[0]);
-			config_changed = true;
-		}
-
-		ImGui_Text ("Player 2:");
-		if (ImGui_ComboChar ("##TopPlayer",
-				(int *)&PlayerControls[1], player_controls, 6))
-		{
-			res_PutInteger ("config.player2control", PlayerControls[1]);
-			config_changed = true;
 		}
 
 		ImGui_NewLine ();
@@ -192,8 +167,7 @@ static void
 FlightControls (void)
 {
 	int i, j;
-	static const char *control_template[6];
-	char template_name[30];
+	const char *control_template[2] = { "Player 1", "Player 2" };
 	char button_id[32];
 	VCONTROL_GESTURE *g;
 
@@ -201,32 +175,9 @@ FlightControls (void)
 	ImGui_ColumnsEx (2, "FlightTemplates", false);
 	ImGui_SetColumnWidth (0, 300.0f);
 
-	for (i = 0; i < 6; i++)
-		control_template[i] = input_templates[i].name;
-
 	ImGui_BeginDisabled (bindings_dirty.flight);
-	ImGui_Text ("Template:");
-	ImGui_ComboChar ("##InputTemplate", &template_id, control_template, 6);
+	ImGui_ComboChar ("##PlayerControls", &template_id, control_template, 2);
 	ImGui_EndDisabled ();
-
-	snprintf (template_name, sizeof (template_name), "%s",
-			input_templates[template_id].name);
-
-	ImGui_Text ("Template Name:");
-	ImGui_InputText ("##TemplateName", template_name,
-			sizeof (template_name), 0);
-	if (ImGui_IsItemDeactivatedAfterEdit ())
-	{
-		char key[40];
-
-		snprintf (input_templates[template_id].name,
-				sizeof (input_templates[template_id].name), "%s",
-				template_name);
-
-		bindings_dirty.flight = TRUE;
-		snprintf (key, sizeof (key), "keys.%d.name", template_id + 1);
-		res_PutString (key, template_name);
-	}
 
 	ImGui_Columns ();
 
@@ -262,7 +213,7 @@ FlightControls (void)
 
 			ImGui_PopID ();
 
-			if (j < 1)
+			if (j < MAX_FLIGHT_ALTERNATES)
 				ImGui_SameLine ();
 		}
 
@@ -311,8 +262,7 @@ ShowFlightRebindPopup (void)
 	}
 
 	snprintf (popup_title, sizeof (popup_title),
-			"Template: %s | Control: %s | Binding %d of 2",
-			input_templates[RSPtr->template_id].name,
+			"Control: %s | Binding %d of 2",
 			pretty_flight_actions[RSPtr->action], RSPtr->binding + 1);
 
 	ImGui_Text ("%s", popup_title);
@@ -527,8 +477,6 @@ ShowMenuRebindPopup (void)
 
 	if (!RSPtr->active)
 		return;
-
-#define WINDOW_FLAGS 
 
 	ImGui_OpenPopup ("##RebindPopup", 0);
 
@@ -802,7 +750,6 @@ LoadDefaultFlightKeys (void)
 {
 	int i, j;
 	char keybuf[40], valbuf[40];
-	char key[40];
 	VCONTROL_GESTURE *g;
 	int *target;
 
@@ -835,14 +782,7 @@ LoadDefaultFlightKeys (void)
 		}
 	}
 
-	snprintf (input_templates[template_id].name,
-			sizeof (input_templates[template_id].name), "%s",
-			def_template_names[template_id]);
-
 	bindings_dirty.flight = TRUE;
-
-	snprintf (key, sizeof (key), "keys.%d.name", template_id + 1);
-	res_PutString (key, def_template_names[template_id]);
 }
 
 static void
@@ -877,10 +817,6 @@ RestoreFlightBindings (void)
 			VControl_AddGestureBinding (g, target);
 		}
 	}
-
-	snprintf (input_templates[template_id].name,
-			sizeof (input_templates[template_id].name), "%s",
-			saved_template_names[template_id]);
 }
 
 static const char *
@@ -910,7 +846,7 @@ BackupCurrentBindings (void)
 				sizeof (MENU_BINDINGS));
 	}
 
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < 2; i++)
 	{
 		for (j = 0; j < NUM_KEYS; j++)
 		{
@@ -920,10 +856,6 @@ BackupCurrentBindings (void)
 			memcpy (&saved_flight_bindings[i][j],
 					&curr_fl_bindings[i][j], sizeof (FLIGHT_BINDINGS));
 		}
-
-		snprintf (saved_template_names[i],
-				sizeof (saved_template_names[i]), "%s",
-				input_templates[i].name);
 	}
 
 	binds_backed_up = TRUE;
@@ -1110,9 +1042,8 @@ CheckFlightBindingConflict (int template_id, int action,
 			{
 				snprintf (rebind_state.conflict_action,
 						sizeof (rebind_state.conflict_action),
-						"%s ( Template: %s )",
-						pretty_flight_actions[action],
-						input_templates[template_id].name);
+						"%s",
+						pretty_flight_actions[action]);
 			}
 			return TRUE;
 		}
