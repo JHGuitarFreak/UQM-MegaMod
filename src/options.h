@@ -58,7 +58,7 @@ extern int timeDilationScale;
 extern OPT_ENABLABLE optBubbleWarp;
 extern OPT_ENABLABLE optUnlockShips;
 extern OPT_ENABLABLE optHeadStart;
-extern OPT_ENABLABLE optUnlockUpgrades;
+extern OPT_ENABLABLE optAutoButtons;
 extern OPT_ENABLABLE optInfiniteRU;
 extern DWORD oldRU;
 extern OPT_ENABLABLE optSkipIntro;
@@ -83,7 +83,7 @@ extern int spaceMusicBySOI;
 extern int optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
 extern OPT_ENABLABLE optWholeFuel;
-extern OPT_ENABLABLE optDirectionalJoystick;
+extern int optDirJoy[2];
 extern bool changeLanderCapacity;
 extern int optLanderHold;
 extern int optScrTrans;
@@ -132,6 +132,11 @@ extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 extern int optHyperSpaceColor;
 
+#define MAX_DEADZONE SINT16_MAX
+#define DEFAULT_DZONE 6881
+extern int DeadZoneLeftStick[2];
+extern int DeadZoneRightStick[2];
+
 extern OPT_ENABLABLE opt3doMusic;
 extern OPT_ENABLABLE optRemixMusic;
 extern OPT_ENABLABLE optSpeech;
@@ -155,6 +160,8 @@ extern char *addonDirPath;
 
 extern const char **optAddons;
 
+extern BOOLEAN DirJoyActive;
+
 // addon availability
 typedef struct
 {
@@ -175,8 +182,7 @@ extern ADDON_COUNT addonList;
 #define THREEDO_MODE(a)  ((a) ? "3do-mode-hd" : "3do-mode-sd")
 #define WINDOW_MODE(a,b) ((b) == 0 ? DOS_MODE(a) : THREEDO_MODE(a))
 
-#define BASE_CONTENT_NAME "mm-" UQM_MAJOR_VERSION_S "." \
-		UQM_MINOR_VERSION_S "." UQM_PATCH_VERSION_S "-content.uqm"
+#define BASE_CONTENT_NAME "mm-" MM_BASE_VERSION_S "-content.uqm"
 
 /* These get edited by TEXTENTRY widgets, so they should have room to
  * hold as much as one of them allows by default. */
@@ -188,8 +194,6 @@ typedef struct _input_template {
 	 * possibly the whole configuration scheme.  If we do that, we
 	 * can actually ditch much of VControl. */
 } INPUT_TEMPLATE;
-
-extern INPUT_TEMPLATE input_templates[6];
 
 void prepareContentDir (const char *contentDirName, const char *addonDirName, const char *execFile);
 void prepareConfigDir (const char *configDirName);

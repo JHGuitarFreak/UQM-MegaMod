@@ -141,10 +141,10 @@ processFontChar (TFB_Char* CharPtr, TFB_Canvas canvas, FONT fontPtr)
 		else if (CharPtr->disp.height > RES_SCALE (9))
 			tune_amount = RES_SCALE (3);
 
-		if (fontPtr->HaveFntData)
-			tune_amount = fontPtr->VertAlign;
+		if (!fontPtr->HaveFntData)
+			fontPtr->VertAlign = tune_amount;
 
-		CharPtr->HotSpot.y = CharPtr->disp.height - tune_amount;
+		CharPtr->HotSpot.y = CharPtr->disp.height - fontPtr->VertAlign;
 	}
 }
 

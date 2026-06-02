@@ -43,6 +43,7 @@
 #include "libs/graphics/bbox.h"
 #include "libs/math/random.h"
 #include "libs/input/input_common.h"
+#include "controls.h"
 
 #include SDL_INCLUDE(SDL_version.h)
 
@@ -72,11 +73,15 @@ const struct option_list_value scalerList[6] =
 	{"hq",       TFB_GFXFLAGS_SCALE_HQXX}
 };
 
+static MENU_BINDINGS saved_menu_bindings[NUM_MENU_KEYS];
+static BOOLEAN menu_bindings_dirty = FALSE;
+
 static int SfxVol;
 static int MusVol;
 static int SpcVol;
 static int optMScale;
 static SOUND testSounds;
+BOOLEAN InSetupMenu = FALSE;
 
 static int
 whichPlatformRef (OPT_CONSOLETYPE opt)
@@ -147,22 +152,26 @@ static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
 static int do_qol (WIDGET *self, int event);
-static int do_qol (WIDGET *self, int event);
 static int do_devices (WIDGET *self, int event);
 static int do_upgrades (WIDGET *self, int event);
+static int do_editmenukeys (WIDGET *self, int event);
+static int do_savemenubinds (WIDGET *self, int event);
+static int do_cancelmenubinds (WIDGET *self, int event);
+static int do_loaddefmenubinds (WIDGET *self, int event);
 static void change_template (WIDGET_CHOICE *self, int oldval);
-static void rename_template (WIDGET_TEXTENTRY *self);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
+static int do_deadzones (WIDGET *self, int event);
 
 /* The space for our widgets */
-static WIDGET_MENU_SCREEN  menus         [MENU_COUNT        ];
-static WIDGET_CHOICE       choices       [CHOICE_COUNT      ];
-static WIDGET_SLIDER       sliders       [SLIDER_COUNT      ];
-static WIDGET_BUTTON       buttons       [BUTTON_COUNT      ];
-static WIDGET_LABEL        labels        [LABEL_COUNT       ];
-static WIDGET_TEXTENTRY    textentries   [TEXTENTRY_COUNT   ];
-static WIDGET_CONTROLENTRY controlentries[CONTROLENTRY_COUNT];
+static WIDGET_MENU_SCREEN      menus         [MENU_COUNT        ];
+static WIDGET_CHOICE           choices       [CHOICE_COUNT      ];
+static WIDGET_SLIDER           sliders       [SLIDER_COUNT      ];
+static WIDGET_BUTTON           buttons       [BUTTON_COUNT      ];
+static WIDGET_LABEL            labels        [LABEL_COUNT       ];
+static WIDGET_TEXTENTRY        textentries   [TEXTENTRY_COUNT   ];
+static WIDGET_CONTROLENTRY     controlentries[CONTROLENTRY_COUNT];
+static WIDGET_MENUCONTROLENTRY menucontrols  [MENUCONTROL_COUNT ];
 
 /* The hardcoded data that isn't strings */
 
@@ -172,7 +181,8 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
 	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
-	do_cheats };
+	do_cheats, do_editmenukeys, do_savemenubinds, do_cancelmenubinds,
+	do_loaddefmenubinds, do_deadzones };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -195,20 +205,12 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices    [CHOICE_GRAPHICS  ]), // Graphics
 	(WIDGET *)(&choices    [CHOICE_RESOLUTION]), // Resolution
 	(WIDGET *)(&textentries[TEXT_CUSTMRES    ]), // Custom resolution entry
-#if	SDL_MAJOR_VERSION == 1
-#if defined (HAVE_OPENGL)
-	(WIDGET *)(&choices    [CHOICE_FRBUFFER  ]), // Use Framebuffer
-#endif
-#endif
 	(WIDGET *)(&choices    [CHOICE_ASPRATIO  ]), // Aspect Ratio
 	(WIDGET *)(&choices    [CHOICE_DISPLAY   ]), // Display Mode
 	(WIDGET *)(&sliders    [SLIDER_GAMMA     ]), // Gamma Correction
 	(WIDGET *)(&choices    [CHOICE_SCALER    ]), // Scaler
 	(WIDGET *)(&choices    [CHOICE_SCANLINE  ]), // Scanlines
-
-#if	SDL_MAJOR_VERSION == 2
 	(WIDGET *)(&choices    [CHOICE_SHOWFPS   ]), // Show FPS
-#endif
 
 	(WIDGET *)(&labels     [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&buttons    [BTN_QUITSUBMENU  ]), // Exit to Menu
@@ -295,7 +297,6 @@ static WIDGET *cheat_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_CHWARP      ]), // Bubble Warp
 	(WIDGET *)(&choices[CHOICE_CHHEADSTART ]), // Head Start
 	(WIDGET *)(&choices[CHOICE_CHSHIPS     ]), // Unlock Ships
-//	(WIDGET *)(&choices[CHOICE_CHUPGRADES  ]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_CHINFRU     ]), // Infinite RU
 	(WIDGET *)(&choices[CHOICE_CHINFFUEL   ]), // Infinite Fuel
 	(WIDGET *)(&choices[CHOICE_CHINFCRD    ]), // Infinite Credits
@@ -305,23 +306,18 @@ static WIDGET *cheat_widgets[] = {
 	NULL };
 	
 static WIDGET *keyconfig_widgets[] = {
-
-#if SDL_MAJOR_VERSION == 2 // Refined joypad controls not supported in SDL1
+	(WIDGET *)(&choices[CHOICE_AUTOBUTT  ]), // Unlock Upgrades
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
-#endif
+	(WIDGET *)(&choices[CHOICE_DIRJOYP1  ]), // Directional Joystick P1
+	(WIDGET *)(&choices[CHOICE_DIRJOYP2  ]), // Directional Joystick P2
 
-	(WIDGET *)(&choices[CHOICE_BTMPLAYER ]), // Bottom Player
-	(WIDGET *)(&choices[CHOICE_TOPPLAYER ]), // Top Player
+	(WIDGET *)(&labels [LABEL_SPACER      ]), // Spacer
+	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP ]), // "To view or edit..."
+	(WIDGET *)(&buttons[BTN_EDITKEYS      ]), // Edit Flight Controls
+	(WIDGET *)(&buttons[BTN_EDITMENUKEYS  ]), // Edit Menu Controls
+	(WIDGET *)(&buttons[BTN_EDIT_DEADZONES]), // Edit Axis Deadzones
 
-#ifdef DIRECTIONAL_JOY
-	(WIDGET *)(&choices[CHOICE_JOYSTICK  ]), // Directional Joystick toggle
-#endif
-
-	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
-	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP]), // "To view or edit..."
-	(WIDGET *)(&buttons[BTN_EDITKEYS     ]), // Edit Controls
-
-	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
@@ -391,8 +387,11 @@ static WIDGET *qol_widgets[] = {
 
 static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&choices       [CHOICE_KBLAYOUT ]), // Current layout
-	(WIDGET *)(&textentries   [TEXT_LOUTNAME   ]), // Layout name
+
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	(WIDGET *)(&labels        [LABEL_TAPTOOLTIP]), // "Press return to..."
+
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	(WIDGET *)(&controlentries[CONTROL_UP      ]), // Up
 	(WIDGET *)(&controlentries[CONTROL_DOWN    ]), // Down
 	(WIDGET *)(&controlentries[CONTROL_LEFT    ]), // Left
@@ -401,7 +400,9 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&controlentries[CONTROL_SPEC    ]), // Special
 	(WIDGET *)(&controlentries[CONTROL_ESC     ]), // Escape
 	(WIDGET *)(&controlentries[CONTROL_THRU    ]), // Thrust
-	(WIDGET *)(&buttons       [BTN_PREVMENU    ]), // Previous menu
+
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
 	NULL };
 
 static WIDGET *devices_widgets[] = {
@@ -454,6 +455,60 @@ static WIDGET *upgrades_widgets[] = {
 	(WIDGET *)(&buttons[BTN_CHTPREV        ]), // Back to Cheats
 	NULL };
 
+static WIDGET *editmenukeys_widgets[] = {
+	(WIDGET *)(&labels[LABEL_TAPTOOLTIP]), // "Press return to..."
+	(WIDGET *)(&labels[LABEL_SPACER    ]), // Spacer
+
+	(WIDGET *)(&menucontrols[MENUCONTROL_PAUSE     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_EXIT      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_ABORT     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_FULLSCREEN]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_UP        ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DOWN      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_LEFT      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_RIGHT     ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SELECT    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_CANCEL    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SPECIAL   ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_PAGEUP    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_PAGEDOWN  ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_HOME      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_END       ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_ZOOMIN    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_ZOOMOUT   ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DELETE    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_BACKSPACE ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_EDITCANCEL]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SEARCH    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_NEXT      ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_TOGGLEMAP ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_SCREENSHOT]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_QUICKSAVE ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_QUICKLOAD ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG2    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG3    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG4    ]),
+
+	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
+	(WIDGET *)(&buttons[BTN_LOADDEFMENUBINDS]), // Load Defaults
+	(WIDGET *)(&buttons[BTN_SAVEMENUBINDS   ]), // Save Changes
+	(WIDGET *)(&buttons[BTN_CANCELMENUBINDS ]), // Cancel
+	(WIDGET *)(&buttons[BTN_PREVMENU        ]), // Previous menu
+	NULL };
+
+static WIDGET *editdeadzone_widgets[] = {
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_00]), // Player 1 Left Stick Deadzone
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_01]), // Player 1 Right Stick Deadzone
+
+	(WIDGET *)(&labels [LABEL_SPACER      ]), // Spacer
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_02]), // Player 2 Left Stick Deadzone
+	(WIDGET *)(&sliders[SLIDER_DEADZONE_03]), // Player 2 Right Stick Deadzone
+
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
+	NULL };
+
 static const struct
 {
 	WIDGET **widgets;
@@ -474,6 +529,8 @@ menu_defs[] =
 	{qol_widgets, 10},
 	{devices_widgets, 11},
 	{upgrades_widgets, 12},
+	{editmenukeys_widgets, 13},
+	{editdeadzone_widgets, 14},
 	{NULL, 0}
 };
 
@@ -695,13 +752,9 @@ populate_editkeys (int templat)
 {
 	int i, j;
 	
-	strncpy (textentries[TEXT_LOUTNAME].value, input_templates[templat].name,
-			textentries[TEXT_LOUTNAME].maxlen);
-	textentries[TEXT_LOUTNAME].value[textentries[TEXT_LOUTNAME].maxlen-1] = 0;
-	
 	for (i = 0; i < NUM_KEYS; i++)
 	{
-		for (j = 0; j < 2; j++)
+		for (j = 0; j < 4; j++)
 		{
 			InterrogateInputState (templat, i, j,
 					controlentries[i].controlname[j],
@@ -727,11 +780,206 @@ do_editkeys (WIDGET *self, int event)
 	return FALSE;
 }
 
+static int
+do_deadzones (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[MENU_DEADZONES]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
 static void
 change_template (WIDGET_CHOICE *self, int oldval)
 {
 	(void) oldval;
 	populate_editkeys (self->selected);
+}
+
+static void
+SaveMenuBindings (void)
+{
+	int i, j;
+	uio_Stream *f;
+	VCONTROL_GESTURE *g;
+	char g_str[128];
+
+	f = uio_fopen (configDir, "override.cfg", "w");
+	if (!f)
+	{
+		log_add (log_Error, "Failed to open override.cfg for writing");
+		return;
+	}
+
+	uio_fprintf (f,
+			"# Custom menu control bindings generated by Setup Menu\n\n");
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		if (menu_res_names[i] == NULL)
+			continue;
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+
+			if (g->type != VCONTROL_NONE)
+			{
+				VControl_DumpGesture (g_str, sizeof (g_str), g);
+				uio_fprintf (f, "%s.%d = STRING:%s\n", menu_res_names[i],
+						j + 1, g_str);
+			}
+			else
+				uio_fprintf (f, "%s.%d =\n", menu_res_names[i], j + 1);
+		}
+	}
+
+	uio_fclose (f);
+	menu_bindings_dirty = FALSE;
+}
+
+static void
+LoadDefaultMenuBindings (void)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		if (menu_res_names[i] == NULL)
+			continue;
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_RemoveGestureBinding (g, (int *)&menu_vec[i]);
+		}
+
+		memcpy (&curr_bindings[i], &def_bindings[i],
+				sizeof (MENU_BINDINGS));
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_AddGestureBinding (g, (int *)&menu_vec[i]);
+		}
+	}
+
+	menu_bindings_dirty = TRUE;
+}
+
+static void
+RestoreMenuBindings (void)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		if (menu_res_names[i] == NULL)
+			continue;
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_RemoveGestureBinding (g, (int *)&menu_vec[i]);
+		}
+
+		memcpy (&curr_bindings[i], &saved_menu_bindings[i],
+				sizeof (MENU_BINDINGS));
+
+		for (j = 0; j < 6; j++)
+		{
+			g = &curr_bindings[i].binding[j];
+			VControl_AddGestureBinding (g, (int *)&menu_vec[i]);
+		}
+	}
+
+	menu_bindings_dirty = FALSE;
+}
+
+static void
+populate_menukeys (void)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+
+	int size = WIDGET_CONTROLENTRY_WIDTH;
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		for (j = 0; j < 6; j++)
+		{
+			if (curr_bindings[i].binding[j].type != VCONTROL_NONE)
+			{
+				char *name = menucontrols[i].controlname[j];
+
+				g = &curr_bindings[i].binding[j];
+
+				InterrogateInputState (-1, -1, -1, name, size, g);
+			}
+			else
+			{
+				menucontrols[i].controlname[j][0] = '\0';
+			}
+		}
+	}
+}
+
+static int
+do_editmenukeys (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[MENU_EDITMENUKEYS]);
+		populate_menukeys ();
+		(*next->receiveFocus)(next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_savemenubinds (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		SaveMenuBindings ();
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_cancelmenubinds (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		RestoreMenuBindings ();
+		populate_menukeys ();
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_loaddefmenubinds (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		LoadDefaultMenuBindings ();
+		populate_menukeys ();
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
 }
 
 static void
@@ -840,18 +1088,6 @@ check_availability (WIDGET_CHOICE *self, int oldval)
 	{
 		check_dos_3do_modes (self, oldval);
 	}
-}
-
-static void
-rename_template (WIDGET_TEXTENTRY *self)
-{
-	/* TODO: This will have to change if the size of the
-	   input_templates name is changed.  It would probably be nice
-	   to track this symbolically or ensure that self->value's
-	   buffer is always at least this big; this will require some
-	   reworking of widgets */
-	strncpy (input_templates[choices[CHOICE_KBLAYOUT].selected].name, self->value, 30);
-	input_templates[choices[CHOICE_KBLAYOUT].selected].name[29] = 0;
 }
 
 static void
@@ -1185,8 +1421,8 @@ SetDefaults (void)
 	choices[CHOICE_SNDDRIVER    ].selected = opts.adriver;
 	choices[CHOICE_SNDQUALITY   ].selected = opts.aquality;
 	choices[CHOICE_SLVSHIELD    ].selected = opts.shield;
-	choices[CHOICE_BTMPLAYER    ].selected = opts.player1;
-	choices[CHOICE_TOPPLAYER    ].selected = opts.player2;
+	//choices[CHOICE_BTMPLAYER    ].selected = opts.player1;
+	//choices[CHOICE_TOPPLAYER    ].selected = opts.player2;
 	choices[CHOICE_KBLAYOUT     ].selected = 0;
 	choices[CHOICE_REMIXES2     ].selected = opts.musicremix;
 	choices[CHOICE_SPEECH       ].selected = opts.speech;
@@ -1197,7 +1433,7 @@ SetDefaults (void)
 	choices[CHOICE_CHWARP       ].selected = opts.bubbleWarp;
 	choices[CHOICE_CHSHIPS      ].selected = opts.unlockShips;
 	choices[CHOICE_CHHEADSTART  ].selected = opts.headStart;
-//	choices[CHOICE_CHUPGRADES   ].selected = opts.unlockUpgrades;
+	choices[CHOICE_AUTOBUTT     ].selected = opts.autoButtons;
 	choices[CHOICE_CHINFRU      ].selected = opts.infiniteRU;
 	choices[CHOICE_SKIPINTRO    ].selected = opts.skipIntro;
 	choices[CHOICE_FUELCIRCLE   ].selected = opts.fuelRange;
@@ -1216,9 +1452,7 @@ SetDefaults (void)
 	choices[CHOICE_IPMUSIC      ].selected = opts.spaceMusic;
 	choices[CHOICE_REMIXES3     ].selected = opts.volasMusic;
 	choices[CHOICE_FUELDECIM    ].selected = opts.wholeFuel;
-#ifdef DIRECTIONAL_JOY
-	choices[CHOICE_JOYSTICK     ].selected = opts.directionalJoystick;
-#endif
+	choices[CHOICE_DIRJOYP1     ].selected = opts.dirJoy[0];
 #ifdef MELEE_ZOOM
 	choices[CHOICE_ANDRZOOM     ].selected = opts.meleezoom;
 #endif
@@ -1259,6 +1493,7 @@ SetDefaults (void)
 	choices[CHOICE_LANDERUPGMASK].selected = opts.showUpgrades;
 	choices[CHOICE_FLEETPOINT   ].selected = opts.fleetPointSys;
 	choices[CHOICE_HSCOLOR      ].selected = opts.hyperSpaceColor;
+	choices[CHOICE_DIRJOYP2     ].selected = opts.dirJoy[1];
 
 	// Devices
 	for (i = DEVICE_START; i < DEVICE_START
@@ -1278,11 +1513,15 @@ SetDefaults (void)
 	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
 	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
 
-	sliders[SLIDER_MUSVOLUME ].value = opts.musicvol;
-	sliders[SLIDER_SFXVOLUME ].value = opts.sfxvol;
-	sliders[SLIDER_SPCHVOLUME].value = opts.speechvol;
-	sliders[SLIDER_GAMMA     ].value = opts.gamma;
-	sliders[SLIDER_NEBULA    ].value = opts.nebulaevol;
+	sliders[SLIDER_MUSVOLUME  ].value = opts.musicvol;
+	sliders[SLIDER_SFXVOLUME  ].value = opts.sfxvol;
+	sliders[SLIDER_SPCHVOLUME ].value = opts.speechvol;
+	sliders[SLIDER_GAMMA      ].value = opts.gamma;
+	sliders[SLIDER_NEBULA     ].value = opts.nebulaevol;
+	sliders[SLIDER_DEADZONE_00].value = opts.deadZoneLeftStick[0];
+	sliders[SLIDER_DEADZONE_01].value = opts.deadZoneRightStick[0];
+	sliders[SLIDER_DEADZONE_02].value = opts.deadZoneLeftStick[1];
+	sliders[SLIDER_DEADZONE_03].value = opts.deadZoneRightStick[1];
 }
 
 static void
@@ -1313,8 +1552,8 @@ PropagateResults (void)
 	opts.adriver =          choices[CHOICE_SNDDRIVER    ].selected;
 	opts.aquality =         choices[CHOICE_SNDQUALITY   ].selected;
 	opts.shield =           choices[CHOICE_SLVSHIELD    ].selected;
-	opts.player1 =          choices[CHOICE_BTMPLAYER    ].selected;
-	opts.player2 =          choices[CHOICE_TOPPLAYER    ].selected;
+	//opts.player1 =          choices[CHOICE_BTMPLAYER    ].selected;
+	//opts.player2 =          choices[CHOICE_TOPPLAYER    ].selected;
 	opts.musicremix =       choices[CHOICE_REMIXES2     ].selected;
 	opts.speech =           choices[CHOICE_SPEECH       ].selected;
 	opts.keepaspect =       choices[CHOICE_ASPRATIO     ].selected;
@@ -1324,7 +1563,7 @@ PropagateResults (void)
 	opts.bubbleWarp =       choices[CHOICE_CHWARP       ].selected;
 	opts.unlockShips =      choices[CHOICE_CHSHIPS      ].selected;
 	opts.headStart =        choices[CHOICE_CHHEADSTART  ].selected;
-//	opts.unlockUpgrades =   choices[CHOICE_CHUPGRADES   ].selected;
+	opts.autoButtons =      choices[CHOICE_AUTOBUTT     ].selected;
 	opts.infiniteRU =       choices[CHOICE_CHINFRU      ].selected;
 	opts.skipIntro =        choices[CHOICE_SKIPINTRO    ].selected;
 	opts.fuelRange =        choices[CHOICE_FUELCIRCLE   ].selected;
@@ -1343,9 +1582,7 @@ PropagateResults (void)
 	opts.spaceMusic =       choices[CHOICE_IPMUSIC      ].selected;
 	opts.volasMusic =       choices[CHOICE_REMIXES3     ].selected;
 	opts.wholeFuel =        choices[CHOICE_FUELDECIM    ].selected;
-#ifdef DIRECTIONAL_JOY
-	opts.directionalJoystick = choices[CHOICE_JOYSTICK  ].selected;
-#endif
+	opts.dirJoy[0] =        choices[CHOICE_DIRJOYP1     ].selected;
 #ifdef MELEE_ZOOM
 	opts.meleezoom =           choices[CHOICE_ANDRZOOM  ].selected;
 #endif
@@ -1386,6 +1623,7 @@ PropagateResults (void)
 	opts.showUpgrades =     choices[CHOICE_LANDERUPGMASK].selected;
 	opts.fleetPointSys =    choices[CHOICE_FLEETPOINT   ].selected;
 	opts.hyperSpaceColor =  choices[CHOICE_HSCOLOR      ].selected;
+	opts.dirJoy[1] =        choices[CHOICE_DIRJOYP2     ].selected;
 
 	// Devices
 	for (i = DEVICE_START;
@@ -1409,6 +1647,11 @@ PropagateResults (void)
 	opts.speechvol  = sliders[SLIDER_SPCHVOLUME].value;
 	opts.gamma      = sliders[SLIDER_GAMMA     ].value;
 	opts.nebulaevol = sliders[SLIDER_NEBULA    ].value;
+
+	opts.deadZoneLeftStick[0]  =  sliders[SLIDER_DEADZONE_00].value;
+	opts.deadZoneRightStick[0] =  sliders[SLIDER_DEADZONE_01].value;
+	opts.deadZoneLeftStick[1]  =  sliders[SLIDER_DEADZONE_02].value;
+	opts.deadZoneRightStick[1] =  sliders[SLIDER_DEADZONE_03].value;
 
 	SetGlobalOptions (&opts);
 }
@@ -1695,6 +1938,57 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 	font_DrawText (&t);
 }
 
+static inline int
+deadzoneToSlider (int deadzone)
+{
+	return (deadzone * 100) / MAX_DEADZONE;
+}
+
+static inline int
+sliderToDeadzone (int value)
+{
+	return (value * MAX_DEADZONE) / 100;
+}
+
+static void
+deadzone_DrawValue (WIDGET_SLIDER *self, int x, int y)
+{
+	TEXT t;
+	char buf[16];
+
+	snprintf (buf, sizeof (buf), "%d%%", self->value);
+
+	t.baseline.x = x + RES_SCALE (6);
+	t.baseline.y = y;
+	t.align = ALIGN_LEFT;
+	t.CharCount = ~0;
+	t.pStr = buf;
+
+	font_DrawText (&t);
+}
+
+static void
+adjustDeadzone (WIDGET_SLIDER *self)
+{
+	int deadzone = sliderToDeadzone (self->value);
+
+	switch (self - sliders)
+	{
+	case SLIDER_DEADZONE_00:
+		DeadZoneLeftStick[0] = deadzone;
+		break;
+	case SLIDER_DEADZONE_01:
+		DeadZoneRightStick[0] = deadzone;
+		break;
+	case SLIDER_DEADZONE_02:
+		DeadZoneLeftStick[1] = deadzone;
+		break;
+	case SLIDER_DEADZONE_03:
+		DeadZoneRightStick[1] = deadzone;
+		break;
+	}
+}
+
 static void
 rebind_control (WIDGET_CONTROLENTRY *widget)
 {
@@ -1718,7 +2012,176 @@ clear_control (WIDGET_CONTROLENTRY *widget)
 
 	RemoveInputState (templat, control, index);
 	populate_editkeys (templat);
-}	
+}
+
+static BOOLEAN
+VControl_GestureEqual (VCONTROL_GESTURE *a, VCONTROL_GESTURE *b)
+{
+	if (a->type != b->type)
+		return FALSE;
+
+	switch (a->type)
+	{
+	case VCONTROL_KEY:
+		return a->gesture.key == b->gesture.key;
+	case VCONTROL_JOYBUTTON:
+		return (a->gesture.button.port == b->gesture.button.port &&
+				a->gesture.button.index == b->gesture.button.index);
+	case VCONTROL_JOYAXIS:
+		return (a->gesture.axis.port == b->gesture.axis.port &&
+				a->gesture.axis.index == b->gesture.axis.index &&
+				a->gesture.axis.polarity == b->gesture.axis.polarity);
+	default:
+		return FALSE;
+	}
+}
+
+static BOOLEAN
+BlacklistedBindings (int action_index)
+{
+	switch (action_index)
+	{
+	case KEY_SCREENSHOT:
+	case KEY_EXIT:
+	case KEY_ABORT:
+	case KEY_DEBUG:
+	case KEY_FULLSCREEN:
+	case KEY_DEBUG_2:
+	case KEY_DEBUG_3:
+	case KEY_DEBUG_4:
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+static BOOLEAN
+CheckRebindConflict (int action, VCONTROL_GESTURE *g_compare,
+		char *conflict, size_t size)
+{
+	int i, j;
+	VCONTROL_GESTURE *g;
+	BOOLEAN binding_special = BlacklistedBindings (action);
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		BOOLEAN key_special;
+
+		if (menu_res_names[i] == NULL || i == action)
+			continue;
+
+		key_special = BlacklistedBindings (i);
+
+		if (binding_special || key_special)
+		{
+			for (j = 0; j < 6; j++)
+			{
+				g = &curr_bindings[i].binding[j];
+
+				if (g->type == VCONTROL_NONE)
+					continue;
+
+				if (VControl_GestureEqual (g, g_compare))
+				{
+					snprintf (conflict, size, "%s", menu_res_names[i]);
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	for (j = 0; j < 6; j++)
+	{
+		if (j == action)
+			continue;
+
+		g = &curr_bindings[action].binding[j];
+
+		if (g->type == VCONTROL_NONE)
+			continue;
+
+		if (VControl_GestureEqual (g, g_compare))
+		{
+			const char *category = menucontrols[action].category;
+			snprintf (conflict, size, "same %s", category);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static void
+rebind_menu_control (WIDGET_MENUCONTROLENTRY *widget)
+{
+	VCONTROL_GESTURE g, *existing;
+	char buff[PATH_MAX];
+	char conflict[64];
+	char bind[32];
+	int index = widget->controlindex;
+	int active = widget->highlighted;
+	int page = widget->current_page;
+	int slot = (page * 2) + active;
+	int *vec = (int *)&menu_vec[index];
+
+	FlushInput ();
+	DrawLabelAsWindow (&labels[LABEL_PRESSTOEDIT], NULL);
+
+	VControl_ClearGesture ();
+
+	while (!VControl_GetLastGesture (&g)) { TaskSwitch (); }
+
+	if (g.type != VCONTROL_NONE)
+	{
+		if (CheckRebindConflict (index, &g, conflict, sizeof (conflict)))
+		{
+			const char *category = menucontrols[index].category;
+
+			InterrogateInputState (-1, -1, -1, bind, sizeof (bind), &g);
+
+			snprintf (buff, sizeof (buff),
+				"Cannot bind to `%s'\n\nUsing the `%s' (%s) binding",
+				category, conflict, bind);
+
+			DoPopupWindowFont (buff, MicroFont);
+
+			populate_menukeys ();
+			FlushInput ();
+			return;
+		}
+
+		if (curr_bindings[index].binding[slot].type != VCONTROL_NONE)
+		{
+			existing = &curr_bindings[index].binding[slot];
+			VControl_RemoveGestureBinding (existing, vec);
+		}
+
+		curr_bindings[index].binding[slot] = g;
+		VControl_AddGestureBinding (&g, vec);
+		menu_bindings_dirty = TRUE;
+	}
+
+	populate_menukeys ();
+	FlushInput ();
+}
+
+static void
+clear_menu_control (WIDGET_MENUCONTROLENTRY *widget)
+{
+	int index = widget->controlindex;
+	int active = widget->highlighted;
+	int page = widget->current_page;
+	int slot = (page * 2) + active;
+	int *target = (int *)&menu_vec[index];
+	VCONTROL_GESTURE *g = &curr_bindings[index].binding[slot];
+
+	if (g->type != VCONTROL_NONE)
+		VControl_RemoveGestureBinding (g, target);
+
+	g->type = VCONTROL_NONE;
+	menu_bindings_dirty = TRUE;
+	populate_menukeys ();
+}
 
 static int
 count_widgets (WIDGET **widgets)
@@ -1736,7 +2199,7 @@ static FRAME setup_frame = NULL;
 #define MAX_BUFF (MENU_COUNT + CHOICE_COUNT + \
 				SLIDER_COUNT + BUTTON_COUNT + \
 				LABEL_COUNT + TEXTENTRY_COUNT + \
-				CONTROLENTRY_COUNT)
+				CONTROLENTRY_COUNT + MENUCONTROL_COUNT)
 
 static void
 init_widgets (void)
@@ -1878,24 +2341,6 @@ init_widgets (void)
 		}
 	}
 
-	// Code to swap resolution optnames for correct ones
-	/*for (i = 0; i < choices[CHOICE_RESOLUTION].numopts - 1; i++)
-	{
-		snprintf(choices[CHOICE_RESOLUTION].options[i].optname,
-			strlen(choices[CHOICE_RESOLUTION].options[i].optname),
-			"%dx%d", RES_DESCALE (CanvasWidth)*(i+1), 
-			RES_DESCALE (CanvasHeight)* (i + 1));
-	}*/
-
-	// Choices 18-20 are also special, being the names of the key
-	// configurations
-	for (i = 0; i < 6; i++)
-	{
-		choices[CHOICE_BTMPLAYER].options[i].optname = input_templates[i].name;
-		choices[CHOICE_TOPPLAYER].options[i].optname = input_templates[i].name;
-		choices[CHOICE_KBLAYOUT ].options[i].optname = input_templates[i].name;
-	}
-
 	/* Choice 20 has a special onChange handler, too. */
 	choices[CHOICE_KBLAYOUT  ].onChange = change_template;
 	choices[CHOICE_GAMESEED  ].onChange = change_seedtype;
@@ -1965,6 +2410,18 @@ init_widgets (void)
 	// nebulaevol is a special case
 	sliders[SLIDER_NEBULA].step = 1;
 	sliders[SLIDER_NEBULA].max = 50;
+
+	{	// Deadzone sliders are a special case
+		int j;
+
+		for (j = SLIDER_DEADZONE_00; j <= SLIDER_DEADZONE_03; j++)
+		{
+			sliders[j].step = 1;
+			sliders[j].max = 100;
+			sliders[j].draw_value = deadzone_DrawValue;
+			sliders[j].onChange = adjustDeadzone;
+		}
+	}
 
 	for (i = 0; i < SLIDER_COUNT; i++)
 	{
@@ -2162,7 +2619,6 @@ init_widgets (void)
 		}
 	}
 
-	textentries[TEXT_LOUTNAME].onChange = rename_template;
 	textentries[TEXT_GAMESEED].onChange = change_seed;
 	textentries[TEXT_CUSTMRES].onChange = change_res;
 
@@ -2194,9 +2650,53 @@ init_widgets (void)
 		controlentries[i].highlighted = 0;
 		controlentries[i].controlname[0][0] = 0;
 		controlentries[i].controlname[1][0] = 0;
+		controlentries[i].controlname[2][0] = 0;
+		controlentries[i].controlname[3][0] = 0;
 		controlentries[i].controlindex = i;
 		controlentries[i].onChange = rebind_control;
 		controlentries[i].onDelete = clear_control;
+		controlentries[i].current_page = 0;
+		controlentries[i].num_pages = 2;
+	}
+
+	if (index >= count)
+	{
+		log_add (log_Fatal, "PANIC: String table cut short while reading "
+			"menu control entries");
+		exit (EXIT_FAILURE);
+	}
+
+	if (SplitString (GetStringAddress (SetAbsStringTableIndex (
+		SetupTab, index++)), '\n', MAX_BUFF, buffer, bank)
+		!= MENUCONTROL_COUNT)
+	{
+		log_add (log_Fatal, "PANIC: Incorrect number of Menu Control Entries");
+		exit (EXIT_FAILURE);
+	}
+
+	for (i = 0; i < MENUCONTROL_COUNT; i++)
+	{
+		menucontrols[i].tag = WIDGET_TYPE_MENUCONTROLENTRY;
+		menucontrols[i].parent = NULL;
+		menucontrols[i].handleEvent = Widget_HandleEventMenuControlEntry;
+		menucontrols[i].receiveFocus = Widget_ReceiveFocusMenuControlEntry;
+		menucontrols[i].draw = Widget_DrawMenuControlEntry;
+		menucontrols[i].height = Widget_HeightOneLine;
+		menucontrols[i].width = Widget_WidthFullScreen;
+		menucontrols[i].category = buffer[i];
+		menucontrols[i].highlighted = 0;
+		for (int j = 0; j < 6; j++)
+		{
+			menucontrols[i].controlname[j][0] = 0;
+		}
+		menucontrols[i].controlindex = i;
+		menucontrols[i].onChange = rebind_menu_control;
+		menucontrols[i].onDelete = clear_menu_control;
+		menucontrols[i].current_page = 0;
+		menucontrols[i].num_pages = 3;
+
+		memcpy (&saved_menu_bindings[i], &curr_bindings[i],
+				sizeof (MENU_BINDINGS));
 	}
 
 	/* Check for garbage at the end */
@@ -2261,11 +2761,13 @@ SetupMenu (void)
 {
 	SETUP_MENU_STATE s;
 
+	InSetupMenu = TRUE;
+
 	s.InputFunc = DoSetupMenu;
 	s.initialized = FALSE;
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	SetupTab = CaptureStringTable (LoadStringTable (SETUP_MENU_STRTAB));
-	if (SetupTab) 
+	if (SetupTab)
 	{
 		init_widgets ();
 	}
@@ -2284,6 +2786,8 @@ SetupMenu (void)
 	{
 		clean_up_widgets ();
 	}
+
+	InSetupMenu = FALSE;
 
 	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
 						MENU_SOUND_SELECT);
@@ -2442,8 +2946,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 			(OPT_MELEEZOOM)(optMeleeScale == TFB_SCALE_STEP ?
 			OPTVAL_PC : OPTVAL_3DO);
 #endif
-	opts->controllerType = optControllerType;
-	opts->directionalJoystick = optDirectionalJoystick; // For Android
 	opts->dateType = optDateFormat;
 	opts->customBorder = optCustomBorder;
 	opts->flagshipColor = is3DO (optFlagshipColor);
@@ -2499,6 +3001,15 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->shipDirectionIP = optShipDirectionIP;
 
 	// Controls
+	opts->autoButtons = optAutoButtons;
+	opts->controllerType = optControllerType;
+	opts->dirJoy[0] = optDirJoy[0];
+	opts->dirJoy[1] = optDirJoy[1];
+	opts->deadZoneLeftStick[0] = deadzoneToSlider (DeadZoneLeftStick[0]);
+	opts->deadZoneRightStick[0] = deadzoneToSlider (DeadZoneRightStick[0]);
+	opts->deadZoneLeftStick[1] = deadzoneToSlider (DeadZoneLeftStick[1]);
+	opts->deadZoneRightStick[1] = deadzoneToSlider (DeadZoneRightStick[1]);
+
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 
@@ -2517,7 +3028,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->bubbleWarp = optBubbleWarp;
 	opts->unlockShips = optUnlockShips;
 	opts->headStart = optHeadStart;
-	//opts->unlockUpgrades = optUnlockUpgrades;
 	opts->infiniteCredits = optInfiniteCredits;
 	opts->infiniteRU = optInfiniteRU;
 	opts->infiniteFuel = optInfiniteFuel;
@@ -2709,13 +3219,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		res_PutBoolean ("config.smoothmelee", (int)opts->meleezoom == OPTVAL_3DO);
 #endif
 	}
-#if SDL_MAJOR_VERSION == 1 // Refined joypad controls aren't supported on SDL1
-		opts->controllerType = 0;
-#endif
-	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
-#ifdef DIRECTIONAL_JOY
-	PutBoolOpt (&optDirectionalJoystick, &opts->directionalJoystick, "mm.directionalJoystick", FALSE);
-#endif
 	PutIntOpt  (&optDateFormat, (int*)(&opts->dateType), "mm.dateFormat", FALSE);
 	PutBoolOpt (&optCustomBorder, &opts->customBorder, "mm.customBorder", FALSE);
 	PutConsOpt (&optFlagshipColor, &opts->flagshipColor, "mm.flagshipColor", FALSE);
@@ -2784,19 +3287,17 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optShipDirectionIP, &opts->shipDirectionIP, "mm.shipDirectionIP", FALSE);
 
 	// Controls
-	PlayerControls[0] = opts->player1;
-	PlayerControls[1] = opts->player2;
+	PutBoolOpt (&optAutoButtons, &opts->autoButtons, "mm.autoButtons", FALSE);
+	PutIntOpt (&optControllerType, (int *)(&opts->controllerType), "mm.controllerType", FALSE);
+	PutIntOpt (&optDirJoy[0], (int *)(&opts->dirJoy[0]), "mm.dirJoyP1", FALSE);
+	PutIntOpt (&optDirJoy[1], (int *)(&opts->dirJoy[1]), "mm.dirJoyP2", FALSE);
 
-	res_PutInteger ("config.player1control", opts->player1);
-	res_PutInteger ("config.player2control", opts->player2);
+	res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
+	res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
+	res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
+	res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 
-	res_PutString ("keys.1.name", input_templates[0].name);
-	res_PutString ("keys.2.name", input_templates[1].name);
-	res_PutString ("keys.3.name", input_templates[2].name);
-	res_PutString ("keys.4.name", input_templates[3].name);
-	res_PutString ("keys.5.name", input_templates[4].name);
-	res_PutString ("keys.6.name", input_templates[5].name);
-
+	res_PutString ("keys.version", MM_BASE_VERSION_S);
 
 /*
  *		Cheats
@@ -2807,7 +3308,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optBubbleWarp, &opts->bubbleWarp, "cheat.bubbleWarp", FALSE);
 	PutBoolOpt (&optUnlockShips, &opts->unlockShips, "cheat.unlockShips", FALSE);
 	PutBoolOpt (&optHeadStart, &opts->headStart, "cheat.headStart", FALSE);
-	//PutBoolOpt (&optUnlockUpgrades, &opts->unlockUpgrades, "cheat.unlockUpgrades", FALSE);
 	PutBoolOpt (&optInfiniteCredits, &opts->infiniteCredits, "cheat.infiniteCredits", FALSE);
 	PutBoolOpt (&optInfiniteRU, &opts->infiniteRU, "cheat.infiniteRU", FALSE);
 	PutBoolOpt (&optInfiniteFuel, &opts->infiniteFuel, "cheat.infiniteFuel", FALSE);

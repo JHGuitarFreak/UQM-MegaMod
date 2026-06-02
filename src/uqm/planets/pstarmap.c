@@ -52,6 +52,8 @@
 #include "../build.h"
 		// For StartSphereTracking()
 #include "uqm/setupmenu.h"
+#include "uqm/igfxres.h"
+#include "uqm/nameref.h"
 
 typedef enum {
 	NORMAL_STARMAP,
@@ -2579,9 +2581,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			DrawStarMap (0, NULL);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SEARCH]
-			|| (PulsedInputState.menu[KEY_MENU_ZOOM_IN]
-				&& PulsedInputState.menu[KEY_MENU_ZOOM_OUT]))
+	else if (PulsedInputState.menu[KEY_MENU_SEARCH])
 	{
 		FlushInput ();
 
@@ -2985,16 +2985,18 @@ DoneSphereGrowth:
 }
 
 static void
-DrawStarmapHelper (void)
+DrawStarmapKeyAtlas (void)
 {
-
 	CONTEXT OldContext;
 	STAMP s;
 	TEXT t;
 	RECT r;
+	POINT origin;
+	SIZE dheight, spacing;
 	SIZE leading;
-	int frame_index;
-#define GAMEPAD(a) (RES_SCALE (optControllerType ? (a) : 0))
+	SBYTE valign;
+	COORD sbottom;
+	FRAME atlas_array[3];
 
 	OldContext = SetContext (StatusContext);
 
@@ -3002,92 +3004,119 @@ DrawStarmapHelper (void)
 
 	DrawFlagStatDisplay (GAME_STRING (STATUS_STRING_BASE + 7));
 
-	SetContextFont (TinyFont);
-	GetContextFontLeading (&leading);
+	SetContextFont (TinyFontCond);
+	GetContextFontDispHeight (&dheight);
+	GetContextFontVertAlign (&valign);
+	SetContextForeGroundColor (MODULE_NAME_COLOR);
 
-	r.corner.x = RES_SCALE (4);
-	r.corner.y = RES_SCALE (34);
+	origin.x = RES_SCALE (4);
+	origin.y = RES_SCALE (34);
+	spacing = RES_SCALE (1);
 
-	frame_index = !optControllerType ? 0 : 5 * optControllerType;
+	atlas_array[0] = CaptureDrawable (LoadGraphic (KEY_ATLAS_PMAP_ANIM));
+	atlas_array[1] = CaptureDrawable (LoadGraphic (AXIS_ATLAS_PMAP_ANIM));
+	atlas_array[2] = CaptureDrawable (LoadGraphic (BUTTON_ATLAS_PMAP_ANIM));
 
 	// :Maps
-	s.frame = SetAbsFrameIndex (SubmenuFrame, frame_index);
-	s.origin = r.corner;
+	s.frame = ControlAtlas (KEY_MENU_TOGGLEMAP, atlas_array);
+	s.origin = origin;
 	DrawStamp (&s);
 
-	SetContextForeGroundColor (MODULE_NAME_COLOR);
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
 	t.align = ALIGN_LEFT;
-	t.baseline.x = r.corner.x + RES_SCALE (12) - GAMEPAD (2);
-	t.baseline.y = s.origin.y + leading;
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 12);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
 	// :Add->O
-	s.origin.y += RES_SCALE (10);
-	s.frame = SetAbsFrameIndex (SubmenuFrame, frame_index + 1);
+	s.origin.y = sbottom + spacing;
+	s.frame = ControlAtlas (KEY_MENU_SPECIAL, atlas_array);
 	DrawStamp (&s);
 
-	t.align = ALIGN_LEFT;
-	t.baseline.x = r.corner.x + RES_SCALE (16) - GAMEPAD (6);
-	t.baseline.y = s.origin.y + leading;
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 13);
-	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
-	s.origin.x = t.baseline.x + RES_SCALE (28);
-	s.origin.y += RES_SCALE (4);
+	r = font_GetTextRect (&t);
+
+	s.origin.x = t.baseline.x + r.extent.width + RES_SCALE (3);
+	s.origin.y = t.baseline.y - RES_SCALE (3);
 	s.frame = SetAbsFrameIndex (MiscDataFrame, 108);
 	DrawStamp (&s);
 
 	// Cursor Speed
-	s.origin.x = r.corner.x;
-	s.origin.y += RES_SCALE (6);
-	s.frame = SetAbsFrameIndex (SubmenuFrame, frame_index + 2);
+	s.origin.y = sbottom + spacing;
+	s.origin.x = origin.x;
+	s.frame = ControlAtlas (KEY_MENU_NEXT, atlas_array);
 	DrawStamp (&s);
 
-	t.align = ALIGN_LEFT;
-	t.baseline.x = r.corner.x + RES_SCALE (18) - GAMEPAD (8);
-	t.baseline.y = s.origin.y + leading;
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
 	t.pStr = ":";
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
 	s.origin.x = t.baseline.x + RES_SCALE (7);
-	s.origin.y += RES_SCALE (4);
+	s.origin.y = t.baseline.y - RES_SCALE (3);
 	s.frame = SetAbsFrameIndex (MiscDataFrame, 48);
 	DrawStamp (&s);
 
-	t.align = ALIGN_LEFT;
 	t.baseline.x += RES_SCALE (13);
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 14);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
 	// :Search
-	s.frame = SetAbsFrameIndex (SubmenuFrame, frame_index + 3);
-	s.origin.x = r.corner.x;
-	s.origin.y += RES_SCALE (7) - GAMEPAD (1);
+	s.frame = ControlAtlas (KEY_MENU_SEARCH, atlas_array);
+	s.origin.y = sbottom + spacing;
+	s.origin.x = origin.x;
 	DrawStamp (&s);
 
-	t.baseline.x = s.origin.x + RES_SCALE (12) + GAMEPAD (11);
-	t.baseline.y = s.origin.y + leading + RES_SCALE (5) - GAMEPAD (5);
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 15);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
-	// :Zoom
-	s.frame = SetAbsFrameIndex (SubmenuFrame, frame_index + 4);
-	s.origin.y += RES_SCALE (21) - GAMEPAD (11);
+	// :Zoom In
+	s.frame = ControlAtlas (KEY_MENU_ZOOM_OUT, atlas_array);
+	s.origin.y = sbottom + spacing;
 	DrawStamp (&s);
 
-	t.baseline.x = s.origin.x + RES_SCALE (30) - GAMEPAD (18);
-	t.baseline.y = s.origin.y + leading + RES_SCALE (5);
+	GetFrameRect (s.frame, &r);
+
+	// :Zoom Out
+	s.frame = ControlAtlas (KEY_MENU_ZOOM_IN, atlas_array);
+	s.origin.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	DrawStamp (&s);
+
+	GetFrameRect (s.frame, &r);
+	sbottom = s.origin.y + r.extent.height;
+
+	t.baseline.x = s.origin.x + r.extent.width + RES_SCALE (1);
+	t.baseline.y = sbottom - ((r.extent.height - dheight) / 2) - valign;
 	t.pStr = GAME_STRING (STATUS_STRING_BASE + 16);
 	t.CharCount = (COUNT)~0;
 	font_DrawText (&t);
 
+	GetContextFontLeading (&leading);
+
 	// Separator
+	r.corner.x = origin.x;
 	r.corner.y = RES_SCALE (118);
 	r.extent.width = FIELD_WIDTH - RES_SCALE (3);
 	r.extent.height = RES_SCALE (1);
@@ -3115,6 +3144,10 @@ DrawStarmapHelper (void)
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
+
+	DestroyDrawable (ReleaseDrawable (atlas_array[0]));
+	DestroyDrawable (ReleaseDrawable (atlas_array[1]));
+	DestroyDrawable (ReleaseDrawable (atlas_array[2]));
 }
 
 BOOLEAN
@@ -3170,7 +3203,9 @@ StarMap (void)
 	}
 
 	if (optSubmenu)
-		DrawStarmapHelper ();
+	{
+		DrawStarmapKeyAtlas ();
+	}
 
 	DrawStarMap (0, (RECT*)-1);
 	transition_pending = FALSE;
@@ -3201,7 +3236,9 @@ StarMap (void)
 	DrawStatusMessage (NULL);
 	
 	if (optSubmenu)
+	{
 		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
+	}
 
 	/*if (GLOBAL (autopilot.x) == universe.x
 			&& GLOBAL (autopilot.y) == universe.y)

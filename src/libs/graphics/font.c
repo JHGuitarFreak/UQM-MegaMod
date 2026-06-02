@@ -311,6 +311,19 @@ GetContextFontDispWidth (SIZE *pwidth)
 	return (FALSE);
 }
 
+SBYTE
+GetContextFontVertAlign (SBYTE *valign)
+{
+	if (_CurFontPtr != 0)
+	{
+		*valign = _CurFontPtr->VertAlign;
+		return (TRUE);
+	}
+
+	*valign = 0;
+	return (FALSE);
+}
+
 BOOLEAN
 TextRect (TEXT *lpText, RECT *pRect, BYTE *pdelta)
 {

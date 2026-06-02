@@ -402,16 +402,10 @@
     <ClCompile Include="..\..\src\libs\graphics\sdl\nearest2x.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\libs\graphics\sdl\opengl.c">
-      <Filter>Source Files\libs\graphics\sdl</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\libs\graphics\sdl\palette.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\libs\graphics\sdl\primitives.c">
-      <Filter>Source Files\libs\graphics\sdl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\libs\graphics\sdl\pure.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\libs\graphics\sdl\rotozoom.c">
@@ -1509,9 +1503,6 @@
     <ClCompile Include="..\..\src\libs\graphics\sdl\png2sdl.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\libs\graphics\sdl\sdl1_common.c">
-      <Filter>Source Files\libs\graphics\sdl</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\libs\graphics\sdl\sdl2_common.c">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClCompile>
@@ -1611,9 +1602,6 @@
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\libs\graphics\sdl\2xscalers_mmx.h">
-      <Filter>Source Files\libs\graphics\sdl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\libs\graphics\sdl\opengl.h">
       <Filter>Source Files\libs\graphics\sdl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\libs\graphics\sdl\palette.h">

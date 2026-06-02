@@ -38,10 +38,13 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 #include "gameopt.h"
+#include "libs/log/uqmlog.h"
 #include "libs/imgui/uqm_imgui.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
+
+#define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
 typedef struct
 {
@@ -75,6 +78,10 @@ volatile BOOLEAN GamePaused;
 volatile BOOLEAN OnScreenKeyboardLocked;
 
 static InputFrameCallback *inputCallback;
+
+static void ControllerTypeSwitcher (void);
+
+BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
 
 static void
 _clear_menu_state (void)
@@ -297,6 +304,9 @@ UpdateInputState (void)
 			QuickSave ();
 	}
 
+	if (optAutoButtons && !InSetupMenu)
+		ControllerTypeSwitcher ();
+
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])
 		debugKeyPressedSynchronous ();
@@ -449,16 +459,18 @@ GetMenuSounds (MENU_SOUND_FLAGS *s0, MENU_SOUND_FLAGS *s1)
 }
 
 static BATTLE_INPUT_STATE
-ControlInputToBattleInput (const int *keyState)
+ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 {
 	BATTLE_INPUT_STATE InputState = 0;
 
-	if (keyState[KEY_UP])
-		InputState |= BATTLE_THRUST;
+	InputState |= GetDirectionalJoystickInput (direction, player);
+
 	if (keyState[KEY_LEFT])
 		InputState |= BATTLE_LEFT;
 	if (keyState[KEY_RIGHT])
 		InputState |= BATTLE_RIGHT;
+	if (keyState[KEY_UP])
+		InputState |= BATTLE_THRUST;
 	if (keyState[KEY_WEAPON])
 		InputState |= BATTLE_WEAPON;
 	if (keyState[KEY_SPECIAL])
@@ -474,17 +486,17 @@ ControlInputToBattleInput (const int *keyState)
 }
 
 BATTLE_INPUT_STATE
-CurrentInputToBattleInput (COUNT player)
+CurrentInputToBattleInput (COUNT player, int direction)
 {
 	return ControlInputToBattleInput(
-			CurrentInputState.key[PlayerControls[player]]);
+			CurrentInputState.key[PlayerControls[player]], player, direction);
 }
 
 BATTLE_INPUT_STATE
 PulsedInputToBattleInput (COUNT player)
 {
 	return ControlInputToBattleInput(
-			PulsedInputState.key[PlayerControls[player]]);
+			PulsedInputState.key[PlayerControls[player]], player, -1);
 }
 
 BOOLEAN
@@ -535,6 +547,111 @@ ActKeysPress (void)
 	);
 }
 
+static const char *
+SDL_GameControllerTypeToString (SDL_GameControllerType type)
+{
+	static const char *strings[] = {
+		"Unknown",
+		"Xbox 360",
+		"Xbox One",
+		"PlayStation 3",
+		"PlayStation 4",
+		"Nintendo Switch Pro",
+		"Virtual",
+		"PlayStation 5",
+		"Amazon Luna",
+		"Google Stadia",
+		"NVIDIA Shield",
+		"Nintendo Switch Joy-Con (Left)",
+		"Nintendo Switch Joy-Con (Right)",
+		"Nintendo Switch Joy-Con Pair",
+		"MAX (Invalid)"
+	};
+
+	if (type < 0 || type > SDL_CONTROLLER_TYPE_MAX)
+		return "Unknown (Invalid)";
+
+	return strings[type];
+}
+
+static LAST_INPUT input_tracker = { -1 };
+
+static void
+ControllerTypeSwitcher (void)
+{
+	int i;
+
+	BOOLEAN pressed = FALSE;
+
+	if (!last_input[0].pressed)
+		return;
+
+	if ((input_tracker.type == 1
+		&& input_tracker.gamepad == last_input[0].gamepad)
+		|| (input_tracker.type == 0 && last_input[0].type == 0))
+		return;
+
+	for (i = 0; i < NUM_KEYS; i++)
+	{
+		if (CurrentInputState.key[PlayerControls[0]][i])
+		{
+			pressed = TRUE;
+		}
+	}
+
+	if (last_input[0].pressed && last_input[0].actions == -1)
+	{
+		input_tracker.pressed = 0;
+		last_input[0].pressed = 0;
+		return;
+	}
+
+	if (pressed && last_input[0].type == 1
+		&& input_tracker.gamepad != last_input[0].gamepad)
+	{
+		const char *gamepad;
+
+		switch (last_input[0].gamepad)
+		{
+		case SDL_CONTROLLER_TYPE_PS3:
+		case SDL_CONTROLLER_TYPE_PS4:
+		case SDL_CONTROLLER_TYPE_PS5:
+			optControllerType = 2;
+			break;
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+			optControllerType = 3;
+			break;
+		case SDL_CONTROLLER_TYPE_XBOX360:
+		case SDL_CONTROLLER_TYPE_XBOXONE:
+		case SDL_CONTROLLER_TYPE_VIRTUAL:
+		default:
+			optControllerType = 1;
+			break;
+		}
+
+		gamepad = SDL_GameControllerTypeToString (last_input[0].gamepad);
+		log_add (log_Info, "Last input player 1: CONTROLLER -> type: %s",
+				gamepad);
+	}
+
+	if (pressed && last_input[0].type == 0
+			&& optControllerType > 0)
+	{
+		optControllerType = 0;
+
+		log_add (log_Info, "Last input player 1: KEYBOARD");
+	}
+
+	if (pressed && last_input[0].pressed)
+	{
+		input_tracker = last_input[0];
+		pressed = input_tracker.pressed;
+	}
+}
+
 BOOLEAN
 ConfirmExit (void)
 {
@@ -559,4 +676,114 @@ void
 TestSpeechSound (STRING snd)
 {
 	PlaySpeechEffect ((SOUND)snd, NotPositional (), NULL, 0);
+}
+
+// directional joystick input code, taken from the android port of UQM
+// https://github.com/pelya/commandergenius
+// https://libsdl-android.sourceforge.io/
+
+// Fast arctan2, returns angle in radians as integer, with fractional part in
+// lower 16 bits Stolen from
+// http://www.dspguru.com/dsp/tricks/fixed-point-atan2-with-self-normalization
+// Precision is said to be 0.07 rads
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+enum
+{
+	atan2i_coeff_1 = ((int)(M_PI * 65536.0 / 4)),
+	atan2i_coeff_2 = (3 * atan2i_coeff_1),
+	atan2i_PI = (int)(M_PI * 65536.0),
+	SHIP_DIRECTIONS = 16
+};
+
+static inline int atan2i (int y, int x)
+{
+	int angle;
+	int abs_y = abs (y);
+
+	if (abs_y == 0)
+		abs_y = 1;
+
+	if (x >= 0)
+		angle = atan2i_coeff_1 - atan2i_coeff_1 * (x - abs_y) / (x + abs_y);
+	else
+		angle = atan2i_coeff_2 - atan2i_coeff_1 * (x + abs_y) / (abs_y - x);
+
+	if (y < 0)
+		return(-angle); // negate if in quad III or IV
+	else
+		return(angle);
+}
+
+BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
+{
+	int axisX = 0;
+	int axisY = 0;
+	BATTLE_INPUT_STATE InputState = 0;
+	SDL_JoystickID instance_id = -1;
+
+	if (!DirJoyActive || !optDirJoy[player])
+		return InputState;
+
+	if (optDirJoy [player] == 1 || optDirJoy[player] == 3)
+	{
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY);
+	}
+	if (optDirJoy[player] == 2 || optDirJoy[player] == 4)
+	{
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY);
+	}
+
+	// Process analog stick input
+	if (axisX != 0 || axisY != 0)
+	{
+		int angle = atan2i (axisY, axisX);
+		int diff;
+
+		// Convert to 16 directions used by Melee
+		angle += atan2i_PI / SHIP_DIRECTIONS;
+		if (angle < 0)
+			angle += atan2i_PI * 2;
+		if (angle > atan2i_PI * 2)
+			angle -= atan2i_PI * 2;
+		angle = angle * SHIP_DIRECTIONS / atan2i_PI / 2;
+
+		diff = angle - direction - SHIP_DIRECTIONS / 4;
+		while (diff >= SHIP_DIRECTIONS)
+			diff -= SHIP_DIRECTIONS;
+		while (diff < 0)
+			diff += SHIP_DIRECTIONS;
+
+		if (diff < SHIP_DIRECTIONS / 2)
+			InputState |= BATTLE_LEFT;
+		if (diff > SHIP_DIRECTIONS / 2)
+			InputState |= BATTLE_RIGHT;
+
+		// Thrust when facing the intended direction
+		if (optDirJoy[player] > 2 && (diff > 6 && diff < 10))
+		{
+			int undead_zone;
+			int dzone = DEFAULT_DZONE;
+
+			if (optDirJoy[player] == 1 || optDirJoy[player] == 2)
+				dzone = DeadZoneLeftStick[player];
+			if (optDirJoy[player] == 3 || optDirJoy[player] == 4)
+				dzone = DeadZoneRightStick[player];
+
+			undead_zone = ((float)(MAX_DEADZONE - dzone) * 0.65) + dzone;
+
+			if (dzone >= (MAX_DEADZONE * 0.35))
+				undead_zone = 0;
+
+			if (abs (axisX) > undead_zone || abs (axisY) > undead_zone)
+				InputState |= BATTLE_THRUST;
+		}
+	}
+
+	return InputState;
 }

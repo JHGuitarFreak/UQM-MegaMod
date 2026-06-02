@@ -33,7 +33,6 @@ extern RESOURCE_INDEX hResIndex;
 extern FRAME Screen;
 extern FRAME ActivityFrame;
 extern FRAME StatusFrame;
-extern FRAME SubmenuFrame;
 extern FRAME FlagStatFrame;
 extern FRAME MiscDataFrame;
 extern FRAME visitedStarsFrame;

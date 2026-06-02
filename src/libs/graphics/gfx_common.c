@@ -120,61 +120,12 @@ FlushGraphics (void)
 	TFB_DrawScreen_WaitForSignal ();
 }
 
-#if SDL_MAJOR_VERSION == 1
-static void
-ExpandRect (RECT *rect, int expansion)
-{
-	if (rect->corner.x - expansion >= 0)
-	{
-		rect->extent.width += expansion;
-		rect->corner.x -= expansion;
-	}
-	else
-	{
-		rect->extent.width += rect->corner.x;
-		rect->corner.x = 0;
-	}
-
-	if (rect->corner.y - expansion >= 0)
-	{
-		rect->extent.height += expansion;
-		rect->corner.y -= expansion;
-	}
-	else
-	{
-		rect->extent.height += rect->corner.y;
-		rect->corner.y = 0;
-	}
-
-	if (rect->corner.x + rect->extent.width + expansion <= CanvasWidth)
-		rect->extent.width += expansion;
-	else
-		rect->extent.width = CanvasWidth - rect->corner.x;
-
-	if (rect->corner.y + rect->extent.height + expansion <= CanvasHeight)
-		rect->extent.height += expansion;
-	else
-		rect->extent.height = CanvasHeight - rect->corner.y;
-}
-#endif // SDL_MAJOR_VERSION
-
 void
 SetTransitionSource (const RECT *pRect)
 {
-#if SDL_MAJOR_VERSION == 1
-	RECT ActualRect;
-
-	if (pRect)
-	{	/* expand the rect to accomodate scalers in OpenGL mode */
-		ActualRect = *pRect;
-		pRect = &ActualRect;
-		ExpandRect (&ActualRect, 2);
-	}
-	TFB_DrawScreen_Copy (pRect, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
-#else	/* If we want custom resolutions, we have to make all transitions full screen*/
 	TFB_DrawScreen_Copy (NULL, TFB_SCREEN_MAIN, TFB_SCREEN_TRANSITION);
+
 	(void)pRect; /* Satisfying compiler (unused parameter) */
-#endif
 }
 
 // ScreenTransition() is synchronous (does not return until transition done)

@@ -31,9 +31,7 @@ sdl_surface_to_bitmap (SDL_Surface *surface)
 	HBITMAP hbitmap;
 
 	// Convert to 32-bit BGRA (required for Windows DIB)
-#if SDL_MAJOR_VERSION > 1
 	format.format = SDL_PIXELFORMAT_BGRA32;
-#endif /* SDL_MAJOR_VERSION > 1 */
 	format.palette = NULL;
 	format.BitsPerPixel = 32;
 	format.BytesPerPixel = 4;
@@ -102,6 +100,6 @@ CopySurfaceToClipboard (SDL_Surface *surface)
 #else
 	log_add (log_Warning, "Clipboard functionality is not implemented on "
 			"this platform.");
-	return SDL_FALSE;
+	return -1;
 #endif
 }

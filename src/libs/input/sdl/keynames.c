@@ -109,18 +109,6 @@ static keyname keynames[] = {
 	{"y", SDLK_y},
 	{"z", SDLK_z},
 	{"Delete", SDLK_DELETE},
-#if SDL_MAJOR_VERSION == 1
-	{"Keypad-0", SDLK_KP0},
-	{"Keypad-1", SDLK_KP1},
-	{"Keypad-2", SDLK_KP2},
-	{"Keypad-3", SDLK_KP3},
-	{"Keypad-4", SDLK_KP4},
-	{"Keypad-5", SDLK_KP5},
-	{"Keypad-6", SDLK_KP6},
-	{"Keypad-7", SDLK_KP7},
-	{"Keypad-8", SDLK_KP8},
-	{"Keypad-9", SDLK_KP9},
-#else
 	{"Keypad-0", SDLK_KP_0},
 	{"Keypad-1", SDLK_KP_1},
 	{"Keypad-2", SDLK_KP_2},
@@ -131,7 +119,6 @@ static keyname keynames[] = {
 	{"Keypad-7", SDLK_KP_7},
 	{"Keypad-8", SDLK_KP_8},
 	{"Keypad-9", SDLK_KP_9},
-#endif
 	{"Keypad-.", SDLK_KP_PERIOD},
 	{"Keypad-/", SDLK_KP_DIVIDE},
 	{"Keypad-*", SDLK_KP_MULTIPLY},
@@ -169,30 +156,6 @@ static keyname keynames[] = {
 	{"LeftControl", SDLK_LCTRL},
 	{"RightAlt", SDLK_RALT},
 	{"LeftAlt", SDLK_LALT},
-#if SDL_MAJOR_VERSION == 1
-	{"RightMeta", SDLK_RMETA},
-	{"LeftMeta", SDLK_LMETA},
-	{"RightSuper", SDLK_RSUPER},
-	{"LeftSuper", SDLK_LSUPER},
-	{"AltGr", SDLK_MODE},
-	{"Compose", SDLK_COMPOSE},
-	{"Help", SDLK_HELP},
-	{"Print", SDLK_PRINT},
-	{"SysReq", SDLK_SYSREQ},
-	{"Break", SDLK_BREAK},
-	{"Menu", SDLK_MENU},
-	{"Power", SDLK_POWER},
-	{"Euro", SDLK_EURO},
-	{"Undo", SDLK_UNDO},
-#ifdef _WIN32_WCE
-	{"App1", SDLK_APP1},
-	{"App2", SDLK_APP2},
-	{"App3", SDLK_APP3},
-	{"App4", SDLK_APP4},
-	{"App5", SDLK_APP5},
-	{"App6", SDLK_APP6},
-#endif /* _WIN32_WCE */
-#endif /* SDL_MAJOR_VERSION == 1 */
 
 	{"Unknown", 0}};
 /* Last element must have code zero */
@@ -223,6 +186,21 @@ VControl_name2code (const char *name)
 		if (!strcasecmp(test, name) || !code)
 		{
 			return code;
+		}
+		++i;
+	}
+}
+
+int
+VControl_code2index (int code)
+{
+	int i = 0;
+	while (1)
+	{
+		int test = keynames[i].code;
+		if (test == code || !test)
+		{
+			return i;
 		}
 		++i;
 	}

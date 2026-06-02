@@ -29,17 +29,6 @@
 
 static SDL_RWops *sdluio_makeRWops (uio_Stream *stream);
 
-#if 0
-// For use for initialisation, using structure assignment.
-static SDL_RWops sdluio_templateRWops =
-{
-	.seek = sdluio_seek,
-	.read = sdluio_read,
-	.write = sdluio_write,
-	.close = sdluio_close,
-};
-#endif
-
 SDL_Surface *
 sdluio_loadImage (uio_DirHandle *dir, const char *fileName) {
 	uio_Stream *stream;
@@ -60,14 +49,9 @@ sdluio_loadImage (uio_DirHandle *dir, const char *fileName) {
 	}
 	return result;
 }
-	
-#if SDL_MAJOR_VERSION == 1
-int
-sdluio_seek (SDL_RWops *context, int offset, int whence)
-#else
+
 Sint64
 sdluio_seek (SDL_RWops *context, Sint64 offset, int whence)
-#endif
 {
 	if (uio_fseek ((uio_Stream *) context->hidden.unknown.data1, offset,
 				whence) == -1)
@@ -79,13 +63,8 @@ sdluio_seek (SDL_RWops *context, Sint64 offset, int whence)
 	return uio_ftell ((uio_Stream *) context->hidden.unknown.data1);
 }
 
-#if SDL_MAJOR_VERSION == 1
-int
-sdluio_read (SDL_RWops *context, void *ptr, int size, int maxnum)
-#else
 size_t
 sdluio_read (SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
-#endif
 {
 	size_t numRead;
 	
@@ -101,13 +80,8 @@ sdluio_read (SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 	return (int) numRead;
 }
 
-#if SDL_MAJOR_VERSION == 1
-int
-sdluio_write (SDL_RWops *context, const void *ptr, int size, int num)
-#else
 size_t
 sdluio_write (SDL_RWops *context, const void *ptr, size_t size, size_t num)
-#endif
 {
 	size_t numWritten;
 
@@ -137,10 +111,7 @@ sdluio_makeRWops (uio_Stream *stream) {
 	SDL_RWops *result;
 	
 	result = HMalloc (sizeof (SDL_RWops));
-#if 0
-	*(struct SDL_RWops *) result = sdluio_templateRWops;
-			// structure assignment
-#endif
+
 	result->seek = sdluio_seek;
 	result->read = sdluio_read;
 	result->write = sdluio_write;

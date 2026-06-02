@@ -69,7 +69,7 @@ int timeDilationScale;
 OPT_ENABLABLE optBubbleWarp;
 OPT_ENABLABLE optUnlockShips;
 OPT_ENABLABLE optHeadStart;
-OPT_ENABLABLE optUnlockUpgrades;
+OPT_ENABLABLE optAutoButtons;
 OPT_ENABLABLE optInfiniteRU;
 DWORD oldRU;
 OPT_ENABLABLE optSkipIntro;
@@ -94,7 +94,7 @@ int spaceMusicBySOI;
 int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
-OPT_ENABLABLE optDirectionalJoystick;
+int optDirJoy[2];
 bool changeLanderCapacity;
 int optLanderHold;
 int optScrTrans;
@@ -142,6 +142,8 @@ OPT_ENABLABLE optDosMenus;
 OPT_ADD_REMOVE optDeviceArray[28];
 OPT_ADD_REMOVE optUpgradeArray[13];
 int optHyperSpaceColor;
+int DeadZoneLeftStick[2];
+int DeadZoneRightStick[2];
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;
@@ -165,10 +167,10 @@ char baseContentPath[PATH_MAX];
 // addon availability
 ADDON_COUNT addonList;
 
+BOOLEAN DirJoyActive = FALSE;
+
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;
-
-INPUT_TEMPLATE input_templates[6];
 
 static const char *findFileInDirs (const char *locs[], int numLocs,
 		const char *file);

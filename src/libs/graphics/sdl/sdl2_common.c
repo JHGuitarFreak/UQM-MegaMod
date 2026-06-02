@@ -17,7 +17,6 @@
  */
 
 #include "sdl_common.h"
-#include "opengl.h"
 #include "pure.h"
 #include "primitives.h"
 #include "options.h"
@@ -33,8 +32,6 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 #include "libs/vidlib.h"
-
-#if SDL_MAJOR_VERSION > 1
 
 static void TFB_PreQuit (void);
 
@@ -63,6 +60,7 @@ TFB_PreInit (void)
 #endif
 
 	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+	SDL_SetHint (SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
 
 	if ((SDL_Init (SDL_INIT_VIDEO) == -1))
 	{
@@ -231,4 +229,3 @@ TFB_SupportsHardwareScaling (void)
 {
 	return 1;
 }
-#endif

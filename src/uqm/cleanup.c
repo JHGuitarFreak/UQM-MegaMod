@@ -70,7 +70,6 @@ UninitKernel (void)
 	DestroyDrawable (ReleaseDrawable (CustBevelFrame));
 	DestroyDrawable (ReleaseDrawable (DefBevelFrame));
 	DestroyDrawable (ReleaseDrawable (StatusFrame));
-	DestroyDrawable (ReleaseDrawable (SubmenuFrame));
 	DestroyDrawable (ReleaseDrawable (ActivityFrame));
 	DestroyFont (TinyFont);
 	DestroyFont (TinyFontBold);
