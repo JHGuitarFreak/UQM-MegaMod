@@ -461,7 +461,7 @@ endif ()
 target_link_libraries (UrQuanMasters ${UQM_LINK_LIBRARIES})
 
 message (STATUS "")
-message (STATUS "=== UQM-MegaMod Configuration ===")
+message (STATUS "UQM-MegaMod Configuration")
 message (STATUS "Build Type:       ${CMAKE_BUILD_TYPE}")
 message (STATUS "Graphics Engine:  SDL2 (SDL_DIR: ${SDL_DIR})")
 message (STATUS "Sound Backend:    ${UQM_SOUND_BACKEND}")
@@ -477,4 +477,69 @@ message (STATUS "  Platform Acceleration: ${UQM_PLATFORM_ACCEL}")
 message (STATUS "  Internal MikMod:       ${UQM_USE_INTERNAL_MIKMOD}")
 message (STATUS "  Internal Lua:          ${UQM_USE_INTERNAL_LUA}")
 message (STATUS "Source Files: ${UQM_SOURCES_COUNT}")
-message (STATUS "================================")
+
+if (IS_LINUX)
+	if (NOT INSTALL_PREFIX)
+		set (INSTALL_PREFIX "/usr")
+	endif ()
+
+	if (NOT INSTALL_BINDIR)
+		set (INSTALL_BINDIR "${INSTALL_PREFIX}/games")
+	endif ()
+
+	set (INSTALL_LIBDIR      "${INSTALL_PREFIX}/share/")
+	set (INSTALL_SHAREDIR    "${INSTALL_PREFIX}/share/")
+	set (INSTALL_APPDIR      "${INSTALL_SHAREDIR}applications")
+	set (INSTALL_ICONDIR     "${INSTALL_SHAREDIR}pixmaps")
+	set (INSTALL_CONTENTDIR  "${INSTALL_SHAREDIR}uqm-megamod/content")
+
+	install (TARGETS UrQuanMasters RUNTIME DESTINATION
+			${INSTALL_LIBDIR}uqm-megamod)
+
+	configure_file ("${CMAKE_SOURCE_DIR}/build/unix/uqm-wrapper.in"
+			"${CMAKE_BINARY_DIR}/wrapper/UrQuanMasters"
+			@ONLY)
+	install (PROGRAMS "${CMAKE_BINARY_DIR}/wrapper/UrQuanMasters"
+			DESTINATION ${INSTALL_BINDIR})
+
+	if (EXISTS "${CMAKE_SOURCE_DIR}/src/res/megamod.desktop")
+			install (FILES "${CMAKE_SOURCE_DIR}/src/res/megamod.desktop"
+			DESTINATION ${INSTALL_APPDIR})
+	endif ()
+
+	if (EXISTS "${CMAKE_SOURCE_DIR}/src/res/megamod.png")
+			install (FILES "${CMAKE_SOURCE_DIR}/src/res/megamod.png"
+			DESTINATION ${INSTALL_ICONDIR})
+	endif ()
+
+	if (EXISTS "${CMAKE_SOURCE_DIR}/content")
+		if (EXISTS "${CMAKE_SOURCE_DIR}/content/version")
+			install (FILES "${CMAKE_SOURCE_DIR}/content/version"
+					DESTINATION ${INSTALL_CONTENTDIR})
+		endif ()
+
+		file (GLOB UQM_PACKAGES "${CMAKE_SOURCE_DIR}/content/packages/*.uqm")
+		if (UQM_PACKAGES)
+			install (FILES ${UQM_PACKAGES}
+					DESTINATION ${INSTALL_CONTENTDIR}/packages)
+		endif ()
+
+		if (EXISTS "${CMAKE_SOURCE_DIR}/content/addons")
+			file (GLOB UQM_ADDONS "${CMAKE_SOURCE_DIR}/content/addons/*.uqm")
+			if (UQM_ADDONS)
+				install (FILES ${UQM_ADDONS}
+						DESTINATION ${INSTALL_CONTENTDIR}/addons)
+			endif ()
+		endif ()
+	endif ()
+
+	message (STATUS "")
+	message (STATUS "Installation Configuration")
+	message (STATUS "Installation prefix:            ${INSTALL_PREFIX}")
+	message (STATUS "Location for binaries:          ${INSTALL_BINDIR}")
+	message (STATUS "Location for non-sharable data: ${INSTALL_LIBDIR}")
+	message (STATUS "Location for sharable data:     ${INSTALL_SHAREDIR}")
+	message (STATUS "Location for .desktop file:     ${INSTALL_APPDIR}")
+	message (STATUS "Location for icon file:         ${INSTALL_ICONDIR}")
+	message (STATUS "Location for content:           ${INSTALL_CONTENTDIR}")
+endif ()
