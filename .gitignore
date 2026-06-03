@@ -324,4 +324,5 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 cmake-build-debug
 cmake-build-release
-.cmake
+.cmakebuild-cmake/
+build-profile/

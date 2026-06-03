@@ -109,8 +109,12 @@ static	UWORD vc_mode;
 
 /* Reverb control variables */
 
-static	int RVc1, RVc2, RVc3, RVc4, RVc5, RVc6, RVc7, RVc8;
-static	ULONG RVRindex;
+static  int RVc1, RVc2, RVc3, RVc4, RVc5, RVc6, RVc7, RVc8;
+static  ULONG RVRindex;
+
+/* --- HPC OPTIMIZATION : Single contiguous block for all reverb buffers --- */
+static  SLONG *RVbuf_Block=NULL;
+/* ------------------------------------------------------------------------- */
 
 /* For Mono or Left Channel */
 static	SLONG *RVbufL1=NULL,*RVbufL2=NULL,*RVbufL3=NULL,*RVbufL4=NULL,
@@ -650,8 +654,9 @@ static SLONGLONG MixSurroundInterp(const SWORD* srce,SLONG* dest,SLONGLONG idx,S
 
 static void (*MixReverb)(SLONG* srce,NATIVE count);
 
-/* Reverb macros */
-#define COMPUTE_LOC(n) loc##n = RVRindex % RVc##n
+/* Reverb macros OPTIMIZED : NO MODULO IN LOOP */
+#define INIT_LOC(n) loc##n = RVRindex % RVc##n
+#define ADVANCE_LOC(n) if (++loc##n >= RVc##n) loc##n = 0
 #define COMPUTE_LECHO(n) RVbufL##n [loc##n ]=speedup+((ReverbPct*RVbufL##n [loc##n ])>>7)
 #define COMPUTE_RECHO(n) RVbufR##n [loc##n ]=speedup+((ReverbPct*RVbufR##n [loc##n ])>>7)
 
@@ -664,8 +669,8 @@ static void MixReverb_Normal(SLONG* srce,NATIVE count)
 
 	ReverbPct=58+(md_reverb<<2);
 
-	COMPUTE_LOC(1); COMPUTE_LOC(2); COMPUTE_LOC(3); COMPUTE_LOC(4);
-	COMPUTE_LOC(5); COMPUTE_LOC(6); COMPUTE_LOC(7); COMPUTE_LOC(8);
+	INIT_LOC(1); INIT_LOC(2); INIT_LOC(3); INIT_LOC(4);
+	INIT_LOC(5); INIT_LOC(6); INIT_LOC(7); INIT_LOC(8);
 
 	while(count--) {
 		/* Compute the left channel echo buffers */
@@ -677,8 +682,8 @@ static void MixReverb_Normal(SLONG* srce,NATIVE count)
 		/* Prepare to compute actual finalized data */
 		RVRindex++;
 
-		COMPUTE_LOC(1); COMPUTE_LOC(2); COMPUTE_LOC(3); COMPUTE_LOC(4);
-		COMPUTE_LOC(5); COMPUTE_LOC(6); COMPUTE_LOC(7); COMPUTE_LOC(8);
+		ADVANCE_LOC(1); ADVANCE_LOC(2); ADVANCE_LOC(3); ADVANCE_LOC(4);
+		ADVANCE_LOC(5); ADVANCE_LOC(6); ADVANCE_LOC(7); ADVANCE_LOC(8);
 
 		/* left channel */
 		*srce++ +=RVbufL1[loc1]-RVbufL2[loc2]+RVbufL3[loc3]-RVbufL4[loc4]+
@@ -695,8 +700,8 @@ static void MixReverb_Stereo(SLONG* srce,NATIVE count)
 
 	ReverbPct = 92+(md_reverb<<1);
 
-	COMPUTE_LOC(1); COMPUTE_LOC(2); COMPUTE_LOC(3); COMPUTE_LOC(4);
-	COMPUTE_LOC(5); COMPUTE_LOC(6); COMPUTE_LOC(7); COMPUTE_LOC(8);
+	INIT_LOC(1); INIT_LOC(2); INIT_LOC(3); INIT_LOC(4);
+	INIT_LOC(5); INIT_LOC(6); INIT_LOC(7); INIT_LOC(8);
 
 	while(count--) {
 		/* Compute the left channel echo buffers */
@@ -714,8 +719,8 @@ static void MixReverb_Stereo(SLONG* srce,NATIVE count)
 		/* Prepare to compute actual finalized data */
 		RVRindex++;
 
-		COMPUTE_LOC(1); COMPUTE_LOC(2); COMPUTE_LOC(3); COMPUTE_LOC(4);
-		COMPUTE_LOC(5); COMPUTE_LOC(6); COMPUTE_LOC(7); COMPUTE_LOC(8);
+		ADVANCE_LOC(1); ADVANCE_LOC(2); ADVANCE_LOC(3); ADVANCE_LOC(4);
+		ADVANCE_LOC(5); ADVANCE_LOC(6); ADVANCE_LOC(7); ADVANCE_LOC(8);
 
 		/* left channel then right channel */
 		*srce++ +=RVbufL1[loc1]-RVbufL2[loc2]+RVbufL3[loc3]-RVbufL4[loc4]+
@@ -898,7 +903,7 @@ static void Mix32ToFP_SIMD(float* dste,const SLONG* srce,NATIVE count)
 /* PC: Ok, Mac Ok */
 static void Mix32To16_SIMD(SWORD* dste,const SLONG* srce,NATIVE count)
 {
-	int	remain = count;
+	int remain = count;
 
 	while(!IS_ALIGNED_16(dste) || !IS_ALIGNED_16(srce))
 	{
@@ -1271,6 +1276,9 @@ int VC1_Init(void)
 
 int VC1_PlayStart(void)
 {
+	int total_L_size;
+	int total_block_size;
+
 	samplesthatfit=TICKLSIZE;
 	if(vc_mode & DMODE_STEREO) samplesthatfit >>= 1;
 	tickleft = 0;
@@ -1284,26 +1292,40 @@ int VC1_PlayStart(void)
 	RVc7 = (7813L * md_mixfreq) / REVERBERATION;
 	RVc8 = (8828L * md_mixfreq) / REVERBERATION;
 
-	if(!(RVbufL1=(SLONG*)MikMod_calloc((RVc1+1),sizeof(SLONG)))) return 1;
-	if(!(RVbufL2=(SLONG*)MikMod_calloc((RVc2+1),sizeof(SLONG)))) return 1;
-	if(!(RVbufL3=(SLONG*)MikMod_calloc((RVc3+1),sizeof(SLONG)))) return 1;
-	if(!(RVbufL4=(SLONG*)MikMod_calloc((RVc4+1),sizeof(SLONG)))) return 1;
-	if(!(RVbufL5=(SLONG*)MikMod_calloc((RVc5+1),sizeof(SLONG)))) return 1;
-	if(!(RVbufL6=(SLONG*)MikMod_calloc((RVc6+1),sizeof(SLONG)))) return 1;
-	if(!(RVbufL7=(SLONG*)MikMod_calloc((RVc7+1),sizeof(SLONG)))) return 1;
-	if(!(RVbufL8=(SLONG*)MikMod_calloc((RVc8+1),sizeof(SLONG)))) return 1;
-
-	/* allocate reverb buffers for the right channel if in stereo mode only. */
+	/* --- HPC OPTIMIZATION : Single Contiguous Memory Block Allocation --- */
+	/* Calculate the total amount of SLONG elements needed for the Left channel */
+	total_L_size = (RVc1+1) + (RVc2+1) + (RVc3+1) + (RVc4+1) + (RVc5+1) + (RVc6+1) + (RVc7+1) + (RVc8+1);
+	
+	total_block_size = total_L_size;
 	if (vc_mode & DMODE_STEREO) {
-		if(!(RVbufR1=(SLONG*)MikMod_calloc((RVc1+1),sizeof(SLONG)))) return 1;
-		if(!(RVbufR2=(SLONG*)MikMod_calloc((RVc2+1),sizeof(SLONG)))) return 1;
-		if(!(RVbufR3=(SLONG*)MikMod_calloc((RVc3+1),sizeof(SLONG)))) return 1;
-		if(!(RVbufR4=(SLONG*)MikMod_calloc((RVc4+1),sizeof(SLONG)))) return 1;
-		if(!(RVbufR5=(SLONG*)MikMod_calloc((RVc5+1),sizeof(SLONG)))) return 1;
-		if(!(RVbufR6=(SLONG*)MikMod_calloc((RVc6+1),sizeof(SLONG)))) return 1;
-		if(!(RVbufR7=(SLONG*)MikMod_calloc((RVc7+1),sizeof(SLONG)))) return 1;
-		if(!(RVbufR8=(SLONG*)MikMod_calloc((RVc8+1),sizeof(SLONG)))) return 1;
+		/* Double the allocation size if Stereo is enabled (Right channel) */
+		total_block_size += total_L_size;
 	}
+
+	/* Allocate one single contiguous block in RAM to avoid Heap Fragmentation and Cache Thrashing */
+	if(!(RVbuf_Block=(SLONG*)MikMod_calloc(total_block_size, sizeof(SLONG)))) return 1;
+
+	/* Distribute the pointers linearly within the contiguous block */
+	RVbufL1 = RVbuf_Block;
+	RVbufL2 = RVbufL1 + (RVc1+1);
+	RVbufL3 = RVbufL2 + (RVc2+1);
+	RVbufL4 = RVbufL3 + (RVc3+1);
+	RVbufL5 = RVbufL4 + (RVc4+1);
+	RVbufL6 = RVbufL5 + (RVc5+1);
+	RVbufL7 = RVbufL6 + (RVc6+1);
+	RVbufL8 = RVbufL7 + (RVc7+1);
+
+	if (vc_mode & DMODE_STEREO) {
+		RVbufR1 = RVbufL8 + (RVc8+1); /* Continue linearly from the end of the Left channel */
+		RVbufR2 = RVbufR1 + (RVc1+1);
+		RVbufR3 = RVbufR2 + (RVc2+1);
+		RVbufR4 = RVbufR3 + (RVc3+1);
+		RVbufR5 = RVbufR4 + (RVc4+1);
+		RVbufR6 = RVbufR5 + (RVc5+1);
+		RVbufR7 = RVbufR6 + (RVc6+1);
+		RVbufR8 = RVbufR7 + (RVc7+1);
+	}
+	/* ---------------------------------------------------------------------- */
 
 	RVRindex = 0;
 	return 0;
@@ -1311,24 +1333,13 @@ int VC1_PlayStart(void)
 
 void VC1_PlayStop(void)
 {
-	MikMod_free(RVbufL1);
-	MikMod_free(RVbufL2);
-	MikMod_free(RVbufL3);
-	MikMod_free(RVbufL4);
-	MikMod_free(RVbufL5);
-	MikMod_free(RVbufL6);
-	MikMod_free(RVbufL7);
-	MikMod_free(RVbufL8);
+	/* --- HPC OPTIMIZATION : Free the single contiguous block --- */
+	MikMod_free(RVbuf_Block);
+	RVbuf_Block = NULL;
+
 	RVbufL1=RVbufL2=RVbufL3=RVbufL4=RVbufL5=RVbufL6=RVbufL7=RVbufL8=NULL;
-	MikMod_free(RVbufR1);
-	MikMod_free(RVbufR2);
-	MikMod_free(RVbufR3);
-	MikMod_free(RVbufR4);
-	MikMod_free(RVbufR5);
-	MikMod_free(RVbufR6);
-	MikMod_free(RVbufR7);
-	MikMod_free(RVbufR8);
 	RVbufR1=RVbufR2=RVbufR3=RVbufR4=RVbufR5=RVbufR6=RVbufR7=RVbufR8=NULL;
+	/* ----------------------------------------------------------- */
 }
 
 int VC1_SetNumVoices(void)
