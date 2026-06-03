@@ -120,7 +120,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  scanlines);
 	DECL_CONFIG_OPTION(int,   scaler);
 	DECL_CONFIG_OPTION(bool,  showFps);
-	DECL_CONFIG_OPTION(bool,  keepAspectRatio);
+	DECL_CONFIG_OPTION(int,   keepAspectRatio);
 	DECL_CONFIG_OPTION(float, gamma);
 	DECL_CONFIG_OPTION(int,   soundDriver);
 	DECL_CONFIG_OPTION(int,   soundQuality);
@@ -335,7 +335,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
 		INIT_CONFIG_OPTION(  showFps,           false ),
-		INIT_CONFIG_OPTION(  keepAspectRatio,   false ),
+		INIT_CONFIG_OPTION(  keepAspectRatio,   1 ),
 		INIT_CONFIG_OPTION(  gamma,             1.0f ),
 		INIT_CONFIG_OPTION(  soundDriver,       audio_DRIVER_MIXSDL ),
 		INIT_CONFIG_OPTION(  soundQuality,      audio_QUALITY_HIGH ),
@@ -709,7 +709,7 @@ int main(int argc, char** argv)
 			SavedHeight = inBounds(options.resolution.height, 200, 1440);
 		}
 
-		if (optKeepAspectRatio)
+		if (optKeepAspectRatio == 2)
 		{
 			float threshold = 0.75f;
 			float ratio = (float)SavedHeight / (float)SavedWidth;
@@ -801,10 +801,8 @@ int main(int argc, char** argv)
 		ProcessThreadLifecycles ();
 		TFB_FlushGraphics ();
 
-#if SDL_MAJOR_VERSION == 2
 		if (menu_visible)
-			UQM_ImGui_Render ();
-#endif
+			TFB_SwapBuffers (TFB_REDRAW_NO);
 	}
 
 	/* Currently, we use atexit() callbacks everywhere, so we
@@ -1006,8 +1004,10 @@ getUserConfigOptions (struct options_struct *options)
 		options->fullscreen.value = res_GetInteger ("config.fullscreen");
 	getBoolConfigValue (&options->scanlines, "config.scanlines");
 	getBoolConfigValue (&options->showFps, "config.showfps");
-	getBoolConfigValue (&options->keepAspectRatio,
-			"config.keepaspectratio");
+
+	if (res_IsInteger ("config.keepaspectratio") && !options->keepAspectRatio.set)
+		options->keepAspectRatio.value = res_GetInteger ("config.keepaspectratio");
+
 	getGammaConfigValue (&options->gamma, "config.gamma");
 
 	getBoolConfigValue (&options->subtitles, "config.subtitles");
@@ -1629,8 +1629,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->opengl, false);
 				break;
 			case 'k':
-				setBoolOption (&options->keepAspectRatio, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Aspect Ratio") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nAspect Ratio has to be 0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->keepAspectRatio.value = temp;
+					options->keepAspectRatio.set = true;
+				}
 				break;
+			}
 			case 'c':
 				if (!setListOption (&options->scaler, optarg, scalerList))
 				{
@@ -2493,8 +2510,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			boolOptString (&defaults->opengl));
 	log_add (log_User, "  -x, --nogl (default: %s)",
 			boolNotOptString (&defaults->opengl));
-	log_add (log_User, "  -k, --keepaspectratio (default: %s)",
-			boolOptString (&defaults->keepAspectRatio));
+	log_add (log_User, "  -k, --keepaspectratio (default: 1)");
 	log_add (log_User, "  -c, --scale=MODE (bilinear, biadapt, biadv, "
 			"triscan, hq or none (default) )");
 	log_add (log_User, "  -b, --meleezoom=MODE (step, aka pc, or smooth, "

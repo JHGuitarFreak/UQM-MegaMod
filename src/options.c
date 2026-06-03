@@ -150,7 +150,7 @@ OPT_ENABLABLE optRemixMusic;
 OPT_ENABLABLE optSpeech;
 OPT_ENABLABLE optSubtitles;
 OPT_ENABLABLE optStereoSFX;
-OPT_ENABLABLE optKeepAspectRatio;
+int optKeepAspectRatio;
 float optGamma;
 uio_DirHandle *contentDir;
 uio_DirHandle *configDir;

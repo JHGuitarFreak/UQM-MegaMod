@@ -1167,8 +1167,10 @@ change_scaling (WIDGET_CHOICE *self, int *NewWidth, int *NewHeight)
 		}
 	}
 
-	SavedWidth = inBounds(*NewWidth, 320, 1920);
-	SavedHeight = inBounds(*NewHeight, 200, 1400);
+	SavedWidth = *NewWidth;
+	SavedHeight = *NewHeight;
+
+	TFB_SetWindowSize (SavedWidth, SavedHeight);
 
 	PutIntOpt ((int *)(&loresBlowupScale), (int *)(&self->selected),
 			"config.loresBlowupScale", FALSE);
@@ -1263,7 +1265,7 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			break;
 		case CHOICE_ASPRATIO:
 			optKeepAspectRatio = self->selected;
-			res_PutBoolean ("config.keepaspectratio", self->selected);
+			res_PutInteger ("config.keepaspectratio", self->selected);
 			break;
 		case CHOICE_RESOLUTION:
 			change_scaling (self, &NewWidth, &NewHeight);
@@ -1271,17 +1273,6 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			break;
 		default:
 			return;
-	}
-
-	if (optKeepAspectRatio)
-	{
-		float threshold = 0.75f;
-		float ratio = (float)NewHeight / (float)NewWidth;
-
-		if (ratio > threshold) // screen is narrower than 4:3
-			NewWidth = NewHeight / threshold;
-		else if (ratio < threshold) // screen is wider than 4:3
-			NewHeight = NewWidth * threshold;
 	}
 
 	if (NewWidth != WindowWidth || NewHeight != WindowHeight ||
@@ -1341,25 +1332,13 @@ change_res (WIDGET_TEXTENTRY *self)
 
 	SavedWidth = NewWidth;
 	SavedHeight = NewHeight;
-
-	if (optKeepAspectRatio)
-	{
-		float threshold = 0.75f;
-		float ratio = (float)NewHeight / (float)NewWidth;
-
-		if (ratio > threshold) // screen is narrower than 4:3
-			NewWidth = NewHeight / threshold;
-		else if (ratio < threshold) // screen is wider than 4:3
-			NewHeight = NewWidth * threshold;
-	}
 	
 	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
 	{
 		if (isExclusive)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-			NewWidth, NewHeight);
+		TFB_SetWindowSize (NewWidth, NewHeight);
 	}
 	else
 		return;
@@ -3094,8 +3073,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 				"mm.windowType", TRUE);
 	}
 
-	//PutBoolOpt (&optKeepAspectRatio, &opts->keepaspect, "config.keepaspectratio", FALSE);
-
 	// Avoid setting gamma when it is not necessary
 	if (optGamma != 1.0f || sliderToGamma (opts->gamma) != 1.0f)
 	{
@@ -3354,17 +3331,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			h = DOS_BOOL (240, 200) * (loresBlowupScale + 1);
 			SavedHeight = h;
 			res_PutInteger ("config.resheight", SavedHeight);
-		}
-
-		if (optKeepAspectRatio)
-		{
-			float threshold = 0.75f;
-			float ratio = (float)h / (float)w;
-
-			if (ratio > threshold) // screen is narrower than 4:3
-				w = h / threshold;
-			else if (ratio < threshold) // screen is wider than 4:3
-				h = w * threshold;
 		}
 
 		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "

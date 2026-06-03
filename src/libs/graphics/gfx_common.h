@@ -126,5 +126,6 @@ extern int GraphicsDriver;
 void TFB_ScreenShot (void);
 void TFB_ClearFPSCanvas (void);
 void TFB_GetScreenSize (SIZE *width, SIZE *height);
+extern void TFB_SetWindowSize (int width, int height);
 
 #endif

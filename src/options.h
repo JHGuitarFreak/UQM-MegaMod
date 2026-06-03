@@ -142,7 +142,7 @@ extern OPT_ENABLABLE optRemixMusic;
 extern OPT_ENABLABLE optSpeech;
 extern OPT_ENABLABLE optSubtitles;
 extern OPT_ENABLABLE optStereoSFX;
-extern OPT_ENABLABLE optKeepAspectRatio;
+extern int optKeepAspectRatio;
 extern BOOLEAN restartGame;
 
 #define GAMMA_SCALE  1000

@@ -141,33 +141,17 @@ TFB_ProcessEvents ()
 
 	while (SDL_PollEvent (&Event) > 0)
 	{
-
-#if SDL_MAJOR_VERSION == 2
 		if (menu_visible)
 		{
 			if (UQM_ImGui_ProcessEvent (&Event))
 				continue;
 		}
-#endif
+
 		/* Run through the InputEvent filter. */
 		ProcessInputEvent (&Event);
 		/* Handle graphics and exposure events. */
-		switch (Event.type) {
-#if 0 /* Currently disabled in mainline */
-			case SDL_ACTIVEEVENT:    /* Lose/gain visibility or focus */
-				/* Up to three different state changes can occur in one event. */
-				/* Here, disregard least significant change (mouse focus). */
-				// This controls the automatic sleep/pause when minimized.
-				// On small displays (e.g. mobile devices), APPINPUTFOCUS would
-				//  be an appropriate substitution for APPACTIVE:
-				// if (Event.active.state & SDL_APPINPUTFOCUS)
-				if (Event.active.state & SDL_APPACTIVE)
-					GameActive = Event.active.gain;
-				break;
-			case SDL_VIDEORESIZE:    /* User resized video mode */
-				// TODO
-				break;
-#endif
+		switch (Event.type)
+		{
 			case SDL_QUIT:
 				QuitPosted = 1;
 				break;
