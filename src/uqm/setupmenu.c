@@ -1283,6 +1283,8 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 
 		TFB_DrawScreen_ReinitVideo (NewGfxDriver, NewGfxFlags,
 			NewWidth, NewHeight);
+
+		TFB_SetWindowSize (NewWidth, NewHeight);
 	}
 
 	FlushInput ();
@@ -1327,18 +1329,18 @@ change_res (WIDGET_TEXTENTRY *self)
 		return;
 	}
 
-	NewWidth = inBounds(NewWidth, 320, 1920);
-	NewHeight = inBounds(NewHeight, 200, 1440);
-
 	SavedWidth = NewWidth;
 	SavedHeight = NewHeight;
 	
-	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
+	if (SavedWidth != WindowWidth || SavedHeight != WindowHeight)
 	{
 		if (isExclusive)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
-		TFB_SetWindowSize (NewWidth, NewHeight);
+		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
+				SavedWidth, SavedHeight);
+
+		TFB_SetWindowSize (SavedWidth, SavedHeight);
 	}
 	else
 		return;

@@ -320,6 +320,8 @@ ApplyResChanges (void)
 
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
 				NewWidth, NewHeight);
+
+		TFB_SetWindowSize (NewWidth, NewHeight);
 	}
 
 	if (NewGfxFlags != GfxFlags)
