@@ -535,6 +535,18 @@ CenterWindowRect (void)
 		rect.y = (win_height - rect.h) / 2;
 	}
 
+	if (optKeepAspectRatio)
+	{
+		BOOLEAN fs = (GfxFlags & TFB_GFXFLAGS_FULLSCREEN) ||
+				(GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN);
+
+		if (!fs && (win_width != rect.w || win_height != rect.h))
+		{
+			int h = (int)(win_width / target_aspect);
+			SDL_SetWindowSize (window, SavedWidth, h);
+		}
+	}
+
 	return &rect;
 }
 
