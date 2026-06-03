@@ -1533,7 +1533,7 @@ VControl_ParseGesture (VCONTROL_GESTURE *g, const char *spec)
 
 	next_token (&ps);
 	parse_gesture (&ps, g);
-	if (ps.error)
+	if (ps.error && g->type != VCONTROL_NONE)
 		printf ("Error parsing %s\n", spec);
 }
 
