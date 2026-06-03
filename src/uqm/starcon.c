@@ -162,13 +162,15 @@ ProcessUtilityKeys (void)
 		TFB_ScreenShot ();
 	}
 
-#if SDL_MAJOR_VERSION == 2
 	if (ImmediateInputState.menu[KEY_IMGUI])
 	{
 		FlushInput ();
 		UQM_ImGui_ToggleMenu ();
+
+		// So the ImGui menu can be toggled off during pause
+		if (!menu_visible)
+			TFB_SwapBuffers (TFB_REDRAW_NO);
 	}
-#endif
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	{	// Only call the debug func on the rising edge of

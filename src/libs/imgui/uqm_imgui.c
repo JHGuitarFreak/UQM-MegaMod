@@ -148,10 +148,6 @@ static void DestroyOverlay (void)
 static int
 UQM_ImGui_Init (void)
 {
-	int undef;
-	SDL_WindowFlags wflags = 0;
-	Uint32 rflags = 0;
-
 	if (imgui_initialized)
 		return 1;
 
@@ -166,52 +162,20 @@ UQM_ImGui_Init (void)
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 	UQM_ImGui_Style ();
-	
-	wflags |= SDL_WINDOW_BORDERLESS;
-	wflags |= SDL_WINDOW_ALWAYS_ON_TOP;
-	wflags |= SDL_WINDOW_SKIP_TASKBAR;
-	wflags |= SDL_WINDOW_POPUP_MENU;
 
-	undef = SDL_WINDOWPOS_UNDEFINED;
-
-	imgui_window = SDL_CreateWindow ("ImGui", undef, undef, 0, 0, wflags);
-
-	if (!imgui_window)
-	{
-		log_add (log_Error, "Failed to create ImGui window");
-		return 0;
-	}
-
-	rflags |= SDL_RENDERER_ACCELERATED;
-	rflags |= SDL_RENDERER_PRESENTVSYNC;
-
-	imgui_renderer = SDL_CreateRenderer (imgui_window, -1, rflags);
-
-	if (!imgui_renderer)
-	{
-		log_add (log_Error, "Could not create ImGui renderer");
-		DestroyOverlay ();
-		return 0;
-	}
-
-	if (!cImGui_ImplSDL2_InitForSDLRenderer (imgui_window, imgui_renderer))
+	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
 	{
 		log_add (log_Error, "cImGui_ImplSDL2_InitForSDLRenderer failed");
 		cImGui_ImplSDLRenderer2_Shutdown ();
-		DestroyOverlay ();
 		return 0;
 	}
 
-	if (!cImGui_ImplSDLRenderer2_Init (imgui_renderer))
+	if (!cImGui_ImplSDLRenderer2_Init (renderer))
 	{
 		log_add (log_Error, "cImGui_ImplSDLRenderer2_Init failed");
 		cImGui_ImplSDL2_Shutdown ();
-		DestroyOverlay ();
 		return 0;
 	}
-
-	SDL_SetRenderDrawBlendMode (imgui_renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetWindowOpacity (imgui_window, 0.85f);
 
 	imgui_initialized = true;
 	return 1;
@@ -253,7 +217,6 @@ void UQM_ImGui_Render (void)
 	if (!imgui_initialized)
 		return;
 
-
 	cImGui_ImplSDLRenderer2_NewFrame ();
 	cImGui_ImplSDL2_NewFrame ();
 	ImGui_NewFrame ();
@@ -262,14 +225,10 @@ void UQM_ImGui_Render (void)
 
 	ImGui_Render ();
 
-	SDL_SetRenderDrawColor (imgui_renderer, 0,0,0,0);
-	SDL_RenderClear (imgui_renderer);
-	UQM_ImGui_SyncWindow ();
-
 	draw_data = ImGui_GetDrawData ();
-	cImGui_ImplSDLRenderer2_RenderDrawData (draw_data, imgui_renderer);
+	cImGui_ImplSDLRenderer2_RenderDrawData (draw_data, renderer);
 
-	SDL_RenderPresent (imgui_renderer);
+	SDL_RenderPresent (renderer);
 }
 
 // Cleans up ImGui
@@ -290,7 +249,6 @@ void UQM_ImGui_Shutdown (void)
 	cImGui_ImplSDLRenderer2_Shutdown ();
 	cImGui_ImplSDL2_Shutdown ();
 	ImGui_DestroyContext (NULL);
-	DestroyOverlay ();
 
 	imgui_initialized = false;
 	slots_cached = false;
@@ -312,8 +270,6 @@ void UQM_ImGui_ToggleMenu (void)
 			UQM_ImGui_Shutdown ();
 			return;
 		}
-		else
-			UQM_ImGui_SyncWindow ();
 
 		revalidate_game_state_cache ();
 		return;
@@ -357,17 +313,6 @@ ApplyResChanges (void)
 
 	isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
 
-	if (optKeepAspectRatio)
-	{
-		float threshold = 0.75f;
-		float ratio = (float)NewHeight / (float)NewWidth;
-
-		if (ratio > threshold) // screen is narrower than 4:3
-			NewWidth = NewHeight / threshold;
-		else if (ratio < threshold) // screen is wider than 4:3
-			NewHeight = NewWidth * threshold;
-	}
-
 	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
 	{
 		if (isExclusive)
@@ -388,7 +333,7 @@ ApplyResChanges (void)
 				WindowWidth, WindowHeight);
 	}
 
-	res_PutBoolean ("config.keepaspectratio", optKeepAspectRatio);
+	res_PutInteger ("config.keepaspectratio", optKeepAspectRatio);
 	res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
 	res_PutInteger ("config.reswidth", SavedWidth);
 	res_PutInteger ("config.resheight", SavedHeight);

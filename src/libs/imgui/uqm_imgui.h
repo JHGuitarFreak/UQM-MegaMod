@@ -231,7 +231,7 @@ UQM_ImGui_Style (void)
 
 	colors[ImGuiCol_WindowBg] = transparent;
 	colors[ImGuiCol_ModalWindowDimBg] = MAKE_IV4 (0, 0, 0, 0.64f);
-	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.5f);
+	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.8f);
 	colors[ImGuiCol_Border] = transparent;
 	colors[ImGuiCol_BorderShadow] = MAKE_IV4 (1.00f, 1.00f, 1.00f, 0.06f);
 
