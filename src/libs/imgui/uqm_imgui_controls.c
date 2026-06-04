@@ -81,7 +81,7 @@ static const char *pretty_flight_actions[] =
 void
 draw_controls_menu (void)
 {
-	char *control_display[] = { "Keyboard", "Xbox", "PlayStation", "Switch Pro" };
+	const char *control_display[] = { "Keyboard", "Xbox", "PlayStation", "Switch Pro" };
 
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
