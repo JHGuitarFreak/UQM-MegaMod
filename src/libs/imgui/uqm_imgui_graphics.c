@@ -17,6 +17,11 @@
 
 #include "uqm_imgui.h"
 
+#include "uqm/fmv.h"
+#include "libs/vidlib.h"
+#include "libs/graphics/widgets.h"
+#include "libs/graphics/bbox.h"
+
 int imgui_GfxFlags = (int)~0;
 int imgui_SavedWidth = 0;
 int imgui_SavedHeight = 0;
@@ -55,21 +60,26 @@ void draw_graphics_menu (void)
 	ImGui_SeparatorText ("Graphics Options");
 
 	{
-		ImGui_BeginDisabled (true);
-
 		bool res_factor = resolutionFactor > 0;
 
 		if (ImGui_Checkbox ("HD Mode", &res_factor))
 		{
-			// Add HD switching code here
+			if (IN_MAIN_MENU)
+				GLOBAL (CurrentActivity) = 0;
+			else
+				GLOBAL (CurrentActivity) |= CHECK_ABORT;
+
+			resolutionFactor = res_factor ? 2 : 0;
+			optRequiresReload = TRUE;
+
+
+			res_PutInteger ("config.resolutionfactor", resolutionFactor);
+			config_changed = true;
 		}
 
 		ImGui_TextWrappedColored (IV4_RED_COLOR,
-				"WARNING! The HD Mode option can not be changed "
-				"in the GUI at this time. To change this option you "
-				"must use the Setup Menu.");
-
-		ImGui_EndDisabled ();
+				"WARNING! The HD Mode option will drop you back to the "
+				"main menu to reload.");
 	}
 
 	Spacer ();

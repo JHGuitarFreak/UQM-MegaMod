@@ -3030,6 +3030,41 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	}
 }
 
+void 
+FullReload ()
+{
+	int w = WindowWidth;
+	int h = WindowHeight;
+
+	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+
+	ResetOffset ();
+
+	RESOLUTION_FACTOR = resolutionFactor;
+	CanvasWidth = 320 << resolutionFactor;
+	CanvasHeight = DOS_BOOL (240, 200) << resolutionFactor;
+
+	if (choices[CHOICE_RESOLUTION].selected != 6)
+	{
+		h = DOS_BOOL (240, 200) * (loresBlowupScale + 1);
+		SavedHeight = h;
+		res_PutInteger ("config.resheight", SavedHeight);
+	}
+
+	log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
+		"Wactual:%d, Hactual:%d", CanvasWidth, CanvasHeight,
+		w, h);
+
+	// These solve the context problem that plagued the setupmenu
+	// when changing to higher resolution.
+	TFB_BBox_Reset ();
+	TFB_BBox_Init (CanvasWidth, CanvasHeight);
+
+	TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags, w, h);
+
+	Reload ();
+}
+
 void
 SetGlobalOptions (GLOBALOPTS *opts)
 {
@@ -3314,40 +3349,5 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
 
 	if (optRequiresReload)
-	{
-		int w = WindowWidth;
-		int h = WindowHeight;
-
-		SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
-
-		FlushGraphics ();
-		UninitVideoPlayer ();
-
-		ResetOffset ();
-
-		RESOLUTION_FACTOR = resolutionFactor;
-		CanvasWidth = 320 << resolutionFactor;
-		CanvasHeight = DOS_BOOL (240, 200) << resolutionFactor;
-
-		if (choices[CHOICE_RESOLUTION].selected != 6) {
-			h = DOS_BOOL (240, 200) * (loresBlowupScale + 1);
-			SavedHeight = h;
-			res_PutInteger ("config.resheight", SavedHeight);
-		}
-
-		log_add (log_Debug, "ScreenWidth:%d, ScreenHeight:%d, "
-				"Wactual:%d, Hactual:%d", CanvasWidth, CanvasHeight,
-				w, h);
-
-		// These solve the context problem that plagued the setupmenu
-		// when changing to higher resolution.
-		TFB_BBox_Reset ();
-		TFB_BBox_Init (CanvasWidth, CanvasHeight);
-		FlushColorXForms ();
-
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags, w, h);
-		InitVideoPlayer (TRUE);
-
-		Reload ();
-	}
+		FullReload ();
 }

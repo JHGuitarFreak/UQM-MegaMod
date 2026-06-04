@@ -46,6 +46,7 @@
 #include "cons_res.h"
 #include "build.h"
 #include "master.h"
+#include "libs/graphics/widgets.h"
 
 #include "libs/resource/stringbank.h"
 // for StringBank_Create() & SplitString()
@@ -470,6 +471,9 @@ DoRestart (MENU_STATE *pMS)
 		pMS->CurState = LOAD_SAVED_GAME;
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
+
+	if (optRequiresReload)
+		FullReload ();
 
 	if (pMS->Initialized && !(GLOBAL (CurrentActivity) & CHECK_ABORT))
 		Flash_process (pMS->flashContext);
