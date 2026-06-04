@@ -20,23 +20,62 @@
 #define IGCF_B ImGuiChildFlags_AlwaysUseWindowPadding
 #define SelectableAlign ImGuiStyleVar_SelectableTextAlign
 
+#define SUBTAB_SIZE 10
+
+void
+draw_settings_menu (void)
+{
+	ImGui_ColumnsEx (DISPLAY_BOOL, "SettingsColumns", false);
+
+	ImGui_SeparatorText ("Menu Settings");
+
+	Spacer ();
+
+	{
+		bool flags = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
+
+		if (ImGui_Checkbox ("Menu Controller Navigation", &flags))
+		{
+			io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
+
+			if (flags)
+				io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+		}
+	}
+
+	Spacer ();
+
+	{
+		ImGuiStyle *style = ImGui_GetStyle ();
+
+		ImGui_Text ("Menu Background Opacity:");
+		if (ImGui_Button ("Reset"))
+		{
+			style->Colors[ImGuiCol_ChildBg].w = 0.8f;
+		}
+		ImGui_SameLine ();
+		ImGui_SliderFloat ("##Transparency",
+				&style->Colors[ImGuiCol_ChildBg].w, 0.0f, 1.0f);
+	}
+}
+
 void
 UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		ImVec2 sidebar_size)
 {
 	int num_tabs;
-	int subtab_counts;
 	int active_tab;
 	ImGuiStyle *style = ImGui_GetStyle ();
 	
 	const char *tab_names[] =
 			{ "General", "Enhancements", "Randomizer", "Dev Tools" };
 
-	const char *subtab_names[][6] = {
-			{"Graphics", "PC / 3DO", "Audio", "Controls", "Advanced", "Status"},
-			{"Quality of Life", "Visuals", "Difficulty", "Cheats", NULL, NULL},
-			{"Seed Settings", "Enhancements", NULL, NULL, NULL, NULL},
-			{"General", "Stats", "Save Editor", NULL, NULL, NULL}
+	const char *subtab_names[][SUBTAB_SIZE] = {
+			{ "Settings", "Graphics", "PC / 3DO", "Audio", "Controls",
+					"Advanced", "Status", NULL },
+			{ "Quality of Life", "Visuals", "Difficulty", "Cheats", NULL },
+			{ "Seed Settings", "Enhancements", NULL},
+			{ "General", "Stats", "Save Editor", NULL }
 	};
 
 	int *active_subtab[] =
@@ -85,10 +124,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
-	subtab_counts = sizeof (subtab_names[active_tab]) /
-		sizeof (subtab_names[active_tab][0]);
-
-	for (int j = 0; j < subtab_counts; j++)
+	for (int j = 0; j < SUBTAB_SIZE; j++)
 	{
 		ImVec2 text_size;
 		ImVec2 button_size;
@@ -143,12 +179,13 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		case 0:
 			switch (*active_subtab[active_tab])
 			{
-				case 0: draw_graphics_menu (); break;
-				case 1: draw_engine_menu (); break;
-				case 2: draw_audio_menu (); break;
-				case 3: draw_controls_menu (); break;
-				case 4: draw_adv_menu (); break;
-				case 5: draw_status_menu (); break;
+				case 0: draw_settings_menu (); break;
+				case 1: draw_graphics_menu (); break;
+				case 2: draw_engine_menu (); break;
+				case 3: draw_audio_menu (); break;
+				case 4: draw_controls_menu (); break;
+				case 5: draw_adv_menu (); break;
+				case 6: draw_status_menu (); break;
 			}
 			break;
 		case 1:
