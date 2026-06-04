@@ -38,8 +38,6 @@ static BOOLEAN binds_backed_up = FALSE;
 
 static int template_id = 0;
 
-MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
-MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
 FLIGHT_BINDINGS curr_fl_bindings[2][NUM_KEYS];
 FLIGHT_BINDINGS def_fl_bindings[2][NUM_KEYS];
 

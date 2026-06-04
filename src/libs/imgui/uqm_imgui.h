@@ -143,8 +143,6 @@ typedef struct flight_bindings
 	VCONTROL_GESTURE binding[MAX_FLIGHT_ALTERNATES];
 } FLIGHT_BINDINGS;
 
-extern MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
-extern MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
 extern FLIGHT_BINDINGS curr_fl_bindings[2][NUM_KEYS];
 extern FLIGHT_BINDINGS def_fl_bindings[2][NUM_KEYS];
 
