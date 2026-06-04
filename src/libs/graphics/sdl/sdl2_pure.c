@@ -612,7 +612,12 @@ TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 		srcRect.y *= 2;
 		srcRect.w *= 2;
 		srcRect.h *= 2;
-		pSrcRect = &srcRect;
+	}
+	else
+	{
+		srcRect = (SDL_Rect){ 0,0,0,0 };
+		srcRect.w = SDL2_Screens[screen].scaled->w;
+		srcRect.h = SDL2_Screens[screen].scaled->h;
 	}
 
 	SDL_RenderCopy (renderer, texture, &srcRect, CenterWindowRect ());
