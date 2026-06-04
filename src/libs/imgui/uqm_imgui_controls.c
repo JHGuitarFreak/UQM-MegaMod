@@ -47,6 +47,7 @@ static void FlightControlsTab (void);
 static void FlightControls (void);
 static void MenuControlsTab (void);
 static void MenuControls (void);
+static void DeadzoneControlsTab (void);
 static void ShowMenuRebindPopup (void);
 static void ShowFlightRebindPopup (void);
 
@@ -82,6 +83,12 @@ void
 draw_controls_menu (void)
 {
 	const char *control_display[] = { "Keyboard", "Xbox", "PlayStation", "Switch Pro" };
+	const char *dirJoyDisp[] =
+	{
+			"Normal Control", "Left Stick Directional",
+			"Right Stick Directional", "Left Stick Auto-Thrust",
+			"Right Stick Auto-Thrust"
+	};
 
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
@@ -92,12 +99,40 @@ draw_controls_menu (void)
 	{
 		ImGui_SeparatorText ("Control Options");
 
-		ImGui_Text ("Control Display:");
-		if (ImGui_ComboChar ("##ControlDisplay",
-				(int *)&optControllerType, control_display, 4))
+		ImGui_Checkbox ("Auto-Detect Icons", (bool *)&optAutoButtons);
+
+		Spacer ();
+
 		{
-			res_PutInteger ("mm.controllerType", optControllerType);
-			mmcfg_changed = true;
+			ImGui_Text ("Button Icons:");
+			if (ImGui_ComboChar ("##ControlDisplay",
+				(int *)&optControllerType, control_display, 4))
+			{
+				res_PutInteger ("mm.controllerType", optControllerType);
+				mmcfg_changed = true;
+			}
+		}
+
+		Spacer ();
+
+		{
+			ImGui_Text ("Directional Joystick P1:");
+			if (ImGui_ComboChar ("##DirJoyP1",
+				(int *)&optDirJoy[0], dirJoyDisp, 5))
+			{
+				res_PutInteger ("mm.dirJoyP1", optDirJoy[0]);
+				mmcfg_changed = true;
+			}
+		}
+
+		{
+			ImGui_Text ("Directional Joystick P2:");
+			if (ImGui_ComboChar ("##DirJoyP2", 
+				(int *)&optDirJoy[1], dirJoyDisp, 5))
+			{
+				res_PutInteger ("mm.dirJoyP2", optDirJoy[1]);
+				mmcfg_changed = true;
+			}
 		}
 
 		ImGui_NewLine ();
@@ -117,6 +152,7 @@ Control_Tabs (void)
 	{
 		FlightControlsTab ();
 		MenuControlsTab ();
+		DeadzoneControlsTab ();
 
 		ImGui_EndTabBar ();
 	}
@@ -219,6 +255,107 @@ FlightControls (void)
 	}
 
 	ImGui_EndChild ();
+}
+
+static void
+DeadzoneControlsTab (void)
+{
+	if (!ImGui_BeginTabItem ("Deadzones", NULL, 0))
+		return;
+
+	ImGui_NewLine ();
+
+	{
+		ImGui_Text ("- Player 1 -");
+		Spacer ();
+		{
+			float value = (float)DeadZoneLeftStick[0] / MAX_DEADZONE * 100.0f;
+
+			ImGui_Text ("Left Stick:");
+			ImGui_SameLine ();
+			if (ImGui_Button ("Reset##LSP1"))
+			{
+				DeadZoneLeftStick[0] = DEFAULT_DZONE;
+				res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
+				mmcfg_changed = true;
+			}
+			ImGui_SameLine ();
+			if (ImGui_SliderFloat ("##LeftStickP1", &value, 0.0, 100.0))
+			{
+				DeadZoneLeftStick[0] = (value * MAX_DEADZONE) / 100;
+
+				res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
+				mmcfg_changed = true;
+			}
+		}
+		{
+			float value = (float)DeadZoneRightStick[0] / MAX_DEADZONE * 100.0f;
+
+			ImGui_Text ("Right Stick:");
+			ImGui_SameLine ();
+			if (ImGui_Button ("Reset##RSP1"))
+			{
+				DeadZoneRightStick[0] = DEFAULT_DZONE;
+				res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
+				mmcfg_changed = true;
+			}
+			ImGui_SameLine ();
+			if (ImGui_SliderFloat ("##RightStickP1", &value, 0.0, 100.0))
+			{
+				DeadZoneRightStick[0] = (value * MAX_DEADZONE) / 100;
+
+				res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
+				mmcfg_changed = true;
+			}
+		}
+
+		ImGui_NewLine ();
+
+		ImGui_Text ("- Player 2 -");
+		Spacer ();
+		{
+			float value = (float)DeadZoneLeftStick[1] / MAX_DEADZONE * 100.0f;
+
+			ImGui_Text ("Left Stick:");
+			ImGui_SameLine ();
+			if (ImGui_Button ("Reset##LSP2"))
+			{
+				DeadZoneLeftStick[1] = DEFAULT_DZONE;
+				res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
+				mmcfg_changed = true;
+			}
+			ImGui_SameLine ();
+			if (ImGui_SliderFloat ("##LeftStickP2", &value, 0.0, 100.0))
+			{
+				DeadZoneLeftStick[1] = (value * MAX_DEADZONE) / 100;
+
+				res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
+				mmcfg_changed = true;
+			}
+		}
+		{
+			float value = (float)DeadZoneRightStick[1] / MAX_DEADZONE * 100.0f;
+
+			ImGui_Text ("Right Stick:");
+			ImGui_SameLine ();
+			if (ImGui_Button ("Reset##RSP2"))
+			{
+				DeadZoneRightStick[1] = DEFAULT_DZONE;
+				res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
+				mmcfg_changed = true;
+			}
+			ImGui_SameLine ();
+			if (ImGui_SliderFloat ("##RightStickP2", &value, 0.0, 100.0))
+			{
+				DeadZoneRightStick[1] = (value * MAX_DEADZONE) / 100;
+
+				res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
+				mmcfg_changed = true;
+			}
+		}
+	}
+
+	ImGui_EndTabItem ();
 }
 
 static void

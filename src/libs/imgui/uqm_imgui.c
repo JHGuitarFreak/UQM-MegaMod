@@ -305,9 +305,6 @@ ApplyResChanges (void)
 
 	NewGfxFlags = GfxFlags;
 
-	NewWidth = inBounds (NewWidth, 320, 1920);
-	NewHeight = inBounds (NewHeight, 200, 1440);
-
 	SavedWidth = NewWidth;
 	SavedHeight = NewHeight;
 
