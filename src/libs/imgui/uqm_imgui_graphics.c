@@ -33,7 +33,7 @@ void draw_graphics_menu (void)
 		"1920x1440",
 		"Custom"
 	};
-	const char *aspect_ratios[] = { "Any", "Force 4:3" };
+	const char *aspect_ratios[] = { "Fill Window", "Native", "Force 4:3" };
 	const char *display_modes[] =
 	{
 		"Windowed",
@@ -117,7 +117,7 @@ void draw_graphics_menu (void)
 	{
 		ImGui_Text ("Aspect Ratio:");
 		if (ImGui_ComboChar ("##AspectRatio", (int *)&optKeepAspectRatio,
-				aspect_ratios, 2))
+				aspect_ratios, 3))
 		{
 			imgui_SavedWidth = SavedWidth;
 			imgui_SavedHeight = SavedHeight;
