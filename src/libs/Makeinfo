@@ -1,5 +1,6 @@
 uqm_SUBDIRS="callback decomp file graphics heap input list math memory
-		resource sound strings task threads time uio video log luauqm"
+		resource sound strings task threads time uio video log luauqm
+		imgui"
 if [ -n "$uqm_USE_INTERNAL_MIKMOD" ]; then
 	uqm_SUBDIRS="$uqm_SUBDIRS mikmod"
 fi
@@ -10,12 +11,6 @@ fi
 
 if [ -n "$uqm_NETPLAY" ]; then
 	uqm_SUBDIRS="$uqm_SUBDIRS network"
-fi
-
-if [ "$uqm_GFXMODULE" = "sdl" ]; then
-	if [ "$uqm_SDL_VERSION" = 2 ]; then
-		uqm_SUBDIRS="$uqm_SUBDIRS imgui"
-	fi
 fi
 
 #if [ "$DEBUG" = 1 ]; then
