@@ -359,6 +359,9 @@ initJoystick (void)
 		exit (EXIT_FAILURE);
 	}
 
+	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+	SDL_SetHint (SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
+
 	SDL_GameControllerEventState (SDL_ENABLE);
 
 	base_len = strlen (baseContentPath);
