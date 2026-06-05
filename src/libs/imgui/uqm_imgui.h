@@ -110,7 +110,6 @@ extern bool gfx_change;
 extern bool scr_refresh;
 extern bool slots_cached;
 
-
 // ImGui Tabs
 typedef struct
 {
@@ -261,7 +260,6 @@ UQM_ImGui_Style (void)
 	ImVec4 *colors = style->Colors;
 	const ImVec4 transparent = { 0 };
 	float cbg_w = res_GetFloat ("imgui.background_opacity");
-
 
 	ImGui_StyleColorsDark (NULL);
 

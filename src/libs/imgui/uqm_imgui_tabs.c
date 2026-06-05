@@ -25,17 +25,28 @@
 void
 draw_settings_menu (void)
 {
+	static const char *menu_settings_lbl, *menu_cntrlr_nav, *menu_bg_lbl;
+	static const char *bt_reset;
+
 	ImGui_ColumnsEx (DISPLAY_BOOL, "SettingsColumns", false);
 
+	if (!menu_settings_lbl)
+	{
+		menu_settings_lbl = ImStr ("menu_settings_lbl");
+		menu_cntrlr_nav = ImStr ("menu_cntrlr_nav");
+		menu_bg_lbl = ImStr ("menu_bg_lbl");
+		bt_reset = ImStr ("bt_reset");
+	}
+
 	// Menu Settings
-	ImGui_SeparatorText (ImStr ("menu_settings_lbl"));
+	ImGui_SeparatorText (menu_settings_lbl);
 
 	Spacer ();
 
 	{	// Menu Controller Navigation
 		bool flags = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
 
-		if (ImGui_Checkbox (ImStr ("menu_cntrlr_nav"), &flags))
+		if (ImGui_Checkbox (menu_cntrlr_nav, &flags))
 		{
 			io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
 
@@ -53,8 +64,8 @@ draw_settings_menu (void)
 	{	// Menu Background Opacity
 		ImGuiStyle *style = ImGui_GetStyle ();
 
-		ImGui_Text (ImStr ("menu_bg_lbl"));
-		if (ImGui_Button (ImStr ("bt_reset"))) // Reset
+		ImGui_Text (menu_bg_lbl);
+		if (ImGui_Button (bt_reset)) // Reset
 		{
 			style->Colors[ImGuiCol_ChildBg].w = 0.8f;
 
