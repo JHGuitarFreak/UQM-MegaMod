@@ -118,7 +118,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_EndChild ();
 	// End NavBar
 
-	ImGui_HorizontalSeparator ("##NavBarSeparator");
+	//ImGui_HorizontalSeparator ("##NavBarSeparator");
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
@@ -164,12 +164,12 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_SameLine ();
 
-	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
-	ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
-	ImGui_EndChild ();
-	ImGui_PopStyleColor ();
+	//ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
+	//ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
+	//ImGui_EndChild ();
+	//ImGui_PopStyleColor ();
 
-	ImGui_SameLine ();
+	//ImGui_SameLine ();
 
 	// Content Begins
 	ImGui_BeginChild("Content", content_size, IGCF_B, 0);
