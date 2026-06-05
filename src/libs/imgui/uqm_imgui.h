@@ -218,19 +218,39 @@ DangerGradient (void)
 	return MAKE_IV4 (1, (float)c_index / (float)c_count, 0, 1);
 }
 
+static inline const char *
+UQM_GetStr (const char *key)
+{
+	static char buf[PATH_MAX];
+
+	memset (buf, 0, sizeof buf);
+
+	snprintf (buf, sizeof buf, "imstr.%s", key);
+
+	if (!res_IsString (buf))
+	{
+		snprintf (buf, sizeof buf, "STRING_NOT_FOUND: imstr.%s", key);
+		return buf;
+	}
+
+	return res_GetString (buf);
+}
+#define ImStr(key) UQM_GetStr(key)
+
 static inline void
 UQM_ImGui_Style (void)
 {
 	ImGuiStyle *style = ImGui_GetStyle ();
 	ImVec4 *colors = style->Colors;
-
 	const ImVec4 transparent = { 0 };
+	float cbg_w = res_GetFloat ("imgui.background_opacity");
+
 
 	ImGui_StyleColorsDark (NULL);
 
 	colors[ImGuiCol_WindowBg] = transparent;
 	colors[ImGuiCol_ModalWindowDimBg] = MAKE_IV4 (0, 0, 0, 0.64f);
-	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.8f);
+	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, cbg_w);
 	colors[ImGuiCol_Border] = transparent;
 	colors[ImGuiCol_BorderShadow] = MAKE_IV4 (1.00f, 1.00f, 1.00f, 0.06f);
 

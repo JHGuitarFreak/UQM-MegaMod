@@ -318,6 +318,9 @@ initKeyConfig (void)
 	register_flight_controls ();
 	GetCurrentFlightBindings();
 
+	// JHGF: Why not?
+	LoadResourceIndex (contentDir, "imgui.str", "imstr.");
+
 	return;
 }
 

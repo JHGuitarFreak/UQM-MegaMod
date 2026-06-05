@@ -27,35 +27,51 @@ draw_settings_menu (void)
 {
 	ImGui_ColumnsEx (DISPLAY_BOOL, "SettingsColumns", false);
 
-	ImGui_SeparatorText ("Menu Settings");
+	// Menu Settings
+	ImGui_SeparatorText (ImStr ("menu_settings_lbl"));
 
 	Spacer ();
 
-	{
+	{	// Menu Controller Navigation
 		bool flags = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
 
-		if (ImGui_Checkbox ("Menu Controller Navigation", &flags))
+		if (ImGui_Checkbox (ImStr ("menu_cntrlr_nav"), &flags))
 		{
 			io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
 
 			if (flags)
 				io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+			res_PutBoolean ("imgui.nav_gamepad", (BOOLEAN)flags);
+
+			imcfg_changed = true;
 		}
 	}
 
 	Spacer ();
 
-	{
+	{	// Menu Background Opacity
 		ImGuiStyle *style = ImGui_GetStyle ();
 
-		ImGui_Text ("Menu Background Opacity:");
-		if (ImGui_Button ("Reset"))
+		ImGui_Text (ImStr ("menu_bg_lbl"));
+		if (ImGui_Button (ImStr ("bt_reset"))) // Reset
 		{
 			style->Colors[ImGuiCol_ChildBg].w = 0.8f;
+
+			res_PutFloat ("imgui.background_opacity",
+					style->Colors[ImGuiCol_ChildBg].w);
+
+			imcfg_changed = true;
 		}
 		ImGui_SameLine ();
-		ImGui_SliderFloat ("##Transparency",
-				&style->Colors[ImGuiCol_ChildBg].w, 0.0f, 1.0f);
+		if (ImGui_SliderFloat ("##Transparency",
+				&style->Colors[ImGuiCol_ChildBg].w, 0.0f, 1.0f))
+		{
+			res_PutFloat ("imgui.background_opacity",
+					style->Colors[ImGuiCol_ChildBg].w);
+
+			imcfg_changed = true;
+		}
 	}
 }
 
@@ -87,7 +103,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	};
 
 	active_tab = state->active_tab;
-	num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);
+	num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);	
 
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38), IGCF_B, 0);
 
@@ -215,4 +231,5 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	}
 	ImGui_EndChild ();
 	// Content Ends
+
 }
