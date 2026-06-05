@@ -272,7 +272,6 @@ DeadzoneControlsTab (void)
 			float value = (float)DeadZoneLeftStick[0] / MAX_DEADZONE * 100.0f;
 
 			ImGui_Text ("Left Stick:");
-			ImGui_SameLine ();
 			if (ImGui_Button ("Reset##LSP1"))
 			{
 				DeadZoneLeftStick[0] = DEFAULT_DZONE;
@@ -288,11 +287,11 @@ DeadzoneControlsTab (void)
 				mmcfg_changed = true;
 			}
 		}
+		Spacer ();
 		{
 			float value = (float)DeadZoneRightStick[0] / MAX_DEADZONE * 100.0f;
 
 			ImGui_Text ("Right Stick:");
-			ImGui_SameLine ();
 			if (ImGui_Button ("Reset##RSP1"))
 			{
 				DeadZoneRightStick[0] = DEFAULT_DZONE;
@@ -317,7 +316,6 @@ DeadzoneControlsTab (void)
 			float value = (float)DeadZoneLeftStick[1] / MAX_DEADZONE * 100.0f;
 
 			ImGui_Text ("Left Stick:");
-			ImGui_SameLine ();
 			if (ImGui_Button ("Reset##LSP2"))
 			{
 				DeadZoneLeftStick[1] = DEFAULT_DZONE;
@@ -333,11 +331,11 @@ DeadzoneControlsTab (void)
 				mmcfg_changed = true;
 			}
 		}
+		Spacer ();
 		{
 			float value = (float)DeadZoneRightStick[1] / MAX_DEADZONE * 100.0f;
 
 			ImGui_Text ("Right Stick:");
-			ImGui_SameLine ();
 			if (ImGui_Button ("Reset##RSP2"))
 			{
 				DeadZoneRightStick[1] = DEFAULT_DZONE;
