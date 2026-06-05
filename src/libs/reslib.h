@@ -38,6 +38,7 @@ typedef union {
 	DWORD num;
 	void *ptr;
 	const char *str;
+	float flt;
 } RESOURCE_DATA;
 
 #define NULL_RESOURCE NULL
@@ -122,6 +123,10 @@ void res_PutString (const char *key, const char *value);
 BOOLEAN res_IsInteger (const char *key);
 int res_GetInteger (const char *key);
 void res_PutInteger (const char *key, int value);
+
+BOOLEAN res_IsFloat (const char *key);
+float res_GetFloat (const char *key);
+void res_PutFloat (const char *key, float value);
 
 BOOLEAN res_IsBoolean (const char *key);
 BOOLEAN res_GetBoolean (const char *key);

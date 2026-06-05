@@ -26,6 +26,7 @@ static TabState tab_state;
 bool config_changed = false;
 bool mmcfg_changed = false;
 bool cheat_changed = false;
+bool imcfg_changed = false;
 bool res_change = false;
 bool gfx_change = false;
 bool scr_refresh = false;
@@ -113,7 +114,7 @@ static void ShowFullScreenMenu (TabState *state)
 
 	ImGui_End ();
 
-	if (config_changed || mmcfg_changed || cheat_changed)
+	if (config_changed || mmcfg_changed || cheat_changed || imcfg_changed)
 	{
 		if (config_changed)
 			SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
@@ -121,8 +122,10 @@ static void ShowFullScreenMenu (TabState *state)
 			SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
 		if (cheat_changed)
 			SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
+		if (imcfg_changed)
+			SaveResourceIndex (configDir, "imgui.cfg", "imgui.", TRUE);
 
-		config_changed = mmcfg_changed = cheat_changed = false;
+		config_changed = mmcfg_changed = cheat_changed = imcfg_changed = false;
 	}
 
 	ImGui_PopFont ();

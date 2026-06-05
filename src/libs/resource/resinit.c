@@ -149,6 +149,12 @@ DescriptorToInt (const char *descriptor, RESOURCE_DATA *resdata)
 }
 
 static void
+DescriptorToFlt (const char *descriptor, RESOURCE_DATA *resdata)
+{
+	resdata->flt = atof (descriptor);
+}
+
+static void
 DescriptorToBoolean (const char *descriptor, RESOURCE_DATA *resdata)
 {
 	if (!strcasecmp (descriptor, "true"))
@@ -295,6 +301,11 @@ IntToString (RESOURCE_DATA *resdata, char *buf, unsigned int size)
 	snprintf (buf, size, "%d", resdata->num);
 }
 
+static void
+FltToString (RESOURCE_DATA *resdata, char *buf, unsigned int size)
+{
+	snprintf (buf, size, "%f", resdata->flt);
+}
 
 static void
 BooleanToString (RESOURCE_DATA *resdata, char *buf, unsigned int size)
@@ -346,6 +357,7 @@ InitResourceSystem (void)
 	InstallResTypeVectors ("BOOLEAN", DescriptorToBoolean, NULL,
 			BooleanToString);
 	InstallResTypeVectors ("COLOR", DescriptorToColor, NULL, ColorToString);
+	InstallResTypeVectors ("FLOAT", DescriptorToFlt, NULL, FltToString);
 	InstallGraphicResTypes ();
 	InstallStringTableResType ();
 	InstallAudioResTypes ();
@@ -572,6 +584,41 @@ res_PutInteger (const char *key, int value)
 		desc = lookupResourceDesc (idx, key);
 	}
 	desc->resdata.num = value;
+}
+
+BOOLEAN
+res_IsFloat (const char *key)
+{
+	RESOURCE_INDEX idx = _get_current_index_header ();
+	ResourceDesc *desc = lookupResourceDesc (idx, key);
+	return desc && !strcmp(desc->vtable->resType, "FLOAT");
+}
+
+float
+res_GetFloat (const char *key)
+{
+	RESOURCE_INDEX idx = _get_current_index_header ();
+	ResourceDesc *desc = lookupResourceDesc (idx, key);
+	if (!desc || strcmp(desc->vtable->resType, "FLOAT"))
+	{
+		// TODO: Better error handling
+		return 0.0f;
+	}
+	return desc->resdata.flt;
+}
+
+void
+res_PutFloat (const char *key, float value)
+{
+	RESOURCE_INDEX idx = _get_current_index_header ();
+	ResourceDesc *desc = lookupResourceDesc (idx, key);
+	if (!desc || strcmp(desc->vtable->resType, "FLOAT"))
+	{
+		/* TODO: This is kind of roundabout. We can do better by refactoring newResourceDesc */
+		process_resource_desc(key, "FLOAT:0.0");
+		desc = lookupResourceDesc (idx, key);
+	}
+	desc->resdata.flt = value;
 }
 
 BOOLEAN

@@ -63,6 +63,7 @@ extern bool menu_visible;
 extern bool config_changed;
 extern bool mmcfg_changed;
 extern bool cheat_changed;
+extern bool imcfg_changed;
 extern ImGuiIO *io;
 
 typedef struct

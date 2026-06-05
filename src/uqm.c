@@ -552,6 +552,7 @@ int main(int argc, char** argv)
 		LoadResourceIndex (configDir, "uqm.cfg", "config.");
 		LoadResourceIndex (configDir, "cheats.cfg", "cheat.");
 		LoadResourceIndex (configDir, "megamod.cfg", "mm.");
+		LoadResourceIndex (configDir, "imgui.cfg", "imgui.");
 		getUserConfigOptions (&options);
 	}
 
