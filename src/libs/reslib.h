@@ -136,6 +136,9 @@ BOOLEAN res_IsColor (const char *key);
 Color res_GetColor (const char *key);
 void res_PutColor (const char *key, Color value);
 
+BOOLEAN res_IsStringArray (const char *key);
+const char **res_GetStringArray (const char *key);
+
 BOOLEAN res_Remove (const char *key);
 
 #if defined(__cplusplus)

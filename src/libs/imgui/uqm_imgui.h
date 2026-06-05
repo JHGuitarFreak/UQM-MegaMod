@@ -222,20 +222,37 @@ static inline const char *
 UQM_GetStr (const char *key)
 {
 	static char buf[PATH_MAX];
+	static char error_buf[PATH_MAX];
 
-	memset (buf, 0, sizeof buf);
+	snprintf (buf, sizeof (buf), "imstr.%s", key);
 
-	snprintf (buf, sizeof buf, "imstr.%s", key);
+	if (res_IsString (buf))
+		return res_GetString (buf);
 
-	if (!res_IsString (buf))
-	{
-		snprintf (buf, sizeof buf, "STRING_NOT_FOUND: imstr.%s", key);
-		return buf;
-	}
-
-	return res_GetString (buf);
+	snprintf (error_buf, sizeof (error_buf), "STRING_NOT_FOUND: imstr.%s", key);
+	return error_buf;
 }
 #define ImStr(key) UQM_GetStr(key)
+
+static inline const char **
+UQM_GetStrArray (const char *key)
+{
+	static char buf[PATH_MAX];
+	static char error_buf[PATH_MAX];
+	static const char *error_array[] = { NULL, NULL };
+
+	snprintf (buf, sizeof (buf), "imstr.%s", key);
+
+	if (res_IsStringArray (buf))
+		return res_GetStringArray (buf);
+
+	snprintf (error_buf, sizeof (error_buf), "ARRAY_NOT_FOUND: imstr.%s", key);
+
+	error_array[0] = error_buf;
+	return error_array;
+
+}
+#define ImStrArr(key) UQM_GetStrArray(key)
 
 static inline void
 UQM_ImGui_Style (void)

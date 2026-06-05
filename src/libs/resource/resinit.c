@@ -167,6 +167,32 @@ DescriptorToBoolean (const char *descriptor, RESOURCE_DATA *resdata)
 	}
 }
 
+static void DescriptorToStringArray (const char *descriptor, RESOURCE_DATA *resdata)
+{
+	char **array = NULL;
+	int count = 0;
+	char *copy = strdup (descriptor);
+	char *token = strtok (copy, ",");
+
+	while (token)
+	{
+		while (*token == ' ') token++;
+		array = HRealloc (array, (count + 2) * sizeof (char *));
+		array[count++] = strdup (token);
+		token = strtok (NULL, ",");
+	}
+	free (copy);
+
+	if (array == NULL)
+	{
+		array = HMalloc (sizeof (char *));
+		count = 0;
+	}
+
+	array[count] = NULL;
+	resdata->ptr = array;
+}
+
 static inline size_t
 skipWhiteSpace (const char *start)
 {
@@ -358,6 +384,7 @@ InitResourceSystem (void)
 			BooleanToString);
 	InstallResTypeVectors ("COLOR", DescriptorToColor, NULL, ColorToString);
 	InstallResTypeVectors ("FLOAT", DescriptorToFlt, NULL, FltToString);
+	InstallResTypeVectors ("STRING_ARRAY", DescriptorToStringArray, NULL, NULL);
 	InstallGraphicResTypes ();
 	InstallStringTableResType ();
 	InstallAudioResTypes ();
@@ -614,7 +641,6 @@ res_PutFloat (const char *key, float value)
 	ResourceDesc *desc = lookupResourceDesc (idx, key);
 	if (!desc || strcmp(desc->vtable->resType, "FLOAT"))
 	{
-		/* TODO: This is kind of roundabout. We can do better by refactoring newResourceDesc */
 		process_resource_desc(key, "FLOAT:0.0");
 		desc = lookupResourceDesc (idx, key);
 	}
@@ -695,6 +721,27 @@ res_PutColor (const char *key, Color value)
 	}
 	desc->resdata.num =
 			(value.r << 24) | (value.g << 16) | (value.b << 8) | value.a;
+}
+
+BOOLEAN
+res_IsStringArray (const char *key)
+{
+	RESOURCE_INDEX idx = _get_current_index_header ();
+	ResourceDesc *desc = lookupResourceDesc (idx, key);
+	return desc && !strcmp (desc->vtable->resType, "STRING_ARRAY");
+}
+
+const char **res_GetStringArray (const char *key)
+{
+	RESOURCE_INDEX idx = _get_current_index_header ();
+	ResourceDesc *desc = lookupResourceDesc (idx, key);
+	if (!desc || strcmp (desc->vtable->resType, "STRING_ARRAY"))
+		return NULL;
+
+	if (desc->resdata.ptr == NULL && desc->vtable->loadFun != NULL)
+		desc->vtable->loadFun (desc->fname, &desc->resdata);
+
+	return (const char **)desc->resdata.ptr;
 }
 
 BOOLEAN

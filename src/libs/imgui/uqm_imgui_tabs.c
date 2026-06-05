@@ -79,20 +79,19 @@ void
 UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		ImVec2 sidebar_size)
 {
-	int num_tabs;
 	int active_tab;
 	ImGuiStyle *style = ImGui_GetStyle ();
-	
-	const char *tab_names[] =
-			{ "General", "Enhancements", "Randomizer", "Dev Tools" };
+	static const char **subtab_names[4] = { NULL };
+	static const char **tab_names = NULL;
 
-	const char *subtab_names[][SUBTAB_SIZE] = {
-			{ "Settings", "Graphics", "PC / 3DO", "Audio", "Controls",
-					"Advanced", "Status", NULL },
-			{ "Quality of Life", "Visuals", "Difficulty", "Cheats", NULL },
-			{ "Seed Settings", "Enhancements", NULL},
-			{ "General", "Stats", "Save Editor", NULL }
-	};
+	if (!tab_names)
+	{
+		tab_names = ImStrArr ("tab_names");
+		subtab_names[0] = ImStrArr ("subtab_names.0");
+		subtab_names[1] = ImStrArr ("subtab_names.1");
+		subtab_names[2] = ImStrArr ("subtab_names.2");
+		subtab_names[3] = ImStrArr ("subtab_names.3");
+	}
 
 	int *active_subtab[] =
 	{
@@ -103,14 +102,13 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	};
 
 	active_tab = state->active_tab;
-	num_tabs = sizeof (tab_names) / sizeof (tab_names[0]);	
 
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38), IGCF_B, 0);
 
 	// Begin NavBar
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
-	for (int i = 0; i < num_tabs; i++)
+	for (int i = 0; tab_names[i] != NULL; i++)
 	{
 		ImVec2 text_size;
 		ImVec2 button_size;
@@ -138,17 +136,22 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
+
+	if (subtab_names[active_tab] == NULL)
+	{
+		ImGui_Text ("No subtabs found for this tab.");
+		ImGui_EndChild ();
+		return;
+	}
+
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
-	for (int j = 0; j < SUBTAB_SIZE; j++)
+	for (int j = 0; subtab_names[active_tab][j] != NULL; j++)
 	{
 		ImVec2 text_size;
 		ImVec2 button_size;
 		float centering;
 		bool selected;
-
-		if (subtab_names[active_tab][j] == NULL)
-			break;
 
 		selected = (*active_subtab[active_tab] == j);
 
