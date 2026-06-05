@@ -253,6 +253,21 @@ UQM_GetStrArray (const char *key)
 }
 #define ImStrArr(key) UQM_GetStrArray(key)
 
+static inline BINARY_RES *
+UQM_GetBinary (const char *key)
+{
+	static char buf[PATH_MAX];
+
+	snprintf (buf, sizeof (buf), "imstr.%s", key);
+
+	if (res_IsBinary (buf))
+		return res_GetBinary (buf);
+
+	log_add (log_Error, "BINARY_NOT_FOUND: imstr.%s", key);
+	return NULL;
+}
+#define ImBinary(key) UQM_GetBinary(key)
+
 static inline void
 UQM_ImGui_Style (void)
 {

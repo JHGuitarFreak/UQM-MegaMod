@@ -358,6 +358,50 @@ ColorToString (RESOURCE_DATA *resdata, char *buf, unsigned int size)
 	}
 }
 
+static void *
+GetBinaryData (uio_Stream *fp, DWORD length)
+{
+	BINARY_RES *bin;
+
+	if (length == 0)
+		return NULL;
+
+	bin = HMalloc (sizeof (BINARY_RES));
+	if (!bin)
+		return NULL;
+
+	bin->data = HMalloc (length);
+	if (!bin->data)
+	{
+		HFree (bin);
+		return NULL;
+	}
+
+	bin->size = length;
+	ReadResFile (bin->data, 1, length, fp);
+
+	return bin;
+}
+
+static void
+GetBinaryFileData (const char *pathname, RESOURCE_DATA *resdata)
+{
+	resdata->ptr = LoadResourceFromPath (pathname, GetBinaryData);
+}
+
+static BOOLEAN
+ReleaseBinaryData (void *ptr)
+{
+	if (ptr)
+	{
+		BINARY_RES *bin = (BINARY_RES *)ptr;
+		if (bin->data)
+			HFree (bin->data);
+		HFree (bin);
+	}
+	return TRUE;
+}
+
 static RESOURCE_INDEX curResourceIndex;
 
 void
@@ -385,6 +429,7 @@ InitResourceSystem (void)
 	InstallResTypeVectors ("COLOR", DescriptorToColor, NULL, ColorToString);
 	InstallResTypeVectors ("FLOAT", DescriptorToFlt, NULL, FltToString);
 	InstallResTypeVectors ("STRING_ARRAY", DescriptorToStringArray, NULL, NULL);
+	InstallResTypeVectors ("BINARY", GetBinaryFileData, ReleaseBinaryData, NULL);
 	InstallGraphicResTypes ();
 	InstallStringTableResType ();
 	InstallAudioResTypes ();
@@ -731,7 +776,8 @@ res_IsStringArray (const char *key)
 	return desc && !strcmp (desc->vtable->resType, "STRING_ARRAY");
 }
 
-const char **res_GetStringArray (const char *key)
+const char **
+res_GetStringArray (const char *key)
 {
 	RESOURCE_INDEX idx = _get_current_index_header ();
 	ResourceDesc *desc = lookupResourceDesc (idx, key);
@@ -742,6 +788,33 @@ const char **res_GetStringArray (const char *key)
 		desc->vtable->loadFun (desc->fname, &desc->resdata);
 
 	return (const char **)desc->resdata.ptr;
+}
+
+BOOLEAN
+res_IsBinary (const char *key)
+{
+	RESOURCE_INDEX idx = _get_current_index_header ();
+	ResourceDesc *desc = lookupResourceDesc (idx, key);
+	return desc && !strcmp (desc->vtable->resType, "BINARY");
+}
+
+BINARY_RES *
+res_GetBinary (const char *key)
+{
+	return (BINARY_RES *)res_GetResource (key);
+}
+
+void *
+res_GetBinaryData (const char *key, size_t *size)
+{
+	BINARY_RES *bin = res_GetBinary (key);
+	if (bin)
+	{
+		if (size) *size = bin->size;
+		return bin->data;
+	}
+	if (size) *size = 0;
+	return NULL;
 }
 
 BOOLEAN

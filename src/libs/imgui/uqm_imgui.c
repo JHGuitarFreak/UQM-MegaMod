@@ -34,56 +34,13 @@ bool scr_refresh = false;
 static SDL_Window *imgui_window = NULL;
 static SDL_Renderer *imgui_renderer = NULL;
 
-static ImFont *cached_font = NULL;
-
 ImGuiIO *io = NULL;
-
-static ImFont *
-GetFont (void)
-{
-	char *font_path;
-	int len;
-	size_t base_len;
-	const char *slash;
-	ImFont *font;
-
-	if (cached_font)
-		return cached_font;
-
-	base_len = strlen (baseContentPath);
-	if (base_len > 0)
-	{
-		char last_char = baseContentPath[base_len - 1];
-		slash = (last_char == '/' || last_char == '\\') ? "" : "/";
-	}
-	else
-		slash = "/";
-
-	len = snprintf (NULL, 0, "%s%splayerfont.ttf",
-		baseContentPath, slash);
-
-	font_path = HMalloc (len + 1);
-
-	snprintf (font_path, len + 1, "%s%splayerfont.ttf",
-		baseContentPath, slash);
-
-	font = ImFontAtlas_AddFontFromFileTTF (io->Fonts,
-			font_path, 18, NULL, NULL);
-
-	HFree (font_path);
-
-	cached_font = font;
-
-	return font;
-}
 
 static void ShowFullScreenMenu (TabState *state)
 {
 	float sidebar_width;
 	ImVec2 sidebar_size;
 	ImGuiWindowFlags flags;
-
-	ImGui_PushFont (GetFont ());
 
 	ImGui_SetNextWindowPos (ZERO_F, 0);
 	ImGui_SetNextWindowSize (DISPLAY_SIZE, 0);
@@ -127,8 +84,6 @@ static void ShowFullScreenMenu (TabState *state)
 
 		config_changed = mmcfg_changed = cheat_changed = imcfg_changed = false;
 	}
-
-	ImGui_PopFont ();
 }
 
 // ImGui implementation below
@@ -145,6 +100,22 @@ static void DestroyOverlay (void)
 		SDL_DestroyWindow (imgui_window);
 		imgui_window = NULL;
 	}
+}
+
+static ImFont *
+CustomFont (void)
+{
+	BINARY_RES *bin = ImBinary ("imguifont");
+
+	if (bin && bin->data && bin->size > 0)
+	{
+		ImFont *font = ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, bin->data,
+				bin->size, 18, NULL, NULL);
+		if (font)
+			return font;
+	}
+
+	return ImFontAtlas_AddFontDefault (io->Fonts, NULL);
 }
 
 // Initializes ImGui with SDL2 and SDL_Renderer2
@@ -167,6 +138,8 @@ UQM_ImGui_Init (void)
 		io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
 
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	io->FontDefault = CustomFont ();
 
 	UQM_ImGui_Style ();
 
@@ -251,8 +224,6 @@ void UQM_ImGui_Shutdown (void)
 		gs_cache.count = 0;
 	}
 
-	cached_font = NULL;
-
 	cImGui_ImplSDLRenderer2_Shutdown ();
 	cImGui_ImplSDL2_Shutdown ();
 	ImGui_DestroyContext (NULL);
@@ -281,8 +252,6 @@ void UQM_ImGui_ToggleMenu (void)
 		revalidate_game_state_cache ();
 		return;
 	}
-
-	UQM_ImGui_Shutdown ();
 }
 
 // Processes SDL events for ImGui

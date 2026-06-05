@@ -139,6 +139,15 @@ void res_PutColor (const char *key, Color value);
 BOOLEAN res_IsStringArray (const char *key);
 const char **res_GetStringArray (const char *key);
 
+typedef struct
+{
+	void *data;
+	size_t size;
+} BINARY_RES;
+
+BOOLEAN res_IsBinary (const char *key);
+BINARY_RES *res_GetBinary (const char *key);
+
 BOOLEAN res_Remove (const char *key);
 
 #if defined(__cplusplus)
