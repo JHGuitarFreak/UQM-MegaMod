@@ -39,6 +39,9 @@
 #include "uqm/hyper.h"
 #include "uqm/starmap.h"
 #include "uqm/sis.h"
+#include "uqm/sounds.h"
+#include "uqm/nameref.h"
+#include "uqm/ships/pkunk/resinst.h"
 
 #include <SDL.h>
 
@@ -98,6 +101,8 @@ int UQM_ImGui_WantCaptureInput (void);
 void ApplyResChanges (void);
 void ApplyGfxChanges (void);
 void FlagStatRefresh (void);
+
+SOUND PkunkSounds;
 
 // ImGui Graphics
 extern int imgui_GfxFlags;
@@ -185,6 +190,7 @@ void ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
 
 #define IV4_RED_COLOR    ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
 #define IV4_YELLOW_COLOR ((ImVec4){ 1.0f, 1.0f, 0.0f, 1.0f })
+#define IV4_WHITE_COLOR  ((ImVec4){ 1.0f, 1.0f, 1.0f, 1.0f })
 
 #define U32_RED_COLOR   0xAF0000FF
 #define U32_GREEN_COLOR 0xAF00FF00

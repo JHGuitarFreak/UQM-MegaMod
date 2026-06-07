@@ -86,6 +86,14 @@ draw_settings_menu (void)
 	}
 }
 
+static void DrawBorderAroundLastItem (void)
+{
+	ImDrawList *draw_list = ImGui_GetWindowDrawList ();
+	ImVec2 min = ImGui_GetItemRectMin ();
+	ImVec2 max = ImGui_GetItemRectMax ();
+	ImDrawList_AddRectEx (draw_list, min, max, U32_FRAMEBG_ACT_GS, 4.0f, 0, 1.0f);
+}
+
 void
 UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		ImVec2 sidebar_size)
@@ -113,6 +121,23 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	};
 
 	active_tab = state->active_tab;
+
+	if (ImGui_ButtonEx ("##ResetTabs", MAKE_IV2 (38.0f, 38.0f)))
+	{
+		COUNT CurSound;
+
+		state->active_tab = 0;
+		state->settings_tab = 0;
+		state->enhancements_tab = 0;
+		state->randomizer_tab = 0;
+		state->devtools_tab = 0;
+
+		CurSound = 2 + ((COUNT)TFB_Random () % (GetSoundCount (PkunkSounds) - 2));
+		PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound), NotPositional (),
+				NULL, GAME_SOUND_PRIORITY);
+	}
+
+	ImGui_SameLine ();
 
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38), IGCF_B, 0);
 
@@ -142,7 +167,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_PopStyleVar ();
 	ImGui_EndChild ();
 	// End NavBar
-
+	DrawBorderAroundLastItem ();
 	//ImGui_HorizontalSeparator ("##NavBarSeparator");
 
 	// Sidebar Begins
@@ -192,6 +217,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_EndChild ();
 	// Sidebar Ends
 
+	DrawBorderAroundLastItem ();
 	ImGui_SameLine ();
 
 	//ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
@@ -246,4 +272,5 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_EndChild ();
 	// Content Ends
 
+	DrawBorderAroundLastItem ();
 }

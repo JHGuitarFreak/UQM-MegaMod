@@ -157,6 +157,8 @@ UQM_ImGui_Init (void)
 		return 0;
 	}
 
+	PkunkSounds = CaptureSound (LoadSound (PKUNK_SHIP_SOUNDS));
+
 	imgui_initialized = true;
 	return 1;
 }
