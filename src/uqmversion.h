@@ -26,9 +26,9 @@
 #define UQM_PATCH_VERSION    4
 #define UQM_REVISION_VERSION 0
 #else
-#define UQM_PATCH_VERSION     4
+#define UQM_PATCH_VERSION     5
 #endif
-#define UQM_PATCH_VERSION_S  "4"
+#define UQM_PATCH_VERSION_S  "5"
 #if defined(DEBUG)
 #define UQM_EXTRA_VERSION    "MegaMod Debug"
 #else
