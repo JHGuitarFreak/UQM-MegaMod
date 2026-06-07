@@ -803,7 +803,7 @@ int main(int argc, char** argv)
 		TFB_FlushGraphics ();
 
 		if (menu_visible)
-			TFB_SwapBuffers (TFB_REDRAW_NO);
+			TFB_SwapBuffers (TFB_REDRAW_YES);
 	}
 
 	/* Currently, we use atexit() callbacks everywhere, so we

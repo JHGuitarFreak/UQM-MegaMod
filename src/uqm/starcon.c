@@ -167,9 +167,9 @@ ProcessUtilityKeys (void)
 		FlushInput ();
 		UQM_ImGui_ToggleMenu ();
 
-		// So the ImGui menu can be toggled off during pause
+		// Redraws the screen when exiting ImGui to prevent screen freezes.
 		if (!menu_visible)
-			TFB_SwapBuffers (TFB_REDRAW_NO);
+			TFB_SwapBuffers (TFB_REDRAW_YES);
 	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
