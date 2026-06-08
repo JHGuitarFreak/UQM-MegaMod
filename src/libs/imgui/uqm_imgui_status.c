@@ -762,3 +762,174 @@ void draw_status_menu (void)
 	if (DISPLAY_BOOL != 1)
 		ImGui_EndChild ();
 }
+
+static void
+UQM_DoubleCheckBox (const char *gs_retrieved, const char *gs_on_ship)
+{
+	char buf[40];
+
+	bool retrieved = D_GET_CGAME_STATE (gs_retrieved);
+	bool on_ship = D_GET_CGAME_STATE (gs_on_ship);
+
+	snprintf (buf, sizeof buf, "##%s", gs_retrieved);
+	if (ImGui_Checkbox (buf, &retrieved))
+		D_SET_CGAME_STATE (gs_retrieved, retrieved);
+	ImGui_NextColumn ();
+
+	if (ImGui_Checkbox (gs_retrieved, &on_ship))
+		D_SET_CGAME_STATE (gs_on_ship, on_ship);
+	ImGui_NextColumn ();
+}
+#define DBL_COL_CHECKBOX(gs_retrieved, gs_on_ship) \
+	UQM_DoubleCheckBox (#gs_retrieved, #gs_on_ship)
+
+void
+draw_devices_menu (void)
+{
+	if (IN_MAIN_MENU)
+	{
+		ImGui_Text ("Devices are not available in the Main Menu...");
+		return;
+	}
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "DeviceColumns", false);
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
+
+	ImGui_SeparatorText ("Devices");
+	{
+		int num_col = 2;
+
+		ImGui_ColumnsEx (num_col, "DevicesColumns", false);
+
+		ImGui_Text ("Retrieved");
+		ImGui_NextColumn ();
+		ImGui_Text ("On-Board");
+		ImGui_NextColumn ();
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (PORTAL_SPAWNER, PORTAL_SPAWNER_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (TALKING_PET, TALKING_PET_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (UTWIG_BOMB, UTWIG_BOMB_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (SUN_DEVICE, SUN_DEVICE_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (ROSY_SPHERE, ROSY_SPHERE_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (AQUA_HELIX, AQUA_HELIX_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (CLEAR_SPINDLE, CLEAR_SPINDLE_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (SHOFIXTI_MAIDENS, MAIDENS_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (UMGAH_BROADCASTERS, UMGAH_BROADCASTERS_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (BURVIXESE_BROADCASTERS, BURV_BROADCASTERS_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (TAALO_PROTECTOR, TAALO_PROTECTOR_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (SYREEN_SHUTTLE, SYREEN_SHUTTLE_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (VUX_BEAST, VUX_BEAST_ON_SHIP);
+		Spacer_Column (num_col);
+
+		DBL_COL_CHECKBOX (PORTAL_KEY, PORTAL_KEY_ON_SHIP);
+		Spacer_Column (num_col);
+
+		{
+			bool retrieved = GET_CGAME_STATE (MOONBASE_DESTROYED);
+			bool on_ship = GET_CGAME_STATE (MOONBASE_ON_SHIP);
+
+			if (ImGui_Checkbox ("MOONBASE_DESTROYED", &retrieved))
+				SET_CGAME_STATE (MOONBASE_DESTROYED, retrieved);
+			ImGui_NextColumn ();
+
+			if (ImGui_Checkbox ("MOONBASE", &on_ship))
+				SET_CGAME_STATE (MOONBASE_ON_SHIP, on_ship);
+			ImGui_NextColumn ();
+		}
+
+		ImGui_ColumnsEx (1, "DevicesColumns2", false);
+
+		ImGui_NewLine ();
+
+		{
+			int ultron_state = GET_CGAME_STATE (ULTRON_CONDITION);
+			const char *ultron_status[] =
+			{
+				"Not On-Board", "Broken", "Fix 1",
+				"Fix 2", "Fixed", "Given Back"
+			};
+			ImGui_Text ("ULTRON_CONDITION");
+			if (ImGui_ComboChar ("##ULTRON_CONDITION", &ultron_state, ultron_status,
+				ARRAY_SIZE (ultron_status)))
+			{
+				SET_CGAME_STATE (ULTRON_CONDITION, ultron_state);
+			}
+		}
+
+		Spacer ();
+
+		{
+			bool on_ship = GET_CGAME_STATE (EGG_CASE0_ON_SHIP);
+
+			if (ImGui_Checkbox ("EGG_CASE0", &on_ship))
+				SET_CGAME_STATE (EGG_CASE0_ON_SHIP, on_ship);
+		}
+
+		{
+			bool on_ship = GET_CGAME_STATE (EGG_CASE1_ON_SHIP);
+
+			if (ImGui_Checkbox ("EGG_CASE1", &on_ship))
+				SET_CGAME_STATE (EGG_CASE1_ON_SHIP, on_ship);
+		}
+
+		{
+			bool on_ship = GET_CGAME_STATE (EGG_CASE2_ON_SHIP);
+
+			if (ImGui_Checkbox ("EGG_CASE2", &on_ship))
+				SET_CGAME_STATE (EGG_CASE2_ON_SHIP, on_ship);
+		}
+
+		{
+			bool on_ship = GET_CGAME_STATE (DESTRUCT_CODE_ON_SHIP);
+
+			if (ImGui_Checkbox ("DESTRUCT_CODE", &on_ship))
+				SET_CGAME_STATE (DESTRUCT_CODE_ON_SHIP, on_ship);
+		}
+
+		{
+			bool on_ship = GET_CGAME_STATE (WIMBLIS_TRIDENT_ON_SHIP);
+
+			if (ImGui_Checkbox ("WIMBLIS_TRIDENT", &on_ship))
+				SET_CGAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, on_ship);
+		}
+
+		{
+			bool on_ship = GET_CGAME_STATE (GLOWING_ROD_ON_SHIP);
+
+			if (ImGui_Checkbox ("GLOWING_ROD", &on_ship))
+				SET_CGAME_STATE (GLOWING_ROD_ON_SHIP, on_ship);
+		}
+
+	}
+
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_EndChild ();
+}

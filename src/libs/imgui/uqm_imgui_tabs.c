@@ -271,8 +271,8 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		case 3:
 			switch (*active_subtab[active_tab])
 			{
-				case 0: ImGui_Text ("Dev Tools"); break;
-				case 1: ImGui_Text ("Statistics"); break;
+				case 0: draw_status_menu (); break;
+				case 1: draw_devices_menu (); break;
 				case 2: ImGui_Text ("Save Editor"); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",

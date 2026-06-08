@@ -55,6 +55,7 @@ void draw_engine_menu (void);
 void draw_audio_menu (void);
 void draw_controls_menu (void);
 void draw_status_menu (void);
+void draw_devices_menu (void);
 
 void draw_visual_menu (void);
 void draw_cheats_menu (void);
@@ -92,6 +93,11 @@ extern void revalidate_game_state_cache (void);
 	set_cached_gamestate (#SName,val)
 #define GET_CGAME_STATE(SName) \
 	get_cached_gamestate (#SName)
+
+#define D_SET_CGAME_STATE(SName,val) \
+	set_cached_gamestate (SName,val)
+#define D_GET_CGAME_STATE(SName) \
+	get_cached_gamestate (SName)
 
 bool UQM_ImGui_ProcessEvent (SDL_Event *event);
 void UQM_ImGui_Render ();
@@ -162,6 +168,18 @@ bool ProcessControlEvents (SDL_Event *event);
 #define MAKE_IV4(w,x,y,z) ((ImVec4){ (w), (x), (y), (z) })
 
 static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
+
+static inline void
+Spacer_Column (int num_col)
+{
+	int i;
+
+	for (i = 0; i < num_col; i++)
+	{
+		Spacer ();
+		ImGui_NextColumn ();
+	}
+}
 
 #define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, 4))
 #define CENTER_IT MAKE_IV2 (0.5f, 0.5f)
