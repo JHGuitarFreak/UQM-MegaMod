@@ -59,7 +59,7 @@ draw_settings_menu (void)
 		}
 	}
 
-	Spacer ();
+	ImGui_NewLine ();
 
 	{	// Menu Background Opacity
 		ImGuiStyle *style = ImGui_GetStyle ();
@@ -82,6 +82,27 @@ draw_settings_menu (void)
 					style->Colors[ImGuiCol_ChildBg].w);
 
 			imcfg_changed = true;
+		}
+	}
+
+	ImGui_NewLine ();
+
+	{
+		static bool button_pressed = false;
+		static COUNT CurSound = 0;
+		char *insult[17] = 
+		{ 
+			"- Sound Test -", "- Sound Test -", "Baby!", "Dodo!", "Dummy!",
+			"Fool!", "Idiot!", "Jerk!", "Loser!", "Moron!", "Stupid!", "Twit!",
+			"Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
+		};
+
+		if (ImGui_ButtonEx (insult [CurSound], MAKE_IV2 (150.0f, 0.0f)))
+		{
+			CurSound = 2 + ((COUNT)TFB_Random () % (GetSoundCount (PkunkSounds) - 2));
+			PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
+					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+			button_pressed = true;
 		}
 	}
 }
@@ -122,22 +143,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	active_tab = state->active_tab;
 
-	if (ImGui_ButtonEx ("##ResetTabs", MAKE_IV2 (38.0f, 38.0f)))
-	{
-		COUNT CurSound;
-
-		state->active_tab = 0;
-		state->settings_tab = 0;
-		state->enhancements_tab = 0;
-		state->randomizer_tab = 0;
-		state->devtools_tab = 0;
-
-		CurSound = 2 + ((COUNT)TFB_Random () % (GetSoundCount (PkunkSounds) - 2));
-		PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound), NotPositional (),
-				NULL, GAME_SOUND_PRIORITY);
-	}
-
-	ImGui_SameLine ();
+	DrawBorderAroundLastItem ();
 
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38), IGCF_B, 0);
 

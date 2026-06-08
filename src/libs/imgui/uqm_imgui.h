@@ -102,7 +102,7 @@ void ApplyResChanges (void);
 void ApplyGfxChanges (void);
 void FlagStatRefresh (void);
 
-SOUND PkunkSounds;
+extern SOUND PkunkSounds;
 
 // ImGui Graphics
 extern int imgui_GfxFlags;
@@ -298,7 +298,7 @@ UQM_ImGui_Style (void)
 	style->FrameBorderSize = 1;
 	style->TabBorderSize = 0;
 	style->WindowRounding = 6;
-	style->ChildRounding = 4;
+	style->ChildRounding = 0;
 	style->FrameRounding = 3;
 	style->PopupRounding = 4;
 	style->ScrollbarRounding = 9;

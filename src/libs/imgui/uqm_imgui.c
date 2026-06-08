@@ -36,6 +36,8 @@ static SDL_Renderer *imgui_renderer = NULL;
 
 ImGuiIO *io = NULL;
 
+SOUND PkunkSounds;
+
 static void ShowFullScreenMenu (TabState *state)
 {
 	float sidebar_width;
