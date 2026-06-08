@@ -56,6 +56,7 @@ void draw_audio_menu (void);
 void draw_controls_menu (void);
 void draw_status_menu (void);
 void draw_devices_menu (void);
+void draw_gamestates_menu (void);
 
 void draw_visual_menu (void);
 void draw_cheats_menu (void);

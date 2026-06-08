@@ -273,13 +273,21 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 			{
 				case 0: draw_status_menu (); break;
 				case 1: draw_devices_menu (); break;
-				case 2: ImGui_Text ("Save Editor"); break;
+				case 2: draw_gamestates_menu (); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",
 							*active_subtab[active_tab]);
 					break;
 			}
 			break;
+		default:
+			switch (*active_subtab[active_tab])
+			{
+				default:
+					ImGui_Text ("Subtab %d not found.",
+						*active_subtab[active_tab]);
+					break;
+			}
 	}
 	ImGui_EndChild ();
 	DrawBorderAroundLastItem ();
