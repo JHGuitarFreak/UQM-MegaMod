@@ -102,7 +102,6 @@ draw_settings_menu (void)
 			CurSound = 2 + ((COUNT)TFB_Random () % (GetSoundCount (PkunkSounds) - 2));
 			PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
 					NotPositional (), NULL, GAME_SOUND_PRIORITY);
-			button_pressed = true;
 		}
 	}
 }
@@ -172,9 +171,8 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_PopStyleVar ();
 	ImGui_EndChild ();
-	// End NavBar
 	DrawBorderAroundLastItem ();
-	//ImGui_HorizontalSeparator ("##NavBarSeparator");
+	// End NavBar
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
@@ -221,17 +219,10 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_PopStyleVar ();
 	ImGui_EndChild ();
+	DrawBorderAroundLastItem ();
 	// Sidebar Ends
 
-	DrawBorderAroundLastItem ();
 	ImGui_SameLine ();
-
-	//ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
-	//ImGui_BeginChild ("VerticalSeparator", MAKE_IV2 (1, 0), 0, 0);
-	//ImGui_EndChild ();
-	//ImGui_PopStyleColor ();
-
-	//ImGui_SameLine ();
 
 	// Content Begins
 	ImGui_BeginChild("Content", content_size, IGCF_B, 0);
@@ -247,7 +238,10 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 				case 3: draw_audio_menu (); break;
 				case 4: draw_controls_menu (); break;
 				case 5: draw_adv_menu (); break;
-				case 6: draw_status_menu (); break;
+				default:
+					ImGui_Text ("Subtab %d not found.",
+							*active_subtab[active_tab]);
+					break;
 			}
 			break;
 		case 1:
@@ -257,6 +251,10 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 				case 1: draw_visual_menu (); break;
 				case 2: ImGui_Text ("Difficulty"); break;
 				case 3: draw_cheats_menu (); break;
+				default:
+					ImGui_Text ("Subtab %d not found.",
+							*active_subtab[active_tab]);
+					break;
 			}
 			break;
 		case 2:
@@ -264,6 +262,10 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 			{
 				case 0: ImGui_Text ("Seed Settings"); break;
 				case 1: ImGui_Text ("Enhancements"); break;
+				default:
+					ImGui_Text ("Subtab %d not found.",
+							*active_subtab[active_tab]);
+					break;
 			}
 			break;
 		case 3:
@@ -272,11 +274,15 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 				case 0: ImGui_Text ("Dev Tools"); break;
 				case 1: ImGui_Text ("Statistics"); break;
 				case 2: ImGui_Text ("Save Editor"); break;
+				default:
+					ImGui_Text ("Subtab %d not found.",
+							*active_subtab[active_tab]);
+					break;
 			}
 			break;
 	}
 	ImGui_EndChild ();
+	DrawBorderAroundLastItem ();
 	// Content Ends
 
-	DrawBorderAroundLastItem ();
 }
