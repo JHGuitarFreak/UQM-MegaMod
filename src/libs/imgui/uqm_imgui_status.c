@@ -934,15 +934,9 @@ draw_devices_menu (void)
 		ImGui_EndChild ();
 }
 
-static void
-UQM_GameStateCheckBox (const char *gs_name)
-{
-	bool game_state = D_GET_CGAME_STATE (gs_name);
+static void GamestatesTab00 (void);
 
-	if (ImGui_Checkbox (gs_name, &game_state))
-		D_SET_CGAME_STATE (gs_name, game_state);
-}
-#define GS_CHECKBOX(gs_name) UQM_GameStateCheckBox(#gs_name)
+static void GamestatesTab01 (void);
 
 void
 draw_gamestates_menu (void)
@@ -953,7 +947,35 @@ draw_gamestates_menu (void)
 		return;
 	}
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "Game StateColumns", false);
+	if (ImGui_BeginTabBar ("GameStateTabs", 0))
+	{
+		GamestatesTab00 ();
+		GamestatesTab01 ();
+
+		ImGui_EndTabBar ();
+	}
+
+}
+
+static void
+UQM_GameStateCheckBox (const char *gs_name)
+{
+	bool game_state = D_GET_CGAME_STATE (gs_name);
+
+	if (ImGui_Checkbox (gs_name, &game_state))
+		D_SET_CGAME_STATE (gs_name, game_state);
+}
+#define GS_CHECKBOX(gs_name) UQM_GameStateCheckBox(#gs_name)
+
+static void
+GamestatesTab00 (void)
+{
+	if (!ImGui_BeginTabItem ("Page 1", NULL, 0))
+		return;
+
+	Spacer ();
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "GameStateColumns", false);
 	if (DISPLAY_BOOL != 1)
 		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
 
@@ -971,9 +993,9 @@ draw_gamestates_menu (void)
 		};
 		ImGui_Text ("FOUND_PLUTO_SPATHI");
 		if (ImGui_ComboChar ("##FOUND_PLUTO_SPATHI", &found_pluto_spathi,
-				fps_states, ARRAY_SIZE (fps_states)))
+			fps_states, ARRAY_SIZE (fps_states)))
 		{
-			SET_CGAME_STATE (FOUND_PLUTO_SPATHI, found_pluto_spathi); 
+			SET_CGAME_STATE (FOUND_PLUTO_SPATHI, found_pluto_spathi);
 		}
 	}
 
@@ -1007,7 +1029,7 @@ draw_gamestates_menu (void)
 	{
 		int new_alliance_name = GET_CGAME_STATE (NEW_ALLIANCE_NAME);
 		static char empire_of[PATH_MAX];
-		const char *nan_states[4] = 
+		const char *nan_states[4] =
 		{
 				"The New Alliance of Free Stars",
 				"The Concordance of Alien Nations",
@@ -1016,7 +1038,7 @@ draw_gamestates_menu (void)
 		};
 
 		snprintf (empire_of, sizeof (empire_of), "The Empire of %s",
-				GLOBAL_SIS (CommanderName));
+			GLOBAL_SIS (CommanderName));
 
 		ImGui_Text ("NEW_ALLIANCE_NAME");
 		if (ImGui_ComboChar ("##NEW_ALLIANCE_NAME", &new_alliance_name,
@@ -1045,6 +1067,29 @@ draw_gamestates_menu (void)
 	GS_CHECKBOX (FLAGSHIP_CLOAKED);
 	GS_CHECKBOX (MYCON_AMBUSH);
 	GS_CHECKBOX (MYCON_FELL_FOR_AMBUSH);
+
+	Spacer ();
+
+	{
+		int orz_manner = GET_CGAME_STATE (ORZ_MANNER);
+		const char *om_states[4] =
+		{
+				"Neutral",
+				"Kinda miffed",
+				"FRUMPLE!",
+				"Friendly"
+		};
+
+		ImGui_Text ("ORZ_MANNER");
+		if (ImGui_ComboChar ("##ORZ_MANNER", &orz_manner,
+			om_states, ARRAY_SIZE (om_states)))
+		{
+			SET_CGAME_STATE (ORZ_MANNER, orz_manner);
+		}
+	}
+
+	Spacer ();
+
 	GS_CHECKBOX (PROBE_EXHIBITED_BUG);
 	GS_CHECKBOX (PLAYER_HYPNOTIZED);
 	GS_CHECKBOX (ZEX_IS_DEAD);
@@ -1075,7 +1120,7 @@ draw_gamestates_menu (void)
 
 		ImGui_Text ("CHMMR_BOMB_STATE");
 		if (ImGui_ComboChar ("##CHMMR_BOMB_STATE", &chmmr_bomb_state,
-				cb_states, ARRAY_SIZE (cb_states)))
+			cb_states, ARRAY_SIZE (cb_states)))
 		{
 			SET_CGAME_STATE (CHMMR_BOMB_STATE, chmmr_bomb_state);
 		}
@@ -1087,7 +1132,12 @@ draw_gamestates_menu (void)
 	GS_CHECKBOX (YEHAT_CIVIL_WAR);
 	GS_CHECKBOX (YEHAT_ABSORBED_PKUNK);
 
-	Spacer ();
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
 
 	{
 		int pkunk_mission = GET_CGAME_STATE (PKUNK_MISSION);
@@ -1102,7 +1152,7 @@ draw_gamestates_menu (void)
 
 		ImGui_Text ("PKUNK_MISSION");
 		if (ImGui_ComboChar ("##PKUNK_MISSION", &pkunk_mission,
-				pm_states, ARRAY_SIZE (pm_states)))
+			pm_states, ARRAY_SIZE (pm_states)))
 		{
 			SET_CGAME_STATE (PKUNK_MISSION, pkunk_mission);
 		}
@@ -1122,22 +1172,17 @@ draw_gamestates_menu (void)
 		};
 
 		snprintf (empire_of, sizeof (empire_of),
-				"The Glorious Slave Empire of %s", GLOBAL_SIS (CommanderName));
+			"The Glorious Slave Empire of %s", GLOBAL_SIS (CommanderName));
 
 		ImGui_Text ("THRADD_CULTURE");
 		if (ImGui_ComboChar ("##THRADD_CULTURE", &thradd_culture,
-				tc_states, ARRAY_SIZE (tc_states)))
+			tc_states, ARRAY_SIZE (tc_states)))
 		{
 			SET_CGAME_STATE (THRADD_CULTURE, thradd_culture);
 		}
 	}
 
-	if (DISPLAY_BOOL != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
-	}
+	Spacer ();
 
 	{
 		int thradd_mission = GET_CGAME_STATE (THRADD_MISSION);
@@ -1152,7 +1197,7 @@ draw_gamestates_menu (void)
 
 		ImGui_Text ("THRADD_MISSION");
 		if (ImGui_ComboChar ("##THRADD_MISSION", &thradd_mission,
-				tm_states, ARRAY_SIZE (tm_states)))
+			tm_states, ARRAY_SIZE (tm_states)))
 		{
 			SET_CGAME_STATE (THRADD_MISSION, thradd_mission);
 		}
@@ -1176,7 +1221,7 @@ draw_gamestates_menu (void)
 
 		ImGui_Text ("ZOQFOT_DISTRESS");
 		if (ImGui_ComboChar ("##ZOQFOT_DISTRESS", &zfp_distress,
-				zfpd_states, ARRAY_SIZE (zfpd_states)))
+			zfpd_states, ARRAY_SIZE (zfpd_states)))
 		{
 			SET_CGAME_STATE (ZOQFOT_DISTRESS, zfp_distress);
 		}
@@ -1194,13 +1239,13 @@ draw_gamestates_menu (void)
 
 	{
 		int CrewSold = MAKE_WORD (
-				GET_CGAME_STATE (CREW_SOLD_TO_DRUUGE0),
-				GET_CGAME_STATE (CREW_SOLD_TO_DRUUGE1));
+			GET_CGAME_STATE (CREW_SOLD_TO_DRUUGE0),
+			GET_CGAME_STATE (CREW_SOLD_TO_DRUUGE1));
 
 		ImGui_Text ("CREW_SOLD_TO_DRUUGE");
 		ImGui_InputIntEx ("##CREW_SOLD_TO_DRUUGE", &CrewSold, 0, 0, 0);
 		if (ImGui_IsItemDeactivatedAfterEdit ()
-				&& CrewSold < (COUNT)~0 && CrewSold > 0)
+			&& CrewSold < (COUNT)~0 && CrewSold > 0)
 		{
 			SET_CGAME_STATE (CREW_SOLD_TO_DRUUGE0, LOBYTE (CrewSold));
 			SET_CGAME_STATE (CREW_SOLD_TO_DRUUGE1, HIBYTE (CrewSold));
@@ -1241,7 +1286,7 @@ draw_gamestates_menu (void)
 
 		ImGui_Text ("UTWIG_SUPOX_MISSION");
 		if (ImGui_ComboChar ("##UTWIG_SUPOX_MISSION", &utwig_supox_mission,
-				usm_states, ARRAY_SIZE (usm_states)))
+			usm_states, ARRAY_SIZE (usm_states)))
 		{
 			SET_CGAME_STATE (UTWIG_SUPOX_MISSION, utwig_supox_mission);
 		}
@@ -1268,13 +1313,32 @@ draw_gamestates_menu (void)
 
 		ImGui_Text ("KNOW_ABOUT_SHATTERED");
 		if (ImGui_ComboChar ("##KNOW_ABOUT_SHATTERED", &know_about_shattered,
-				kas_states, ARRAY_SIZE (kas_states)))
+			kas_states, ARRAY_SIZE (kas_states)))
 		{
 			SET_CGAME_STATE (KNOW_ABOUT_SHATTERED, know_about_shattered);
 		}
 	}
 
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_Columns ();
+	}
+
+	ImGui_EndTabItem ();
+}
+
+static void
+GamestatesTab01 (void)
+{
+	if (!ImGui_BeginTabItem ("Page 2", NULL, 0))
+		return;
+
 	Spacer ();
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "GameStateColumns", false);
+	if (DISPLAY_BOOL != 1)
+		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
 
 	GS_CHECKBOX (MYCON_KNOW_AMBUSH);
 	GS_CHECKBOX (KNOW_SYREEN_WORLD_SHATTERED);
@@ -1282,7 +1346,25 @@ draw_gamestates_menu (void)
 	GS_CHECKBOX (DNYARRI_LIED);
 	GS_CHECKBOX (SHIP_TO_COMPEL);
 
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
 
 	if (DISPLAY_BOOL != 1)
+	{
 		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
+
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_Columns ();
+	}
+
+	ImGui_EndTabItem ();
 }

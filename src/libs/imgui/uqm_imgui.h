@@ -308,6 +308,7 @@ UQM_ImGui_Style (void)
 	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, cbg_w);
 	colors[ImGuiCol_Border] = transparent;
 	colors[ImGuiCol_BorderShadow] = MAKE_IV4 (1.00f, 1.00f, 1.00f, 0.06f);
+	colors[ImGuiCol_PopupBg] = MAKE_IV4 (0.14f, 0.14f, 0.14f, 0.95f);
 
 	colors[ImGuiCol_PlotHistogram] = MAKE_IV4 (0.48f, 0.48f, 0.48f, 0.54f);
 
