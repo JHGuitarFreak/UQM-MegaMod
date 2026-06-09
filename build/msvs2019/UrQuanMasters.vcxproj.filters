@@ -1572,6 +1572,9 @@
     <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_audio.c">
       <Filter>Source Files\libs\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_gamestates.c">
+      <Filter>Source Files\libs\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\getopt\getopt.h">

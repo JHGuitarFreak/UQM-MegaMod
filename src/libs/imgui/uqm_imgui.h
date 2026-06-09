@@ -294,6 +294,50 @@ UQM_GetBinary (const char *key)
 #define ImBinary(key) UQM_GetBinary(key)
 
 static inline void
+UQM_BitRegister (const char *gamestate, int size)
+{
+	int i;
+	char buf[40];
+	static bool selected[32];
+	int bitmask = D_GET_CGAME_STATE (gamestate);
+	ImVec2 align = { 0.7f, 0.1f };
+
+	Spacer ();
+
+	ImGui_Text (gamestate);
+	for (i = 0; i < size; i++)
+	{
+		selected[i] = bitmask & (1 << i);
+		snprintf (buf, sizeof buf, "%d##%s%d", selected[i], gamestate, i);
+
+		if (selected[i])
+		{
+			ImGui_PushStyleColor (ImGuiCol_Button, 0xCC006600);
+			ImGui_PushStyleColor (ImGuiCol_ButtonHovered, 0xCC008800);
+			ImGui_PushStyleColor (ImGuiCol_ButtonActive, 0xCC004400);
+		}
+
+		ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
+		if (ImGui_ButtonEx (buf, (ImVec2) { 15.0f, 22.0f }))
+		{
+			bitmask ^= (1 << i);
+
+			D_SET_CGAME_STATE (gamestate, bitmask);
+		}
+		ImGui_PopStyleVar ();
+
+		if (selected[i])
+			ImGui_PopStyleColorEx (3);
+
+		if (i % 8 < 7)
+			ImGui_SameLine ();
+	}
+
+	Spacer ();
+}
+#define GS_Binary(SName,size) UQM_BitRegister(#SName, size)
+
+static inline void
 UQM_ImGui_Style (void)
 {
 	ImGuiStyle *style = ImGui_GetStyle ();
