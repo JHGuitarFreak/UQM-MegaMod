@@ -326,11 +326,11 @@ GamestatesTab00 (void)
 		int thradd_mission = GET_CGAME_STATE (THRADD_MISSION);
 		const char *tm_states[] =
 		{
-				"???",
-				"???",
-				"???",
-				"???",
-				"???"
+				"No Mission",
+				"Heading towards the Kohr-Ah",
+				"Fighting the Kohr-Ah",
+				"Returning from fight",
+				"Back at home"
 		};
 
 		ImGui_Text ("THRADD_MISSION");
@@ -338,6 +338,11 @@ GamestatesTab00 (void)
 			tm_states, ARRAY_SIZE (tm_states)))
 		{
 			SET_CGAME_STATE (THRADD_MISSION, thradd_mission);
+		}
+		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		{
+			ImGui_SetTooltip ("Editing this only changes dialog responses\n"
+					"and doesn't affect the actual mission.");
 		}
 	}
 
