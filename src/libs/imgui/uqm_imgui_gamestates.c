@@ -98,6 +98,41 @@ GamestatesTab00 (void)
 	GS_CHECKBOX (SPATHI_SHIELDED_SELVES);
 	GS_CHECKBOX (SPATHI_CREATURES_EXAMINED);
 	GS_CHECKBOX (SPATHI_CREATURES_ELIMINATED);
+
+	Spacer ();
+
+	{
+		int spathi_manner = GET_CGAME_STATE (SPATHI_MANNER);
+		const char *sm_states[] =
+		{
+			"Neutral", "Miffed", "Pissed", "Friendly"
+		};
+		ImGui_Text ("SPATHI_MANNER");
+		if (ImGui_ComboChar ("##SPATHI_MANNER", &spathi_manner,
+			sm_states, ARRAY_SIZE (sm_states)))
+		{
+			SET_CGAME_STATE (SPATHI_MANNER, spathi_manner);
+		}
+	}
+
+	Spacer ();
+
+	{
+		int lied_about_creatures = GET_CGAME_STATE (LIED_ABOUT_CREATURES);
+		const char *lac_states[] =
+		{
+			"Haven't Lied", "Lied Once", "Lied Twice"
+		};
+		ImGui_Text ("SPATHI_MANNER");
+		if (ImGui_ComboChar ("##SPATHI_MANNER", &lied_about_creatures,
+			lac_states, ARRAY_SIZE (lac_states)))
+		{
+			SET_CGAME_STATE (LIED_ABOUT_CREATURES, lied_about_creatures);
+		}
+	}
+
+	Spacer ();
+
 	GS_CHECKBOX (SPATHI_QUEST);
 	GS_CHECKBOX (SPATHI_PARTY);
 	GS_CHECKBOX (KNOW_SPATHI_PASSWORD);
@@ -115,10 +150,18 @@ GamestatesTab00 (void)
 	GS_CHECKBOX (YEHAT_CAVALRY_ARRIVED);
 	GS_CHECKBOX (URQUAN_MESSED_UP);
 	GS_CHECKBOX (KOHR_AH_KILLED_ALL);
-	GS_CHECKBOX (MET_ARILOU);
-	GS_CHECKBOX (ATTACKED_DRUUGE);
+
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
 
 	Spacer ();
+
+	GS_CHECKBOX (MET_ARILOU);
+	GS_CHECKBOX (ATTACKED_DRUUGE);
 
 	{
 		int new_alliance_name = GET_CGAME_STATE (NEW_ALLIANCE_NAME);
@@ -142,12 +185,7 @@ GamestatesTab00 (void)
 		}
 	}
 
-	if (DISPLAY_BOOL != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
-	}
+	Spacer ();
 
 	{
 		bool game_state = GET_CGAME_STATE (PORTAL_COUNTER) == 1 ? true : false;
@@ -220,12 +258,6 @@ GamestatesTab00 (void)
 		}
 	}
 
-	Spacer ();
-
-	GS_CHECKBOX (DRUUGE_DISCLAIMER);
-	GS_CHECKBOX (YEHAT_CIVIL_WAR);
-	GS_CHECKBOX (YEHAT_ABSORBED_PKUNK);
-
 	if (DISPLAY_BOOL != 1)
 	{
 		ImGui_EndChild ();
@@ -233,15 +265,22 @@ GamestatesTab00 (void)
 		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
 	}
 
+	GS_CHECKBOX (DRUUGE_DISCLAIMER);
+	GS_CHECKBOX (YEHAT_CIVIL_WAR);
+	GS_CHECKBOX (YEHAT_ABSORBED_PKUNK);
+
+	Spacer ();
+
 	{
 		int pkunk_mission = GET_CGAME_STATE (PKUNK_MISSION);
 		const char *pm_states[] =
 		{
-				"???",
-				"???",
-				"???",
-				"???",
-				"???"
+				"Stationary",
+				"On the move",
+				"Returning",
+				"On the move again",
+				"Returning again",
+				"On the move yet again"
 		};
 
 		ImGui_Text ("PKUNK_MISSION");
@@ -249,6 +288,11 @@ GamestatesTab00 (void)
 			pm_states, ARRAY_SIZE (pm_states)))
 		{
 			SET_CGAME_STATE (PKUNK_MISSION, pkunk_mission);
+		}
+		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		{
+			ImGui_SetTooltip ("Switch this to \"Returning\" if you've turned\n"
+				"off any of the GOOD_REASONS.");
 		}
 	}
 
@@ -391,6 +435,28 @@ GamestatesTab00 (void)
 	GS_CHECKBOX (ILWRATH_FIGHT_THRADDASH);
 	GS_CHECKBOX (READY_TO_CONFUSE_URQUAN);
 	GS_CHECKBOX (URQUAN_HYPNO_VISITS);
+
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_Columns ();
+	}
+
+	ImGui_EndTabItem ();
+}
+
+static void
+GamestatesTab01 (void)
+{
+	if (!ImGui_BeginTabItem ("Page 2", NULL, 0))
+		return;
+
+	Spacer ();
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "GameStateColumns", false);
+	if (DISPLAY_BOOL != 1)
+		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
+
 	GS_CHECKBOX (MENTIONED_PET_COMPULSION);
 
 	Spacer ();
@@ -413,26 +479,7 @@ GamestatesTab00 (void)
 		}
 	}
 
-	if (DISPLAY_BOOL != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_Columns ();
-	}
-
-	ImGui_EndTabItem ();
-}
-
-static void
-GamestatesTab01 (void)
-{
-	if (!ImGui_BeginTabItem ("Page 2", NULL, 0))
-		return;
-
 	Spacer ();
-
-	ImGui_ColumnsEx (DISPLAY_BOOL, "GameStateColumns", false);
-	if (DISPLAY_BOOL != 1)
-		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
 
 	GS_CHECKBOX (MYCON_KNOW_AMBUSH);
 	GS_CHECKBOX (KNOW_SYREEN_WORLD_SHATTERED);
@@ -476,6 +523,8 @@ GamestatesTab01 (void)
 		bool bad_reason_2 = ReasonMask & (1 << 3);
 
 		ImGui_Text ("PKUNK_REASONS");
+
+		ImGui_BeginGroup ();
 		if (ImGui_Checkbox ("##GOOD_REASON_1", &good_reason_1))
 		{
 			ReasonMask &= ~(1 << 0);
@@ -491,9 +540,15 @@ GamestatesTab01 (void)
 			ReasonMask &= ~(1 << 1);
 
 			if (good_reason_2)
-				ReasonMask |= (1 << 0);
+				ReasonMask |= (1 << 1);
 
 			SET_CGAME_STATE (PKUNK_REASONS, ReasonMask);
+		}
+		ImGui_EndGroup ();
+		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		{
+			ImGui_SetTooltip ("When turning these off make sure to set\n"
+					"PKUNK_MISSION to \"Returning\"");
 		}
 		if (ImGui_Checkbox ("##BAD_REASON_1", &bad_reason_1))
 		{
@@ -551,11 +606,6 @@ GamestatesTab01 (void)
 	GS_CHECKBOX (UTWIG_HOSTILE);
 	GS_CHECKBOX (SLYLANDRO_KNOW_BROKEN);
 	GS_CHECKBOX (PLAYER_KNOWS_PROBE);
-	GS_CHECKBOX (PLAYER_KNOWS_PROGRAM);
-	GS_CHECKBOX (PLAYER_KNOWS_EFFECTS);
-	GS_CHECKBOX (PLAYER_KNOWS_PRIORITY);
-
-
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -564,6 +614,9 @@ GamestatesTab01 (void)
 		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
 	}
 
+	GS_CHECKBOX (PLAYER_KNOWS_PROGRAM);
+	GS_CHECKBOX (PLAYER_KNOWS_EFFECTS);
+	GS_CHECKBOX (PLAYER_KNOWS_PRIORITY);
 	GS_CHECKBOX (SLYLANDRO_KNOW_EARTH);
 	GS_CHECKBOX (SLYLANDRO_KNOW_EXPLORE);
 	GS_CHECKBOX (SLYLANDRO_KNOW_GATHER);
