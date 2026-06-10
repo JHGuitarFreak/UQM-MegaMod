@@ -368,6 +368,11 @@ GamestatesTab00 (void)
 		{
 			SET_CGAME_STATE (ZOQFOT_DISTRESS, zfp_distress);
 		}
+		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		{
+			ImGui_SetTooltip ("Editing this doesn't stop the ZFP from being\n"
+				"under distress.");
+		}
 	}
 
 	Spacer ();
