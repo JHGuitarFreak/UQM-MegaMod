@@ -657,6 +657,78 @@ GamestatesTab01 (void)
 	GS_Binary (KNOW_HOMEWORLD, 18);
 	GS_Binary (HM_ENCOUNTERS, 9);
 
+	Spacer ();
+
+	{
+		int gamestate = GET_CGAME_STATE (MELNORME_RAINBOW_COUNT);
+
+		ImGui_Text ("MELNORME_RAINBOW_COUNT");
+		ImGui_InputIntEx ("##MELNORME_RAINBOW_COUNT", &gamestate, 0, 0, 0);
+		if (ImGui_IsItemDeactivatedAfterEdit () && gamestate < 11)
+		{
+			SET_CGAME_STATE (MELNORME_RAINBOW_COUNT, gamestate);
+		}
+	}
+
+	Spacer ();
+
+#define MAX_RBW 10
+	{
+		int i, j;
+		char buf[40];
+		static bool selected[MAX_RBW];
+		int currently_selected = 0;
+		ImVec2 align = { 0.7f, 0.1f };
+		int rainbow_count = GET_CGAME_STATE (MELNORME_RAINBOW_COUNT);
+		int bitmask = MAKE_WORD (
+				GET_CGAME_STATE (RAINBOW_WORLD0),
+				GET_CGAME_STATE (RAINBOW_WORLD1));
+
+		ImGui_Text ("RAINBOW_WORLD");
+		for (i = 0; i < MAX_RBW; i++)
+		{
+			selected[i] = bitmask & (1 << i);
+			snprintf (buf, sizeof buf, "%d##%s%d", selected[i],
+					"RAINBOW_WORLD", i);
+
+			if (selected[i])
+			{
+				ImGui_PushStyleColor (ImGuiCol_Button, 0xCC006600);
+				ImGui_PushStyleColor (ImGuiCol_ButtonHovered, 0xCC008800);
+				ImGui_PushStyleColor (ImGuiCol_ButtonActive, 0xCC004400);
+			}
+
+			ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
+			if (ImGui_ButtonEx (buf, (ImVec2) { 15.0f, 22.0f }))
+			{
+				for (j = 0; j < MAX_RBW; j++)
+				{
+					if (bitmask & (1 << j))
+						currently_selected++;
+				}
+
+				bitmask ^= (1 << i);
+
+				SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
+				SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
+
+				if (selected[i] && currently_selected == rainbow_count
+						&& rainbow_count >= 0)
+				{
+					rainbow_count--;
+					SET_CGAME_STATE (MELNORME_RAINBOW_COUNT, rainbow_count);
+				}
+			}
+			ImGui_PopStyleVar ();
+
+			if (selected[i])
+				ImGui_PopStyleColorEx (3);
+
+			if (i % 8 < 7)
+				ImGui_SameLine ();
+		}
+	}
+
 	if (DISPLAY_BOOL != 1)
 	{
 		ImGui_EndChild ();
