@@ -20,6 +20,7 @@
 #define IGCF_B ImGuiChildFlags_AlwaysUseWindowPadding
 #define SelectableAlign ImGuiStyleVar_SelectableTextAlign
 
+#define NUM_TABS 4
 #define SUBTAB_SIZE 10
 
 void
@@ -43,6 +44,43 @@ draw_settings_menu (void)
 
 	Spacer ();
 
+	{
+		ImFontAtlas *font_atlas;
+		const char *font_names[2];
+		int curr_font;
+		int i;
+
+		font_atlas = io->Fonts;
+
+		curr_font = 0;
+		for (i = 0; i < font_atlas->Fonts.Size; i++)
+		{
+			if (io->FontDefault == font_atlas->Fonts.Data[i])
+			{
+				curr_font = i;
+				break;
+			}
+		}
+
+		for (i = 0; i < font_atlas->Fonts.Size; i++)
+			font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
+
+		ImGui_Text ("FontSelector");
+		if (ImGui_ComboChar ("##FontSelector", &curr_font, font_names,
+				font_atlas->Fonts.Size))
+		{
+			io->FontDefault = font_atlas->Fonts.Data[curr_font];
+		}
+	}
+
+	Spacer ();
+
+	ImGui_Text ("UI Scale");
+	ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
+			0.01f, 0.00f, 5.00f, "%.2f", 0);
+
+	Spacer ();
+
 	{	// Menu Controller Navigation
 		bool flags = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
 
@@ -62,8 +100,6 @@ draw_settings_menu (void)
 	ImGui_NewLine ();
 
 	{	// Menu Background Opacity
-		ImGuiStyle *style = ImGui_GetStyle ();
-
 		ImGui_Text (menu_bg_lbl);
 		if (ImGui_Button (bt_reset)) // Reset
 		{
@@ -90,18 +126,18 @@ draw_settings_menu (void)
 	{
 		static bool button_pressed = false;
 		static COUNT CurSound = 0;
-		char *insult[17] = 
-		{ 
+		char *insult[17] =
+		{
 			"- Sound Test -", "- Sound Test -", "Baby!", "Dodo!", "Dummy!",
 			"Fool!", "Idiot!", "Jerk!", "Loser!", "Moron!", "Stupid!", "Twit!",
 			"Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
 		};
 
-		if (ImGui_ButtonEx (insult [CurSound], MAKE_IV2 (150.0f, 0.0f)))
+		if (ImGui_ButtonEx (insult[CurSound], MAKE_IV2 (150.0f, 0.0f)))
 		{
 			CurSound = 2 + ((COUNT)TFB_Random () % (GetSoundCount (PkunkSounds) - 2));
 			PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
-					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 		}
 	}
 }
@@ -115,13 +151,16 @@ static void DrawBorderAroundLastItem (void)
 }
 
 void
-UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
-		ImVec2 sidebar_size)
+UQM_ImGui_Tabs (TabState *state)
 {
+	int i, j;
 	int active_tab;
-	ImGuiStyle *style = ImGui_GetStyle ();
-	static const char **subtab_names[4] = { NULL };
+	static const char **subtab_names[NUM_TABS] = { NULL };
 	static const char **tab_names = NULL;
+	static ImVec2 sidebar_size = { 0, 0 };
+	float scale = 20.0f * SCALE_IT;
+	float max_width = 0;
+	float temp_width;
 
 	if (!tab_names)
 	{
@@ -144,24 +183,24 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	DrawBorderAroundLastItem ();
 
-	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38), IGCF_B, 0);
+	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38.0f * SCALE_IT), IGCF_B, 0);
 
 	// Begin NavBar
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
-	for (int i = 0; tab_names[i] != NULL; i++)
+	for (i = 0; tab_names[i] != NULL; i++)
 	{
 		ImVec2 text_size;
 		ImVec2 button_size;
 		bool selected = (active_tab == i);
 
 		ImGui_SameLine ();
-
-		ImGui_Dummy (MAKE_IV2 (4, 0));
+		ImGui_Dummy (MAKE_IV2 (4 * SCALE_IT, 0));
 		ImGui_SameLine ();
 
 		text_size = ImGui_CalcTextSize (tab_names[i]);
-		button_size = (ImVec2){ text_size.x + 20.0f, 20.0f };
+		button_size = (ImVec2){ text_size.x + scale, scale };
+
 		if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
 		{
 			active_tab = i;
@@ -173,6 +212,21 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_EndChild ();
 	DrawBorderAroundLastItem ();
 	// End NavBar
+
+	// Calculate sidebar width based on max button width
+	if (subtab_names[active_tab] != NULL)
+	{
+		for (j = 0; subtab_names[active_tab][j] != NULL; j++)
+		{
+			temp_width = ImGui_CalcTextSize (subtab_names[active_tab][j]).x;
+
+			temp_width += scale;
+
+			if (temp_width > max_width)
+				max_width = temp_width;
+		}
+	}
+	sidebar_size.x = max_width + (scale * 2);
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
@@ -186,7 +240,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
-	for (int j = 0; subtab_names[active_tab][j] != NULL; j++)
+	for (j = 0; subtab_names[active_tab][j] != NULL; j++)
 	{
 		ImVec2 text_size;
 		ImVec2 button_size;
@@ -196,7 +250,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		selected = (*active_subtab[active_tab] == j);
 
 		text_size = ImGui_CalcTextSize (subtab_names[active_tab][j]);
-		button_size = (ImVec2){ text_size.x + 20.0f, 20.0f };
+		button_size = (ImVec2){ text_size.x + scale, scale };
 
 		centering = ((sidebar_size.x - button_size.x) / 2)
 				- style->WindowPadding.x * 2;
@@ -208,7 +262,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 		}
 
 		if (ImGui_SelectableEx (subtab_names[active_tab][j],
-			selected, 0, button_size))
+				selected, 0, button_size))
 		{
 			*active_subtab[active_tab] = j;
 		}
@@ -225,7 +279,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_SameLine ();
 
 	// Content Begins
-	ImGui_BeginChild("Content", content_size, IGCF_B, 0);
+	ImGui_BeginChild("Content", ZERO_F, IGCF_B, 0);
 
 	switch (active_tab)
 	{
@@ -274,6 +328,7 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 				case 0: draw_status_menu (); break;
 				case 1: draw_devices_menu (); break;
 				case 2: draw_gamestates_menu (); break;
+				case 3: draw_events_menu (); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",
 							*active_subtab[active_tab]);
@@ -292,5 +347,4 @@ UQM_ImGui_Tabs (TabState *state, ImVec2 content_size,
 	ImGui_EndChild ();
 	DrawBorderAroundLastItem ();
 	// Content Ends
-
 }

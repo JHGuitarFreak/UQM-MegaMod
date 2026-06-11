@@ -35,11 +35,11 @@ static void UQM_BitRegister (const char *gamestate, int size);
 void
 draw_gamestates_menu (void)
 {
-	//if (IN_MAIN_MENU)
-	//{
-	//	ImGui_Text ("Game States are not available in the Main Menu...");
-	//	return;
-	//}
+	if (IN_MAIN_MENU)
+	{
+		ImGui_Text ("Game States are not available in the Main Menu...");
+		return;
+	}
 
 	if (ImGui_BeginTabBar ("GameStateTabs", 0))
 	{

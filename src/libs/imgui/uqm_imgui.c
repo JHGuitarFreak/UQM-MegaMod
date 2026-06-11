@@ -35,13 +35,12 @@ static SDL_Window *imgui_window = NULL;
 static SDL_Renderer *imgui_renderer = NULL;
 
 ImGuiIO *io = NULL;
+ImGuiStyle *style = NULL;
 
 SOUND PkunkSounds;
 
 static void ShowFullScreenMenu (TabState *state)
 {
-	float sidebar_width;
-	ImVec2 sidebar_size;
 	ImGuiWindowFlags flags;
 
 	ImGui_SetNextWindowPos (ZERO_F, 0);
@@ -61,15 +60,7 @@ static void ShowFullScreenMenu (TabState *state)
 		return;
 	}
 
-	sidebar_width = DISPLAY_SIZE.x * 0.12f;
-	if (sidebar_width < 120.0f)
-		sidebar_width = 120.0f;
-	if (sidebar_width > 200.0f)
-		sidebar_width = 200.0f;
-
-	sidebar_size = (ImVec2){ sidebar_width, 0.0f };
-
-	UQM_ImGui_Tabs (state, ZERO_F, sidebar_size);
+	UQM_ImGui_Tabs (state);
 
 	ImGui_End ();
 
@@ -104,36 +95,23 @@ static void DestroyOverlay (void)
 	}
 }
 
-static ImFont *
-CustomFont (void)
-{
-	BINARY_RES *bin = ImBinary ("imguifont");
-
-	if (bin && bin->data && bin->size > 0)
-	{
-		ImFont *font = ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, bin->data,
-				bin->size, 18, NULL, NULL);
-		if (font)
-			return font;
-	}
-
-	return ImFontAtlas_AddFontDefault (io->Fonts, NULL);
-}
-
 // Initializes ImGui with SDL2 and SDL_Renderer2
 static int
 UQM_ImGui_Init (void)
 {
+	BINARY_RES *binfont;
+	ImFontConfig font_cfg;
+
 	if (imgui_initialized)
 		return 1;
 
 	CIMGUI_CHECKVERSION ();
 	ImGui_CreateContext (NULL);
 
+	style = ImGui_GetStyle ();
 	io = ImGui_GetIO ();
-
 	io->IniFilename = NULL;
-
+	 
 	if (res_GetBoolean ("imgui.nav_gamepad"))
 		io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	else
@@ -141,7 +119,14 @@ UQM_ImGui_Init (void)
 
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	io->FontDefault = CustomFont ();
+	binfont = ImBinary ("imguifont");
+	if (binfont != NULL)
+	{
+		InitializeFontConfig (&font_cfg, "playerfont.ttf", 18.0f);
+		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
+				binfont->size, 0, &font_cfg, NULL);
+	}
+	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
 
 	UQM_ImGui_Style ();
 
@@ -190,6 +175,20 @@ UQM_ImGui_SyncWindow (void)
 	}
 }
 
+static float
+GetDefaultFontSize ()
+{
+	int i;
+	ImFontAtlas *atlas = io->Fonts;
+
+	for (i = 0; i < atlas->Sources.Size; i++)
+	{
+		if (atlas->Sources.Data[i].DstFont == io->FontDefault)
+			return atlas->Sources.Data[i].SizePixels;
+	}
+	return 0.0f;
+}
+
 // Renders the ImGui draw data
 void UQM_ImGui_Render (void)
 {
@@ -205,7 +204,11 @@ void UQM_ImGui_Render (void)
 	cImGui_ImplSDL2_NewFrame ();
 	ImGui_NewFrame ();
 
+	ImGui_PushFontFloat (io->FontDefault, GetDefaultFontSize ());
+
 	ShowFullScreenMenu (&tab_state);
+
+	ImGui_PopFont ();
 
 	ImGui_Render ();
 
@@ -473,7 +476,6 @@ ImGui_SizedComboChar (const char *label, int *curr_item,
 {
 	bool temp = false;
 	char buf[100];
-	ImGuiStyle *style = ImGui_GetStyle ();
 	float column_width = ImGui_GetColumnWidth (ImGui_GetColumnIndex ());
 	float combo_width = column_width * 0.75f;
 	float center_offset = (column_width - combo_width) * 0.5f

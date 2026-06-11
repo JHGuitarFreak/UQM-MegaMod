@@ -933,3 +933,36 @@ draw_devices_menu (void)
 	if (DISPLAY_BOOL != 1)
 		ImGui_EndChild ();
 }
+
+void
+draw_events_menu (void)
+{
+	//if (IN_MAIN_MENU)
+	//{
+	//	ImGui_Text ("Events are not available in the Main Menu...");
+	//	return;
+	//}
+
+	ImGui_ColumnsEx (DISPLAY_BOOL, "EventsColumns", false);
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
+
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
+
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_EndChild ();
+
+}

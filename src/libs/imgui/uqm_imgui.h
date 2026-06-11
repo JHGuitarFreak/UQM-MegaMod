@@ -57,6 +57,7 @@ void draw_controls_menu (void);
 void draw_status_menu (void);
 void draw_devices_menu (void);
 void draw_gamestates_menu (void);
+void draw_events_menu (void);
 
 void draw_visual_menu (void);
 void draw_cheats_menu (void);
@@ -132,7 +133,7 @@ typedef struct
 	int devtools_tab;
 } TabState;
 
-void UQM_ImGui_Tabs (TabState *state, ImVec2 content_size, ImVec2 sidebar_size);
+void UQM_ImGui_Tabs (TabState *state);
 
 // Imgui Controls
 typedef struct
@@ -161,8 +162,11 @@ extern FLIGHT_BINDINGS def_fl_bindings[2][NUM_KEYS];
 bool ProcessControlEvents (SDL_Event *event);
 
 // Helpers
+extern ImGuiStyle *style;
+
+#define SCALE_IT style->FontScaleMain
 #define DISPLAY_SIZE io->DisplaySize
-#define DISPLAY_BOOL (DISPLAY_SIZE.x > 640.0f ? 3 : 1)
+#define DISPLAY_BOOL ((DISPLAY_SIZE.x > 640.0f && SCALE_IT <= 1.5) ? 3 : 1)
 #define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
 #define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
@@ -337,10 +341,28 @@ UQM_BitRegister (const char *gamestate, int size)
 }
 #define GS_Binary(SName,size) UQM_BitRegister(#SName, size)
 
+static inline ImFontConfig *
+InitializeFontConfig (ImFontConfig *font_cfg, const char *name, float size)
+{
+	memset (font_cfg, 0, sizeof (ImFontConfig));
+	font_cfg->FontDataOwnedByAtlas = true;
+	font_cfg->OversampleH = 0;
+	font_cfg->OversampleV = 0;
+	font_cfg->ExtraSizeScale = 1.0f;
+	font_cfg->GlyphMaxAdvanceX = ((float)3.40282346638528860e+38);
+	font_cfg->RasterizerMultiply = 1.0f;
+	font_cfg->RasterizerDensity = 1.0f;
+	font_cfg->EllipsisChar = 0;
+	font_cfg->SizePixels = size;
+
+	snprintf (font_cfg->Name, sizeof font_cfg->Name, "%s", name);
+
+	return font_cfg;
+}
+
 static inline void
 UQM_ImGui_Style (void)
 {
-	ImGuiStyle *style = ImGui_GetStyle ();
 	ImVec4 *colors = style->Colors;
 	const ImVec4 transparent = { 0 };
 	float cbg_w = res_GetFloat ("imgui.background_opacity");
