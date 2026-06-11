@@ -172,7 +172,11 @@ extern ImGuiStyle *style;
 #define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
 #define MAKE_IV4(w,x,y,z) ((ImVec4){ (w), (x), (y), (z) })
 
-static inline void Spacer (void) { ImGui_Dummy ((ImVec2) { 0.0f, 4.0f }); }
+static inline void
+Spacer (void)
+{
+	ImGui_Dummy (MAKE_IV2 (0.0f, 4.0f  * SCALE_IT));
+}
 
 static inline void
 Spacer_Column (int num_col)
@@ -186,7 +190,7 @@ Spacer_Column (int num_col)
 	}
 }
 
-#define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, 4))
+#define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, 4 * SCALE_IT))
 #define CENTER_IT MAKE_IV2 (0.5f, 0.5f)
 #define ZERO_F    MAKE_IV2 (0.0f, 0.0f)
 
@@ -322,7 +326,8 @@ UQM_BitRegister (const char *gamestate, int size)
 		}
 
 		ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
-		if (ImGui_ButtonEx (buf, (ImVec2) { 15.0f, 22.0f }))
+		if (ImGui_ButtonEx (buf,
+				MAKE_IV2 (15.0f * SCALE_IT, 22.0f * SCALE_IT)))
 		{
 			bitmask ^= (1 << i);
 
@@ -358,6 +363,15 @@ InitializeFontConfig (ImFontConfig *font_cfg, const char *name, float size)
 	snprintf (font_cfg->Name, sizeof font_cfg->Name, "%s", name);
 
 	return font_cfg;
+}
+
+static inline void
+DrawBorderAroundLastItem (void)
+{
+	ImDrawList *draw_list = ImGui_GetWindowDrawList ();
+	ImVec2 min = ImGui_GetItemRectMin ();
+	ImVec2 max = ImGui_GetItemRectMax ();
+	ImDrawList_AddRectEx (draw_list, min, max, U32_FRAMEBG_ACT_GS, 4.0f, 0, 1.0f);
 }
 
 static inline void

@@ -184,4 +184,6 @@ void draw_audio_menu (void)
 			}
 		}
 	}
+
+	Spacer ();
 }

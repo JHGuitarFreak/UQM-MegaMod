@@ -81,4 +81,6 @@ void draw_cheats_menu (void)
 			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
 
 	//ImGui_NextColumn ();
+
+	Spacer ();
 }

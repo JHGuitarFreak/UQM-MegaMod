@@ -29,7 +29,8 @@ draw_settings_menu (void)
 	static const char *menu_settings_lbl, *menu_cntrlr_nav, *menu_bg_lbl;
 	static const char *bt_reset;
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "SettingsColumns", false);
+	if (DISPLAY_BOOL == 3)
+		ImGui_ColumnsEx (3, "SettingsColumns", false);
 
 	if (!menu_settings_lbl)
 	{
@@ -77,7 +78,7 @@ draw_settings_menu (void)
 
 	ImGui_Text ("UI Scale");
 	ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
-			0.01f, 0.00f, 5.00f, "%.2f", 0);
+			0.01f, 0.50f, 5.00f, "%.2f", 0);
 
 	Spacer ();
 
@@ -86,10 +87,7 @@ draw_settings_menu (void)
 
 		if (ImGui_Checkbox (menu_cntrlr_nav, &flags))
 		{
-			io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
-
-			if (flags)
-				io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+			io->ConfigFlags ^= ImGuiConfigFlags_NavEnableGamepad;
 
 			res_PutBoolean ("imgui.nav_gamepad", (BOOLEAN)flags);
 
@@ -133,21 +131,15 @@ draw_settings_menu (void)
 			"Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
 		};
 
-		if (ImGui_ButtonEx (insult[CurSound], MAKE_IV2 (150.0f, 0.0f)))
+		if (ImGui_ButtonEx (insult[CurSound],
+				MAKE_IV2 (150.0f * SCALE_IT, 0.0f)))
 		{
-			CurSound = 2 + ((COUNT)TFB_Random () % (GetSoundCount (PkunkSounds) - 2));
+			CurSound = 2 + ((COUNT)TFB_Random () % (
+					GetSoundCount (PkunkSounds) - 2));
 			PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
-				NotPositional (), NULL, GAME_SOUND_PRIORITY);
+					NotPositional (), NULL, GAME_SOUND_PRIORITY);
 		}
 	}
-}
-
-static void DrawBorderAroundLastItem (void)
-{
-	ImDrawList *draw_list = ImGui_GetWindowDrawList ();
-	ImVec2 min = ImGui_GetItemRectMin ();
-	ImVec2 max = ImGui_GetItemRectMax ();
-	ImDrawList_AddRectEx (draw_list, min, max, U32_FRAMEBG_ACT_GS, 4.0f, 0, 1.0f);
 }
 
 void
@@ -158,9 +150,10 @@ UQM_ImGui_Tabs (TabState *state)
 	static const char **subtab_names[NUM_TABS] = { NULL };
 	static const char **tab_names = NULL;
 	static ImVec2 sidebar_size = { 0, 0 };
+	static float temp_height = 0;
 	float scale = 20.0f * SCALE_IT;
-	float max_width = 0;
-	float temp_width;
+	float max_size = 0;
+	float temp_size;
 
 	if (!tab_names)
 	{
@@ -183,9 +176,9 @@ UQM_ImGui_Tabs (TabState *state)
 
 	DrawBorderAroundLastItem ();
 
-	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, 38.0f * SCALE_IT), IGCF_B, 0);
-
 	// Begin NavBar
+	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, temp_height), IGCF_B, 0);
+
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
 	for (i = 0; tab_names[i] != NULL; i++)
@@ -195,7 +188,7 @@ UQM_ImGui_Tabs (TabState *state)
 		bool selected = (active_tab == i);
 
 		ImGui_SameLine ();
-		ImGui_Dummy (MAKE_IV2 (4 * SCALE_IT, 0));
+		ImGui_Dummy (MAKE_IV2 (4.0f * SCALE_IT, 0));
 		ImGui_SameLine ();
 
 		text_size = ImGui_CalcTextSize (tab_names[i]);
@@ -207,26 +200,28 @@ UQM_ImGui_Tabs (TabState *state)
 			state->active_tab = i;
 		}
 	}
-
 	ImGui_PopStyleVar ();
+
+	temp_height = ImGui_GetItemRectMax ().y - 1;
+
 	ImGui_EndChild ();
 	DrawBorderAroundLastItem ();
-	// End NavBar
+	// NavBar Ends
 
 	// Calculate sidebar width based on max button width
 	if (subtab_names[active_tab] != NULL)
 	{
 		for (j = 0; subtab_names[active_tab][j] != NULL; j++)
 		{
-			temp_width = ImGui_CalcTextSize (subtab_names[active_tab][j]).x;
+			temp_size = ImGui_CalcTextSize (subtab_names[active_tab][j]).x;
 
-			temp_width += scale;
+			temp_size += scale;
 
-			if (temp_width > max_width)
-				max_width = temp_width;
+			if (temp_size > max_size)
+				max_size = temp_size;
 		}
 	}
-	sidebar_size.x = max_width + (scale * 2);
+	sidebar_size.x = max_size + (scale * 2);
 
 	// Sidebar Begins
 	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
@@ -268,7 +263,7 @@ UQM_ImGui_Tabs (TabState *state)
 		}
 
 		if (j >= 0)
-			ImGui_Dummy (MAKE_IV2 (0, 8));
+			ImGui_Dummy (MAKE_IV2 (0, 8.0f * SCALE_IT));
 	}
 
 	ImGui_PopStyleVar ();

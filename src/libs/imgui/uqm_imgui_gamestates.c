@@ -123,8 +123,8 @@ GamestatesTab00 (void)
 		{
 			"Haven't Lied", "Lied Once", "Lied Twice"
 		};
-		ImGui_Text ("SPATHI_MANNER");
-		if (ImGui_ComboChar ("##SPATHI_MANNER", &lied_about_creatures,
+		ImGui_Text ("LIED_ABOUT_CREATURES");
+		if (ImGui_ComboChar ("##LIED_ABOUT_CREATURES", &lied_about_creatures,
 			lac_states, ARRAY_SIZE (lac_states)))
 		{
 			SET_CGAME_STATE (LIED_ABOUT_CREATURES, lied_about_creatures);
@@ -150,6 +150,8 @@ GamestatesTab00 (void)
 	GS_CHECKBOX (YEHAT_CAVALRY_ARRIVED);
 	GS_CHECKBOX (URQUAN_MESSED_UP);
 	GS_CHECKBOX (KOHR_AH_KILLED_ALL);
+
+	Spacer ();
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -257,6 +259,8 @@ GamestatesTab00 (void)
 			SET_CGAME_STATE (CHMMR_BOMB_STATE, chmmr_bomb_state);
 		}
 	}
+
+	Spacer ();
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -445,6 +449,8 @@ GamestatesTab00 (void)
 	GS_CHECKBOX (ILWRATH_FIGHT_THRADDASH);
 	GS_CHECKBOX (READY_TO_CONFUSE_URQUAN);
 	GS_CHECKBOX (URQUAN_HYPNO_VISITS);
+
+	Spacer ();
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -699,7 +705,8 @@ GamestatesTab01 (void)
 			}
 
 			ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
-			if (ImGui_ButtonEx (buf, (ImVec2) { 15.0f, 22.0f }))
+			if (ImGui_ButtonEx (buf,
+					MAKE_IV2 (15.0f * SCALE_IT, 22.0f * SCALE_IT)))
 			{
 				for (j = 0; j < MAX_RBW; j++)
 				{
