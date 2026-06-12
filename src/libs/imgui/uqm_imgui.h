@@ -43,6 +43,8 @@
 #include "uqm/nameref.h"
 #include "uqm/ships/pkunk/resinst.h"
 
+#include "libs/graphics/sdl/sdl_common.h"
+
 #include <SDL.h>
 
 #ifdef __cplusplus

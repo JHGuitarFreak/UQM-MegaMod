@@ -23,14 +23,31 @@
 #define NUM_TABS 4
 #define SUBTAB_SIZE 10
 
+#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
+		| ImGuiChildFlags_AlwaysUseWindowPadding
+
+#if defined(_WIN32)
+#define PLATFORM "Windows"
+#elif defined(__linux__)
+#define PLATFORM "Linux"
+#elif defined(__APPLE__)
+#define PLATFORM "macOS"
+#elif defined (ANDROID) || defined (__ANDROID__)
+#define PLATFORM "Android"
+#elif defined(__IOS__)
+#define PLATFORM "iOS"
+#else
+#define PLATFORM "Unknown"
+#endif
+
 void
 draw_settings_menu (void)
 {
 	static const char *menu_settings_lbl, *menu_cntrlr_nav, *menu_bg_lbl;
 	static const char *bt_reset;
 
-	if (DISPLAY_BOOL == 3)
-		ImGui_ColumnsEx (3, "SettingsColumns", false);
+	if (DISPLAY_BOOL != 1)
+		ImGui_ColumnsEx (2, "SettingsColumns", false);
 
 	if (!menu_settings_lbl)
 	{
@@ -78,7 +95,7 @@ draw_settings_menu (void)
 
 	ImGui_Text ("UI Scale");
 	ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
-			0.01f, 0.50f, 5.00f, "%.2f", 0);
+			0.01f, 0.50f, 4.00f, "%.2f", 0);
 
 	Spacer ();
 
@@ -122,7 +139,6 @@ draw_settings_menu (void)
 	ImGui_NewLine ();
 
 	{
-		static bool button_pressed = false;
 		static COUNT CurSound = 0;
 		char *insult[17] =
 		{
@@ -140,6 +156,62 @@ draw_settings_menu (void)
 					NotPositional (), NULL, GAME_SOUND_PRIORITY);
 		}
 	}
+
+	ImGui_NewLine ();
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_NextColumn ();
+
+	ImGui_SeparatorText ("About");
+
+	Spacer ();
+
+	{
+		ImGui_Text ("%s v0.8.0", UQM_TITLE_S);
+		ImGui_Text ("%s%s v%s", (IS_HD ? "HD " : ""),
+			UQM_EXTRA_VERSION, MM_BASE_VERSION_S);
+
+		Spacer ();
+
+		ImGui_Text ("Platform: %s", PLATFORM);
+
+		Spacer ();
+
+		ImGui_Text ("Build Date: %s %s", __DATE__, __TIME__);
+		Spacer ();
+
+#ifdef _MSC_VER
+		ImGui_Text ("MSC_VER: %d", _MSC_VER);
+		ImGui_Text ("MSC_FULL_VER: %d", _MSC_FULL_VER);
+		ImGui_Text ("MSC_BUILD: %d", _MSC_BUILD);
+#endif // _MSC_VER
+
+#ifdef __MINGW32__
+		ImGui_Text ("MINGW32_VERSION: %d.%d", __MINGW32_MAJOR_VERSION,
+				__MINGW32_MINOR_VERSION);
+#endif // __MINGW32__
+
+#ifdef __MINGW64__
+		ImGui_Text ("MINGW64_VERSION: %d.%d", __MINGW32_MAJOR_VERSION,
+				__MINGW32_MINOR_VERSION);
+#endif // __MINGW32__
+
+#ifdef __GNUC__
+		ImGui_Text ("GCC_VERSION: %d.%d.%d", __GNUC__, __GNUC_MINOR__,
+				__GNUC_PATCHLEVEL__);
+#endif // __GNUC__
+
+#ifdef __clang__
+		ImGui_Text ("CLANG_VERSION: %d.%d.%d", __clang_major__,
+				__clang_minor__, __clang_patchlevel__);
+#endif // __clang__
+
+		Spacer ();
+
+	}
+
+	if (DISPLAY_BOOL != 1)
+		ImGui_Columns ();
 }
 
 void

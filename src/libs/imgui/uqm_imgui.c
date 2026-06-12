@@ -17,8 +17,6 @@
 
 #include "uqm_imgui.h"
 
-#include "libs/graphics/sdl/sdl_common.h"
-
 bool menu_visible = false;
 static bool imgui_initialized = false;
 static TabState tab_state;
@@ -30,9 +28,6 @@ bool imcfg_changed = false;
 bool res_change = false;
 bool gfx_change = false;
 bool scr_refresh = false;
-
-static SDL_Window *imgui_window = NULL;
-static SDL_Renderer *imgui_renderer = NULL;
 
 ImGuiIO *io = NULL;
 ImGuiStyle *style = NULL;
@@ -80,20 +75,6 @@ static void ShowFullScreenMenu (TabState *state)
 }
 
 // ImGui implementation below
-
-static void DestroyOverlay (void)
-{
-	if (imgui_renderer)
-	{
-		SDL_DestroyRenderer (imgui_renderer);
-		imgui_renderer = NULL;
-	}
-	if (imgui_window)
-	{
-		SDL_DestroyWindow (imgui_window);
-		imgui_window = NULL;
-	}
-}
 
 // Initializes ImGui with SDL2 and SDL_Renderer2
 static int
@@ -148,31 +129,6 @@ UQM_ImGui_Init (void)
 
 	imgui_initialized = true;
 	return 1;
-}
-
-// Keeps the ImGui window within the game window.
-static void
-UQM_ImGui_SyncWindow (void)
-{
-	int imgui_x, imgui_y, imgui_w, imgui_h;
-	int game_x, game_y, game_w, game_h;
-
-	if (!imgui_window || !window)
-		return;
-
-	SDL_GetWindowPosition (window, &game_x, &game_y); 
-	SDL_GetWindowSize (window, &game_w, &game_h);
-
-	SDL_GetWindowPosition (imgui_window, &imgui_x, &imgui_y);
-	SDL_GetWindowSize (imgui_window, &imgui_w, &imgui_h);
-
-	if (game_w != imgui_w || game_h != imgui_h
-			|| game_x != imgui_x || game_y != imgui_y)
-	{
-		SDL_SetWindowPosition (imgui_window, game_x, game_y);
-		SDL_SetWindowSize (imgui_window, game_w, game_h);
-		SDL_RaiseWindow (imgui_window);
-	}
 }
 
 static float
