@@ -149,11 +149,9 @@ UQM_ImGui_Tabs (TabState *state)
 	int active_tab;
 	static const char **subtab_names[NUM_TABS] = { NULL };
 	static const char **tab_names = NULL;
-	static ImVec2 sidebar_size = { 0, 0 };
+	static float temp_width = 0;
 	static float temp_height = 0;
 	float scale = 20.0f * SCALE_IT;
-	float max_size = 0;
-	float temp_size;
 
 	if (!tab_names)
 	{
@@ -200,6 +198,7 @@ UQM_ImGui_Tabs (TabState *state)
 			state->active_tab = i;
 		}
 	}
+
 	ImGui_PopStyleVar ();
 
 	temp_height = ImGui_GetItemRectMax ().y - 1;
@@ -208,23 +207,8 @@ UQM_ImGui_Tabs (TabState *state)
 	DrawBorderAroundLastItem ();
 	// NavBar Ends
 
-	// Calculate sidebar width based on max button width
-	if (subtab_names[active_tab] != NULL)
-	{
-		for (j = 0; subtab_names[active_tab][j] != NULL; j++)
-		{
-			temp_size = ImGui_CalcTextSize (subtab_names[active_tab][j]).x;
-
-			temp_size += scale;
-
-			if (temp_size > max_size)
-				max_size = temp_size;
-		}
-	}
-	sidebar_size.x = max_size + (scale * 2);
-
 	// Sidebar Begins
-	ImGui_BeginChild ("Sidebar", sidebar_size, IGCF_B, 0);
+	ImGui_BeginChild ("Sidebar", MAKE_IV2 (temp_width, 0.0f), IGCF_B, 0);
 
 	if (subtab_names[active_tab] == NULL)
 	{
@@ -232,6 +216,8 @@ UQM_ImGui_Tabs (TabState *state)
 		ImGui_EndChild ();
 		return;
 	}
+
+	ImGui_BeginGroup ();
 
 	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
 
@@ -247,8 +233,10 @@ UQM_ImGui_Tabs (TabState *state)
 		text_size = ImGui_CalcTextSize (subtab_names[active_tab][j]);
 		button_size = (ImVec2){ text_size.x + scale, scale };
 
-		centering = ((sidebar_size.x - button_size.x) / 2)
+		centering = ((temp_width - button_size.x) / 2)
 				- style->WindowPadding.x * 2;
+
+		ImGui_Dummy (MAKE_IV2 (0, 8.0f * SCALE_IT));
 
 		if (centering > 0.0f)
 		{
@@ -261,12 +249,14 @@ UQM_ImGui_Tabs (TabState *state)
 		{
 			*active_subtab[active_tab] = j;
 		}
-
-		if (j >= 0)
-			ImGui_Dummy (MAKE_IV2 (0, 8.0f * SCALE_IT));
 	}
 
 	ImGui_PopStyleVar ();
+
+	ImGui_EndGroup ();
+
+	temp_width = ImGui_GetItemRectMax ().x + scale;
+
 	ImGui_EndChild ();
 	DrawBorderAroundLastItem ();
 	// Sidebar Ends
