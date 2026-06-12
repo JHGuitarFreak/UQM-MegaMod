@@ -379,6 +379,23 @@ DrawBorderAroundLastItem (void)
 	ImDrawList_AddRectEx (draw_list, min, max, U32_FRAMEBG_ACT_GS, 4.0f, 0, 1.0f);
 }
 
+typedef struct im_rect
+{
+	ImVec2 corner, extent;
+	ImU32 color;
+	float rounding;
+	ImDrawFlags flags;
+} IM_RECT;
+
+static inline void
+ImGui_DrawFilledRect (IM_RECT *rect)
+{
+	ImDrawList *draw_list = ImGui_GetWindowDrawList ();
+
+	ImDrawList_AddRectFilledEx (draw_list, rect->corner, rect->extent,
+		rect->color, rect->rounding, rect->flags);
+}
+
 static inline void
 UQM_ImGui_Style (void)
 {

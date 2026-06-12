@@ -1121,18 +1121,19 @@ draw_events_menu (void)
 			ImGui_BeginChild (buf, ZERO_F, CHILD_FLAGS | ImGuiChildFlags_AutoResizeX, 0);
 
 			{
-				ImDrawList *draw_list = ImGui_GetWindowDrawList ();
+				IM_RECT r;
 				ImVec2 cursor_pos = ImGui_GetCursorScreenPos ();
 				ImVec2 get_max = ImGui_GetWindowContentRegionMax ();
-				ImVec2 title_bar_start = MAKE_IV2 (
-					cursor_pos.x - style->WindowPadding.x,
-					cursor_pos.y - style->WindowPadding.y);
-				ImVec2 title_bar_end = MAKE_IV2 (
-					title_bar_start.x + get_max.x + style->WindowPadding.x,
-					title_bar_start.y + 25.0f + style->WindowPadding.y);
 
-				ImDrawList_AddRectFilledEx (draw_list, title_bar_start,
-						title_bar_end, U32_FRAMEBG_GS, 4.0f , 0);
+				r.corner.x = cursor_pos.x - style->WindowPadding.x;
+				r.corner.y = cursor_pos.y - style->WindowPadding.y;
+				r.extent.x = r.corner.x + get_max.x + style->WindowPadding.x;
+				r.extent.y = r.corner.y + 25.0f + style->WindowPadding.y;
+				r.color = U32_FRAMEBG_GS;
+				r.rounding = 4.0f;
+				r.flags = ImDrawFlags_RoundCornersTop;
+
+				ImGui_DrawFilledRect (&r);
 			}
 
 			ImGui_Text ("EventID [%02d]", i);
