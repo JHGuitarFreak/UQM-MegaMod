@@ -206,7 +206,16 @@ draw_settings_menu (void)
 				__clang_minor__, __clang_patchlevel__);
 #endif // __clang__
 
-		Spacer ();
+		ImGui_NewLine ();
+
+		ImGui_Text ("ImGui v%s", IMGUI_VERSION);
+
+		{
+			if (ImGui_Button ("Show ImGui Demo Window"))
+			{
+				show_demo = !show_demo;
+			}
+		}
 
 	}
 

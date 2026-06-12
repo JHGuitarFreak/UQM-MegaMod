@@ -34,6 +34,8 @@ ImGuiStyle *style = NULL;
 
 SOUND PkunkSounds;
 
+bool show_demo = false;
+
 static void ShowFullScreenMenu (TabState *state)
 {
 	ImGuiWindowFlags flags;
@@ -162,7 +164,18 @@ void UQM_ImGui_Render (void)
 
 	ImGui_PushFontFloat (io->FontDefault, GetDefaultFontSize ());
 
-	ShowFullScreenMenu (&tab_state);
+	if (show_demo)
+	{
+		if (!style->Colors[ImGuiCol_WindowBg].w)
+			style->Colors[ImGuiCol_WindowBg].w = 0.80f;
+		ImGui_ShowDemoWindow (&show_demo);
+	}
+	else
+	{
+		if (style->Colors[ImGuiCol_WindowBg].w)
+			style->Colors[ImGuiCol_WindowBg].w = 0.0f;
+		ShowFullScreenMenu (&tab_state);
+	}
 
 	ImGui_PopFont ();
 
