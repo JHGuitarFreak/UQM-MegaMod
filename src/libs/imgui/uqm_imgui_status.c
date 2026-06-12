@@ -374,14 +374,16 @@ void draw_status_menu (void)
 			FLEET_INFO *FleetPtr;
 			bool ship_buildable;
 			int race_state;
+			float btn_size = 110.0f * SCALE_IT;
+			float cmb_size = 95.0f * SCALE_IT;
 
 			const char *allied_states[3] = {
 					"Dead", "Allied", "Enemy" };
 
 #define COLUMN_FLAGS ImGuiTableColumnFlags_WidthFixed
 
-			ImGui_TableSetupColumn ("Race", COLUMN_FLAGS);
-			ImGui_TableSetupColumn ("Status", COLUMN_FLAGS);
+			ImGui_TableSetupColumnEx ("Race", COLUMN_FLAGS, btn_size, 0);
+			ImGui_TableSetupColumnEx ("Status", COLUMN_FLAGS, cmb_size, 0);
 
 			int Index = 0;
 			for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -405,7 +407,8 @@ void draw_status_menu (void)
 				}
 
 				if (ImGui_ButtonEx (GetStringAddress (
-						SetAbsStringTableIndex (FleetPtr->race_strings, 0)), (ImVec2 ){110.0f, 0.0f }))
+						SetAbsStringTableIndex (FleetPtr->race_strings, 0)),
+							MAKE_IV2 (btn_size, 0.0f)))
 				{
 					FleetPtr->can_build = !ship_buildable;
 				}
@@ -415,10 +418,11 @@ void draw_status_menu (void)
 
 				ImGui_TableNextColumn ();
 
-				ImGui_SetNextItemWidth (95.0f);
+				ImGui_SetNextItemWidth (cmb_size);
 
 				race_state = FleetPtr->allied_state;
-				if (ImGui_ComboChar ("##AlliedState", &race_state, allied_states, 3))
+				if (ImGui_ComboChar ("##AlliedState", &race_state,
+						allied_states, 3))
 				{
 					FleetPtr->allied_state = race_state;
 				}
