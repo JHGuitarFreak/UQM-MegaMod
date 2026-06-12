@@ -16,6 +16,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <stdlib.h>
+
 #include "build.h"
 #include "options.h"
 #include "races.h"
@@ -29,7 +31,7 @@
 #include "starmap.h"
 #include "gendef.h"
 #include "save.h"
-#include <stdlib.h>
+#include "gameev.h"
 
 
 // Allocate a new STARSHIP or SHIP_FRAGMENT and put it in the queue
@@ -1088,6 +1090,35 @@ loadGameCheats (void)
 
 	cheatAddRemoveDevices ();
 	cheatAddRemoveUpgrades ();
+
+	if (optDeCleansing)
+	{
+		HEVENT hEvent = GetHeadEvent ();
+
+		LockGameClock ();
+
+		while (hEvent != 0)
+		{
+			EVENT *EventPtr;
+			LockEvent (hEvent, &EventPtr);
+
+			if (EventPtr->func_index == KOHR_AH_VICTORIOUS_EVENT)
+			{
+				if (EventPtr->year_index == 2159)
+					EventPtr->year_index += YEARS_TO_KOHRAH_VICTORY;
+
+				UnlockEvent (hEvent);
+				PutEvent (hEvent);
+				break;
+			}
+
+			HEVENT nextEvent = GetSuccEvent (EventPtr);
+			UnlockEvent (hEvent);
+			hEvent = nextEvent;
+		}
+
+		UnlockGameClock ();
+	}
 }
 
 // Jitter returns a distance between 0..66.6% of the fleet's actual strength,
