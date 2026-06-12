@@ -108,6 +108,9 @@ extern void UnlockGameClock (void);
 // but not much else
 extern BOOLEAN GameClockRunning (void);
 
+extern BOOLEAN IsLeapYear (COUNT year);
+extern BYTE DaysInMonth (COUNT month, COUNT year);
+
 #if defined(__cplusplus)
 }
 #endif

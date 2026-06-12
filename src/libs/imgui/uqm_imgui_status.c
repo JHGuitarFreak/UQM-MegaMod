@@ -19,6 +19,7 @@
 
 #include "uqm/races.h"
 #include "uqm/gamestr.h"
+#include "uqm/gameev.h"
 
 static int collapse_player;
 static int collapse_lander;
@@ -938,35 +939,258 @@ draw_devices_menu (void)
 		ImGui_EndChild ();
 }
 
+typedef struct
+{
+	int year_index, month_index, day_index;
+	bool paused, blocked;
+} CachedEvent;
+
+static CachedEvent events[NUM_EVENTS] = { 0 };
+
+int
+DaysUntilEvent (CachedEvent event)
+{
+	int i, days = 0;
+	int year_index, month_index, day_index;
+	CLOCK_STATE GameClock = GLOBAL (GameClock);
+
+	year_index = event.year_index;
+	month_index = event.month_index;
+	day_index = event.day_index;
+
+	for (i = GameClock.year_index; i < year_index; i++)
+		days += IsLeapYear (i) ? 366 : 365;
+
+	for (i = 1; i < month_index; i++)
+		days += DaysInMonth (i, year_index);
+
+	days += day_index;
+
+	for (i = 1; i < GameClock.month_index; i++)
+		days -= DaysInMonth (i, GameClock.year_index);
+
+	days -= GameClock.day_index;
+
+	if (event.paused && days < 0)
+		return 0;
+
+	return days;
+}
+
+void
+PauseEvent (int func_index)
+{
+	HEVENT hEvent = GetHeadEvent ();
+	while (hEvent)
+	{
+		EVENT *EventPtr;
+		LockEvent (hEvent, &EventPtr);
+		if (EventPtr->func_index == func_index)
+		{
+			RemoveEvent (hEvent);
+			UnlockEvent (hEvent);
+			FreeEvent (hEvent);
+			break;
+		}
+		UnlockEvent (hEvent);
+		hEvent = GetSuccEvent (EventPtr);
+	}
+}
+
+void
+ResumeEvent (int func_index)
+{
+	int days = DaysUntilEvent (events[func_index]);
+	AddEvent (RELATIVE_EVENT, 0, days > 1 ? days : 2, 0, func_index);
+}
+
 void
 draw_events_menu (void)
 {
-	//if (IN_MAIN_MENU)
-	//{
-	//	ImGui_Text ("Events are not available in the Main Menu...");
-	//	return;
-	//}
+	int i, col;
+	static TimeCount NextTime = 0;
+	TimeCount Now = GetTimeCounter ();
+	const int delay = 1;
+	static int event_count = 0;
+	bool header_printed = false;
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "EventsColumns", false);
-
-	if (DISPLAY_BOOL != 1)
-		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
-
-	if (DISPLAY_BOOL != 1)
+	if (IN_MAIN_MENU)
 	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
+		ImGui_Text ("Events are not available in the Main Menu...");
+		return;
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (Now >= NextTime)
 	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
+		HEVENT hEvent;
+
+		NextTime = Now + (ONE_SECOND * delay);
+
+		LockGameClock ();
+
+		hEvent = GetHeadEvent ();
+
+		while (hEvent != 0)
+		{
+			EVENT *EventPtr;
+			CachedEvent *event;
+			LockEvent (hEvent, &EventPtr);
+
+			event = &events[EventPtr->func_index];
+
+			if (event->year_index != EventPtr->year_index ||
+				event->month_index != EventPtr->month_index ||
+				event->day_index != EventPtr->day_index)
+			{
+				event->year_index = EventPtr->year_index;
+				event->month_index = EventPtr->month_index;
+				event->day_index = EventPtr->day_index;
+			}
+
+			HEVENT nextEvent = GetSuccEvent (EventPtr);
+			UnlockEvent (hEvent);
+			hEvent = nextEvent;
+		}
+
+		UnlockGameClock ();
 	}
 
-	if (DISPLAY_BOOL != 1)
-		ImGui_EndChild ();
+	ImGui_BeginStyledChild ("##Events", ZERO_F, CHILD_FLAGS, 0, NULL);
 
+	ImGui_Text ("Refresh delay: %d second(s)\n", delay);
+	ImGui_Text ("Current Date: %04d/%02d/%02d\n",
+		GLOBAL (GameClock).year_index,
+		GLOBAL (GameClock).month_index,
+		GLOBAL (GameClock).day_index);
+
+	ImGui_NewLine ();
+
+	col = 0;
+	for (i = 0; i < NUM_EVENTS; i++)
+	{
+		if (events[i].blocked)
+		{
+			char buf[60];
+
+			if (!header_printed)
+			{
+				ImGui_Text ("Blocked Events:");
+				header_printed = true;
+			}
+
+			if (col > 0 && col % 3 != 0)
+				ImGui_SameLine ();
+
+			snprintf (buf, sizeof buf, "%s##%d", eventIdNumToStr (i), i);
+			if (ImGui_Button (buf))
+			{
+				events[i].blocked = false;
+			}
+
+			col++;
+		}
+	}
+
+	Spacer ();
+
+	ImGui_Separator ();
+
+	Spacer ();
+
+	col = 0;
+	for (i = 0; i < NUM_EVENTS; i++)
+	{
+		int days_until;
+
+		if (events[i].blocked)
+			continue;
+
+		days_until = DaysUntilEvent (events[i]);
+
+		if (days_until >= 0 || events[i].paused)
+		{
+			static bool paused[NUM_EVENTS];
+			char buf[60];
+
+			if (col > 0 && col % 3 != 0)
+				ImGui_SameLine ();
+			else
+				Spacer ();
+
+			snprintf (buf, sizeof buf, "Child##%s", eventIdNumToStr (i));
+			ImGui_BeginChild (buf, ZERO_F, CHILD_FLAGS | ImGuiChildFlags_AutoResizeX, 0);
+
+			{
+				ImDrawList *draw_list = ImGui_GetWindowDrawList ();
+				ImVec2 cursor_pos = ImGui_GetCursorScreenPos ();
+				ImVec2 get_max = ImGui_GetWindowContentRegionMax ();
+				ImVec2 title_bar_start = MAKE_IV2 (
+					cursor_pos.x - style->WindowPadding.x,
+					cursor_pos.y - style->WindowPadding.y);
+				ImVec2 title_bar_end = MAKE_IV2 (
+					title_bar_start.x + get_max.x + style->WindowPadding.x,
+					title_bar_start.y + 25.0f + style->WindowPadding.y);
+
+				ImDrawList_AddRectFilledEx (draw_list, title_bar_start,
+						title_bar_end, U32_FRAMEBG_GS, 4.0f , 0);
+			}
+
+			ImGui_Text ("EventID [%02d]", i);
+
+			Spacer ();
+
+			if (paused[i])
+				ImGui_PushStyleColor (ImGuiCol_Text, U32_RED_COLOR);
+
+			ImGui_Text ("%s", eventIdNumToStr (i));
+			ImGui_Text ("%04d/%02d/%02d",
+					events[i].year_index,
+					events[i].month_index,
+					events[i].day_index);
+
+			Spacer ();
+
+			ImGui_Text ("Days until event: %d", days_until);
+
+			if (paused[i])
+				ImGui_PopStyleColor ();
+
+			Spacer ();
+
+			ImGui_Separator ();
+
+			Spacer ();
+
+			snprintf (buf, sizeof buf, "Block##%s", eventIdNumToStr (i));
+			if (ImGui_Button (buf))
+			{
+				events[i].blocked = !events[i].blocked;
+			}
+
+			ImGui_SameLine ();
+
+			snprintf (buf, sizeof buf, "Pause##%s", eventIdNumToStr (i));
+			if (ImGui_Button (buf))
+			{
+				events[i].paused = !events[i].paused;
+
+				if (events[i].paused)
+					PauseEvent (i);
+				else
+					ResumeEvent (i);
+			}
+
+			Spacer ();
+
+			ImGui_EndChild ();
+			
+			DrawBorderAroundLastItem ();
+
+			paused[i] = events[i].paused;
+
+			col++;
+		}
+	}
+
+	ImGui_EndChild ();
 }
