@@ -1004,21 +1004,11 @@ ResumeEvent (int func_index)
 	AddEvent (RELATIVE_EVENT, 0, days > 1 ? days : 2, 0, func_index);
 }
 
-void
-draw_events_menu (void)
+static void
+GetEvents (int delay)
 {
-	int i, col;
 	static TimeCount NextTime = 0;
 	TimeCount Now = GetTimeCounter ();
-	const int delay = 1;
-	static int event_count = 0;
-	bool header_printed = false;
-
-	if (IN_MAIN_MENU)
-	{
-		ImGui_Text ("Events are not available in the Main Menu...");
-		return;
-	}
 
 	if (Now >= NextTime)
 	{
@@ -1054,8 +1044,35 @@ draw_events_menu (void)
 
 		UnlockGameClock ();
 	}
+}
+
+#define NUM_COL (style->FontScaleMain > 2.0f ? 2 : 3)
+
+void
+draw_events_menu (void)
+{
+	int i, col;
+	static int delay = 1;
+	bool block_btn = false;
+	static EVENT tmp_evnt;
+	static float combo_width = 0;
+
+	if (IN_MAIN_MENU)
+	{
+		ImGui_Text ("Events are not available in the Main Menu...");
+		return;
+	}
+
+	GetEvents (delay);
 
 	ImGui_BeginStyledChild ("##Events", ZERO_F, CHILD_FLAGS, 0, NULL);
+
+	ImGui_ColumnsEx (2, "SettingsColumns", false);
+
+	ImGui_SeparatorText ("Event Status");
+	Spacer ();
+
+	ImGui_BeginGroup ();
 
 	ImGui_Text ("Refresh delay: %d second(s)\n", delay);
 	ImGui_Text ("Current Date: %04d/%02d/%02d\n",
@@ -1063,7 +1080,46 @@ draw_events_menu (void)
 		GLOBAL (GameClock).month_index,
 		GLOBAL (GameClock).day_index);
 
-	ImGui_NewLine ();
+	ImGui_EndGroup ();
+
+	ImGui_NextColumn ();
+
+	ImGui_SeparatorText ("Event Manipulation");
+
+	Spacer ();
+
+	ImGui_BeginGroup ();
+
+	if (ImGui_Button ("Add Event##AddEventBtn"))
+		AddEvent (RELATIVE_EVENT, tmp_evnt.month_index, tmp_evnt.day_index,
+				tmp_evnt.year_index, tmp_evnt.func_index);
+
+	ImGui_SameLine ();
+
+	combo_width = ImGui_CalcTextSize (eventNames[tmp_evnt.func_index]).x
+			+ style->FramePadding.x * 2.0f + SCALE_20F;
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_ComboChar ("##EventCombo", (int *)&tmp_evnt.func_index,
+			eventNames, NUM_EVENTS);
+
+	combo_width = ImGui_CalcTextSize ("99999").x
+			+ style->FramePadding.x * 2.0f;
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_InputScalar ("Year", ImGuiDataType_U16, &tmp_evnt.year_index);
+	ImGui_SameLine ();
+
+	combo_width = ImGui_CalcTextSize ("999").x
+			+ style->FramePadding.x * 2.0f;
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_InputScalar ("Month", ImGuiDataType_U8, &tmp_evnt.month_index);
+	ImGui_SameLine ();
+
+	ImGui_SetNextItemWidth (combo_width);
+	ImGui_InputScalar ("Day", ImGuiDataType_U8, &tmp_evnt.day_index);
+
+	ImGui_EndGroup ();
+
+	ImGui_Columns ();
 
 	col = 0;
 	for (i = 0; i < NUM_EVENTS; i++)
@@ -1072,13 +1128,16 @@ draw_events_menu (void)
 		{
 			char buf[60];
 
-			if (!header_printed)
+			if (!block_btn)
 			{
-				ImGui_Text ("Blocked Events:");
-				header_printed = true;
+
+				Spacer ();
+				ImGui_SeparatorText ("Blocked Events");
+				Spacer ();
+				block_btn = true;
 			}
 
-			if (col > 0 && col % 3 != 0)
+			if (col > 0 && col % NUM_COL != 0)
 				ImGui_SameLine ();
 
 			snprintf (buf, sizeof buf, "%s##%d", eventIdNumToStr (i), i);
@@ -1100,45 +1159,34 @@ draw_events_menu (void)
 	col = 0;
 	for (i = 0; i < NUM_EVENTS; i++)
 	{
-		int days_until;
+		int days_left;
 
 		if (events[i].blocked)
 			continue;
 
-		days_until = DaysUntilEvent (events[i]);
+		days_left = DaysUntilEvent (events[i]);
 
-		if (days_until >= 0 || events[i].paused)
+		if (days_left >= 0 || events[i].paused)
 		{
 			static bool paused[NUM_EVENTS];
 			char buf[60];
+			char *buf_test = NULL;
 
-			if (col > 0 && col % 3 != 0)
+			if (col > 0 && col % NUM_COL != 0)
 				ImGui_SameLine ();
 			else
 				Spacer ();
 
 			snprintf (buf, sizeof buf, "Child##%s", eventIdNumToStr (i));
-			ImGui_BeginChild (buf, ZERO_F, CHILD_FLAGS | ImGuiChildFlags_AutoResizeX, 0);
+			ImGui_BeginChild (buf, ZERO_F,
+					CHILD_FLAGS | ImGuiChildFlags_AutoResizeX, ImGuiWindowFlags_MenuBar);
 
+			if (ImGui_BeginMenuBar ())
 			{
-				IM_RECT r;
-				ImVec2 cursor_pos = ImGui_GetCursorScreenPos ();
-				ImVec2 get_max = ImGui_GetWindowContentRegionMax ();
-
-				r.corner.x = cursor_pos.x - style->WindowPadding.x;
-				r.corner.y = cursor_pos.y - style->WindowPadding.y;
-				r.extent.x = r.corner.x + get_max.x + style->WindowPadding.x;
-				r.extent.y = r.corner.y + 25.0f + style->WindowPadding.y;
-				r.color = U32_FRAMEBG_GS;
-				r.rounding = 4.0f;
-				r.flags = ImDrawFlags_RoundCornersTop;
-
-				ImGui_DrawFilledRect (&r);
+				snprintf (buf, 30, "EventID [%02d]", i);
+				ImGui_MenuItemEx (buf, NULL, false, false);
+				ImGui_EndMenuBar ();
 			}
-
-			ImGui_Text ("EventID [%02d]", i);
-
-			Spacer ();
 
 			if (paused[i])
 				ImGui_PushStyleColor (ImGuiCol_Text, U32_RED_COLOR);
@@ -1151,7 +1199,7 @@ draw_events_menu (void)
 
 			Spacer ();
 
-			ImGui_Text ("Days until event: %d", days_until);
+			ImGui_Text ("Days Left: %d", days_left);
 
 			if (paused[i])
 				ImGui_PopStyleColor ();
@@ -1164,13 +1212,13 @@ draw_events_menu (void)
 
 			snprintf (buf, sizeof buf, "Block##%s", eventIdNumToStr (i));
 			if (ImGui_Button (buf))
-			{
 				events[i].blocked = !events[i].blocked;
-			}
 
 			ImGui_SameLine ();
 
-			snprintf (buf, sizeof buf, "Pause##%s", eventIdNumToStr (i));
+			snprintf (buf, sizeof buf, "%s##%s",
+					(events[i].paused ? "Resume" : "Pause"),
+					eventIdNumToStr (i));
 			if (ImGui_Button (buf))
 			{
 				events[i].paused = !events[i].paused;

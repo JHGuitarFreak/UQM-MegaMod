@@ -172,6 +172,8 @@ extern ImGuiStyle *style;
 #define DISPLAY_BOOL ((DISPLAY_SIZE.x > 640.0f && SCALE_IT <= 1.5) ? 3 : 1)
 #define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
+#define SCALE_20F (20.0f * SCALE_IT)
+
 #define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
 #define MAKE_IV4(w,x,y,z) ((ImVec4){ (w), (x), (y), (z) })
 

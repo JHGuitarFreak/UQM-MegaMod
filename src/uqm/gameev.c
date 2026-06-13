@@ -56,7 +56,7 @@ static int yehat_rebel_event (int arg);
 static int slylandro_ramp_up (int arg);
 static int slylandro_ramp_down (int arg);
 
-static const char *eventNames[] = {
+const char *eventNames[NUM_EVENTS] = {
 	"ARILOU_ENTRANCE_EVENT",
 	"ARILOU_EXIT_EVENT",
 	"HYPERSPACE_ENCOUNTER_EVENT",

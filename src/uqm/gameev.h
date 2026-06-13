@@ -49,6 +49,8 @@ enum
 	NUM_EVENTS
 };
 
+extern const char *eventNames[NUM_EVENTS];
+
 typedef enum
 {
 	CLOSING = 0,
