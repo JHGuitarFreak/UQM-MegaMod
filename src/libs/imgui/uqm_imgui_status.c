@@ -375,8 +375,8 @@ void draw_status_menu (void)
 			FLEET_INFO *FleetPtr;
 			bool ship_buildable;
 			int race_state;
-			float btn_size = 110.0f * SCALE_IT;
-			float cmb_size = 95.0f * SCALE_IT;
+			float btn_size = SCALE_IT (110.0f);
+			float cmb_size = SCALE_IT (95.0f);
 
 			const char *allied_states[3] = {
 					"Dead", "Allied", "Enemy" };

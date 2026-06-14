@@ -211,7 +211,7 @@ FlightControls (void)
 
 	ImGui_BeginStyledChild ("FlightBindings", ZERO_F, CHILD_FLAGS, 0, NULL);
 	ImGui_ColumnsEx (2, "FlightTemplates", false);
-	ImGui_SetColumnWidth (0, 300.0f * SCALE_IT);
+	ImGui_SetColumnWidth (0, SCALE_IT (300.0f));
 
 	ImGui_BeginDisabled (bindings_dirty.flight);
 	ImGui_ComboChar ("##PlayerControls", &template_id, control_template, 2);
@@ -238,7 +238,6 @@ FlightControls (void)
 
 			ImGui_TableNextColumn ();
 
-			ImGui_PushStyleVarImVec2 (ImGuiStyleVar_SelectableTextAlign, CENTER_IT);
 			for (j = 0; j < MAX_FLIGHT_ALTERNATES; j++)
 			{
 				g = &curr_fl_bindings[template_id][i].binding[j];
@@ -272,7 +271,6 @@ FlightControls (void)
 				if (j < MAX_FLIGHT_ALTERNATES)
 					ImGui_TableNextColumn ();
 			}
-			ImGui_PopStyleVar ();
 		}
 		ImGui_EndTable ();
 	}
@@ -607,8 +605,6 @@ MenuControls (void)
 
 			ImGui_TableNextColumn ();
 
-
-			ImGui_PushStyleVarImVec2 (ImGuiStyleVar_SelectableTextAlign, CENTER_IT);
 			for (j = 0; j < 6; j++)
 			{
 				g = &curr_bindings[i].binding[j];
@@ -642,7 +638,6 @@ MenuControls (void)
 				if (j < 5)
 					ImGui_TableNextColumn ();
 			}
-			ImGui_PopStyleVar ();
 		}
 		ImGui_EndTable ();
 	}

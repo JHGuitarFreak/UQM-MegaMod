@@ -18,8 +18,6 @@
 #include "uqm_imgui.h"
 
 #define IGCF_B ImGuiChildFlags_AlwaysUseWindowPadding
-#define SelectableAlign ImGuiStyleVar_SelectableTextAlign
-
 #define NUM_TABS 4
 #define SUBTAB_SIZE 10
 
@@ -91,8 +89,11 @@ draw_settings_menu (void)
 	Spacer ();
 
 	ImGui_Text ("UI Scale");
-	ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
-			0.01f, 0.5f, 3.0f, "%.2f", 0);
+	if (ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
+			0.01f, 0.5f, 3.0f, "%.2f", 0))
+	{
+		UQM_ScaleAllSizes ();
+	}
 
 	Spacer ();
 
@@ -152,7 +153,7 @@ draw_settings_menu (void)
 			CurSound = 0;
 
 		if (ImGui_ButtonEx (insult[CurSound],
-				MAKE_IV2 (150.0f * SCALE_IT, 0.0f)))
+				MAKE_IV2 (SCALE_IT (150.0f), 0.0f)))
 		{
 			CurSound = 2 + ((COUNT)TFB_Random () % (
 					GetSoundCount (PkunkSounds) - 2));
@@ -242,7 +243,7 @@ UQM_ImGui_Tabs (TabState *state)
 	static const char **tab_names = NULL;
 	static float temp_width = 0;
 	static float temp_height = 0;
-	float scale = 20.0f * SCALE_IT;
+	float scale = SCALE_20F;
 
 	if (!tab_names)
 	{
@@ -268,8 +269,6 @@ UQM_ImGui_Tabs (TabState *state)
 	// Begin NavBar
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, temp_height), IGCF_B, 0);
 
-	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
-
 	for (i = 0; tab_names[i] != NULL; i++)
 	{
 		ImVec2 text_size;
@@ -277,7 +276,7 @@ UQM_ImGui_Tabs (TabState *state)
 		bool selected = (active_tab == i);
 
 		ImGui_SameLine ();
-		ImGui_Dummy (MAKE_IV2 (4.0f * SCALE_IT, 0));
+		ImGui_Dummy (MAKE_IV2 (SCALE_IT (4.0f), 0));
 		ImGui_SameLine ();
 
 		text_size = ImGui_CalcTextSize (tab_names[i]);
@@ -289,8 +288,6 @@ UQM_ImGui_Tabs (TabState *state)
 			state->active_tab = i;
 		}
 	}
-
-	ImGui_PopStyleVar ();
 
 	temp_height = ImGui_GetItemRectMax ().y - 1;
 
@@ -310,8 +307,6 @@ UQM_ImGui_Tabs (TabState *state)
 
 	ImGui_BeginGroup ();
 
-	ImGui_PushStyleVarImVec2 (SelectableAlign, CENTER_IT);
-
 	for (j = 0; subtab_names[active_tab][j] != NULL; j++)
 	{
 		ImVec2 text_size;
@@ -327,7 +322,7 @@ UQM_ImGui_Tabs (TabState *state)
 		centering = ((temp_width - button_size.x) / 2)
 				- style->WindowPadding.x * 2;
 
-		ImGui_Dummy (MAKE_IV2 (0, 8.0f * SCALE_IT));
+		ImGui_Dummy (MAKE_IV2 (0, SCALE_IT (8.0f)));
 
 		if (centering > 0.0f)
 		{
@@ -341,8 +336,6 @@ UQM_ImGui_Tabs (TabState *state)
 			*active_subtab[active_tab] = j;
 		}
 	}
-
-	ImGui_PopStyleVar ();
 
 	ImGui_EndGroup ();
 

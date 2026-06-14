@@ -170,12 +170,13 @@ bool ProcessControlEvents (SDL_Event *event);
 // Helpers
 extern ImGuiStyle *style;
 
-#define SCALE_IT style->FontScaleMain
+#define FONT_SCALE style->FontScaleMain
+#define SCALE_IT(a)((float)a * style->FontScaleMain)
 #define DISPLAY_SIZE io->DisplaySize
-#define DISPLAY_BOOL ((DISPLAY_SIZE.x > 640.0f && SCALE_IT <= 1.5) ? 3 : 1)
+#define DISPLAY_BOOL ((DISPLAY_SIZE.x > 640.0f && FONT_SCALE <= 1.5) ? 3 : 1)
 #define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
-#define SCALE_20F (20.0f * SCALE_IT)
+#define SCALE_20F SCALE_IT(20.0f)
 
 #define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
 #define MAKE_IV4(w,x,y,z) ((ImVec4){ (w), (x), (y), (z) })
@@ -183,7 +184,7 @@ extern ImGuiStyle *style;
 static inline void
 Spacer (void)
 {
-	ImGui_Dummy (MAKE_IV2 (0.0f, 4.0f  * SCALE_IT));
+	ImGui_Dummy (MAKE_IV2 (0.0f, SCALE_IT (4.0f)));
 }
 
 static inline void
@@ -198,7 +199,7 @@ Spacer_Column (int num_col)
 	}
 }
 
-#define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, 4 * SCALE_IT))
+#define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, SCALE_IT (4.0f))
 #define CENTER_IT MAKE_IV2 (0.5f, 0.5f)
 #define ZERO_F    MAKE_IV2 (0.0f, 0.0f)
 
@@ -336,8 +337,7 @@ UQM_BitRegister (const char *gamestate, int size)
 		}
 
 		ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
-		if (ImGui_ButtonEx (buf,
-				MAKE_IV2 (15.0f * SCALE_IT, 22.0f * SCALE_IT)))
+		if (ImGui_ButtonEx (buf, MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (22.0f))))
 		{
 			bitmask ^= (1 << i);
 
@@ -433,7 +433,7 @@ UQM_ImGui_Style (void)
 	style->FrameBorderSize = 1;
 	style->TabBorderSize = 0;
 	style->WindowRounding = 6;
-	style->ChildRounding = 0;
+	style->ChildRounding = 4;
 	style->FrameRounding = 3;
 	style->PopupRounding = 4;
 	style->ScrollbarRounding = 9;
@@ -442,6 +442,63 @@ UQM_ImGui_Style (void)
 	style->TabRounding = 4;
 	style->SelectablesRounding = 4;
 	style->TabBarBorderSize = 4;
+	style->SelectableTextAlign = CENTER_IT;
+}
+
+static inline void
+UQM_ScaleAllSizes (void)
+{
+	style->WindowPadding.x = SCALE_IT (8.0f);
+	style->WindowPadding.y = SCALE_IT (8.0f);
+	style->WindowRounding = SCALE_IT (4.0f);
+	style->WindowBorderSize = SCALE_IT (1.0f);
+	style->WindowMinSize.x = SCALE_IT (32.0f);
+	style->WindowMinSize.y = SCALE_IT (32.0f);
+	style->WindowBorderHoverPadding = SCALE_IT (4.0f);
+	style->ChildRounding = SCALE_IT (4.0f);
+	style->ChildBorderSize = SCALE_IT (1.0f);
+	style->PopupRounding = SCALE_IT (4.0f);
+	style->PopupBorderSize = SCALE_IT (1.0f);
+	style->FramePadding.x = SCALE_IT (4.0f);
+	style->FramePadding.y = SCALE_IT (3.0f);
+	style->FrameBorderSize = SCALE_IT (1.0f);
+	style->FrameRounding = SCALE_IT (3.0f);
+	style->ItemSpacing.x = SCALE_IT (8.0f);
+	style->ItemSpacing.y = SCALE_IT (4.0f);
+	style->ItemInnerSpacing.x = SCALE_IT (4.0f);
+	style->ItemInnerSpacing.y = SCALE_IT (4.0f);
+	style->CellPadding.x = SCALE_IT (4.0f);
+	style->CellPadding.y = SCALE_IT (2.0f);
+	style->IndentSpacing = SCALE_IT (21.0f);
+	style->ColumnsMinSpacing = SCALE_IT (6.0f);
+	style->ScrollbarSize = SCALE_IT (14.0f);
+	style->ScrollbarRounding = SCALE_IT (9.0f);
+	style->ScrollbarPadding = SCALE_IT (2.0f);
+	style->GrabMinSize = SCALE_IT (12.0f);
+	style->GrabRounding = SCALE_IT (3.0f);
+	style->LogSliderDeadzone = SCALE_IT (4.0f);
+	style->ImageRounding = SCALE_IT (4.0f);
+	style->ImageBorderSize = SCALE_IT (1.0f);
+	style->TabRounding = SCALE_IT (4.0f);
+	style->SelectablesRounding = SCALE_IT (4.0f);
+	style->TabMinWidthBase = SCALE_IT (1.0f);
+	style->TabMinWidthShrink = SCALE_IT (80.0f);
+	style->TabBarBorderSize = SCALE_IT (4.0f);
+	style->TabBarOverlineSize = SCALE_IT (1.0f);
+	style->TreeLinesSize = SCALE_IT (1.0f);
+	style->DragDropTargetRounding = SCALE_IT (4.0f);
+	style->DragDropTargetBorderSize = SCALE_IT (1.0f);
+	style->DragDropTargetPadding = SCALE_IT (3.0f);
+	style->ColorMarkerSize = SCALE_IT (3.0f);
+	style->SeparatorSize = SCALE_IT (1.0f);
+	style->SeparatorTextBorderSize = SCALE_IT (3.0f);
+	style->SeparatorTextPadding.x = SCALE_IT (20.0f);
+	style->SeparatorTextPadding.y = SCALE_IT (3.0f);
+	style->DisplayWindowPadding.x = SCALE_IT (19.0f);
+	style->DisplayWindowPadding.y = SCALE_IT (19.0f);
+	style->DisplaySafeAreaPadding.x = SCALE_IT (3.0f);
+	style->DisplaySafeAreaPadding.y = SCALE_IT (3.0f);
+	style->MouseCursorScale = SCALE_IT (1.0f);
 }
 
 #ifdef __cplusplus

@@ -703,7 +703,7 @@ GamestatesTab01 (void)
 
 			ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
 			if (ImGui_ButtonEx (buf,
-					MAKE_IV2 (15.0f * SCALE_IT, 22.0f * SCALE_IT)))
+					MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (22.0f))))
 			{
 				for (j = 0; j < MAX_RBW; j++)
 				{
