@@ -6,10 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.6]
 
 ### Added
-- 
+- Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 
 ### Changed
-- 
+- UQM now scales to the window instead of the window scaling to UQM
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
@@ -59,7 +59,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Add screenshot to the Windows clipboard when pressing the screenshot key (normally F8)
 - Added a QuickSave/QuickLoad activated via the F3 (QuickSave) and F4 (QuickLoad) keys
 - Added an option to switch color saturation of hyperspace and quasispace (between DOS and 3DO colors)
-- Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 
 ### Changed
 - Fleet points display updates at the same time the SIS displays RU changes (instead of when the confirmation is made).  Also, it blacks out the value before writing the new one.
