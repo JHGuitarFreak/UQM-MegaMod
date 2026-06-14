@@ -353,9 +353,8 @@ UQM_ImGui_Tabs (TabState *state)
 	// Sidebar Ends
 
 	ImGui_SameLine ();
-
 	// Content Begins
-	ImGui_BeginChild("Content", ZERO_F, IGCF_B, 0);
+	ImGui_BeginChild ("Content", ZERO_F, IGCF_B, 0);
 
 	switch (active_tab)
 	{
