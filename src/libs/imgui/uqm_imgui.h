@@ -319,7 +319,7 @@ UQM_BitRegister (const char *gamestate, int size)
 
 	Spacer ();
 
-	ImGui_Text (gamestate);
+	ImGui_TextUnformatted (gamestate);
 	for (i = 0; i < size; i++)
 	{
 		selected[i] = bitmask & (1 << i);

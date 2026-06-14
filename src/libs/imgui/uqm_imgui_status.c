@@ -229,7 +229,7 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				ImGui_Text (elements[i]);
+				ImGui_TextUnformatted (elements[i]);
 
 				ImGui_TableNextColumn ();
 
@@ -333,7 +333,7 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				ImGui_Text (modules[i]);
+				ImGui_TextUnformatted (modules[i]);
 
 				ImGui_TableNextColumn ();
 
@@ -1067,28 +1067,13 @@ draw_events_menu (void)
 
 	ImGui_BeginStyledChild ("##Events", ZERO_F, CHILD_FLAGS, 0, NULL);
 
-	ImGui_ColumnsEx (2, "SettingsColumns", false);
-
-	ImGui_SeparatorText ("Event Status");
 	Spacer ();
 
 	ImGui_BeginGroup ();
-
-	ImGui_Text ("Refresh delay: %d second(s)\n", delay);
-	ImGui_Text ("Current Date: %04d/%02d/%02d\n",
-		GLOBAL (GameClock).year_index,
-		GLOBAL (GameClock).month_index,
-		GLOBAL (GameClock).day_index);
-
-	ImGui_EndGroup ();
-
-	ImGui_NextColumn ();
 
 	ImGui_SeparatorText ("Event Manipulation");
 
 	Spacer ();
-
-	ImGui_BeginGroup ();
 
 	if (ImGui_Button ("Add Event##AddEventBtn"))
 		AddEvent (RELATIVE_EVENT, tmp_evnt.month_index, tmp_evnt.day_index,
@@ -1105,21 +1090,35 @@ draw_events_menu (void)
 	combo_width = ImGui_CalcTextSize ("99999").x
 			+ style->FramePadding.x * 2.0f;
 	ImGui_SetNextItemWidth (combo_width);
-	ImGui_InputScalar ("Year", ImGuiDataType_U16, &tmp_evnt.year_index);
+	ImGui_InputScalar ("##Year", ImGuiDataType_U16, &tmp_evnt.year_index);
 	ImGui_SameLine ();
 
 	combo_width = ImGui_CalcTextSize ("999").x
 			+ style->FramePadding.x * 2.0f;
 	ImGui_SetNextItemWidth (combo_width);
-	ImGui_InputScalar ("Month", ImGuiDataType_U8, &tmp_evnt.month_index);
+	ImGui_InputScalar ("##Month", ImGuiDataType_U8, &tmp_evnt.month_index);
 	ImGui_SameLine ();
 
 	ImGui_SetNextItemWidth (combo_width);
-	ImGui_InputScalar ("Day", ImGuiDataType_U8, &tmp_evnt.day_index);
+	ImGui_InputScalar ("##Day", ImGuiDataType_U8, &tmp_evnt.day_index);
 
 	ImGui_EndGroup ();
 
-	ImGui_Columns ();
+	ImGui_NewLine ();
+
+	ImGui_BeginGroup ();
+
+	ImGui_SeparatorText ("Event Status");
+
+	Spacer ();
+
+	ImGui_Text ("Refresh delay: %d second(s)\n", delay);
+	ImGui_Text ("Current Date: %04d/%02d/%02d\n",
+		GLOBAL (GameClock).year_index,
+		GLOBAL (GameClock).month_index,
+		GLOBAL (GameClock).day_index);
+
+	ImGui_EndGroup ();
 
 	col = 0;
 	for (i = 0; i < NUM_EVENTS; i++)

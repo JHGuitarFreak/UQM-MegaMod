@@ -115,7 +115,7 @@ draw_settings_menu (void)
 	ImGui_NewLine ();
 
 	{	// Menu Background Opacity
-		ImGui_Text (menu_bg_lbl);
+		ImGui_TextUnformatted (menu_bg_lbl);
 		if (ImGui_Button (bt_reset)) // Reset
 		{
 			style->Colors[ImGuiCol_ChildBg].w = 0.8f;

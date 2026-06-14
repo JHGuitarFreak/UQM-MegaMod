@@ -453,7 +453,7 @@ ImGui_SizedComboChar (const char *label, int *curr_item,
 	snprintf (buf, sizeof buf, "##%s", label);
 
 	ImGui_AlignTextToFramePadding ();
-	ImGui_Text (label);
+	ImGui_TextUnformatted (label);
 	ImGui_SetCursorPosX (ImGui_GetCursorPosX () + center_offset);
 	ImGui_SetNextItemWidth (combo_width);
 
