@@ -23,9 +23,6 @@
 #define NUM_TABS 4
 #define SUBTAB_SIZE 10
 
-#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
-		| ImGuiChildFlags_AlwaysUseWindowPadding
-
 #if defined(_WIN32)
 #define PLATFORM "Windows"
 #elif defined(__linux__)

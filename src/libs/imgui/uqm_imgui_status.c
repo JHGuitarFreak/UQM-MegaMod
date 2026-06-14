@@ -35,11 +35,11 @@ bool slots_cached = false;
 static int cached_landers;
 bool landers_cached = false;
 
-#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
-		| ImGuiChildFlags_AlwaysUseWindowPadding
-
 #define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame | \
 					ImGuiTableFlags_PadOuterX
+
+#define CARD_FLAGS CHILD_FLAGS | ImGuiChildFlags_AutoResizeX | \
+		ImGuiChildFlags_NavFlattened
 
 enum
 {
@@ -1055,190 +1055,218 @@ draw_events_menu (void)
 	static int delay = 1;
 	bool block_btn = false;
 	static EVENT tmp_evnt;
-	static float combo_width = 0;
+	static float widget_width = 0;
+	float frame_padding;
 
-	if (IN_MAIN_MENU)
-	{
-		ImGui_Text ("Events are not available in the Main Menu...");
-		return;
-	}
+	//if (IN_MAIN_MENU)
+	//{
+	//	ImGui_Text ("Events are not available in the Main Menu...");
+	//	return;
+	//}
 
 	GetEvents (delay);
 
-	ImGui_BeginStyledChild ("##Events", ZERO_F, CHILD_FLAGS, 0, NULL);
+	UQM_AutoChild ("##EventManipulation");
+	{
+		ImGui_SeparatorText ("Event Manipulation");
 
-	Spacer ();
+		Spacer ();
 
-	ImGui_BeginGroup ();
+		UQM_AutoChild ("##EventBtn");
+		{
+			ImGui_NewLine ();
 
-	ImGui_SeparatorText ("Event Manipulation");
+			if (ImGui_Button ("Add Event##AddEventBtn"))
+			{
+				AddEvent (RELATIVE_EVENT, tmp_evnt.month_index,
+					tmp_evnt.day_index, tmp_evnt.year_index,
+					tmp_evnt.func_index);
+			}
+		} ImGui_EndChild (); // ##EventBtn
 
-	Spacer ();
+		ImGui_SameLine ();
 
-	if (ImGui_Button ("Add Event##AddEventBtn"))
-		AddEvent (RELATIVE_EVENT, tmp_evnt.month_index, tmp_evnt.day_index,
-				tmp_evnt.year_index, tmp_evnt.func_index);
+		UQM_AutoChild ("##EventIndex");
+		{
+			ImGui_Text ("Event Index");
 
-	ImGui_SameLine ();
+			frame_padding = style->FramePadding.x * 2.0f;
+			widget_width = ImGui_CalcTextSize (eventNames[9]).x
+					+ frame_padding + SCALE_20F;
 
-	combo_width = ImGui_CalcTextSize (eventNames[tmp_evnt.func_index]).x
-			+ style->FramePadding.x * 2.0f + SCALE_20F;
-	ImGui_SetNextItemWidth (combo_width);
-	ImGui_ComboChar ("##EventCombo", (int *)&tmp_evnt.func_index,
-			eventNames, NUM_EVENTS);
+			ImGui_SetNextItemWidth (widget_width);
+			ImGui_ComboChar ("##EventCombo", (int *)&tmp_evnt.func_index,
+					eventNames, NUM_EVENTS);
+		} ImGui_EndChild (); // ##EventIndex
 
-	combo_width = ImGui_CalcTextSize ("99999").x
-			+ style->FramePadding.x * 2.0f;
-	ImGui_SetNextItemWidth (combo_width);
-	ImGui_InputScalar ("##Year", ImGuiDataType_U16, &tmp_evnt.year_index);
-	ImGui_SameLine ();
+		ImGui_SameLine ();
 
-	combo_width = ImGui_CalcTextSize ("999").x
-			+ style->FramePadding.x * 2.0f;
-	ImGui_SetNextItemWidth (combo_width);
-	ImGui_InputScalar ("##Month", ImGuiDataType_U8, &tmp_evnt.month_index);
-	ImGui_SameLine ();
+		UQM_AutoChild ("##YearIndex");
+		{
+			ImGui_Text ("Years");
 
-	ImGui_SetNextItemWidth (combo_width);
-	ImGui_InputScalar ("##Day", ImGuiDataType_U8, &tmp_evnt.day_index);
+			widget_width = ImGui_CalcTextSize ("999999").x + frame_padding;
 
-	ImGui_EndGroup ();
+			ImGui_SetNextItemWidth (widget_width);
+			ImGui_InputScalar ("##Year", ImGuiDataType_U16,
+					&tmp_evnt.year_index);
+		} ImGui_EndChild (); // ##YearIndex
+
+		ImGui_SameLine ();
+
+		UQM_AutoChild ("##MonthIndex");
+		{
+			ImGui_Text ("Months");
+
+			ImGui_SetNextItemWidth (widget_width);
+			ImGui_InputScalar ("##Month", ImGuiDataType_U8,
+					&tmp_evnt.month_index);
+		} ImGui_EndChild (); // ##MonthIndex
+
+		ImGui_SameLine ();
+
+		UQM_AutoChild ("##DayIndex");
+		{
+			ImGui_Text ("Days");
+
+			ImGui_SetNextItemWidth (widget_width);
+			ImGui_InputScalar ("##Day", ImGuiDataType_U8,
+					&tmp_evnt.day_index);
+		} ImGui_EndChild (); // ##DayIndex
+	} ImGui_EndChild (); // ##EventManipulation
 
 	ImGui_NewLine ();
 
-	ImGui_BeginGroup ();
-
-	ImGui_SeparatorText ("Event Status");
-
-	Spacer ();
-
-	ImGui_Text ("Refresh delay: %d second(s)\n", delay);
-	ImGui_Text ("Current Date: %04d/%02d/%02d\n",
-		GLOBAL (GameClock).year_index,
-		GLOBAL (GameClock).month_index,
-		GLOBAL (GameClock).day_index);
-
-	ImGui_EndGroup ();
-
-	col = 0;
-	for (i = 0; i < NUM_EVENTS; i++)
+	UQM_AutoChild ("##EventStatus");
 	{
-		if (events[i].blocked)
+		ImGui_SeparatorText ("Event Status");
+
+		Spacer ();
+
+		ImGui_Text ("Refresh delay: %d second(s)\n", delay);
+		ImGui_Text ("Current Date: %04d/%02d/%02d\n",
+			GLOBAL (GameClock).year_index,
+			GLOBAL (GameClock).month_index,
+			GLOBAL (GameClock).day_index);
+
+		col = 0;
+		for (i = 0; i < NUM_EVENTS; i++)
 		{
-			char buf[60];
-
-			if (!block_btn)
+			if (events[i].blocked)
 			{
+				char buf[60];
 
-				Spacer ();
-				ImGui_SeparatorText ("Blocked Events");
-				Spacer ();
-				block_btn = true;
+				if (!block_btn)
+				{
+					ImGui_NewLine ();
+					ImGui_SeparatorText ("Blocked Events");
+					Spacer ();
+					block_btn = true;
+				}
+
+				if (col > 0 && col % NUM_COL != 0)
+					ImGui_SameLine ();
+
+				snprintf (buf, sizeof buf, "%s##%d",
+						eventIdNumToStr (i), i);
+				if (ImGui_Button (buf))
+				{
+					events[i].blocked = false;
+				}
+
+				col++;
 			}
-
-			if (col > 0 && col % NUM_COL != 0)
-				ImGui_SameLine ();
-
-			snprintf (buf, sizeof buf, "%s##%d", eventIdNumToStr (i), i);
-			if (ImGui_Button (buf))
-			{
-				events[i].blocked = false;
-			}
-
-			col++;
 		}
-	}
 
-	Spacer ();
+		ImGui_NewLine ();
 
-	ImGui_Separator ();
+		ImGui_Separator ();
 
-	Spacer ();
+		Spacer ();
 
-	col = 0;
-	for (i = 0; i < NUM_EVENTS; i++)
-	{
-		int days_left;
-
-		if (events[i].blocked)
-			continue;
-
-		days_left = DaysUntilEvent (events[i]);
-
-		if (days_left >= 0 || events[i].paused)
+		col = 0;
+		for (i = 0; i < NUM_EVENTS; i++)
 		{
-			static bool paused[NUM_EVENTS];
-			char buf[60];
-			char *buf_test = NULL;
+			int days_left;
 
-			if (col > 0 && col % NUM_COL != 0)
-				ImGui_SameLine ();
-			else
-				Spacer ();
+			if (events[i].blocked)
+				continue;
 
-			snprintf (buf, sizeof buf, "Child##%s", eventIdNumToStr (i));
-			ImGui_BeginChild (buf, ZERO_F,
-					CHILD_FLAGS | ImGuiChildFlags_AutoResizeX, ImGuiWindowFlags_MenuBar);
+			days_left = DaysUntilEvent (events[i]);
 
-			if (ImGui_BeginMenuBar ())
+			if (days_left >= 0 || events[i].paused)
 			{
-				snprintf (buf, 30, "EventID [%02d]", i);
-				ImGui_MenuItemEx (buf, NULL, false, false);
-				ImGui_EndMenuBar ();
-			}
+				static bool paused[NUM_EVENTS];
+				char buf[60];
+				char *buf_test = NULL;
 
-			if (paused[i])
-				ImGui_PushStyleColor (ImGuiCol_Text, U32_RED_COLOR);
-
-			ImGui_Text ("%s", eventIdNumToStr (i));
-			ImGui_Text ("%04d/%02d/%02d",
-					events[i].year_index,
-					events[i].month_index,
-					events[i].day_index);
-
-			Spacer ();
-
-			ImGui_Text ("Days Left: %d", days_left);
-
-			if (paused[i])
-				ImGui_PopStyleColor ();
-
-			Spacer ();
-
-			ImGui_Separator ();
-
-			Spacer ();
-
-			snprintf (buf, sizeof buf, "Block##%s", eventIdNumToStr (i));
-			if (ImGui_Button (buf))
-				events[i].blocked = !events[i].blocked;
-
-			ImGui_SameLine ();
-
-			snprintf (buf, sizeof buf, "%s##%s",
-					(events[i].paused ? "Resume" : "Pause"),
-					eventIdNumToStr (i));
-			if (ImGui_Button (buf))
-			{
-				events[i].paused = !events[i].paused;
-
-				if (events[i].paused)
-					PauseEvent (i);
+				if (col > 0 && col % NUM_COL != 0)
+					ImGui_SameLine ();
 				else
-					ResumeEvent (i);
-			}
+					Spacer ();
 
-			Spacer ();
+				snprintf (buf, sizeof buf, "Card##%s", eventIdNumToStr (i));
+				ImGui_BeginChild (buf, ZERO_F, CARD_FLAGS,
+						ImGuiWindowFlags_MenuBar);
+				{
+					if (ImGui_BeginMenuBar ())
+					{
+						snprintf (buf, 30, "EventID: %02d", i);
+						ImGui_MenuItemEx (buf, NULL, false, false);
+						ImGui_EndMenuBar ();
+					}
 
-			ImGui_EndChild ();
+					if (paused[i])
+						ImGui_PushStyleColor (ImGuiCol_Text, U32_RED_COLOR);
+
+					ImGui_Text ("%s", eventIdNumToStr (i));
+					ImGui_Text ("%04d/%02d/%02d",
+						events[i].year_index,
+						events[i].month_index,
+						events[i].day_index);
+
+					Spacer ();
+
+					ImGui_Text ("Days Left: %d", days_left);
+
+					if (paused[i])
+						ImGui_PopStyleColor ();
+
+					Spacer ();
+
+					ImGui_Separator ();
+
+					Spacer ();
+
+					snprintf (buf, sizeof buf, "Block##%s",
+							eventIdNumToStr (i));
+					if (ImGui_Button (buf))
+						events[i].blocked = !events[i].blocked;
+
+					ImGui_SameLine ();
+
+					snprintf (buf, sizeof buf, "%s##%s",
+						(events[i].paused ? "Resume" : "Pause"),
+						eventIdNumToStr (i));
+					if (ImGui_Button (buf))
+					{
+						events[i].paused = !events[i].paused;
+
+						if (events[i].paused)
+							PauseEvent (i);
+						else
+							ResumeEvent (i);
+					}
+
+					Spacer ();
+				} ImGui_EndChild (); // Card##
 			
-			DrawBorderAroundLastItem ();
+				DrawBorderAroundLastItem ();
 
-			paused[i] = events[i].paused;
+				paused[i] = events[i].paused;
 
-			col++;
+				col++;
+			}
 		}
-	}
-
-	ImGui_EndChild ();
+	} ImGui_EndChild (); // ##EventStatus
 }

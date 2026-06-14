@@ -21,9 +21,6 @@
 #include "uqm/gamestr.h"
 #include "uqm/gameev.h"
 
-#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
-		| ImGuiChildFlags_AlwaysUseWindowPadding
-
 #define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame | \
 					ImGuiTableFlags_PadOuterX
 

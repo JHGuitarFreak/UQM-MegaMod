@@ -17,9 +17,6 @@
 
 #include "uqm_imgui.h"
 
-#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
-		| ImGuiChildFlags_AlwaysUseWindowPadding
-
 static int
 ToCons (int opt)
 {

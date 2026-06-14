@@ -17,9 +17,6 @@
 
 #include "uqm_imgui.h"
 
-#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY \
-		| ImGuiChildFlags_AlwaysUseWindowPadding
-
 void draw_visual_menu (void)
 {
 	const char *date_formats[] =

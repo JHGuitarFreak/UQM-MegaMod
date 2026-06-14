@@ -51,6 +51,9 @@
 extern "C" {
 #endif
 
+#define CHILD_FLAGS ImGuiChildFlags_AutoResizeY | \
+		ImGuiChildFlags_AlwaysUseWindowPadding
+
 // ImGui Menus
 void draw_graphics_menu (void);
 void draw_engine_menu (void);
@@ -396,6 +399,14 @@ ImGui_DrawFilledRect (IM_RECT *rect)
 
 	ImDrawList_AddRectFilledEx (draw_list, rect->corner, rect->extent,
 		rect->color, rect->rounding, rect->flags);
+}
+
+inline static void
+UQM_AutoChild (const char* str_id)
+{
+	ImGui_BeginChild (str_id, ZERO_F,
+			ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX |
+			ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_NoBackground);
 }
 
 static inline void

@@ -21,8 +21,6 @@
 
 #define BB_WIDTH MAKE_IV2 (120, 0)
 
-#define CHILD_FLAGS ImGuiChildFlags_AlwaysUseWindowPadding
-
 typedef struct
 {
 	BOOLEAN menu;
