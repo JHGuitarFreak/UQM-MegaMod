@@ -261,6 +261,56 @@ DangerGradient (void)
 	return MAKE_IV4 (1, (float)c_index / (float)c_count, 0, 1);
 }
 
+static inline void
+UQM_GetFloat (const char *key, float *var)
+{
+	char imgui_key[40];
+
+	snprintf (imgui_key, sizeof imgui_key, "imgui.%s", key);
+
+	if (res_HasKey (imgui_key))
+	{
+		if (!res_IsFloat (imgui_key))
+		{
+			res_PutFloat (imgui_key, *var);
+			imcfg_changed = true;
+			return;
+		}
+
+		*var = res_GetFloat (imgui_key);
+
+		return;
+	}
+
+	res_PutFloat (imgui_key, *var);
+	imcfg_changed = true;
+}
+
+static inline void
+UQM_GetBool (const char *key, bool *var)
+{
+	char imgui_key[40];
+
+	snprintf (imgui_key, sizeof imgui_key, "imgui.%s", key);
+
+	if (res_HasKey (imgui_key))
+	{
+		if (!res_IsBoolean (imgui_key))
+		{
+			res_PutBoolean (imgui_key, (BOOLEAN)*var);
+			imcfg_changed = true;
+			return;
+		}
+
+		*var = (bool)res_GetBoolean (imgui_key);
+
+		return;
+	}
+
+	res_PutBoolean (imgui_key, (BOOLEAN)*var);
+	imcfg_changed = true;
+}
+
 static inline const char *
 UQM_GetStr (const char *key)
 {
@@ -381,7 +431,8 @@ DrawBorderAroundLastItem (void)
 	ImDrawList *draw_list = ImGui_GetWindowDrawList ();
 	ImVec2 min = ImGui_GetItemRectMin ();
 	ImVec2 max = ImGui_GetItemRectMax ();
-	ImDrawList_AddRectEx (draw_list, min, max, U32_FRAMEBG_ACT_GS, 4.0f, 0, 1.0f);
+	ImDrawList_AddRectEx (draw_list, min, max, U32_FRAMEBG_ACT_GS,
+			style->ChildRounding, 0, style->ChildBorderSize);
 }
 
 typedef struct im_rect
@@ -414,17 +465,19 @@ UQM_ImGui_Style (void)
 {
 	ImVec4 *colors = style->Colors;
 	const ImVec4 transparent = { 0 };
-	float cbg_w = res_GetFloat ("imgui.background_opacity");
+	float cbg_w = 0.80f;
 
 	ImGui_StyleColorsDark (NULL);
 
+	UQM_GetFloat ("background_opacity", &cbg_w);
+
 	colors[ImGuiCol_WindowBg] = transparent;
+	colors[ImGuiCol_TableHeaderBg] = transparent;
 	colors[ImGuiCol_ModalWindowDimBg] = MAKE_IV4 (0, 0, 0, 0.64f);
 	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, cbg_w);
 	colors[ImGuiCol_Border] = transparent;
 	colors[ImGuiCol_BorderShadow] = MAKE_IV4 (1.00f, 1.00f, 1.00f, 0.06f);
 	colors[ImGuiCol_PopupBg] = MAKE_IV4 (0.14f, 0.14f, 0.14f, 0.95f);
-
 	colors[ImGuiCol_PlotHistogram] = MAKE_IV4 (0.48f, 0.48f, 0.48f, 0.54f);
 
 	style->WindowBorderSize = 1;

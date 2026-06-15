@@ -1058,11 +1058,11 @@ draw_events_menu (void)
 	static float widget_width = 0;
 	float frame_padding;
 
-	//if (IN_MAIN_MENU)
-	//{
-	//	ImGui_Text ("Events are not available in the Main Menu...");
-	//	return;
-	//}
+	if (IN_MAIN_MENU)
+	{
+		ImGui_Text ("Events are not available in the Main Menu...");
+		return;
+	}
 
 	GetEvents (delay);
 
@@ -1072,9 +1072,17 @@ draw_events_menu (void)
 
 		Spacer ();
 
-		UQM_AutoChild ("##EventBtn");
+
+		if (ImGui_BeginTable ("##EventManipulatorTable", 5, 0))
 		{
-			ImGui_NewLine ();
+			ImGui_TableSetupColumn ("", ImGuiTableColumnFlags_NoHeaderLabel);
+			ImGui_TableSetupColumn ("Event Index", 0);
+			ImGui_TableSetupColumn ("Years", 0);
+			ImGui_TableSetupColumn ("Months", 0);
+			ImGui_TableSetupColumn ("Days", 0);
+			ImGui_TableHeadersRow ();
+
+			ImGui_TableNextColumn ();
 
 			if (ImGui_Button ("Add Event##AddEventBtn"))
 			{
@@ -1082,13 +1090,8 @@ draw_events_menu (void)
 					tmp_evnt.day_index, tmp_evnt.year_index,
 					tmp_evnt.func_index);
 			}
-		} ImGui_EndChild (); // ##EventBtn
 
-		ImGui_SameLine ();
-
-		UQM_AutoChild ("##EventIndex");
-		{
-			ImGui_Text ("Event Index");
+			ImGui_TableNextColumn ();
 
 			frame_padding = style->FramePadding.x * 2.0f;
 			widget_width = ImGui_CalcTextSize (eventNames[9]).x
@@ -1097,42 +1100,30 @@ draw_events_menu (void)
 			ImGui_SetNextItemWidth (widget_width);
 			ImGui_ComboChar ("##EventCombo", (int *)&tmp_evnt.func_index,
 					eventNames, NUM_EVENTS);
-		} ImGui_EndChild (); // ##EventIndex
 
-		ImGui_SameLine ();
-
-		UQM_AutoChild ("##YearIndex");
-		{
-			ImGui_Text ("Years");
+			ImGui_TableNextColumn ();
 
 			widget_width = ImGui_CalcTextSize ("999999").x + frame_padding;
 
 			ImGui_SetNextItemWidth (widget_width);
 			ImGui_InputScalar ("##Year", ImGuiDataType_U16,
 					&tmp_evnt.year_index);
-		} ImGui_EndChild (); // ##YearIndex
 
-		ImGui_SameLine ();
-
-		UQM_AutoChild ("##MonthIndex");
-		{
-			ImGui_Text ("Months");
+			ImGui_TableNextColumn ();
 
 			ImGui_SetNextItemWidth (widget_width);
 			ImGui_InputScalar ("##Month", ImGuiDataType_U8,
 					&tmp_evnt.month_index);
-		} ImGui_EndChild (); // ##MonthIndex
 
-		ImGui_SameLine ();
-
-		UQM_AutoChild ("##DayIndex");
-		{
-			ImGui_Text ("Days");
+			ImGui_TableNextColumn ();
 
 			ImGui_SetNextItemWidth (widget_width);
 			ImGui_InputScalar ("##Day", ImGuiDataType_U8,
 					&tmp_evnt.day_index);
-		} ImGui_EndChild (); // ##DayIndex
+
+			ImGui_EndTable ();
+		}
+
 	} ImGui_EndChild (); // ##EventManipulation
 
 	ImGui_NewLine ();
@@ -1143,8 +1134,14 @@ draw_events_menu (void)
 
 		Spacer ();
 
-		ImGui_Text ("Refresh delay: %d second(s)\n", delay);
-		ImGui_Text ("Current Date: %04d/%02d/%02d\n",
+		ImGui_AlignTextToFramePadding ();
+		ImGui_Text ("Refresh delay: ", delay);
+		ImGui_SameLine ();
+		ImGui_SliderInt ("Second(s)", &delay, 1, 10);
+
+		Spacer ();
+
+		ImGui_Text ("Current Date: %04d/%02d/%02d",
 			GLOBAL (GameClock).year_index,
 			GLOBAL (GameClock).month_index,
 			GLOBAL (GameClock).day_index);
@@ -1220,6 +1217,9 @@ draw_events_menu (void)
 						ImGui_PushStyleColor (ImGuiCol_Text, U32_RED_COLOR);
 
 					ImGui_Text ("%s", eventIdNumToStr (i));
+
+					Spacer ();
+
 					ImGui_Text ("%04d/%02d/%02d",
 						events[i].year_index,
 						events[i].month_index,

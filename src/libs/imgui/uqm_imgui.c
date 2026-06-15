@@ -94,7 +94,7 @@ UQM_ImGui_Init (void)
 	style = ImGui_GetStyle ();
 	io = ImGui_GetIO ();
 	io->IniFilename = NULL;
-	 
+
 	if (res_GetBoolean ("imgui.nav_gamepad"))
 		io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	else
