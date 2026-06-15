@@ -76,10 +76,14 @@ void draw_graphics_menu (void)
 			res_PutInteger ("config.resolutionfactor", resolutionFactor);
 			config_changed = true;
 		}
-
-		ImGui_TextWrappedColored (IV4_RED_COLOR,
-				"WARNING! The HD Mode option will drop you back to the "
+		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		{
+			ImGui_BeginTooltip ();
+			ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+				"WARNING! This option will drop you\nback to the "
 				"main menu to reload.");
+			ImGui_EndTooltip ();
+		}
 	}
 
 	Spacer ();

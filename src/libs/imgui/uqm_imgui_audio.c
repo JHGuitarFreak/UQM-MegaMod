@@ -75,17 +75,13 @@ void draw_audio_menu (void)
 
 		Spacer ();
 
-		ImGui_BeginDisabled (true);
-		{
-
-			UQM_ImGui_CheckBox ("Positional Audio", &optStereoSFX,
-					"config.positionalsfx");
-		}
+		UQM_ImGui_CheckBox ("Positional Audio", &optStereoSFX,
+				"config.positionalsfx", true);
 
 		Spacer ();
 
+		ImGui_BeginDisabled (true);
 		{
-			ImGui_BeginDisabled (true);
 
 			int driver;
 
@@ -109,7 +105,6 @@ void draw_audio_menu (void)
 				// Add switching code here
 			}
 
-			ImGui_EndDisabled ();
 		}
 
 		{
@@ -129,12 +124,6 @@ void draw_audio_menu (void)
 				// Add switching code here
 			}
 		}
-
-		ImGui_TextWrappedColored (IV4_RED_COLOR,
-			"WARNING! All of these disabled options can not be changed "
-			"in the GUI at this time. To change them you must use the "
-			"Setup Menu.");
-
 		ImGui_EndDisabled ();
 	}
 
@@ -144,11 +133,11 @@ void draw_audio_menu (void)
 	{
 		ImGui_SeparatorText ("Music Options");
 
-		ImGui_BeginDisabled (true);
+		Spacer ();
 
-		ImGui_Checkbox ("3DO Remixes", (bool *)&opt3doMusic);
-		ImGui_Checkbox ("Precursor's Remixes", (bool *)&optRemixMusic);
-		ImGui_Checkbox ("Volasaurus' Remixes", (bool *)&optVolasMusic);
+		UQM_ImGui_CheckBox ("3DO Remixes", &opt3doMusic, "config.3domusic", true);
+		UQM_ImGui_CheckBox ("Precursor's Remixes", &optRemixMusic, "config.remixmusic", true);
+		UQM_ImGui_CheckBox ("Volasaurus' Remixes", &optVolasMusic, "mm.volasMusic", true);
 
 		Spacer ();
 
@@ -157,20 +146,29 @@ void draw_audio_menu (void)
 			if (ImGui_ComboChar ("##InterplanetaryAlienAmbience",
 					&optSpaceMusic, alien_ambience, 3))
 			{
-				// Add switching code here
+				if (IN_MAIN_MENU)
+					GLOBAL (CurrentActivity) = 0;
+				else
+					GLOBAL (CurrentActivity) |= CHECK_ABORT;
+
+				optRequiresReload = TRUE;
+
+				res_PutInteger ("mm.spaceMusic", optSpaceMusic);
+				mmcfg_changed = true;
+			}
+			if (ImGui_BeginItemTooltip ())
+			{
+				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+					"WARNING! This option will drop you\nback to the "
+					"main menu to reload.");
+				ImGui_EndTooltip ();
 			}
 		}
 
-		ImGui_TextWrappedColored (IV4_RED_COLOR,
-			"WARNING! All of these disabled options can not be changed "
-			"in the GUI at this time. To change them you must use the "
-			"Setup Menu.");
-
-		ImGui_EndDisabled ();
-
 		Spacer ();
 
-		UQM_ImGui_CheckBox ("Menu Music", &optMainMenuMusic, "mm.mainMenuMusic");
+		UQM_ImGui_CheckBox ("Menu Music", &optMainMenuMusic,
+				"mm.mainMenuMusic", false);
 
 		Spacer ();
 

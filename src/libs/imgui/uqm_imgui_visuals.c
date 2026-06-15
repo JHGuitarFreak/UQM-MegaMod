@@ -56,8 +56,8 @@ void draw_visual_menu (void)
 
 		Spacer ();
 
-		UQM_ImGui_CheckBox ("Custom Border", &optCustomBorder, "mm.customBorder");
-		UQM_ImGui_CheckBox ("Show Whole Fuel Value", &optWholeFuel, "mm.wholeFuel");
+		UQM_ImGui_CheckBox ("Custom Border", &optCustomBorder, "mm.customBorder", false);
+		UQM_ImGui_CheckBox ("Show Whole Fuel Value", &optWholeFuel, "mm.wholeFuel", false);
 
 		Spacer ();
 
@@ -72,12 +72,12 @@ void draw_visual_menu (void)
 
 		Spacer ();
 
-		UQM_ImGui_CheckBox ("SOI Colors", (OPT_ENABLABLE*)&optSphereColors, "mm.sphereColors");
+		UQM_ImGui_CheckBox ("SOI Colors", (OPT_ENABLABLE*)&optSphereColors, "mm.sphereColors", false);
 
 		{
 			ImGui_BeginDisabled (!IN_MAIN_MENU);
 
-			UQM_ImGui_CheckBox ("HD Animations", &optHyperStars, "mm.hyperStars");
+			UQM_ImGui_CheckBox ("HD Animations", &optHyperStars, "mm.hyperStars", false);
 
 			if (!IN_MAIN_MENU)
 			{
@@ -90,8 +90,8 @@ void draw_visual_menu (void)
 			ImGui_EndDisabled ();
 		}
 
-		UQM_ImGui_CheckBox ("Captain Names in Shipyard", &optCaptainNames, "mm.captainNames");
-		UQM_ImGui_CheckBox ("Game Over Cutscenes", &optGameOver, "mm.gameOver");
+		UQM_ImGui_CheckBox ("Captain Names in Shipyard", &optCaptainNames, "mm.captainNames", false);
+		UQM_ImGui_CheckBox ("Game Over Cutscenes", &optGameOver, "mm.gameOver", false);
 
 		ImGui_NewLine ();
 	}
@@ -100,8 +100,8 @@ void draw_visual_menu (void)
 	{
 		ImGui_SeparatorText ("Conversation Screen");
 
-		UQM_ImGui_CheckBox ("Alternate Orz Font", &optOrzCompFont, "mm.orzCompFont");
-		UQM_ImGui_CheckBox ("Non-Stop Oscilloscope", &optNonStopOscill, "mm.nonStopOscill");
+		UQM_ImGui_CheckBox ("Alternate Orz Font", &optOrzCompFont, "mm.orzCompFont", false);
+		UQM_ImGui_CheckBox ("Non-Stop Oscilloscope", &optNonStopOscill, "mm.nonStopOscill", false);
 
 		ImGui_NewLine ();
 	}
@@ -118,7 +118,7 @@ void draw_visual_menu (void)
 		ImGui_SeparatorText ("Star System View");
 
 		ImGui_Text ("Nebulae & Nebulae Brightness:");
-		UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae");
+		UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae", false);
 		ImGui_SameLine ();
 		if (ImGui_SliderInt ("##NebulaeVolume", &optNebulaeVolume, 0, 50))
 		{
@@ -128,13 +128,13 @@ void draw_visual_menu (void)
 
 		Spacer ();
 
-		UQM_ImGui_CheckBox ("Orbiting Planets", &optOrbitingPlanets, "mm.orbitingPlanets");
+		UQM_ImGui_CheckBox ("Orbiting Planets", &optOrbitingPlanets, "mm.orbitingPlanets", false);
 
 		{
 			ImGui_BeginDisabled (!IN_MAIN_MENU);
 
 			UQM_ImGui_CheckBox ("Textured Planets", &optTexturedPlanets,
-					"mm.texturedPlanets");
+					"mm.texturedPlanets", false);
 
 			if (!IN_MAIN_MENU)
 			{
@@ -147,8 +147,8 @@ void draw_visual_menu (void)
 			ImGui_EndDisabled ();
 		}
 
-		UQM_ImGui_CheckBox ("Unscaled View (HD Only)", &optUnscaledStarSystem, "mm.unscaledStarSystem");
-		UQM_ImGui_CheckBox ("NPC Ship Orientation", &optShipDirectionIP, "mm.shipDirectionIP");
+		UQM_ImGui_CheckBox ("Unscaled View (HD Only)", &optUnscaledStarSystem, "mm.unscaledStarSystem", false);
+		UQM_ImGui_CheckBox ("NPC Ship Orientation", &optShipDirectionIP, "mm.shipDirectionIP", false);
 
 		ImGui_NewLine ();
 	}
@@ -157,7 +157,7 @@ void draw_visual_menu (void)
 	{
 		ImGui_SeparatorText ("Orbit Screen");
 
-		UQM_ImGui_CheckBox ("Hazard Colors", &optHazardColors, "mm.hazardColors");
+		UQM_ImGui_CheckBox ("Hazard Colors", &optHazardColors, "mm.hazardColors", false);
 
 		Spacer ();
 
@@ -173,7 +173,7 @@ void draw_visual_menu (void)
 
 		Spacer ();
 
-		UQM_ImGui_CheckBox ("Show Lander Upgrades", &optShowUpgrades, "mm.showUpgrades");
+		UQM_ImGui_CheckBox ("Show Lander Upgrades", &optShowUpgrades, "mm.showUpgrades", false);
 
 		ImGui_NewLine ();
 	}

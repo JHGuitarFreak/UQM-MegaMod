@@ -39,9 +39,9 @@ void draw_cheats_menu (void)
 
 	ImGui_SeparatorText ("Basic Cheats");
 
-	UQM_ImGui_CheckBox ("Kohr-Stahp", &optCheatMode, "cheat.kohrStahp");
+	UQM_ImGui_CheckBox ("Kohr-Stahp", &optCheatMode, "cheat.kohrStahp", false);
 	UQM_ImGui_CheckBox ("Kohr-Ah DeCleansing", &optDeCleansing,
-			"cheat.deCleansing");
+			"cheat.deCleansing", false);
 
 	Spacer ();
 
@@ -61,14 +61,14 @@ void draw_cheats_menu (void)
 
 	Spacer ();
 
-	UQM_ImGui_CheckBox ("Bubble Warp", &optBubbleWarp, "cheat.bubbleWarp");
-	UQM_ImGui_CheckBox ("Head Start", &optHeadStart, "cheat.headStart");
-	UQM_ImGui_CheckBox ("Unlock All Ships", &optUnlockShips, "cheat.unlockShips");
-	UQM_ImGui_CheckBox ("Infinite R.U.", &optInfiniteRU, "cheat.infiniteRU");
-	UQM_ImGui_CheckBox ("Infinite Fuel", &optInfiniteFuel, "cheat.infiniteFuel");
-	UQM_ImGui_CheckBox ("Infinite Credits", &optInfiniteCredits, "cheat.infiniteCredits");
-	UQM_ImGui_CheckBox ("No Hyperspace Encounters", &optNoHQEncounters, "cheat.noHQEncounters");
-	UQM_ImGui_CheckBox ("No Melee Obstacles", &optMeleeObstacles, "cheat.meleeObstacles");
+	UQM_ImGui_CheckBox ("Bubble Warp", &optBubbleWarp, "cheat.bubbleWarp", false);
+	UQM_ImGui_CheckBox ("Head Start", &optHeadStart, "cheat.headStart", false);
+	UQM_ImGui_CheckBox ("Unlock All Ships", &optUnlockShips, "cheat.unlockShips", false);
+	UQM_ImGui_CheckBox ("Infinite R.U.", &optInfiniteRU, "cheat.infiniteRU", false);
+	UQM_ImGui_CheckBox ("Infinite Fuel", &optInfiniteFuel, "cheat.infiniteFuel", false);
+	UQM_ImGui_CheckBox ("Infinite Credits", &optInfiniteCredits, "cheat.infiniteCredits", false);
+	UQM_ImGui_CheckBox ("No Hyperspace Encounters", &optNoHQEncounters, "cheat.noHQEncounters", false);
+	UQM_ImGui_CheckBox ("No Melee Obstacles", &optMeleeObstacles, "cheat.meleeObstacles", false);
 
 	ImGui_NewLine ();
 

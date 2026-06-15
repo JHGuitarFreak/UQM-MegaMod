@@ -428,19 +428,47 @@ int UQM_ImGui_WantCaptureInput (void)
 // Helper functions
 
 void
-UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key)
+UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
+		bool needs_reboot)
 {
-	if (!ImGui_Checkbox (label, (bool *)v) || key == NULL)
+	if (key == NULL)
 		return;
 
-	res_PutBoolean (key, *v);
+	if (ImGui_Checkbox (label, (bool *)v) || key == NULL)
+	{
+		res_PutBoolean (key, *v);
 
-	if (strncmp (key, "cheat.", 6) == 0)
-		cheat_changed = true;
-	else if (strncmp (key, "mm.", 3) == 0)
-		mmcfg_changed = true;
-	else if (strncmp (key, "config.", 7) == 0)
-		config_changed = true;
+		if (strncmp (key, "cheat.", 6) == 0)
+			cheat_changed = true;
+		else if (strncmp (key, "mm.", 3) == 0)
+			mmcfg_changed = true;
+		else if (strncmp (key, "config.", 7) == 0)
+			config_changed = true;
+
+		if (needs_reboot)
+		{
+			if (IN_MAIN_MENU)
+				GLOBAL (CurrentActivity) = 0;
+			else
+				GLOBAL (CurrentActivity) |= CHECK_ABORT;
+
+			optRequiresReload = TRUE;
+		}
+	}
+
+
+	if (needs_reboot)
+	{
+		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		{
+			ImGui_BeginTooltip ();
+			ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+				"WARNING! This option will drop you\nback to the "
+				"main menu to reload.");
+			ImGui_EndTooltip ();
+		}
+	}
+
 }
 
 void

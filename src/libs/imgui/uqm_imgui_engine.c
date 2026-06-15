@@ -98,7 +98,7 @@ draw_engine_menu (void)
 
 		ImGui_NewLine ();
 
-		UQM_ImGui_CheckBox (" DOS Side Menu", &optDosMenus, "mm.dosMenus");
+		UQM_ImGui_CheckBox (" DOS Side Menu", &optDosMenus, "mm.dosMenus", false);
 
 		ImGui_NewLine ();
 
@@ -213,21 +213,21 @@ draw_engine_menu (void)
 
 		ImGui_NewLine ();
 
-		//{
-		//	ImGui_BeginDisabled (true);
+		{
+			ImGui_BeginDisabled (true);
 
-		//	ImGui_Checkbox ("Speech", (bool *)&optSpeech);
+			ImGui_Checkbox ("Speech", (bool *)&optSpeech);
 
-		//	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
-		//	{
-		//		ImGui_SetTooltip (
-		//			"This option can only be changed in the Setup Menu.");
-		//	}
+			if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
+			{
+				ImGui_SetTooltip (
+					"This option can only be changed in the Setup Menu.");
+			}
 
-		//	ImGui_EndDisabled ();
-		//}
+			ImGui_EndDisabled ();
+		}
 
-		UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles");
+		UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles", false);
 
 		ImGui_NewLine ();
 

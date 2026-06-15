@@ -23,14 +23,14 @@ void draw_qol_menu (void)
 
 	ImGui_SeparatorText ("Basic QoL Options");
 
-	UQM_ImGui_CheckBox ("Partial Pickup", &optPartialPickup, "mm.partialPickup");
-	UQM_ImGui_CheckBox ("Scatter Elements", &optScatterElements, "mm.scatterElements");
-	UQM_ImGui_CheckBox ("In-Game Help Menus", &optSubmenu, "mm.submenu");
-	UQM_ImGui_CheckBox ("Smart Auto-Pilot", &optSmartAutoPilot, "mm.smartAutoPilot");
-	UQM_ImGui_CheckBox ("Advanced Auto-Pilot", &optAdvancedAutoPilot, "mm.advancedAutoPilot");
-	UQM_ImGui_CheckBox ("Show Visited Stars", &optShowVisitedStars, "mm.showVisitedStars");
-	UQM_ImGui_CheckBox ("Super Melee Ship Descriptions", &optMeleeToolTips, "mm.meleeToolTips");
-	UQM_ImGui_CheckBox ("Ship Storage Queue", &optShipStore, "mm.shipStore");
+	UQM_ImGui_CheckBox ("Partial Pickup", &optPartialPickup, "mm.partialPickup", false);
+	UQM_ImGui_CheckBox ("Scatter Elements", &optScatterElements, "mm.scatterElements", false);
+	UQM_ImGui_CheckBox ("In-Game Help Menus", &optSubmenu, "mm.submenu", false);
+	UQM_ImGui_CheckBox ("Smart Auto-Pilot", &optSmartAutoPilot, "mm.smartAutoPilot", false);
+	UQM_ImGui_CheckBox ("Advanced Auto-Pilot", &optAdvancedAutoPilot, "mm.advancedAutoPilot", false);
+	UQM_ImGui_CheckBox ("Show Visited Stars", &optShowVisitedStars, "mm.showVisitedStars", false);
+	UQM_ImGui_CheckBox ("Super Melee Ship Descriptions", &optMeleeToolTips, "mm.meleeToolTips", false);
+	UQM_ImGui_CheckBox ("Ship Storage Queue", &optShipStore, "mm.shipStore", false);
 }
 
 void draw_adv_menu (void)
@@ -64,9 +64,9 @@ void draw_adv_menu (void)
 		Spacer ();
 
 		UQM_ImGui_CheckBox ("Slaughter Mode", &optSlaughterMode,
-				"mm.slaughterMode");
+				"mm.slaughterMode", false);
 		UQM_ImGui_CheckBox ("Fleet Point System", &optFleetPointSys,
-				"mm.fleetPointSys");
+				"mm.fleetPointSys", false);
 
 		ImGui_NewLine ();
 	}
