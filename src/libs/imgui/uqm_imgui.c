@@ -91,28 +91,6 @@ UQM_ImGui_Init (void)
 	CIMGUI_CHECKVERSION ();
 	ImGui_CreateContext (NULL);
 
-	style = ImGui_GetStyle ();
-	io = ImGui_GetIO ();
-	io->IniFilename = NULL;
-
-	if (res_GetBoolean ("imgui.nav_gamepad"))
-		io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-	else
-		io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
-
-	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-	binfont = ImBinary ("imguifont");
-	if (binfont != NULL)
-	{
-		InitializeFontConfig (&font_cfg, "playerfont.ttf", 18.0f);
-		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
-				binfont->size, 0, &font_cfg, NULL);
-	}
-	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
-
-	UQM_ImGui_Style ();
-
 	if (!cImGui_ImplSDL2_InitForSDLRenderer (window, renderer))
 	{
 		log_add (log_Error, "cImGui_ImplSDL2_InitForSDLRenderer failed");
@@ -127,7 +105,53 @@ UQM_ImGui_Init (void)
 		return 0;
 	}
 
+	style = ImGui_GetStyle ();
+	io = ImGui_GetIO ();
+	io->IniFilename = NULL;
+	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	binfont = ImBinary ("imguifont");
+	if (binfont != NULL)
+	{
+		InitializeFontConfig (&font_cfg, "playerfont.ttf", 18.0f);
+		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
+				binfont->size, 0, &font_cfg, NULL);
+	}
+	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
+
+	UQM_ImGui_Style ();
+
 	PkunkSounds = CaptureSound (LoadSound (PKUNK_SHIP_SOUNDS));
+
+	{	// ImGui Settings
+		int font_selection = 0;
+		float ui_scale = style->FontScaleMain;
+		bool nav_gamepad = 1;
+		float background_opacity = style->Colors[ImGuiCol_ChildBg].w;
+
+		LoadResourceIndex (configDir, "imgui.cfg", "imgui.");
+
+		ImGetInt (font_selection);
+		if (font_selection < io->Fonts->Fonts.Size && font_selection >= 0)
+			io->FontDefault = io->Fonts->Fonts.Data[font_selection];
+
+		ImGetFlt (ui_scale);
+		if (ui_scale > 0.50f && ui_scale < 3.0f)
+		{
+			style->FontScaleMain = ui_scale;
+			UQM_ScaleAllSizes ();
+		}
+
+		ImGetFlt (background_opacity);
+		if (background_opacity >= 0.0f && background_opacity <= 1.0f)
+			style->Colors[ImGuiCol_ChildBg].w = background_opacity;
+
+		ImGetBool (nav_gamepad);
+		if (nav_gamepad)
+			io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+		else
+			io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
+	}
 
 	imgui_initialized = true;
 	return 1;

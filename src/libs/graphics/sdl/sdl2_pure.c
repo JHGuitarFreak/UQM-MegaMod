@@ -22,7 +22,6 @@
 #include "uqmversion.h"
 #include "png2sdl.h"
 #include "options.h"
-#include "libs/imgui/uqm_imgui.h"
 
 typedef struct tfb_sdl2_screeninfo_s {
 	SDL_Surface *scaled;

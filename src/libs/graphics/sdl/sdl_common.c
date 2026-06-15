@@ -34,7 +34,6 @@
 #include "libs/vidlib.h"
 #include "uqm/units.h"
 #include "uqm/globdata.h"
-#include "libs/imgui/uqm_imgui.h"
 
 #include <time.h>
 

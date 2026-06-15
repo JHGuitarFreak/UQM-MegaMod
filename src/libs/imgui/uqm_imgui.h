@@ -262,6 +262,44 @@ DangerGradient (void)
 }
 
 static inline void
+UQM_GetInt (const char *key, int *var)
+{
+	char imgui_key[40];
+
+	snprintf (imgui_key, sizeof imgui_key, "imgui.%s", key);
+
+	if (res_HasKey (imgui_key))
+	{
+		if (!res_IsInteger (imgui_key))
+		{
+			res_PutInteger (imgui_key, *var);
+			imcfg_changed = true;
+			return;
+		}
+
+		*var = res_GetInteger (imgui_key);
+
+		return;
+	}
+
+	res_PutInteger (imgui_key, *var);
+	imcfg_changed = true;
+}
+#define ImGetInt(SKey) UQM_GetInt(#SKey, &SKey)
+
+static inline void
+easy_PutInteger (const char *key, int var)
+{
+	char imgui_key[40];
+
+	snprintf (imgui_key, sizeof imgui_key, "imgui.%s", key);
+
+	res_PutInteger (imgui_key, var);
+	imcfg_changed = true;
+}
+#define ImPutInt(SKey) easy_PutInteger(#SKey, SKey)
+
+static inline void
 UQM_GetFloat (const char *key, float *var)
 {
 	char imgui_key[40];
@@ -285,6 +323,19 @@ UQM_GetFloat (const char *key, float *var)
 	res_PutFloat (imgui_key, *var);
 	imcfg_changed = true;
 }
+#define ImGetFlt(SKey) UQM_GetFloat(#SKey, &SKey)
+
+static inline void
+easy_PutFloat (const char *key, float var)
+{
+	char imgui_key[40];
+
+	snprintf (imgui_key, sizeof imgui_key, "imgui.%s", key);
+
+	res_PutFloat (imgui_key, var);
+	imcfg_changed = true;
+}
+#define ImPutFlt(SKey) easy_PutFloat(#SKey, SKey)
 
 static inline void
 UQM_GetBool (const char *key, bool *var)
@@ -310,6 +361,19 @@ UQM_GetBool (const char *key, bool *var)
 	res_PutBoolean (imgui_key, (BOOLEAN)*var);
 	imcfg_changed = true;
 }
+#define ImGetBool(SKey) UQM_GetBool(#SKey, &SKey)
+
+static inline void
+easy_PutBool (const char *key, bool var)
+{
+	char imgui_key[40];
+
+	snprintf (imgui_key, sizeof imgui_key, "imgui.%s", key);
+
+	res_PutBoolean (imgui_key, (BOOLEAN)var);
+	imcfg_changed = true;
+}
+#define ImPutBool(SKey) easy_PutBool(#SKey, SKey)
 
 static inline const char *
 UQM_GetStr (const char *key)
@@ -465,16 +529,13 @@ UQM_ImGui_Style (void)
 {
 	ImVec4 *colors = style->Colors;
 	const ImVec4 transparent = { 0 };
-	float cbg_w = 0.80f;
 
 	ImGui_StyleColorsDark (NULL);
-
-	UQM_GetFloat ("background_opacity", &cbg_w);
 
 	colors[ImGuiCol_WindowBg] = transparent;
 	colors[ImGuiCol_TableHeaderBg] = transparent;
 	colors[ImGuiCol_ModalWindowDimBg] = MAKE_IV4 (0, 0, 0, 0.64f);
-	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, cbg_w);
+	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.80f);
 	colors[ImGuiCol_Border] = transparent;
 	colors[ImGuiCol_BorderShadow] = MAKE_IV4 (1.00f, 1.00f, 1.00f, 0.06f);
 	colors[ImGuiCol_PopupBg] = MAKE_IV4 (0.14f, 0.14f, 0.14f, 0.95f);
@@ -496,6 +557,7 @@ UQM_ImGui_Style (void)
 	style->SelectablesRounding = 4;
 	style->TabBarBorderSize = 4;
 	style->SelectableTextAlign = CENTER_IT;
+	style->FontScaleMain = 1.0f;
 }
 
 static inline void

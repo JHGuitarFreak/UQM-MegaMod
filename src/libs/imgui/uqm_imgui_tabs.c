@@ -60,17 +60,17 @@ draw_settings_menu (void)
 	{
 		ImFontAtlas *font_atlas;
 		const char *font_names[2];
-		int curr_font;
+		int font_selection;
 		int i;
 
 		font_atlas = io->Fonts;
 
-		curr_font = 0;
+		font_selection = 0;
 		for (i = 0; i < font_atlas->Fonts.Size; i++)
 		{
 			if (io->FontDefault == font_atlas->Fonts.Data[i])
 			{
-				curr_font = i;
+				font_selection = i;
 				break;
 			}
 		}
@@ -79,10 +79,12 @@ draw_settings_menu (void)
 			font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
 		ImGui_Text ("FontSelector");
-		if (ImGui_ComboChar ("##FontSelector", &curr_font, font_names,
+		if (ImGui_ComboChar ("##FontSelector", &font_selection, font_names,
 				font_atlas->Fonts.Size))
 		{
-			io->FontDefault = font_atlas->Fonts.Data[curr_font];
+			io->FontDefault = font_atlas->Fonts.Data[font_selection];
+
+			ImPutInt (font_selection);
 		}
 	}
 
@@ -92,21 +94,21 @@ draw_settings_menu (void)
 	if (ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
 			0.01f, 0.5f, 3.0f, "%.2f", 0))
 	{
+		easy_PutFloat ("ui_scale", style->FontScaleMain);
+
 		UQM_ScaleAllSizes ();
 	}
 
 	Spacer ();
 
 	{	// Menu Controller Navigation
-		bool flags = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
+		bool nav_gamepad = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
 
-		if (ImGui_Checkbox (menu_cntrlr_nav, &flags))
+		if (ImGui_Checkbox (menu_cntrlr_nav, &nav_gamepad))
 		{
 			io->ConfigFlags ^= ImGuiConfigFlags_NavEnableGamepad;
 
-			res_PutBoolean ("imgui.nav_gamepad", (BOOLEAN)flags);
-
-			imcfg_changed = true;
+			ImPutBool (nav_gamepad);
 		}
 	}
 
@@ -117,20 +119,15 @@ draw_settings_menu (void)
 		if (ImGui_Button (bt_reset)) // Reset
 		{
 			style->Colors[ImGuiCol_ChildBg].w = 0.8f;
-
-			res_PutFloat ("imgui.background_opacity",
+			easy_PutFloat ("background_opacity",
 					style->Colors[ImGuiCol_ChildBg].w);
-
-			imcfg_changed = true;
 		}
 		ImGui_SameLine ();
 		if (ImGui_SliderFloat ("##Transparency",
 				&style->Colors[ImGuiCol_ChildBg].w, 0.0f, 1.0f))
 		{
-			res_PutFloat ("imgui.background_opacity",
+			easy_PutFloat ("background_opacity",
 					style->Colors[ImGuiCol_ChildBg].w);
-
-			imcfg_changed = true;
 		}
 	}
 
