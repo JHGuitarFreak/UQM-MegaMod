@@ -90,8 +90,7 @@ draw_controls_menu (void)
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
 
-	ImGui_BeginStyledChild ("##Controls", ZERO_F, CHILD_FLAGS |
-			ImGuiChildFlags_NavFlattened, 0, NULL);
+	ImGui_BeginStyledChild ("##Controls", ZERO_F, CH_FLAT_NAV, 0, NULL);
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "ControlsColumns", false);
 

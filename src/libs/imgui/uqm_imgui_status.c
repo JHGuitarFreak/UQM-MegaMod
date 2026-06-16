@@ -38,8 +38,7 @@ bool landers_cached = false;
 #define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame | \
 					ImGuiTableFlags_PadOuterX
 
-#define CARD_FLAGS CHILD_FLAGS | ImGuiChildFlags_AutoResizeX | \
-		ImGuiChildFlags_NavFlattened
+#define CARD_FLAGS CH_FLAT_NAV | ImGuiChildFlags_AutoResizeX
 
 enum
 {
@@ -1170,4 +1169,206 @@ draw_events_menu (void)
 			}
 		}
 	} ImGui_EndChild (); // ##EventStatus
+}
+
+#define STAR_MAX (NUM_SOLAR_SYSTEMS + NUM_HYPER_VORTICES + 3)
+
+void draw_stars_menu (void)
+{
+	int i;
+	static bool by_cur_star = false;
+	static bool by_presence = false;
+	static bool filter_type_bool = false;
+	static bool filter_colour_bool = false;
+	static int filter_type = 0;
+	static int filter_colour = 0;
+	const char *star_type[NUM_STAR_TYPES] =
+			{ "Dwarf", "Giant", "Super Giant" };
+	const char *star_colour[NUM_STAR_COLORS] =
+			{ "Blue", "Green", "Orange", "Red", "White", "Yellow" };
+
+	ImGui_BeginStyledChild ("##StarStatus", ZERO_F, CH_FLAT_NAV, 0, NULL);
+	{
+		ImGui_BeginStyledChild ("##Filters", ZERO_F, CH_FLAT_NAV, 0, NULL);
+		{
+			ImGui_SeparatorText ("Filters");
+
+			Spacer ();
+
+			ImGui_AlignTextToFramePadding ();
+			ImGui_Text ("Filter by Presence");
+			ImGui_SameLine ();
+			ImGui_Checkbox ("##FilterPresence", &by_presence);
+
+			Spacer ();
+
+			ImGui_AlignTextToFramePadding ();
+			ImGui_Text ("Show only Type");
+			ImGui_SameLine ();
+			ImGui_Checkbox ("##FilterTypeBool", &filter_type_bool);
+			ImGui_SameLine ();
+			ImGui_ComboChar ("##FilterTypeCombo", &filter_type, star_type,
+					NUM_STAR_TYPES);
+
+			Spacer ();
+
+			ImGui_AlignTextToFramePadding ();
+			ImGui_Text ("Show only Colour");
+			ImGui_SameLine ();
+			ImGui_Checkbox ("##FilterColourBool", &filter_colour_bool);
+			ImGui_SameLine ();
+			ImGui_ComboChar ("##FilterColourCombo", &filter_colour,
+					star_colour, NUM_STAR_COLORS);
+
+			Spacer ();
+
+			ImGui_AlignTextToFramePadding ();
+			ImGui_Text ("Current Star System");
+			ImGui_SameLine ();
+			ImGui_Checkbox ("##CurStar", &by_cur_star);
+
+			if (CurStarDescPtr == NULL)
+				by_cur_star = 0;
+
+		} ImGui_EndChild ();
+
+		ImGui_BeginStyledChild ("##StarTable", ZERO_F, CH_FLAT_NAV, 0, NULL);
+		{
+			ImGui_SeparatorText ("Star Table");
+
+			Spacer ();
+
+			ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
+				MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
+			if (ImGui_BeginTable ("##StarArrayTable", 7,
+				ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
+				ImGuiTableFlags_NoHostExtendX |
+				ImGuiTableFlags_SizingStretchSame))
+			{
+				ImGui_TableSetupColumnEx ("Idx",
+						ImGuiTableColumnFlags_WidthFixed,
+						ImGui_CalcTextSize ("999").x +
+							style->FramePadding.x, 0);
+				ImGui_TableSetupColumnEx ("Prefix",
+						ImGuiTableColumnFlags_WidthFixed,
+						ImGui_CalcTextSize ("Epsilon").x +
+							style->FramePadding.x, 0);
+				ImGui_TableSetupColumnEx ("Postfix",
+						ImGuiTableColumnFlags_WidthFixed,
+						ImGui_CalcTextSize ("Camelopardalis").x +
+							style->FramePadding.x, 0);
+				ImGui_TableSetupColumnEx ("Coordinates",
+						ImGuiTableColumnFlags_WidthFixed,
+						ImGui_CalcTextSize ("999.9 x 999.9").x +
+							style->FramePadding.x, 0);
+				ImGui_TableSetupColumn ("Type", 0);
+				ImGui_TableSetupColumn ("Colour", 0);
+				ImGui_TableSetupColumn ("Presence", 0);
+				ImGui_TableHeadersRow ();
+
+				for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+				{
+					if (by_cur_star && CurStarDescPtr &&
+						!(CurStarDescPtr->star_pt.x ==
+							star_array[i].star_pt.x &&
+							CurStarDescPtr->star_pt.y ==
+							star_array[i].star_pt.y))
+						continue;
+					if (filter_type_bool &&
+							STAR_TYPE (star_array[i].Type) != filter_type)
+						continue;
+					if (filter_colour_bool &&
+							STAR_COLOR (star_array[i].Type) != filter_colour)
+						continue;
+					if (by_presence && star_array[i].Index == 0)
+						continue;
+
+					ImGui_TableNextColumn ();
+
+					ImGui_AlignTextToFramePadding ();
+					ImGui_Text ("%03d", i);
+
+					ImGui_TableNextColumn ();
+
+					if (star_array[i].Prefix > 0)
+					{
+						ImGui_AlignTextToFramePadding ();
+						ImGui_Text ("%s",
+								GAME_STRING (STAR_NUMBER_BASE +
+									star_array[i].Prefix - 1));
+					}
+
+					ImGui_TableNextColumn ();
+
+					ImGui_AlignTextToFramePadding ();
+					ImGui_Text ("%s",
+							GAME_STRING (STAR_STRING_BASE +
+								star_array[i].Postfix));
+
+					ImGui_TableNextColumn ();
+
+					ImGui_AlignTextToFramePadding ();
+					ImGui_Text ("%05.1f x %05.1f",
+							(float)star_array[i].star_pt.x / 10.0f,
+							(float)star_array[i].star_pt.y / 10.0f);
+
+					ImGui_TableNextColumn ();
+
+					{
+						char buf[40];
+						static int cur_star_type = 0;
+						cur_star_type = STAR_TYPE (star_array[i].Type);
+
+						snprintf (buf, sizeof buf, "##StarType%d", i);
+
+						ImGui_SetNextItemWidth (-1);
+						if (ImGui_ComboChar (buf,
+							&cur_star_type, star_type, NUM_STAR_TYPES))
+						{
+							star_array[i].Type = MAKE_STAR (cur_star_type,
+									STAR_COLOR (star_array[i].Type), -1);
+						}
+					}
+
+					ImGui_TableNextColumn ();
+
+					{
+						char buf[40];
+						static int cur_star_colour = 0;
+						cur_star_colour = STAR_COLOR (star_array[i].Type);
+
+						snprintf (buf, sizeof buf, "##StarColour%d", i);
+
+						ImGui_SetNextItemWidth (-1);
+						if (ImGui_ComboChar (buf,
+							&cur_star_colour, star_colour, NUM_STAR_COLORS))
+						{
+							star_array[i].Type = MAKE_STAR (
+									STAR_TYPE (star_array[i].Type),
+									cur_star_colour, -1);
+						}
+					}
+
+					ImGui_TableNextColumn ();
+
+					{
+						char buf[40];
+						static int cur_presence = 0;
+						cur_presence = star_array[i].Index;
+
+						snprintf (buf, sizeof buf, "##Presence%d", i);
+
+						ImGui_SetNextItemWidth (-1);
+						if (ImGui_ComboChar (buf,
+							&cur_presence, presence_names, NUM_PLOTS))
+						{
+							star_array[i].Index = cur_presence;
+						}
+					}
+				}
+				ImGui_EndTable ();
+			}
+			ImGui_PopStyleColor ();
+		} ImGui_EndChild ();
+	} ImGui_EndChild ();
 }

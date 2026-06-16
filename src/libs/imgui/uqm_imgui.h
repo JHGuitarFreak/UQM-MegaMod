@@ -54,6 +54,8 @@ extern "C" {
 #define CHILD_FLAGS ImGuiChildFlags_AutoResizeY | \
 		ImGuiChildFlags_AlwaysUseWindowPadding
 
+#define CH_FLAT_NAV CHILD_FLAGS | ImGuiChildFlags_NavFlattened
+
 // ImGui Menus
 void draw_graphics_menu (void);
 void draw_engine_menu (void);
@@ -63,6 +65,7 @@ void draw_status_menu (void);
 void draw_devices_menu (void);
 void draw_gamestates_menu (void);
 void draw_events_menu (void);
+void draw_stars_menu (void);
 
 void draw_visual_menu (void);
 void draw_cheats_menu (void);

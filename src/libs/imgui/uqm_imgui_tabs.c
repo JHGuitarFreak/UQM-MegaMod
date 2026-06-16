@@ -394,6 +394,7 @@ UQM_ImGui_Tabs (TabState *state)
 				case 1: draw_devices_menu (); break;
 				case 2: draw_gamestates_menu (); break;
 				case 3: draw_events_menu (); break;
+				case 4: draw_stars_menu (); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",
 							*active_subtab[active_tab]);
