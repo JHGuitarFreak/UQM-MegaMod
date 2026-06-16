@@ -49,16 +49,6 @@ draw_gamestates_menu (void)
 }
 
 static void
-UQM_GameStateCheckBox (const char *gs_name)
-{
-	bool game_state = D_GET_CGAME_STATE (gs_name);
-
-	if (ImGui_Checkbox (gs_name, &game_state))
-		D_SET_CGAME_STATE (gs_name, game_state);
-}
-#define GS_CHECKBOX(gs_name) UQM_GameStateCheckBox(#gs_name)
-
-static void
 GamestatesTab00 (void)
 {
 	if (!ImGui_BeginTabItem ("Page 1", NULL, 0))
@@ -146,7 +136,6 @@ GamestatesTab00 (void)
 	GS_CHECKBOX (AWARE_OF_SAMATRA);
 	GS_CHECKBOX (YEHAT_CAVALRY_ARRIVED);
 	GS_CHECKBOX (URQUAN_MESSED_UP);
-	GS_CHECKBOX (KOHR_AH_KILLED_ALL);
 
 	Spacer ();
 
@@ -157,8 +146,7 @@ GamestatesTab00 (void)
 		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
 	}
 
-	Spacer ();
-
+	GS_CHECKBOX (KOHR_AH_KILLED_ALL);
 	GS_CHECKBOX (MET_ARILOU);
 	GS_CHECKBOX (ATTACKED_DRUUGE);
 
@@ -239,6 +227,13 @@ GamestatesTab00 (void)
 
 	Spacer ();
 
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
+
 	{
 		int chmmr_bomb_state = GET_CGAME_STATE (CHMMR_BOMB_STATE);
 		const char *cb_states[] =
@@ -258,13 +253,6 @@ GamestatesTab00 (void)
 	}
 
 	Spacer ();
-
-	if (DISPLAY_BOOL != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
-	}
 
 	GS_CHECKBOX (DRUUGE_DISCLAIMER);
 	GS_CHECKBOX (YEHAT_CIVIL_WAR);
@@ -443,12 +431,6 @@ GamestatesTab00 (void)
 
 	Spacer ();
 
-	GS_CHECKBOX (ILWRATH_FIGHT_THRADDASH);
-	GS_CHECKBOX (READY_TO_CONFUSE_URQUAN);
-	GS_CHECKBOX (URQUAN_HYPNO_VISITS);
-
-	Spacer ();
-
 	if (DISPLAY_BOOL != 1)
 	{
 		ImGui_EndChild ();
@@ -470,6 +452,9 @@ GamestatesTab01 (void)
 	if (DISPLAY_BOOL != 1)
 		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
 
+	GS_CHECKBOX (ILWRATH_FIGHT_THRADDASH);
+	GS_CHECKBOX (READY_TO_CONFUSE_URQUAN);
+	GS_CHECKBOX (URQUAN_HYPNO_VISITS);
 	GS_CHECKBOX (MENTIONED_PET_COMPULSION);
 
 	Spacer ();
@@ -616,9 +601,6 @@ GamestatesTab01 (void)
 
 	GS_CHECKBOX (DRUUGE_MANNER);
 	GS_CHECKBOX (SUPOX_HOSTILE);
-	GS_CHECKBOX (UTWIG_HOSTILE);
-	GS_CHECKBOX (SLYLANDRO_KNOW_BROKEN);
-	GS_CHECKBOX (PLAYER_KNOWS_PROBE);
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -627,6 +609,9 @@ GamestatesTab01 (void)
 		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
 	}
 
+	GS_CHECKBOX (UTWIG_HOSTILE);
+	GS_CHECKBOX (SLYLANDRO_KNOW_BROKEN);
+	GS_CHECKBOX (PLAYER_KNOWS_PROBE);
 	GS_CHECKBOX (PLAYER_KNOWS_PROGRAM);
 	GS_CHECKBOX (PLAYER_KNOWS_EFFECTS);
 	GS_CHECKBOX (PLAYER_KNOWS_PRIORITY);
@@ -662,6 +647,13 @@ GamestatesTab01 (void)
 
 	Spacer ();
 
+	if (DISPLAY_BOOL != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_NextColumn ();
+		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
+	}
+
 	{
 		int gamestate = GET_CGAME_STATE (MELNORME_RAINBOW_COUNT);
 
@@ -680,64 +672,55 @@ GamestatesTab01 (void)
 		int i, j;
 		char buf[40];
 		static bool selected[MAX_RBW];
-		int currently_selected = 0;
+		int cur_selected = 0;
 		ImVec2 align = { 0.7f, 0.1f };
-		int rainbow_count = GET_CGAME_STATE (MELNORME_RAINBOW_COUNT);
+		int rbw_count = GET_CGAME_STATE (MELNORME_RAINBOW_COUNT);
 		int bitmask = MAKE_WORD (
 				GET_CGAME_STATE (RAINBOW_WORLD0),
 				GET_CGAME_STATE (RAINBOW_WORLD1));
 
 		ImGui_Text ("RAINBOW_WORLD");
-		for (i = 0; i < MAX_RBW; i++)
+
+		ImGui_PushStyleVar (ImGuiStyleVar_SelectablesRounding, 0.0f);
+		ImGui_PushStyleColorImVec4 (ImGuiCol_BorderShadow, MAKE_IV4(0,0,0,0));
+		if (ImGui_BeginTable ("##RainbowTable", 8, ImGuiTableFlags_Borders |
+				ImGuiTableFlags_NoHostExtendX))
 		{
-			selected[i] = bitmask & (1 << i);
-			snprintf (buf, sizeof buf, "%d##%s%d", selected[i],
-					"RAINBOW_WORLD", i);
-
-			if (selected[i])
+			for (i = 0; i < MAX_RBW; i++)
 			{
-				ImGui_PushStyleColor (ImGuiCol_Button, 0xCC006600);
-				ImGui_PushStyleColor (ImGuiCol_ButtonHovered, 0xCC008800);
-				ImGui_PushStyleColor (ImGuiCol_ButtonActive, 0xCC004400);
-			}
+				ImGui_TableNextColumn ();
 
-			ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
-			if (ImGui_ButtonEx (buf,
-					MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (22.0f))))
-			{
-				for (j = 0; j < MAX_RBW; j++)
+				selected[i] = bitmask & (1 << i);
+				snprintf (buf, sizeof buf, "%d##%s%d", selected[i], "RBW", i);
+
+				if (ImGui_SelectableEx (buf,
+						selected[i], ImGuiSelectableFlags_None,
+						MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (19.0f))))
 				{
-					if (bitmask & (1 << j))
-						currently_selected++;
-				}
+					for (j = 0; j < MAX_RBW; j++)
+					{
+						if (bitmask & (1 << j))
+							cur_selected++;
+					}
 
-				bitmask ^= (1 << i);
+					bitmask ^= (1 << i);
 
-				SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
-				SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
+					SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
+					SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
 
-				if (selected[i] && currently_selected == rainbow_count
-						&& rainbow_count >= 0)
-				{
-					rainbow_count--;
-					SET_CGAME_STATE (MELNORME_RAINBOW_COUNT, rainbow_count);
+					if (selected[i] && cur_selected == rbw_count &&
+						rbw_count >= 0)
+					{
+						rbw_count--;
+						SET_CGAME_STATE (MELNORME_RAINBOW_COUNT, rbw_count);
+					}
 				}
 			}
-			ImGui_PopStyleVar ();
 
-			if (selected[i])
-				ImGui_PopStyleColorEx (3);
-
-			if (i % 8 < 7)
-				ImGui_SameLine ();
+			ImGui_EndTable ();
 		}
-	}
-
-	if (DISPLAY_BOOL != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
+		ImGui_PopStyleColor ();
+		ImGui_PopStyleVar ();
 	}
 
 	if (DISPLAY_BOOL != 1)

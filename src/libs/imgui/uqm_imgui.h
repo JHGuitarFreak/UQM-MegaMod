@@ -439,33 +439,32 @@ UQM_BitRegister (const char *gamestate, int size)
 	Spacer ();
 
 	ImGui_TextUnformatted (gamestate);
-	for (i = 0; i < size; i++)
+
+	ImGui_PushStyleVar (ImGuiStyleVar_SelectablesRounding, 0.0f);
+	ImGui_PushStyleColorImVec4 (ImGuiCol_BorderShadow, MAKE_IV4 (0, 0, 0, 0));
+	if (ImGui_BeginTable ("##RainbowTable", 8, ImGuiTableFlags_Borders |
+		ImGuiTableFlags_NoHostExtendX))
 	{
-		selected[i] = bitmask & (1 << i);
-		snprintf (buf, sizeof buf, "%d##%s%d", selected[i], gamestate, i);
-
-		if (selected[i])
+		for (i = 0; i < size; i++)
 		{
-			ImGui_PushStyleColor (ImGuiCol_Button, 0xCC006600);
-			ImGui_PushStyleColor (ImGuiCol_ButtonHovered, 0xCC008800);
-			ImGui_PushStyleColor (ImGuiCol_ButtonActive, 0xCC004400);
+			ImGui_TableNextColumn ();
+
+			selected[i] = bitmask & (1 << i);
+			snprintf (buf, sizeof buf, "%d##%s%d", selected[i], gamestate, i);
+
+			if (ImGui_SelectableEx (buf, selected[i],
+				ImGuiSelectableFlags_None,
+				MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (22.0f))))
+			{
+				bitmask ^= (1 << i);
+
+				D_SET_CGAME_STATE (gamestate, bitmask);
+			}
 		}
-
-		ImGui_PushStyleVarImVec2 (ImGuiStyleVar_ButtonTextAlign, align);
-		if (ImGui_ButtonEx (buf, MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (22.0f))))
-		{
-			bitmask ^= (1 << i);
-
-			D_SET_CGAME_STATE (gamestate, bitmask);
-		}
-		ImGui_PopStyleVar ();
-
-		if (selected[i])
-			ImGui_PopStyleColorEx (3);
-
-		if (i % 8 < 7)
-			ImGui_SameLine ();
+		ImGui_EndTable ();
 	}
+	ImGui_PopStyleColor ();
+	ImGui_PopStyleVar ();
 
 	Spacer ();
 }
@@ -524,6 +523,48 @@ UQM_AutoChild (const char* str_id)
 			ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AutoResizeX |
 			ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_NoBackground);
 }
+
+static void
+UQM_GameStateCheckBox (const char *gs_name)
+{
+	bool game_state = D_GET_CGAME_STATE (gs_name);
+
+	if (ImGui_Checkbox (gs_name, &game_state))
+		D_SET_CGAME_STATE (gs_name, game_state);
+}
+#define GS_CHECKBOX(gs_name) UQM_GameStateCheckBox(#gs_name)
+
+static inline void
+UQM_CGameStateCheckBox (const char *gamestate, const char *label)
+{
+	bool on_ship = D_GET_CGAME_STATE (gamestate);
+
+	if (ImGui_Checkbox (label, &on_ship))
+		D_SET_CGAME_STATE (gamestate, on_ship);
+}
+#define CGAME_STATE_CHECKBOX(SGS, SLabel) UQM_CGameStateCheckBox(#SGS, SLabel)
+
+static inline void
+UQM_DblColTableCheckBox (const char *gs_retrieved, const char *gs_on_ship)
+{
+	char buf[40];
+
+	bool retrieved = D_GET_CGAME_STATE (gs_retrieved);
+	bool on_ship = D_GET_CGAME_STATE (gs_on_ship);
+
+	snprintf (buf, sizeof buf, "##%s", gs_retrieved);
+	if (ImGui_Checkbox (buf, &retrieved))
+		D_SET_CGAME_STATE (gs_retrieved, retrieved);
+	ImGui_TableNextColumn ();
+
+	if (ImGui_Checkbox (gs_retrieved, &on_ship))
+		D_SET_CGAME_STATE (gs_on_ship, on_ship);
+
+	ImGui_TableNextRow ();
+	ImGui_TableNextColumn ();
+}
+#define DBL_COL_CHECKBOX(gs_retrieved, gs_on_ship) \
+	UQM_DblColTableCheckBox (#gs_retrieved, #gs_on_ship)
 
 static inline void
 UQM_ImGui_Style (void)

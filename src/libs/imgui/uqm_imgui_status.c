@@ -79,7 +79,7 @@ void draw_status_menu (void)
 	//if (ImGui_CollapsingHeader ("Player Status", collapse_player))
 	{
 
-		ImGui_SeparatorText ("Player Status");
+		ImGui_SeparatorText ("Currency Status");
 
 		{
 			DWORD curr_ru = GLOBAL_SIS (ResUnits);
@@ -130,7 +130,7 @@ void draw_status_menu (void)
 
 		ImGui_SeparatorText ("Lander Upgrades");
 
-		if (ImGui_BeginTable ("##Upgrades", 2, TABLE_FLAGS))
+		if (ImGui_BeginTable ("##Upgrades", 3, TABLE_FLAGS))
 		{
 			ImGui_TableNextRow ();
 			ImGui_TableNextColumn ();
@@ -149,7 +149,6 @@ void draw_status_menu (void)
 				SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
 			}
 
-			ImGui_TableNextRow ();
 			ImGui_TableNextColumn ();
 
 			if (ImGui_Checkbox ("Lightning", &LghtngShield))
@@ -158,6 +157,7 @@ void draw_status_menu (void)
 				SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
 			}
 
+			ImGui_TableNextRow ();
 			ImGui_TableNextColumn ();
 
 			if (ImGui_Checkbox ("Lava", &LavaShield))
@@ -166,7 +166,6 @@ void draw_status_menu (void)
 				SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
 			}
 
-			ImGui_TableNextRow ();
 			ImGui_TableNextColumn ();
 
 			if (ImGui_Checkbox ("Weapon", &LanderShot))
@@ -197,11 +196,7 @@ void draw_status_menu (void)
 		if (collapse_lander == ImGuiTreeNodeFlags_None)
 			collapse_lander = ImGuiTreeNodeFlags_DefaultOpen;
 	}
-	//else if (collapse_lander = ImGuiTreeNodeFlags_DefaultOpen)
-	//	collapse_lander = ImGuiTreeNodeFlags_None;
 
-	// Cargo Status
-	//if (ImGui_CollapsingHeader ("Cargo Status", collapse_cargo))
 	{
 		ImGui_SeparatorText ("Cargo Status");
 
@@ -229,6 +224,7 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
+				ImGui_AlignTextToFramePadding ();
 				ImGui_TextUnformatted (elements[i]);
 
 				ImGui_TableNextColumn ();
@@ -267,6 +263,7 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
+				ImGui_AlignTextToFramePadding ();
 				ImGui_Text ("Free Space");
 
 				ImGui_TableNextColumn ();
@@ -281,10 +278,10 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
+				ImGui_AlignTextToFramePadding ();
 				ImGui_Text ("Bio-Data");
 
 				ImGui_TableNextColumn ();
-
 				ImGui_InputIntEx ("##BioData", &BioData, 0, 0, 0);
 				if (ImGui_IsItemDeactivatedAfterEdit ()
 						&& BioData < (COUNT)~0)
@@ -333,6 +330,7 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
+				ImGui_AlignTextToFramePadding ();
 				ImGui_TextUnformatted (modules[i]);
 
 				ImGui_TableNextColumn ();
@@ -373,7 +371,6 @@ void draw_status_menu (void)
 		{
 			HFLEETINFO hStarShip, hNextShip;
 			FLEET_INFO *FleetPtr;
-			bool ship_buildable;
 			int race_state;
 			float btn_size = SCALE_IT (110.0f);
 			float cmb_size = SCALE_IT (95.0f);
@@ -383,8 +380,8 @@ void draw_status_menu (void)
 
 #define COLUMN_FLAGS ImGuiTableColumnFlags_WidthFixed
 
-			ImGui_TableSetupColumnEx ("Race", COLUMN_FLAGS, btn_size, 0);
-			ImGui_TableSetupColumnEx ("Status", COLUMN_FLAGS, cmb_size, 0);
+			ImGui_TableSetupColumnEx ("Race", COLUMN_FLAGS, 0.0f, 0);
+			ImGui_TableSetupColumnEx ("Status", COLUMN_FLAGS, 0.0f, 0);
 
 			int Index = 0;
 			for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -398,24 +395,14 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				ship_buildable = FleetPtr->can_build;
-
-				if (ship_buildable)
-				{
-					ImGui_PushStyleColor (ImGuiCol_Button, 0xCC006600);
-					ImGui_PushStyleColor (ImGuiCol_ButtonHovered, 0xCC008800);
-					ImGui_PushStyleColor (ImGuiCol_ButtonActive, 0xCC004400);
-				}
-
-				if (ImGui_ButtonEx (GetStringAddress (
+				ImGui_Checkbox (GetStringAddress (
 						SetAbsStringTableIndex (FleetPtr->race_strings, 0)),
-							MAKE_IV2 (btn_size, 0.0f)))
+						(bool *)&FleetPtr->can_build);
+				if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 				{
-					FleetPtr->can_build = !ship_buildable;
+					ImGui_SetTooltip ("Allows you to build their ships\n"
+							"regardless of alliance status");
 				}
-
-				if (ship_buildable)
-					ImGui_PopStyleColorEx (3);
 
 				ImGui_TableNextColumn ();
 
@@ -435,10 +422,6 @@ void draw_status_menu (void)
 			}
 
 			ImGui_EndTable ();
-
-			ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-				"Clicking on the race name will allow you to build "
-				"their ships regardless of alliance status.");
 		}
 	}
 	//else if (collapse_alien = ImGuiTreeNodeFlags_DefaultOpen)
@@ -768,26 +751,6 @@ void draw_status_menu (void)
 		ImGui_EndChild ();
 }
 
-static void
-UQM_DoubleCheckBox (const char *gs_retrieved, const char *gs_on_ship)
-{
-	char buf[40];
-
-	bool retrieved = D_GET_CGAME_STATE (gs_retrieved);
-	bool on_ship = D_GET_CGAME_STATE (gs_on_ship);
-
-	snprintf (buf, sizeof buf, "##%s", gs_retrieved);
-	if (ImGui_Checkbox (buf, &retrieved))
-		D_SET_CGAME_STATE (gs_retrieved, retrieved);
-	ImGui_NextColumn ();
-
-	if (ImGui_Checkbox (gs_retrieved, &on_ship))
-		D_SET_CGAME_STATE (gs_on_ship, on_ship);
-	ImGui_NextColumn ();
-}
-#define DBL_COL_CHECKBOX(gs_retrieved, gs_on_ship) \
-	UQM_DoubleCheckBox (#gs_retrieved, #gs_on_ship)
-
 void
 draw_devices_menu (void)
 {
@@ -804,74 +767,48 @@ draw_devices_menu (void)
 
 	ImGui_SeparatorText ("Devices");
 	{
-		int num_col = 2;
-
-		ImGui_ColumnsEx (num_col, "DevicesColumns", false);
-
-		ImGui_Text ("Retrieved");
-		ImGui_NextColumn ();
-		ImGui_Text ("On-Board");
-		ImGui_NextColumn ();
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (PORTAL_SPAWNER, PORTAL_SPAWNER_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (TALKING_PET, TALKING_PET_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (UTWIG_BOMB, UTWIG_BOMB_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (SUN_DEVICE, SUN_DEVICE_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (ROSY_SPHERE, ROSY_SPHERE_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (AQUA_HELIX, AQUA_HELIX_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (CLEAR_SPINDLE, CLEAR_SPINDLE_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (SHOFIXTI_MAIDENS, MAIDENS_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (UMGAH_BROADCASTERS, UMGAH_BROADCASTERS_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (BURVIXESE_BROADCASTERS, BURV_BROADCASTERS_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (TAALO_PROTECTOR, TAALO_PROTECTOR_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (SYREEN_SHUTTLE, SYREEN_SHUTTLE_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (VUX_BEAST, VUX_BEAST_ON_SHIP);
-		Spacer_Column (num_col);
-
-		DBL_COL_CHECKBOX (PORTAL_KEY, PORTAL_KEY_ON_SHIP);
-		Spacer_Column (num_col);
-
+		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
+				MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
+		if (ImGui_BeginTable ("##EventManipulatorTable", 2,
+				ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg))
 		{
-			bool retrieved = GET_CGAME_STATE (MOONBASE_DESTROYED);
-			bool on_ship = GET_CGAME_STATE (MOONBASE_ON_SHIP);
+			ImGui_TableSetupColumn ("Retrieved", 0);
+			ImGui_TableSetupColumn ("On-Board", 0);
+			ImGui_TableHeadersRow ();
+			ImGui_TableNextColumn ();
 
-			if (ImGui_Checkbox ("MOONBASE_DESTROYED", &retrieved))
-				SET_CGAME_STATE (MOONBASE_DESTROYED, retrieved);
-			ImGui_NextColumn ();
+			DBL_COL_CHECKBOX (PORTAL_SPAWNER, PORTAL_SPAWNER_ON_SHIP);
+			DBL_COL_CHECKBOX (TALKING_PET, TALKING_PET_ON_SHIP);
+			DBL_COL_CHECKBOX (UTWIG_BOMB, UTWIG_BOMB_ON_SHIP);
+			DBL_COL_CHECKBOX (SUN_DEVICE, SUN_DEVICE_ON_SHIP);
+			DBL_COL_CHECKBOX (ROSY_SPHERE, ROSY_SPHERE_ON_SHIP);
+			DBL_COL_CHECKBOX (AQUA_HELIX, AQUA_HELIX_ON_SHIP);
+			DBL_COL_CHECKBOX (CLEAR_SPINDLE, CLEAR_SPINDLE_ON_SHIP);
+			DBL_COL_CHECKBOX (SHOFIXTI_MAIDENS, MAIDENS_ON_SHIP);
+			DBL_COL_CHECKBOX (UMGAH_BROADCASTERS, UMGAH_BROADCASTERS_ON_SHIP);
+			DBL_COL_CHECKBOX (BURVIXESE_BROADCASTERS, BURV_BROADCASTERS_ON_SHIP);
+			DBL_COL_CHECKBOX (TAALO_PROTECTOR, TAALO_PROTECTOR_ON_SHIP);
+			DBL_COL_CHECKBOX (SYREEN_SHUTTLE, SYREEN_SHUTTLE_ON_SHIP);
+			DBL_COL_CHECKBOX (VUX_BEAST, VUX_BEAST_ON_SHIP);
+			DBL_COL_CHECKBOX (PORTAL_KEY, PORTAL_KEY_ON_SHIP);
+			{
+				bool retrieved = GET_CGAME_STATE (MOONBASE_DESTROYED);
+				bool on_ship = GET_CGAME_STATE (MOONBASE_ON_SHIP);
 
-			if (ImGui_Checkbox ("MOONBASE", &on_ship))
-				SET_CGAME_STATE (MOONBASE_ON_SHIP, on_ship);
-			ImGui_NextColumn ();
+				if (ImGui_Checkbox ("##MOONBASE_DESTROYED", &retrieved))
+					SET_CGAME_STATE (MOONBASE_DESTROYED, retrieved);
+				ImGui_TableNextColumn ();
+
+				if (ImGui_Checkbox ("MOONBASE", &on_ship))
+					SET_CGAME_STATE (MOONBASE_ON_SHIP, on_ship);
+			}
+			ImGui_EndTable ();
 		}
+		ImGui_PopStyleColor ();
 
-		ImGui_ColumnsEx (1, "DevicesColumns2", false);
+		ImGui_Columns ();
 
-		ImGui_NewLine ();
+		Spacer ();
 
 		{
 			int ultron_state = GET_CGAME_STATE (ULTRON_CONDITION);
@@ -890,48 +827,12 @@ draw_devices_menu (void)
 
 		Spacer ();
 
-		{
-			bool on_ship = GET_CGAME_STATE (EGG_CASE0_ON_SHIP);
-
-			if (ImGui_Checkbox ("EGG_CASE0", &on_ship))
-				SET_CGAME_STATE (EGG_CASE0_ON_SHIP, on_ship);
-		}
-
-		{
-			bool on_ship = GET_CGAME_STATE (EGG_CASE1_ON_SHIP);
-
-			if (ImGui_Checkbox ("EGG_CASE1", &on_ship))
-				SET_CGAME_STATE (EGG_CASE1_ON_SHIP, on_ship);
-		}
-
-		{
-			bool on_ship = GET_CGAME_STATE (EGG_CASE2_ON_SHIP);
-
-			if (ImGui_Checkbox ("EGG_CASE2", &on_ship))
-				SET_CGAME_STATE (EGG_CASE2_ON_SHIP, on_ship);
-		}
-
-		{
-			bool on_ship = GET_CGAME_STATE (DESTRUCT_CODE_ON_SHIP);
-
-			if (ImGui_Checkbox ("DESTRUCT_CODE", &on_ship))
-				SET_CGAME_STATE (DESTRUCT_CODE_ON_SHIP, on_ship);
-		}
-
-		{
-			bool on_ship = GET_CGAME_STATE (WIMBLIS_TRIDENT_ON_SHIP);
-
-			if (ImGui_Checkbox ("WIMBLIS_TRIDENT", &on_ship))
-				SET_CGAME_STATE (WIMBLIS_TRIDENT_ON_SHIP, on_ship);
-		}
-
-		{
-			bool on_ship = GET_CGAME_STATE (GLOWING_ROD_ON_SHIP);
-
-			if (ImGui_Checkbox ("GLOWING_ROD", &on_ship))
-				SET_CGAME_STATE (GLOWING_ROD_ON_SHIP, on_ship);
-		}
-
+		CGAME_STATE_CHECKBOX (EGG_CASE0_ON_SHIP, "EGG_CASE0");
+		CGAME_STATE_CHECKBOX (EGG_CASE1_ON_SHIP, "EGG_CASE1");
+		CGAME_STATE_CHECKBOX (EGG_CASE2_ON_SHIP, "EGG_CASE2");
+		CGAME_STATE_CHECKBOX (DESTRUCT_CODE_ON_SHIP, "DESTRUCT_CODE");
+		CGAME_STATE_CHECKBOX (WIMBLIS_TRIDENT_ON_SHIP, "WIMBLIS_TRIDENT");
+		CGAME_STATE_CHECKBOX (GLOWING_ROD_ON_SHIP, "GLOWING_ROD");
 	}
 
 
