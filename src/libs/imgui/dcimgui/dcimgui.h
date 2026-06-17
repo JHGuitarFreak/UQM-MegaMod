@@ -777,7 +777,8 @@ CIMGUI_API bool ImGui_VSliderInt(const char* label, ImVec2 size, int* v, int v_m
 CIMGUI_API bool ImGui_VSliderIntEx(const char* label, ImVec2 size, int* v, int v_min, int v_max, const char* format /* = "%d" */, ImGuiSliderFlags flags /* = 0 */);
 CIMGUI_API bool ImGui_VSliderScalar(const char* label, ImVec2 size, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max);                               // Implied format = NULL, flags = 0
 CIMGUI_API bool ImGui_VSliderScalarEx(const char* label, ImVec2 size, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format /* = NULL */, ImGuiSliderFlags flags /* = 0 */);
-
+CIMGUI_API bool ImGui_SliderFloatRange (const char *label, float *v_current_min, float *v_current_max, float v_min, float v_max, const char *format, ImGuiSliderFlags flags, float step);
+CIMGUI_API bool ImGui_SliderIntRange (const char *label, int *v_current_min, int *v_current_max, int v_min, int v_max, const char *format, ImGuiSliderFlags flags, int step);
 // Widgets: Input with Keyboard
 // - If you want to use InputText() with std::string or any custom dynamic string type, use the wrapper in misc/cpp/imgui_stdlib.h/.cpp!
 // - Most of the ImGuiInputTextFlags flags are only useful for InputText() and not for InputFloatX, InputIntX, InputDouble etc.

@@ -1494,6 +1494,16 @@ CIMGUI_API bool cimgui::ImGui_VSliderScalarEx(const char* label, cimgui::ImVec2 
     return ::ImGui::VSliderScalar(label, ConvertToCPP_ImVec2(size), data_type, p_data, p_min, p_max, format, flags);
 }
 
+CIMGUI_API bool cimgui::ImGui_SliderFloatRange (const char *label, float *v_current_min, float *v_current_max, float v_min, float v_max, const char *format, ImGuiSliderFlags flags, float step)
+{
+    return ::ImGui::SliderFloatRange2 (label, v_current_min, v_current_max, v_min, v_max, format, flags, step);
+}
+
+CIMGUI_API bool cimgui::ImGui_SliderIntRange (const char *label, int *v_current_min, int *v_current_max, int v_min, int v_max, const char *format, ImGuiSliderFlags flags, int step)
+{
+    return ::ImGui::SliderIntRange2 (label, v_current_min, v_current_max, v_min, v_max, format, flags, step);
+}
+
 CIMGUI_API bool cimgui::ImGui_InputText(const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags)
 {
     return ::ImGui::InputText(label, buf, buf_size, flags);
