@@ -21,18 +21,21 @@
 #define NUM_TABS 4
 #define SUBTAB_SIZE 10
 
+
 #if defined(_WIN32)
 #define PLATFORM "Windows"
 #elif defined(__linux__)
 #define PLATFORM "Linux"
 #elif defined(__APPLE__)
 #define PLATFORM "macOS"
-#elif defined (ANDROID) || defined (__ANDROID__)
+#else
+#define PLATFORM "Unknown"
+#endif
+
+#if defined (ANDROID) || defined (__ANDROID__)
 #define PLATFORM "Android"
 #elif defined(__IOS__)
 #define PLATFORM "iOS"
-#else
-#define PLATFORM "Unknown"
 #endif
 
 void
