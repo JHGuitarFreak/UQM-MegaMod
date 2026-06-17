@@ -1182,6 +1182,8 @@ void draw_stars_menu (void)
 	static bool filter_colour_bool = false;
 	static int filter_type = 0;
 	static int filter_colour = 0;
+	static int min_x = 0, max_x = 9999;
+	static int min_y = 0, max_y = 9999;
 	const char *star_type[NUM_STAR_TYPES] =
 			{ "Dwarf", "Giant", "Super Giant" };
 	const char *star_colour[NUM_STAR_COLORS] =
@@ -1207,7 +1209,7 @@ void draw_stars_menu (void)
 			ImGui_SameLine ();
 			ImGui_Checkbox ("##FilterTypeBool", &filter_type_bool);
 			ImGui_SameLine ();
-			ImGui_ComboChar ("##FilterTypeCombo", &filter_type, star_type,
+			ImGui_ComboChar ("##FilterTypeCombo", &filter_type, star_type, 
 					NUM_STAR_TYPES);
 
 			Spacer ();
@@ -1226,6 +1228,15 @@ void draw_stars_menu (void)
 			ImGui_Text ("Current Star System");
 			ImGui_SameLine ();
 			ImGui_Checkbox ("##CurStar", &by_cur_star);
+
+			Spacer ();
+
+			ImGui_AlignTextToFramePadding ();
+			ImGui_Text ("X/Y Range");
+			ImGui_SameLine ();
+			ImGui_SliderIntRange ("##XRange", &min_x, &max_x, 0, 9999, "%d", 0, 0);
+			ImGui_SameLine ();
+			ImGui_SliderIntRange ("##YRange", &min_y, &max_y, 0, 9999, "%d", 0, 0);
 
 			if (CurStarDescPtr == NULL)
 				by_cur_star = 0;
@@ -1281,6 +1292,12 @@ void draw_stars_menu (void)
 							STAR_COLOR (star_array[i].Type) != filter_colour)
 						continue;
 					if (by_presence && star_array[i].Index == 0)
+						continue;
+					if (!(star_array[i].star_pt.x >= min_x &&
+						star_array[i].star_pt.x <= max_x))
+						continue;
+					if (!(star_array[i].star_pt.y >= min_y &&
+						star_array[i].star_pt.y <= max_y))
 						continue;
 
 					ImGui_TableNextColumn ();
