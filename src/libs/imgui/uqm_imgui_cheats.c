@@ -55,6 +55,16 @@ void draw_cheats_menu (void)
 	ImGui_Text ("Time Dilation:");
 	if (ImGui_ComboChar ("##TimeDilation", &timeDilationScale, time_modes, 3))
 	{
+		if (!IN_MAIN_MENU)
+		{
+			LockGameClock ();
+			if (GLOBAL (CurrentActivity) & IN_INTERPLANETARY)
+				SetGameClockRate (INTERPLANETARY_CLOCK_RATE);
+			else if (GLOBAL (CurrentActivity) & IN_HYPERSPACE)
+				SetGameClockRate (HYPERSPACE_CLOCK_RATE);
+			UnlockGameClock ();
+		}
+
 		res_PutInteger ("cheat.timeDilation", timeDilationScale);
 		cheat_changed = true;
 	}
