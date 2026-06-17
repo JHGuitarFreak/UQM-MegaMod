@@ -53,9 +53,9 @@ STAR_DESC*
 FindStar (STAR_DESC *LastSDPtr, POINT *puniverse, SIZE xbounds,
 		SIZE ybounds)
 {
-	COORD min_y, max_y;
+	STAR_DESC *BaseSDPtr, *StarPtr;
+	POINT min, max;
 	SIZE lo, hi;
-	STAR_DESC *BaseSDPtr;
 
 	if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 	{
@@ -64,7 +64,6 @@ FindStar (STAR_DESC *LastSDPtr, POINT *puniverse, SIZE xbounds,
 	}
 	else
 	{
-//#define NUM_HYPER_VORTICES 15 //JSD moved to .h
 		BaseSDPtr = &star_array[NUM_SOLAR_SYSTEMS + 1];
 		hi = (NUM_HYPER_VORTICES + 1) - 1;
 	}
@@ -73,50 +72,47 @@ FindStar (STAR_DESC *LastSDPtr, POINT *puniverse, SIZE xbounds,
 		lo = 0;
 	else if ((lo = LastSDPtr - BaseSDPtr + 1) > hi)
 		return (0);
-	else
-		hi = lo;
 
 	if (ybounds <= 0)
-		min_y = max_y = puniverse->y;
+		min.y = max.y = puniverse->y;
 	else
 	{
-		min_y = puniverse->y - ybounds;
-		max_y = puniverse->y + ybounds;
+		min.y = puniverse->y - ybounds;
+		max.y = puniverse->y + ybounds;
 	}
 
-	while (lo < hi)
+	if (xbounds <= 0)
+		min.x = max.x = puniverse->x;
+	else
 	{
-		SIZE mid;
-
-		mid = (lo + hi) >> 1;
-		if (BaseSDPtr[mid].star_pt.y >= min_y)
-			hi = mid - 1;
-		else
-			lo = mid + 1;
+		min.x = puniverse->x - xbounds;
+		max.x = puniverse->x + xbounds;
 	}
 
-	LastSDPtr = &BaseSDPtr[lo];
-	if (ybounds < 0 || LastSDPtr->star_pt.y <= max_y)
+	while (lo <= hi)
 	{
-		COORD min_x, max_x;
+		StarPtr = &BaseSDPtr[lo];
 
-		if (xbounds <= 0)
-			min_x = max_x = puniverse->x;
-		else
+		if (ybounds >= 0)
 		{
-			min_x = puniverse->x - xbounds;
-			max_x = puniverse->x + xbounds;
+			if (StarPtr->star_pt.y < min.y ||
+				StarPtr->star_pt.y > max.y)
+			{
+				lo++;
+				continue;
+			}
 		}
 
-		do
+		if (xbounds >= 0)
 		{
-			if ((ybounds < 0 || LastSDPtr->star_pt.y >= min_y)
-					&& (xbounds < 0
-					|| (LastSDPtr->star_pt.x >= min_x
-					&& LastSDPtr->star_pt.x <= max_x))
-					)
-				return (LastSDPtr);
-		} while ((++LastSDPtr)->star_pt.y <= max_y);
+			if (StarPtr->star_pt.x < min.x ||
+				StarPtr->star_pt.x > max.x)
+			{
+				lo++;
+				continue;
+			}
+		}
+		return (StarPtr);
 	}
 
 	return (0);
