@@ -61,15 +61,14 @@ draw_settings_menu (void)
 	Spacer ();
 
 	{
-		ImFontAtlas *font_atlas;
-		const char *font_names[2];
-		int font_selection;
 		int i;
-
-		font_atlas = io->Fonts;
+		int font_selection;
+		const ImFontAtlas *font_atlas = io->Fonts;
+		const int num_fonts = font_atlas->Fonts.Size;
+		const char **font_names = malloc (num_fonts * sizeof (const char *));
 
 		font_selection = 0;
-		for (i = 0; i < font_atlas->Fonts.Size; i++)
+		for (i = 0; i < num_fonts; i++)
 		{
 			if (io->FontDefault == font_atlas->Fonts.Data[i])
 			{
@@ -78,17 +77,19 @@ draw_settings_menu (void)
 			}
 		}
 
-		for (i = 0; i < font_atlas->Fonts.Size; i++)
+		for (i = 0; i < num_fonts; i++)
 			font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
 		ImGui_Text ("FontSelector");
 		if (ImGui_ComboChar ("##FontSelector", &font_selection, font_names,
-				font_atlas->Fonts.Size))
+				num_fonts))
 		{
 			io->FontDefault = font_atlas->Fonts.Data[font_selection];
 
 			ImPutInt (font_selection);
 		}
+		
+		free (font_names);
 	}
 
 	Spacer ();

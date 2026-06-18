@@ -110,10 +110,24 @@ UQM_ImGui_Init (void)
 	io->IniFilename = NULL;
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	binfont = ImBinary ("imguifont");
+	binfont = ImBinary ("implyrfont");
 	if (binfont != NULL)
 	{
 		InitializeFontConfig (&font_cfg, "playerfont.ttf", 18.0f);
+		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
+				binfont->size, 0, &font_cfg, NULL);
+	}
+	binfont = ImBinary ("imtinyfont");
+	if (binfont != NULL)
+	{
+		InitializeFontConfig (&font_cfg, "tinyfont.ttf", 18.0f);
+		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
+				binfont->size, 0, &font_cfg, NULL);
+	}
+	binfont = ImBinary ("imuqrgfont");
+	if (binfont != NULL)
+	{
+		InitializeFontConfig (&font_cfg, "urquanreg.ttf", 20.0f);
 		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
 				binfont->size, 0, &font_cfg, NULL);
 	}
