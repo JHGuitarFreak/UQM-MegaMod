@@ -314,7 +314,7 @@ void draw_status_menu (void)
 				"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
 				"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
 				"Fusion Blaster", "Hellbore Cannon", "Tracking System",
-				"Point Defense Laser"
+				"Point Defense"
 			};
 
 			for (i = 0; i < NUM_PURCHASE_MODULES; i++)
@@ -448,7 +448,7 @@ void draw_status_menu (void)
 			"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
 			"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
 			"Fusion Blaster", "Hellbore Cannon", "Tracking System",
-			"Point Defense Laser", "Bomb Module 0", "Bomb Module 1",
+			"Point Defense", "Bomb Module 0", "Bomb Module 1",
 			"Bomb Module 2", "Bomb Module 3", "Bomb Module 4",
 			"Bomb Module 5"
 		};
@@ -703,6 +703,9 @@ void draw_status_menu (void)
 					ImGui_PushStyleColor (ImGuiCol_ButtonHovered, U32_BUTTON_HOV_GS);
 					ImGui_PushStyleColor (ImGuiCol_ButtonActive, U32_BUTTON_ACT_GS);
 				}
+
+				if (DISPLAY_BOOL != 1)
+					ImGui_SetNextItemWidth (-1);
 
 				snprintf (buf, sizeof buf, "##module%d", i);
 				if (ImGui_ComboChar (buf, &ModuleSlot, ship_modules, 18))
