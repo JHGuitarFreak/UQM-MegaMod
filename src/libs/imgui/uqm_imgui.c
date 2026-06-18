@@ -82,7 +82,6 @@ static void ShowFullScreenMenu (TabState *state)
 static int
 UQM_ImGui_Init (void)
 {
-	BINARY_RES *binfont;
 	ImFontConfig font_cfg;
 
 	if (imgui_initialized)
@@ -110,27 +109,9 @@ UQM_ImGui_Init (void)
 	io->IniFilename = NULL;
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	binfont = ImBinary ("implyrfont");
-	if (binfont != NULL)
-	{
-		InitializeFontConfig (&font_cfg, "playerfont.ttf", 18.0f);
-		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
-				binfont->size, 0, &font_cfg, NULL);
-	}
-	binfont = ImBinary ("imtinyfont");
-	if (binfont != NULL)
-	{
-		InitializeFontConfig (&font_cfg, "tinyfont.ttf", 18.0f);
-		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
-				binfont->size, 0, &font_cfg, NULL);
-	}
-	binfont = ImBinary ("imuqrgfont");
-	if (binfont != NULL)
-	{
-		InitializeFontConfig (&font_cfg, "urquanreg.ttf", 20.0f);
-		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
-				binfont->size, 0, &font_cfg, NULL);
-	}
+	AddFontFromResource ("playerfont.ttf", 18.0f);
+	AddFontFromResource ("tinyfont.ttf", 18.0f);
+	AddFontFromResource ("urquanfont.ttf", 20.0f);
 	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
 
 	UQM_ImGui_Style ();

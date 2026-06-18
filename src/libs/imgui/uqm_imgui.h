@@ -493,6 +493,19 @@ InitializeFontConfig (ImFontConfig *font_cfg, const char *name, float size)
 }
 
 static inline void
+AddFontFromResource (const char *res, float size)
+{
+	ImFontConfig font_cfg;
+	BINARY_RES *binfont = ImBinary (res);
+	if (binfont != NULL)
+	{
+		InitializeFontConfig (&font_cfg, res, size);
+		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
+			binfont->size, 0, &font_cfg, NULL);
+	}
+}
+
+static inline void
 DrawBorderAroundLastItem (void)
 {
 	ImDrawList *draw_list = ImGui_GetWindowDrawList ();
