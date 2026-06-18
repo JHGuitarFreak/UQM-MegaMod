@@ -1173,6 +1173,26 @@ draw_events_menu (void)
 
 #define STAR_MAX (NUM_SOLAR_SYSTEMS + NUM_HYPER_VORTICES + 3)
 
+static int
+FindLongestString (int string_base, int string_count)
+{
+	float max_width = 0.0f;
+	int longest_index = -1;
+
+	for (int i = 0; i < string_count; i++)
+	{
+		const char *text = GAME_STRING (string_base + i);
+		float text_size = ImGui_CalcTextSize (text).x;
+
+		if (text_size > max_width)
+		{
+			max_width = text_size;
+			longest_index = i;
+		}
+	}
+	return longest_index;
+}
+
 void draw_stars_menu (void)
 {
 	int i;
@@ -1184,6 +1204,8 @@ void draw_stars_menu (void)
 	static int filter_colour = 0;
 	static int min_x = 0, max_x = 9999;
 	static int min_y = 0, max_y = 9999;
+	static int longest_postfix = -1;
+	static int longest_prefix = -1;
 	const char *star_type[NUM_STAR_TYPES] =
 			{ "Dwarf", "Giant", "Super Giant" };
 	const char *star_colour[NUM_STAR_COLORS] =
@@ -1252,29 +1274,42 @@ void draw_stars_menu (void)
 			ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
 				MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
 			if (ImGui_BeginTable ("##StarArrayTable", 7,
-				ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
-				ImGuiTableFlags_NoHostExtendX |
-				ImGuiTableFlags_SizingStretchSame))
+					ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
+					ImGuiTableFlags_NoHostExtendX |
+					ImGuiTableFlags_SizingStretchSame))
 			{
 				ImGui_TableSetupColumnEx ("Idx",
 						ImGuiTableColumnFlags_WidthFixed,
 						ImGui_CalcTextSize ("999").x +
 							style->FramePadding.x, 0);
+
+				if (longest_prefix == -1)
+					longest_prefix = FindLongestString (STAR_NUMBER_BASE,
+							STAR_NUMBER_COUNT - 1);
+
 				ImGui_TableSetupColumnEx ("Prefix",
 						ImGuiTableColumnFlags_WidthFixed,
-						ImGui_CalcTextSize ("Epsilon").x +
-							style->FramePadding.x, 0);
+						ImGui_CalcTextSize (GAME_STRING (
+								STAR_NUMBER_BASE + longest_prefix)).x +
+								style->FramePadding.x, 1);
+
+				if (longest_postfix == -1)
+					longest_postfix = FindLongestString (STAR_STRING_BASE,
+							STAR_STRING_COUNT - 17);
+
 				ImGui_TableSetupColumnEx ("Postfix",
 						ImGuiTableColumnFlags_WidthFixed,
-						ImGui_CalcTextSize ("Camelopardalis").x +
-							style->FramePadding.x, 0);
+						ImGui_CalcTextSize (GAME_STRING (
+							STAR_STRING_BASE + longest_postfix)).x +
+							style->FramePadding.x, 2);
+
 				ImGui_TableSetupColumnEx ("Coordinates",
 						ImGuiTableColumnFlags_WidthFixed,
-						ImGui_CalcTextSize ("999.9 x 999.9").x +
-							style->FramePadding.x, 0);
-				ImGui_TableSetupColumn ("Type", 0);
-				ImGui_TableSetupColumn ("Colour", 0);
-				ImGui_TableSetupColumn ("Presence", 0);
+						ImGui_CalcTextSize ("999.9 : 999.9").x +
+							style->FramePadding.x, 3);
+				ImGui_TableSetupColumn ("Type", 4);
+				ImGui_TableSetupColumn ("Colour", 5);
+				ImGui_TableSetupColumn ("Presence", 6);
 				ImGui_TableHeadersRow ();
 
 				for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
@@ -1325,7 +1360,7 @@ void draw_stars_menu (void)
 					ImGui_TableNextColumn ();
 
 					ImGui_AlignTextToFramePadding ();
-					ImGui_Text ("%05.1f x %05.1f",
+					ImGui_Text ("%05.1f : %05.1f",
 							(float)star_array[i].star_pt.x / 10.0f,
 							(float)star_array[i].star_pt.y / 10.0f);
 
