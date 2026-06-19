@@ -22,18 +22,8 @@ void draw_cheats_menu (void)
 	int MaxScrounged = MAX_SCROUNGED;
 
 	const char *god_modes[] =
-	{
-		"None",
-		"Infinite Energy",
-		"Invulnerable",
-		"Full God Mode"
-	};
-	const char *time_modes[] =
-	{
-		"Normal",
-		"Slow (x6)",
-		"Fast (x5)"
-	};
+			{ "None", "Infinite Energy", "Invulnerable", "Full God Mode" };
+	const char *time_modes[] = { "Normal", "Slow (x6)", "Fast (x5)" };
 
 	ImGui_ColumnsEx (DISPLAY_BOOL, "CheatColumns", false); // For taming width
 
@@ -93,13 +83,7 @@ void draw_cheats_menu (void)
 	ImGui_NewLine ();
 
 	if (ImGui_Button ("Ships GTFO!"))
-	{
 		ShipGTFO = true;
 
-		menu_visible = false;
-	}
-
-	//ImGui_NextColumn ();
-
-	Spacer ();
+	ImGui_NewLine ();
 }

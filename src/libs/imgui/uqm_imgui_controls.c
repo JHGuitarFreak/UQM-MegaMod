@@ -74,6 +74,26 @@ static const char *pretty_flight_actions[] =
 	"Thrust", NULL
 };
 
+static void
+GetKeyNameButtonWidth (float *width)
+{
+	int i;
+	static float button_width = 0;
+	static bool once = false;
+
+	for (i = 0; i < keynames[i].code != 0; i++)
+	{
+		const char *keyname = keynames[i].name;
+		float name_width = ImGui_CalcTextSize (keyname).x +
+				style->FramePadding.x * 2.0f;
+
+		if (button_width < name_width)
+			button_width = name_width;
+	}
+
+	*width = button_width;
+}
+
 // ImGui Menu
 
 void
@@ -90,8 +110,6 @@ draw_controls_menu (void)
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
 
-	ImGui_BeginStyledChild ("##Controls", ZERO_F, CH_FLAT_NAV, 0, NULL);
-
 	ImGui_ColumnsEx (DISPLAY_BOOL, "ControlsColumns", false);
 
 	// Control Options
@@ -102,6 +120,7 @@ draw_controls_menu (void)
 
 		Spacer ();
 
+		// Button Icons
 		{
 			ImGui_Text ("Button Icons:");
 			if (ImGui_ComboChar ("##ControlDisplay",
@@ -114,6 +133,7 @@ draw_controls_menu (void)
 
 		Spacer ();
 
+		// Directional Joystick P1
 		{
 			ImGui_Text ("Directional Joystick P1:");
 			if (ImGui_ComboChar ("##DirJoyP1",
@@ -124,6 +144,7 @@ draw_controls_menu (void)
 			}
 		}
 
+		// Directional Joystick P2
 		{
 			ImGui_Text ("Directional Joystick P2:");
 			if (ImGui_ComboChar ("##DirJoyP2", 
@@ -140,8 +161,6 @@ draw_controls_menu (void)
 	ImGui_Columns ();
 
 	Control_Tabs ();
-
-	ImGui_EndChild ();
 }
 
 static void
@@ -208,7 +227,8 @@ FlightControls (void)
 	float column_width, button_width;
 	char display_text[40];
 
-	ImGui_BeginStyledChild ("FlightBindings", ZERO_F, CHILD_FLAGS, 0, NULL);
+	GetKeyNameButtonWidth (&button_width);
+
 	ImGui_ColumnsEx (2, "FlightTemplates", false);
 	ImGui_SetColumnWidth (0, SCALE_IT (300.0f));
 
@@ -220,33 +240,42 @@ FlightControls (void)
 
 	ImGui_NewLine ();
 
+	ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
+			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
 	ImGui_PushStyleColor (ImGuiCol_ChildBg, 0x00000000);
-	if (ImGui_BeginTable ("table2", 7, ImGuiTableFlags_ScrollX |
-			ImGuiTableFlags_RowBg))
+	if (ImGui_BeginTable ("##FlightControlsTable", 5, ImGuiTableFlags_ScrollX |
+			ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
 	{
+		ImGui_TableSetupColumn ("Action", 0);
+		ImGui_TableSetupColumn ("Bind 1", 0);
+		ImGui_TableSetupColumn ("Bind 2", 0);
+		ImGui_TableSetupColumn ("Bind 3", 0);
+		ImGui_TableSetupColumn ("Bind 4", 0);
+		ImGui_TableHeadersRow ();
+
 		for (i = 0; i < NUM_KEYS; i++)
 		{
 			if (flight_res_names[i] == NULL)
 				continue;
 
-			ImGui_TableNextRow ();
 			ImGui_TableNextColumn ();
 
 			ImGui_AlignTextToFramePadding ();
 			ImGui_Text ("%s:", pretty_flight_actions[i]);
 
-			ImGui_TableNextColumn ();
-
 			for (j = 0; j < MAX_FLIGHT_ALTERNATES; j++)
 			{
 				g = &curr_fl_bindings[template_id][i].binding[j];
+
+				ImGui_TableNextColumn ();
 
 				snprintf (button_id, sizeof (button_id),
 					"##bind_fl_%d_%d", i, j);
 
 				ImGui_PushID (button_id);
 
-				snprintf (display_text, sizeof display_text, "%s", GetBindingDisplayText (g));
+				snprintf (display_text, sizeof display_text, "%s",
+						GetBindingDisplayText (g));
 
 				if (strcmp ("", display_text) == 0)
 				{
@@ -257,25 +286,23 @@ FlightControls (void)
 					ImGui_PushStyleColor (ImGuiCol_Text, 0xFFFFC5C5);
 
 				column_width = ImGui_GetColumnWidth (-1);
-				button_width = ImGui_CalcTextSize (display_text).x + style->FramePadding.x * 2.0f;
-				ImGui_SetCursorPosX (ImGui_GetCursorPosX () + (column_width - button_width) * 0.5f);
+				ImGui_SetCursorPosX (ImGui_GetCursorPosX () +
+						(column_width - button_width) * 0.5f);
 
-				if (ImGui_SelectableEx (display_text, false, 0, MAKE_IV2 (button_width, 0.0f)))
+				if (ImGui_SelectableEx (display_text, false, 0,
+						MAKE_IV2 (button_width, 0.0f)))
+				{
 					StartRebinding (i, j, &template_id);
+				}
 
 				ImGui_PopStyleColor ();
 
 				ImGui_PopID ();
-
-				if (j < MAX_FLIGHT_ALTERNATES)
-					ImGui_TableNextColumn ();
 			}
 		}
 		ImGui_EndTable ();
 	}
-	ImGui_PopStyleColor ();
-
-	ImGui_EndChild ();
+	ImGui_PopStyleColorEx (2);
 }
 
 static void
@@ -389,7 +416,7 @@ ShowFlightRebindPopup (void)
 		ImGui_OpenPopup ("##FlightRebindPopup", 0);
 	}
 
-	ImGui_SetNextWindowPosEx (Float2Mult (DISPLAY_SIZE, 0.5f),
+	ImGui_SetNextWindowPosEx (Float2Mult (io->DisplaySize, 0.5f),
 			ImGuiCond_Always, CENTER_IT);
 
 	if (!ImGui_BeginPopupModal ("##FlightRebindPopup", NULL,
@@ -584,35 +611,50 @@ MenuControls (void)
 	int i, j;
 	char button_id[32];
 	VCONTROL_GESTURE *g;
-	float column_width, button_width;
+	float column_width;
 	char display_text[40];
+	float button_width;
 
+	GetKeyNameButtonWidth (&button_width);
+
+	ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
+			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
 	ImGui_PushStyleColor (ImGuiCol_ChildBg, 0x00000000);
-	if (ImGui_BeginTable ("table2", 7, ImGuiTableFlags_ScrollX |
-		ImGuiTableFlags_RowBg))
+	if (ImGui_BeginTable ("##MenuControlsTable", 7, ImGuiTableFlags_ScrollX |
+			ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
 	{
+		ImGui_TableSetupColumn ("Action", 0);
+		ImGui_TableSetupColumn ("Bind 1", 0);
+		ImGui_TableSetupColumn ("Bind 2", 0);
+		ImGui_TableSetupColumn ("Bind 3", 0);
+		ImGui_TableSetupColumn ("Bind 4", 0);
+		ImGui_TableSetupColumn ("Bind 5", 0);
+		ImGui_TableSetupColumn ("Bind 6", 0);
+		ImGui_TableHeadersRow ();
+
 		for (i = 0; i < NUM_MENU_KEYS; i++)
 		{
 			if (menu_res_names[i] == NULL)
-				continue; 
-			
-			ImGui_TableNextRow ();
+				continue;
+
 			ImGui_TableNextColumn ();
 
 			ImGui_AlignTextToFramePadding ();
 			ImGui_Text ("%s:", pretty_menu_actions[i]);
 
-			ImGui_TableNextColumn ();
-
 			for (j = 0; j < 6; j++)
 			{
 				g = &curr_bindings[i].binding[j];
+
+				ImGui_TableNextColumn ();
 
 				snprintf (button_id, sizeof (button_id), "##bind_%d_%d", i, j);
 
 				ImGui_PushID (button_id);
 
-				snprintf (display_text, sizeof display_text, "%s", GetBindingDisplayText (g));
+				snprintf (display_text, sizeof display_text, "%s",
+					
+						GetBindingDisplayText (g));
 
 				if (strcmp ("", display_text) == 0)
 				{
@@ -624,23 +666,23 @@ MenuControls (void)
 				
 
 				column_width = ImGui_GetColumnWidth (-1);
-				button_width = ImGui_CalcTextSize (display_text).x + style->FramePadding.x * 2.0f;
-				ImGui_SetCursorPosX (ImGui_GetCursorPosX () + (column_width - button_width) * 0.5f);
+				ImGui_SetCursorPosX (ImGui_GetCursorPosX () +
+						(column_width - button_width) * 0.5f);
 
-				if (ImGui_SelectableEx (display_text, false, 0, MAKE_IV2(button_width, 0.0f)))
+				if (ImGui_SelectableEx (display_text, false, 0,
+						MAKE_IV2 (button_width, 0.0f)))
+				{
 					StartRebinding (i, j, NULL);
+				}
 
 				ImGui_PopStyleColor ();
 
 				ImGui_PopID ();
-
-				if (j < 5)
-					ImGui_TableNextColumn ();
 			}
 		}
 		ImGui_EndTable ();
 	}
-	ImGui_PopStyleColor ();
+	ImGui_PopStyleColorEx (2);
 }
 
 static void

@@ -64,25 +64,32 @@ draw_engine_menu (void)
 	{
 		ImGui_SeparatorText ("User Interface");
 
-		//{
-		//	int window_type = optWindowType;
+		{
+			int window_type = optWindowType;
 
-		//	ImGui_BeginDisabled (true);
+			if (ImGui_SizedComboChar ("Platform UI:", &window_type,
+					dos_3do_uqm, 3))
+			{
+				if (IN_MAIN_MENU)
+					GLOBAL (CurrentActivity) = 0;
+				else
+					GLOBAL (CurrentActivity) |= CHECK_ABORT;
 
-		//	if (ImGui_SizedComboChar ("Platform UI:", &window_type,
-		//			dos_3do_uqm, 3))
-		//	{
-		//		// Switching code goes here;
-		//	}
+				optWindowType = window_type;
+				optRequiresReload = TRUE;
 
-		//	ImGui_TextWrappedColored (IV4_RED_COLOR,
-		//			"WARNING! The Platform UI option can not be changed "
-		//			"in the GUI at this time. To change this option you "
-		//			"must use the Setup Menu.");
-		//	Spacer ();
-
-		//	ImGui_EndDisabled ();
-		//}
+				res_PutInteger ("mm.windowType", optWindowType);
+				mmcfg_changed = true;
+			}
+			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+			{
+				ImGui_BeginTooltip ();
+				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+					"WARNING! This option will drop you\nback to the "
+					"main menu to reload.");
+				ImGui_EndTooltip ();
+			}
+		}
 
 		{
 			int which_menu = is3DO (optWhichMenu);
@@ -115,25 +122,32 @@ draw_engine_menu (void)
 			}
 		}
 
-		//{
-		//	ImGui_BeginDisabled (true);
+		{
+			int which_intro = is3DO (optWhichIntro);
 
-		//	int which_intro = is3DO (optWhichIntro);
+			if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
+					cutscene_style, 2))
+			{
+				if (IN_MAIN_MENU)
+					GLOBAL (CurrentActivity) = 0;
+				else
+					GLOBAL (CurrentActivity) |= CHECK_ABORT;
 
-		//	if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
-		//			cutscene_style, 2))
-		//	{
-		//		// Add switching code here
-		//	}
+				optWhichIntro = ToCons (which_intro);
+				optRequiresReload = TRUE;
 
-		//	ImGui_TextWrappedColored (IV4_RED_COLOR,
-		//			"WARNING! The Cutscene option can not be changed in "
-		//			"the GUI at this time. To change this option you must "
-		//			"use the Setup Menu.");
-		//	Spacer ();
-
-		//	ImGui_EndDisabled ();
-		//}
+				res_PutBoolean ("config.3domovies", (BOOLEAN)which_intro);
+				config_changed = true;
+			}
+			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+			{
+				ImGui_BeginTooltip ();
+				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+					"WARNING! This option will drop you\nback to the "
+					"main menu to reload.");
+				ImGui_EndTooltip ();
+			}
+		}
 
 		Spacer ();
 

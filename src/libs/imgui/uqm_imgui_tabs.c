@@ -228,7 +228,6 @@ draw_settings_menu (void)
 			}
 		}
 #endif // DEBUG
-
 	}
 
 	if (DISPLAY_BOOL != 1)
@@ -252,7 +251,6 @@ UQM_ImGui_Tabs (TabState *state)
 		subtab_names[0] = ImStrArr ("subtab_names.0");
 		subtab_names[1] = ImStrArr ("subtab_names.1");
 		subtab_names[2] = ImStrArr ("subtab_names.2");
-		subtab_names[3] = ImStrArr ("subtab_names.3");
 	}
 
 	int *active_subtab[] =
@@ -265,6 +263,7 @@ UQM_ImGui_Tabs (TabState *state)
 
 	active_tab = state->active_tab;
 
+	// Without this the border doesn't draw correctly around the navbar
 	DrawBorderAroundLastItem ();
 
 	// Begin NavBar
@@ -349,12 +348,14 @@ UQM_ImGui_Tabs (TabState *state)
 	ImGui_SameLine ();
 	// Content Begins
 	ImGui_BeginChild ("Content", ZERO_F, IGCF_B, 0);
-
-	switch (active_tab)
 	{
-		case 0:
-			switch (*active_subtab[active_tab])
+		ImGui_BeginStyledChild ("##PagePadding", ZERO_F, CH_FLAT_NAV, 0, NULL);
+		{
+			switch (active_tab)
 			{
+			case 0:
+				switch (*active_subtab[active_tab])
+				{
 				case 0: draw_settings_menu (); break;
 				case 1: draw_graphics_menu (); break;
 				case 2: draw_engine_menu (); break;
@@ -363,58 +364,56 @@ UQM_ImGui_Tabs (TabState *state)
 				case 5: draw_adv_menu (); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
+						*active_subtab[active_tab]);
 					break;
-			}
-			break;
-		case 1:
-			switch (*active_subtab[active_tab])
-			{
+				}
+				break;
+			case 1:
+				switch (*active_subtab[active_tab])
+				{
 				case 0: draw_qol_menu (); break;
 				case 1: draw_visual_menu (); break;
 				case 2: ImGui_Text ("Difficulty"); break;
 				case 3: draw_cheats_menu (); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
+						*active_subtab[active_tab]);
 					break;
-			}
-			break;
-		case 2:
-			switch (*active_subtab[active_tab])
-			{
-				case 0: ImGui_Text ("Seed Settings"); break;
-				case 1: ImGui_Text ("Enhancements"); break;
-				default:
-					ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
+				}
+				break;
+			case 2:
+				if (IN_MAIN_MENU)
+				{
+					ImGui_Text ("Not available in the Main Menu...");
 					break;
-			}
-			break;
-		case 3:
-			switch (*active_subtab[active_tab])
-			{
-				case 0: draw_status_menu (); break;
-				case 1: draw_devices_menu (); break;
-				case 2: draw_gamestates_menu (); break;
-				case 3: draw_events_menu (); break;
-				case 4: draw_stars_menu (); break;
-				default:
-					ImGui_Text ("Subtab %d not found.",
+				}
+				else
+				{
+					switch (*active_subtab[active_tab])
+					{
+					case 0: draw_status_menu (); break;
+					case 1: draw_devices_menu (); break;
+					case 2: draw_gamestates_menu (); break;
+					case 3: draw_events_menu (); break;
+					case 4: draw_stars_menu (); break;
+					default:
+						ImGui_Text ("Subtab %d not found.",
 							*active_subtab[active_tab]);
+						break;
+					}
 					break;
-			}
-			break;
-		default:
-			switch (*active_subtab[active_tab])
-			{
+				}
+			default:
+				switch (*active_subtab[active_tab])
+				{
 				default:
 					ImGui_Text ("Subtab %d not found.",
 						*active_subtab[active_tab]);
 					break;
+				}
 			}
-	}
-	ImGui_EndChild ();
+		} ImGui_EndChild (); // ##PagePadding
+	} ImGui_EndChild (); // Content
 	DrawBorderAroundLastItem ();
 	// Content Ends
 }

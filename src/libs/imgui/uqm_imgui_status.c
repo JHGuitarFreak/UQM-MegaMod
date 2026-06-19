@@ -63,21 +63,13 @@ static void module_cache (BOOLEAN apply)
 
 void draw_status_menu (void)
 {
-	if (IN_MAIN_MENU)
-	{
-		ImGui_Text ("Status not available in the Main Menu...");
-		return;
-	}
-
 	ImGui_ColumnsEx (DISPLAY_BOOL, "StatusColumns", false);
 
 	if (DISPLAY_BOOL != 1)
 		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
 
-	// Player Status
-	//if (ImGui_CollapsingHeader ("Player Status", collapse_player))
+	// Currency Status
 	{
-
 		ImGui_SeparatorText ("Currency Status");
 
 		{
@@ -108,28 +100,22 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
-
-		if (collapse_player == ImGuiTreeNodeFlags_None)
-			collapse_player = ImGuiTreeNodeFlags_DefaultOpen;
 	}
-	//else if (collapse_player = ImGuiTreeNodeFlags_DefaultOpen)
-	//	collapse_player = ImGuiTreeNodeFlags_None;
 
-	// Lander Upgrades
-	//if (ImGui_CollapsingHeader ("Lander Upgrades", collapse_lander))
+	// Lander Upgrade Status
 	{
-		BYTE ShieldFlags = GET_CGAME_STATE (LANDER_SHIELDS); // gs_cache.ShieldFlags;
+		BYTE ShieldFlags = GET_CGAME_STATE (LANDER_SHIELDS);
 		bool QuakeShield = ShieldFlags & (1 << EARTHQUAKE_DISASTER);
 		bool BioShield = ShieldFlags & (1 << BIOLOGICAL_DISASTER);
 		bool LghtngShield = ShieldFlags & (1 << LIGHTNING_DISASTER);
 		bool LavaShield = ShieldFlags & (1 << LAVASPOT_DISASTER);
-		bool LanderShot = GET_CGAME_STATE (IMPROVED_LANDER_SHOT); // gs_cache.LanderShot;
-		bool LanderSpeed = GET_CGAME_STATE (IMPROVED_LANDER_SPEED); // gs_cache.LanderSpeed;
-		bool LanderCargo = GET_CGAME_STATE (IMPROVED_LANDER_CARGO); // gs_cache.LanderCargo;
+		bool LanderShot = GET_CGAME_STATE (IMPROVED_LANDER_SHOT);
+		bool LanderSpeed = GET_CGAME_STATE (IMPROVED_LANDER_SPEED);
+		bool LanderCargo = GET_CGAME_STATE (IMPROVED_LANDER_CARGO);
 
 		ImGui_SeparatorText ("Lander Upgrades");
 
-		if (ImGui_BeginTable ("##Upgrades", 3, TABLE_FLAGS))
+		if (ImGui_BeginTable ("##LanderUpgrades", 3, TABLE_FLAGS))
 		{
 			ImGui_TableNextRow ();
 			ImGui_TableNextColumn ();
@@ -191,11 +177,9 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
-
-		if (collapse_lander == ImGuiTreeNodeFlags_None)
-			collapse_lander = ImGuiTreeNodeFlags_DefaultOpen;
 	}
 
+	// Cargo Status
 	{
 		ImGui_SeparatorText ("Cargo Status");
 
@@ -297,11 +281,8 @@ void draw_status_menu (void)
 		if (collapse_cargo == ImGuiTreeNodeFlags_None)
 			collapse_cargo = ImGuiTreeNodeFlags_DefaultOpen;
 	}
-	//else if (collapse_cargo = ImGuiTreeNodeFlags_DefaultOpen)
-	//	collapse_cargo = ImGuiTreeNodeFlags_None;
 
 	// Module Status
-	//if (ImGui_CollapsingHeader ("Module Status", collapse_module))
 	{
 		ImGui_SeparatorText ("Module Status");
 
@@ -347,12 +328,7 @@ void draw_status_menu (void)
 		}
 
 		ImGui_NewLine ();
-
-		if (collapse_module == ImGuiTreeNodeFlags_None)
-			collapse_module = ImGuiTreeNodeFlags_DefaultOpen;
 	}
-	//else if (collapse_module = ImGuiTreeNodeFlags_DefaultOpen)
-	//	collapse_module = ImGuiTreeNodeFlags_None;
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -362,7 +338,6 @@ void draw_status_menu (void)
 	}
 
 	// Alien Status
-	//if (ImGui_CollapsingHeader ("Alien Status", collapse_alien))
 	{
 		ImGui_SeparatorText ("Alien Status");
 
@@ -423,8 +398,6 @@ void draw_status_menu (void)
 			ImGui_EndTable ();
 		}
 	}
-	//else if (collapse_alien = ImGuiTreeNodeFlags_DefaultOpen)
-	//	collapse_alien = ImGuiTreeNodeFlags_None;
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -434,7 +407,6 @@ void draw_status_menu (void)
 	}
 
 	// Flagship Status
-	//if (ImGui_CollapsingHeader ("Flagship Status", collapse_flagship))
 	{
 		static bool thrusters[11] = { false };
 		static bool jets[8] = { false };
@@ -746,8 +718,6 @@ void draw_status_menu (void)
 		if (collapse_flagship == ImGuiTreeNodeFlags_None)
 			collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen;
 	}
-	//else if (collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen)
-	//	collapse_flagship = ImGuiTreeNodeFlags_None;
 
 	if (DISPLAY_BOOL != 1)
 		ImGui_EndChild ();
@@ -756,90 +726,76 @@ void draw_status_menu (void)
 void
 draw_devices_menu (void)
 {
-	if (IN_MAIN_MENU)
-	{
-		ImGui_Text ("Devices are not available in the Main Menu...");
-		return;
-	}
-
 	ImGui_ColumnsEx (DISPLAY_BOOL, "DeviceColumns", false);
 
-	if (DISPLAY_BOOL != 1)
-		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
-
 	ImGui_SeparatorText ("Devices");
+
+	ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
+			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
+	if (ImGui_BeginTable ("##EventManipulatorTable", 2,
+			ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg))
 	{
-		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
-				MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
-		if (ImGui_BeginTable ("##EventManipulatorTable", 2,
-				ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg))
+		ImGui_TableSetupColumn ("Retrieved", 0);
+		ImGui_TableSetupColumn ("On-Board", 0);
+		ImGui_TableHeadersRow ();
+		ImGui_TableNextColumn ();
+
+		DBL_COL_CHECKBOX (PORTAL_SPAWNER, PORTAL_SPAWNER_ON_SHIP);
+		DBL_COL_CHECKBOX (TALKING_PET, TALKING_PET_ON_SHIP);
+		DBL_COL_CHECKBOX (UTWIG_BOMB, UTWIG_BOMB_ON_SHIP);
+		DBL_COL_CHECKBOX (SUN_DEVICE, SUN_DEVICE_ON_SHIP);
+		DBL_COL_CHECKBOX (ROSY_SPHERE, ROSY_SPHERE_ON_SHIP);
+		DBL_COL_CHECKBOX (AQUA_HELIX, AQUA_HELIX_ON_SHIP);
+		DBL_COL_CHECKBOX (CLEAR_SPINDLE, CLEAR_SPINDLE_ON_SHIP);
+		DBL_COL_CHECKBOX (SHOFIXTI_MAIDENS, MAIDENS_ON_SHIP);
+		DBL_COL_CHECKBOX (UMGAH_BROADCASTERS, UMGAH_BROADCASTERS_ON_SHIP);
+		DBL_COL_CHECKBOX (BURVIXESE_BROADCASTERS, BURV_BROADCASTERS_ON_SHIP);
+		DBL_COL_CHECKBOX (TAALO_PROTECTOR, TAALO_PROTECTOR_ON_SHIP);
+		DBL_COL_CHECKBOX (SYREEN_SHUTTLE, SYREEN_SHUTTLE_ON_SHIP);
+		DBL_COL_CHECKBOX (VUX_BEAST, VUX_BEAST_ON_SHIP);
+		DBL_COL_CHECKBOX (PORTAL_KEY, PORTAL_KEY_ON_SHIP);
 		{
-			ImGui_TableSetupColumn ("Retrieved", 0);
-			ImGui_TableSetupColumn ("On-Board", 0);
-			ImGui_TableHeadersRow ();
+			bool retrieved = GET_CGAME_STATE (MOONBASE_DESTROYED);
+			bool on_ship = GET_CGAME_STATE (MOONBASE_ON_SHIP);
+
+			if (ImGui_Checkbox ("##MOONBASE_DESTROYED", &retrieved))
+				SET_CGAME_STATE (MOONBASE_DESTROYED, retrieved);
 			ImGui_TableNextColumn ();
 
-			DBL_COL_CHECKBOX (PORTAL_SPAWNER, PORTAL_SPAWNER_ON_SHIP);
-			DBL_COL_CHECKBOX (TALKING_PET, TALKING_PET_ON_SHIP);
-			DBL_COL_CHECKBOX (UTWIG_BOMB, UTWIG_BOMB_ON_SHIP);
-			DBL_COL_CHECKBOX (SUN_DEVICE, SUN_DEVICE_ON_SHIP);
-			DBL_COL_CHECKBOX (ROSY_SPHERE, ROSY_SPHERE_ON_SHIP);
-			DBL_COL_CHECKBOX (AQUA_HELIX, AQUA_HELIX_ON_SHIP);
-			DBL_COL_CHECKBOX (CLEAR_SPINDLE, CLEAR_SPINDLE_ON_SHIP);
-			DBL_COL_CHECKBOX (SHOFIXTI_MAIDENS, MAIDENS_ON_SHIP);
-			DBL_COL_CHECKBOX (UMGAH_BROADCASTERS, UMGAH_BROADCASTERS_ON_SHIP);
-			DBL_COL_CHECKBOX (BURVIXESE_BROADCASTERS, BURV_BROADCASTERS_ON_SHIP);
-			DBL_COL_CHECKBOX (TAALO_PROTECTOR, TAALO_PROTECTOR_ON_SHIP);
-			DBL_COL_CHECKBOX (SYREEN_SHUTTLE, SYREEN_SHUTTLE_ON_SHIP);
-			DBL_COL_CHECKBOX (VUX_BEAST, VUX_BEAST_ON_SHIP);
-			DBL_COL_CHECKBOX (PORTAL_KEY, PORTAL_KEY_ON_SHIP);
-			{
-				bool retrieved = GET_CGAME_STATE (MOONBASE_DESTROYED);
-				bool on_ship = GET_CGAME_STATE (MOONBASE_ON_SHIP);
-
-				if (ImGui_Checkbox ("##MOONBASE_DESTROYED", &retrieved))
-					SET_CGAME_STATE (MOONBASE_DESTROYED, retrieved);
-				ImGui_TableNextColumn ();
-
-				if (ImGui_Checkbox ("MOONBASE", &on_ship))
-					SET_CGAME_STATE (MOONBASE_ON_SHIP, on_ship);
-			}
-			ImGui_EndTable ();
+			if (ImGui_Checkbox ("MOONBASE", &on_ship))
+				SET_CGAME_STATE (MOONBASE_ON_SHIP, on_ship);
 		}
-		ImGui_PopStyleColor ();
+		ImGui_EndTable ();
+	}
+	ImGui_PopStyleColor ();
 
-		ImGui_Columns ();
+	ImGui_Columns ();
 
-		Spacer ();
+	Spacer ();
 
+	{
+		int ultron_state = GET_CGAME_STATE (ULTRON_CONDITION);
+		const char *ultron_status[] =
 		{
-			int ultron_state = GET_CGAME_STATE (ULTRON_CONDITION);
-			const char *ultron_status[] =
-			{
-				"Not On-Board", "Broken", "Fix 1",
-				"Fix 2", "Fixed", "Given Back"
-			};
-			ImGui_Text ("ULTRON_CONDITION");
-			if (ImGui_ComboChar ("##ULTRON_CONDITION", &ultron_state, ultron_status,
-				ARRAY_SIZE (ultron_status)))
-			{
-				SET_CGAME_STATE (ULTRON_CONDITION, ultron_state);
-			}
+			"Not On-Board", "Broken", "Fix 1",
+			"Fix 2", "Fixed", "Given Back"
+		};
+		ImGui_Text ("ULTRON_CONDITION");
+		if (ImGui_ComboChar ("##ULTRON_CONDITION", &ultron_state, ultron_status,
+			ARRAY_SIZE (ultron_status)))
+		{
+			SET_CGAME_STATE (ULTRON_CONDITION, ultron_state);
 		}
-
-		Spacer ();
-
-		CGAME_STATE_CHECKBOX (EGG_CASE0_ON_SHIP, "EGG_CASE0");
-		CGAME_STATE_CHECKBOX (EGG_CASE1_ON_SHIP, "EGG_CASE1");
-		CGAME_STATE_CHECKBOX (EGG_CASE2_ON_SHIP, "EGG_CASE2");
-		CGAME_STATE_CHECKBOX (DESTRUCT_CODE_ON_SHIP, "DESTRUCT_CODE");
-		CGAME_STATE_CHECKBOX (WIMBLIS_TRIDENT_ON_SHIP, "WIMBLIS_TRIDENT");
-		CGAME_STATE_CHECKBOX (GLOWING_ROD_ON_SHIP, "GLOWING_ROD");
 	}
 
+	Spacer ();
 
-	if (DISPLAY_BOOL != 1)
-		ImGui_EndChild ();
+	CGAME_STATE_CHECKBOX (EGG_CASE0_ON_SHIP, "EGG_CASE0");
+	CGAME_STATE_CHECKBOX (EGG_CASE1_ON_SHIP, "EGG_CASE1");
+	CGAME_STATE_CHECKBOX (EGG_CASE2_ON_SHIP, "EGG_CASE2");
+	CGAME_STATE_CHECKBOX (DESTRUCT_CODE_ON_SHIP, "DESTRUCT_CODE");
+	CGAME_STATE_CHECKBOX (WIMBLIS_TRIDENT_ON_SHIP, "WIMBLIS_TRIDENT");
+	CGAME_STATE_CHECKBOX (GLOWING_ROD_ON_SHIP, "GLOWING_ROD");
 }
 
 typedef struct
@@ -960,12 +916,6 @@ draw_events_menu (void)
 	static EVENT tmp_evnt;
 	static float widget_width = 0;
 	float frame_padding;
-
-	if (IN_MAIN_MENU)
-	{
-		ImGui_Text ("Events are not available in the Main Menu...");
-		return;
-	}
 
 	GetEvents (delay);
 
@@ -1214,216 +1164,213 @@ void draw_stars_menu (void)
 	const char *star_colour[NUM_STAR_COLORS] =
 			{ "Blue", "Green", "Orange", "Red", "White", "Yellow" };
 
-	ImGui_BeginStyledChild ("##StarStatus", ZERO_F, CH_FLAT_NAV, 0, NULL);
+	ImGui_BeginStyledChild ("##StarFilters", ZERO_F, CH_FLAT_NAV, 0, NULL);
 	{
-		ImGui_BeginStyledChild ("##Filters", ZERO_F, CH_FLAT_NAV, 0, NULL);
+		ImGui_SeparatorText ("Filters");
+
+		Spacer ();
+
+		ImGui_AlignTextToFramePadding ();
+		ImGui_Text ("Filter by Presence");
+		ImGui_SameLine ();
+		ImGui_Checkbox ("##FilterPresence", &by_presence);
+
+		Spacer ();
+
+		ImGui_AlignTextToFramePadding ();
+		ImGui_Text ("Show only Type");
+		ImGui_SameLine ();
+		ImGui_Checkbox ("##FilterTypeBool", &filter_type_bool);
+		ImGui_SameLine ();
+		ImGui_ComboChar ("##FilterTypeCombo", &filter_type, star_type, 
+				NUM_STAR_TYPES);
+
+		Spacer ();
+
+		ImGui_AlignTextToFramePadding ();
+		ImGui_Text ("Show only Colour");
+		ImGui_SameLine ();
+		ImGui_Checkbox ("##FilterColourBool", &filter_colour_bool);
+		ImGui_SameLine ();
+		ImGui_ComboChar ("##FilterColourCombo", &filter_colour,
+				star_colour, NUM_STAR_COLORS);
+
+		Spacer ();
+
+		ImGui_AlignTextToFramePadding ();
+		ImGui_Text ("Current Star System");
+		ImGui_SameLine ();
+		ImGui_Checkbox ("##CurStar", &by_cur_star);
+
+		Spacer ();
+
+		ImGui_AlignTextToFramePadding ();
+		ImGui_Text ("X/Y Range");
+		ImGui_SameLine ();
+		ImGui_SliderIntRange ("##XRange", &min_x, &max_x, 0, 9999, "%d", 0, 0);
+		ImGui_SameLine ();
+		ImGui_SliderIntRange ("##YRange", &min_y, &max_y, 0, 9999, "%d", 0, 0);
+
+		if (CurStarDescPtr == NULL)
+			by_cur_star = 0;
+
+	} ImGui_EndChild (); // ##StarFilters
+
+	ImGui_BeginStyledChild ("##StarTable", ZERO_F, CH_FLAT_NAV, 0, NULL);
+	{
+		ImGui_SeparatorText ("Star Table");
+
+		Spacer ();
+
+		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
+			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
+		if (ImGui_BeginTable ("##StarArrayTable", 7,
+				ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
+				ImGuiTableFlags_NoHostExtendX |
+				ImGuiTableFlags_SizingStretchSame))
 		{
-			ImGui_SeparatorText ("Filters");
+			ImGui_TableSetupColumnEx ("Idx",
+					ImGuiTableColumnFlags_WidthFixed,
+					ImGui_CalcTextSize ("999").x +
+						style->FramePadding.x, 0);
 
-			Spacer ();
+			if (longest_prefix == -1)
+				longest_prefix = FindLongestString (STAR_NUMBER_BASE,
+						STAR_NUMBER_COUNT - 1);
 
-			ImGui_AlignTextToFramePadding ();
-			ImGui_Text ("Filter by Presence");
-			ImGui_SameLine ();
-			ImGui_Checkbox ("##FilterPresence", &by_presence);
+			ImGui_TableSetupColumnEx ("Prefix",
+					ImGuiTableColumnFlags_WidthFixed,
+					ImGui_CalcTextSize (GAME_STRING (
+							STAR_NUMBER_BASE + longest_prefix)).x +
+							style->FramePadding.x, 1);
 
-			Spacer ();
+			if (longest_postfix == -1)
+				longest_postfix = FindLongestString (STAR_STRING_BASE,
+						STAR_STRING_COUNT - 17);
 
-			ImGui_AlignTextToFramePadding ();
-			ImGui_Text ("Show only Type");
-			ImGui_SameLine ();
-			ImGui_Checkbox ("##FilterTypeBool", &filter_type_bool);
-			ImGui_SameLine ();
-			ImGui_ComboChar ("##FilterTypeCombo", &filter_type, star_type, 
-					NUM_STAR_TYPES);
+			ImGui_TableSetupColumnEx ("Postfix",
+					ImGuiTableColumnFlags_WidthFixed,
+					ImGui_CalcTextSize (GAME_STRING (
+						STAR_STRING_BASE + longest_postfix)).x +
+						style->FramePadding.x, 2);
 
-			Spacer ();
+			ImGui_TableSetupColumnEx ("Coordinates",
+					ImGuiTableColumnFlags_WidthFixed,
+					ImGui_CalcTextSize ("999.9 : 999.9").x +
+						style->FramePadding.x, 3);
+			ImGui_TableSetupColumn ("Type", 0);
+			ImGui_TableSetupColumn ("Colour", 0);
+			ImGui_TableSetupColumn ("Presence", 0);
+			ImGui_TableHeadersRow ();
 
-			ImGui_AlignTextToFramePadding ();
-			ImGui_Text ("Show only Colour");
-			ImGui_SameLine ();
-			ImGui_Checkbox ("##FilterColourBool", &filter_colour_bool);
-			ImGui_SameLine ();
-			ImGui_ComboChar ("##FilterColourCombo", &filter_colour,
-					star_colour, NUM_STAR_COLORS);
-
-			Spacer ();
-
-			ImGui_AlignTextToFramePadding ();
-			ImGui_Text ("Current Star System");
-			ImGui_SameLine ();
-			ImGui_Checkbox ("##CurStar", &by_cur_star);
-
-			Spacer ();
-
-			ImGui_AlignTextToFramePadding ();
-			ImGui_Text ("X/Y Range");
-			ImGui_SameLine ();
-			ImGui_SliderIntRange ("##XRange", &min_x, &max_x, 0, 9999, "%d", 0, 0);
-			ImGui_SameLine ();
-			ImGui_SliderIntRange ("##YRange", &min_y, &max_y, 0, 9999, "%d", 0, 0);
-
-			if (CurStarDescPtr == NULL)
-				by_cur_star = 0;
-
-		} ImGui_EndChild ();
-
-		ImGui_BeginStyledChild ("##StarTable", ZERO_F, CH_FLAT_NAV, 0, NULL);
-		{
-			ImGui_SeparatorText ("Star Table");
-
-			Spacer ();
-
-			ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
-				MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
-			if (ImGui_BeginTable ("##StarArrayTable", 7,
-					ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
-					ImGuiTableFlags_NoHostExtendX |
-					ImGuiTableFlags_SizingStretchSame))
+			for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
 			{
-				ImGui_TableSetupColumnEx ("Idx",
-						ImGuiTableColumnFlags_WidthFixed,
-						ImGui_CalcTextSize ("999").x +
-							style->FramePadding.x, 0);
+				if (by_cur_star && CurStarDescPtr &&
+					!(CurStarDescPtr->star_pt.x ==
+						star_array[i].star_pt.x &&
+						CurStarDescPtr->star_pt.y ==
+						star_array[i].star_pt.y))
+					continue;
+				if (filter_type_bool &&
+						STAR_TYPE (star_array[i].Type) != filter_type)
+					continue;
+				if (filter_colour_bool &&
+						STAR_COLOR (star_array[i].Type) != filter_colour)
+					continue;
+				if (by_presence && star_array[i].Index == 0)
+					continue;
+				if (!(star_array[i].star_pt.x >= min_x &&
+					star_array[i].star_pt.x <= max_x))
+					continue;
+				if (!(star_array[i].star_pt.y >= min_y &&
+					star_array[i].star_pt.y <= max_y))
+					continue;
 
-				if (longest_prefix == -1)
-					longest_prefix = FindLongestString (STAR_NUMBER_BASE,
-							STAR_NUMBER_COUNT - 1);
+				ImGui_TableNextColumn ();
 
-				ImGui_TableSetupColumnEx ("Prefix",
-						ImGuiTableColumnFlags_WidthFixed,
-						ImGui_CalcTextSize (GAME_STRING (
-								STAR_NUMBER_BASE + longest_prefix)).x +
-								style->FramePadding.x, 1);
+				ImGui_AlignTextToFramePadding ();
+				ImGui_Text ("%03d", i);
 
-				if (longest_postfix == -1)
-					longest_postfix = FindLongestString (STAR_STRING_BASE,
-							STAR_STRING_COUNT - 17);
+				ImGui_TableNextColumn ();
 
-				ImGui_TableSetupColumnEx ("Postfix",
-						ImGuiTableColumnFlags_WidthFixed,
-						ImGui_CalcTextSize (GAME_STRING (
-							STAR_STRING_BASE + longest_postfix)).x +
-							style->FramePadding.x, 2);
-
-				ImGui_TableSetupColumnEx ("Coordinates",
-						ImGuiTableColumnFlags_WidthFixed,
-						ImGui_CalcTextSize ("999.9 : 999.9").x +
-							style->FramePadding.x, 3);
-				ImGui_TableSetupColumn ("Type", 4);
-				ImGui_TableSetupColumn ("Colour", 5);
-				ImGui_TableSetupColumn ("Presence", 6);
-				ImGui_TableHeadersRow ();
-
-				for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+				if (star_array[i].Prefix > 0)
 				{
-					if (by_cur_star && CurStarDescPtr &&
-						!(CurStarDescPtr->star_pt.x ==
-							star_array[i].star_pt.x &&
-							CurStarDescPtr->star_pt.y ==
-							star_array[i].star_pt.y))
-						continue;
-					if (filter_type_bool &&
-							STAR_TYPE (star_array[i].Type) != filter_type)
-						continue;
-					if (filter_colour_bool &&
-							STAR_COLOR (star_array[i].Type) != filter_colour)
-						continue;
-					if (by_presence && star_array[i].Index == 0)
-						continue;
-					if (!(star_array[i].star_pt.x >= min_x &&
-						star_array[i].star_pt.x <= max_x))
-						continue;
-					if (!(star_array[i].star_pt.y >= min_y &&
-						star_array[i].star_pt.y <= max_y))
-						continue;
-
-					ImGui_TableNextColumn ();
-
-					ImGui_AlignTextToFramePadding ();
-					ImGui_Text ("%03d", i);
-
-					ImGui_TableNextColumn ();
-
-					if (star_array[i].Prefix > 0)
-					{
-						ImGui_AlignTextToFramePadding ();
-						ImGui_Text ("%s",
-								GAME_STRING (STAR_NUMBER_BASE +
-									star_array[i].Prefix - 1));
-					}
-
-					ImGui_TableNextColumn ();
-
 					ImGui_AlignTextToFramePadding ();
 					ImGui_Text ("%s",
-							GAME_STRING (STAR_STRING_BASE +
-								star_array[i].Postfix));
+							GAME_STRING (STAR_NUMBER_BASE +
+								star_array[i].Prefix - 1));
+				}
 
-					ImGui_TableNextColumn ();
+				ImGui_TableNextColumn ();
 
-					ImGui_AlignTextToFramePadding ();
-					ImGui_Text ("%05.1f : %05.1f",
-							(float)star_array[i].star_pt.x / 10.0f,
-							(float)star_array[i].star_pt.y / 10.0f);
+				ImGui_AlignTextToFramePadding ();
+				ImGui_Text ("%s",
+						GAME_STRING (STAR_STRING_BASE +
+							star_array[i].Postfix));
 
-					ImGui_TableNextColumn ();
+				ImGui_TableNextColumn ();
 
+				ImGui_AlignTextToFramePadding ();
+				ImGui_Text ("%05.1f : %05.1f",
+						(float)star_array[i].star_pt.x / 10.0f,
+						(float)star_array[i].star_pt.y / 10.0f);
+
+				ImGui_TableNextColumn ();
+
+				{
+					char buf[40];
+					static int cur_star_type = 0;
+					cur_star_type = STAR_TYPE (star_array[i].Type);
+
+					snprintf (buf, sizeof buf, "##StarType%d", i);
+
+					ImGui_SetNextItemWidth (-1);
+					if (ImGui_ComboChar (buf,
+						&cur_star_type, star_type, NUM_STAR_TYPES))
 					{
-						char buf[40];
-						static int cur_star_type = 0;
-						cur_star_type = STAR_TYPE (star_array[i].Type);
-
-						snprintf (buf, sizeof buf, "##StarType%d", i);
-
-						ImGui_SetNextItemWidth (-1);
-						if (ImGui_ComboChar (buf,
-							&cur_star_type, star_type, NUM_STAR_TYPES))
-						{
-							star_array[i].Type = MAKE_STAR (cur_star_type,
-									STAR_COLOR (star_array[i].Type), -1);
-						}
-					}
-
-					ImGui_TableNextColumn ();
-
-					{
-						char buf[40];
-						static int cur_star_colour = 0;
-						cur_star_colour = STAR_COLOR (star_array[i].Type);
-
-						snprintf (buf, sizeof buf, "##StarColour%d", i);
-
-						ImGui_SetNextItemWidth (-1);
-						if (ImGui_ComboChar (buf,
-							&cur_star_colour, star_colour, NUM_STAR_COLORS))
-						{
-							star_array[i].Type = MAKE_STAR (
-									STAR_TYPE (star_array[i].Type),
-									cur_star_colour, -1);
-						}
-					}
-
-					ImGui_TableNextColumn ();
-
-					{
-						char buf[40];
-						static int cur_presence = 0;
-						cur_presence = star_array[i].Index;
-
-						snprintf (buf, sizeof buf, "##Presence%d", i);
-
-						ImGui_SetNextItemWidth (-1);
-						if (ImGui_ComboChar (buf,
-							&cur_presence, presence_names, NUM_PLOTS))
-						{
-							star_array[i].Index = cur_presence;
-						}
+						star_array[i].Type = MAKE_STAR (cur_star_type,
+								STAR_COLOR (star_array[i].Type), -1);
 					}
 				}
-				ImGui_EndTable ();
+
+				ImGui_TableNextColumn ();
+
+				{
+					char buf[40];
+					static int cur_star_colour = 0;
+					cur_star_colour = STAR_COLOR (star_array[i].Type);
+
+					snprintf (buf, sizeof buf, "##StarColour%d", i);
+
+					ImGui_SetNextItemWidth (-1);
+					if (ImGui_ComboChar (buf,
+						&cur_star_colour, star_colour, NUM_STAR_COLORS))
+					{
+						star_array[i].Type = MAKE_STAR (
+								STAR_TYPE (star_array[i].Type),
+								cur_star_colour, -1);
+					}
+				}
+
+				ImGui_TableNextColumn ();
+
+				{
+					char buf[40];
+					static int cur_presence = 0;
+					cur_presence = star_array[i].Index;
+
+					snprintf (buf, sizeof buf, "##Presence%d", i);
+
+					ImGui_SetNextItemWidth (-1);
+					if (ImGui_ComboChar (buf,
+						&cur_presence, presence_names, NUM_PLOTS))
+					{
+						star_array[i].Index = cur_presence;
+					}
+				}
 			}
-			ImGui_PopStyleColor ();
-		} ImGui_EndChild ();
-	} ImGui_EndChild ();
+			ImGui_EndTable ();
+		}
+		ImGui_PopStyleColor ();
+	} ImGui_EndChild (); // ##StarTable
 }

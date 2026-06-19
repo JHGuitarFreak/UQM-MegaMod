@@ -31,6 +31,8 @@ void draw_audio_menu (void)
 	{
 		ImGui_SeparatorText ("Sound Options");
 
+
+		// Music Volume
 		{
 			int volume = musicVolumeScale * 100;
 
@@ -45,6 +47,7 @@ void draw_audio_menu (void)
 			}
 		}
 
+		// SFX Volume
 		{
 			int volume = sfxVolumeScale * 100;
 
@@ -59,6 +62,7 @@ void draw_audio_menu (void)
 			}
 		}
 
+		// Speech Volume
 		{
 			int volume = speechVolumeScale * 100;
 
@@ -141,6 +145,7 @@ void draw_audio_menu (void)
 
 		Spacer ();
 
+		// Alien Ambience
 		{
 			ImGui_Text ("Interplanetary Alien Ambience:");
 			if (ImGui_ComboChar ("##InterplanetaryAlienAmbience",
@@ -172,6 +177,7 @@ void draw_audio_menu (void)
 
 		Spacer ();
 
+		// Music Resume
 		{
 			ImGui_Text ("Music Resume:");
 			if (ImGui_ComboChar ("##MusicResume", &optMusicResume,
