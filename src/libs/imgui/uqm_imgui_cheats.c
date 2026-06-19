@@ -90,6 +90,15 @@ void draw_cheats_menu (void)
 	ImGui_InputInt ("##LanderCapacity",
 			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
 
+	ImGui_NewLine ();
+
+	if (ImGui_Button ("Ships GTFO!"))
+	{
+		ShipGTFO = true;
+
+		menu_visible = false;
+	}
+
 	//ImGui_NextColumn ();
 
 	Spacer ();
