@@ -459,7 +459,10 @@ void draw_status_menu (void)
 				break;
 			case IN_LAST_BATTLE:
 			case IN_INTERPLANETARY:
-				GetClusterName (CurStarDescPtr, buf);
+				if (CurStarDescPtr != NULL)
+					GetClusterName (CurStarDescPtr, buf);
+				else
+					snprintf (buf, sizeof buf, "Unknown");
 				break;
 			case IN_HYPERSPACE:
 				if (GET_CGAME_STATE (ARILOU_SPACE_SIDE) <= 1)
