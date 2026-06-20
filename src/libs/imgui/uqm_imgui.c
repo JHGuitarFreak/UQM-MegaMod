@@ -82,8 +82,6 @@ static void ShowFullScreenMenu (TabState *state)
 static int
 UQM_ImGui_Init (void)
 {
-	ImFontConfig font_cfg;
-
 	if (imgui_initialized)
 		return 1;
 
@@ -464,102 +462,6 @@ UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 		}
 	}
 
-}
-
-void
-ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...)
-{
-	va_list args;
-	va_start (args, fmt);
-	ImGui_PushStyleColorImVec4 (ImGuiCol_Text, col);
-	ImGui_TextWrappedV (fmt, args);
-	ImGui_PopStyleColor ();
-	va_end (args);
-}
-
-void
-ImGui_HorizontalSeparator (const char *str_id)
-{
-	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
-	ImGui_BeginChild (str_id, MAKE_IV2 (0, 1), 0, 0);
-	ImGui_EndChild ();
-	ImGui_PopStyleColor ();
-}
-
-bool
-ImGui_SizedComboChar (const char *label, int *curr_item,
-		const char *const items[], int items_count)
-{
-	bool temp = false;
-	char buf[100];
-	float column_width = ImGui_GetColumnWidth (ImGui_GetColumnIndex ());
-	float combo_width = column_width * 0.75f;
-	float center_offset = (column_width - combo_width) * 0.5f
-			- style->WindowPadding.x * 2;
-
-	snprintf (buf, sizeof buf, "##%s", label);
-
-	ImGui_AlignTextToFramePadding ();
-	ImGui_TextUnformatted (label);
-	ImGui_SetCursorPosX (ImGui_GetCursorPosX () + center_offset);
-	ImGui_SetNextItemWidth (combo_width);
-
-	ImGui_PushStyleVarImVec2 (ImGuiStyleVar_SelectableTextAlign, CENTER_IT);
-
-	temp = ImGui_ComboChar (buf, curr_item, items, items_count);
-
-	ImGui_PopStyleVar ();
-
-	return temp;
-}
-
-// Code adapted from StackOverflow reply
-// https://stackoverflow.com/a/70073137
-void
-ImGui_TextCenteredColored (ImVec4 col, const char *fmt, ...)
-{
-	va_list args;
-	float text_indentation;
-	float min_indentation;
-	float win_width = ImGui_GetWindowSize ().x;
-	float text_width;
-
-	va_start (args, fmt);
-
-	text_width = ImGui_CalcTextSize (fmt).x;
-	text_indentation = (win_width - text_width) * 0.5f;
-	min_indentation = 20.0f;
-
-	if (text_indentation <= min_indentation)
-	{
-		text_indentation = min_indentation;
-	}
-
-	ImGui_SameLineEx (0, text_indentation);
-
-	ImGui_PushTextWrapPos (win_width - text_indentation);
-
-	ImGui_PushStyleColorImVec4 (ImGuiCol_Text, col);
-	ImGui_TextWrappedV (fmt, args);
-	ImGui_PopStyleColor ();
-
-	ImGui_PopTextWrapPos ();
-
-	va_end (args);
-}
-
-void
-ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
-		ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags,
-		ImVec4 *col)
-{
-	ImVec4 colour = MAKE_IV4 (0, 0, 0, 0);
-	if (col != NULL)
-		colour = *col;
-
-	ImGui_PushStyleColorImVec4 (ImGuiCol_ChildBg, colour);
-	ImGui_BeginChild (str_id, size, child_flags, window_flags);
-	ImGui_PopStyleColor ();
 }
 
 // Begin GameState cache implementation

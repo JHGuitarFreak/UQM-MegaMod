@@ -223,6 +223,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_visuals.c" />
     <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_controls.c" />
     <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_gamestates.c" />
+    <ClCompile Include="..\..\src\libs\imgui\uqm_imgui_widgets.c" />
     <ClCompile Include="..\..\src\libs\input\sdl\input.c" />
     <ClCompile Include="..\..\src\libs\input\sdl\keynames.c" />
     <ClCompile Include="..\..\src\libs\input\sdl\vcontrol.c" />

@@ -38,8 +38,6 @@ bool landers_cached = false;
 #define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame | \
 					ImGuiTableFlags_PadOuterX
 
-#define CARD_FLAGS CH_FLAT_NAV | ImGuiChildFlags_AutoResizeX
-
 enum
 {
 	CACHE_SLOTS = 0,

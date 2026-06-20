@@ -27,7 +27,6 @@
 
 static void GamestatesTab00 (void);
 static void GamestatesTab01 (void);
-static void UQM_BitRegister (const char *gamestate, int size);
 
 void
 draw_gamestates_menu (void)
@@ -594,7 +593,6 @@ GamestatesTab01 (void)
 	Spacer ();
 
 	GS_CHECKBOX (DRUUGE_MANNER);
-	GS_CHECKBOX (SUPOX_HOSTILE);
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -603,6 +601,7 @@ GamestatesTab01 (void)
 		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
 	}
 
+	GS_CHECKBOX (SUPOX_HOSTILE);
 	GS_CHECKBOX (UTWIG_HOSTILE);
 	GS_CHECKBOX (SLYLANDRO_KNOW_BROKEN);
 	GS_CHECKBOX (PLAYER_KNOWS_PROBE);
@@ -635,11 +634,13 @@ GamestatesTab01 (void)
 	GS_CHECKBOX (REFUSED_ULTRON_AT_BOMB);
 	GS_CHECKBOX (NO_TRICK_AT_SUN);
 
+	Spacer ();
+
 	GS_Binary (KNOW_QS_PORTAL, 16);
-	GS_Binary (KNOW_HOMEWORLD, 18);
-	GS_Binary (HM_ENCOUNTERS, 9);
 
 	Spacer ();
+
+	GS_Binary (KNOW_HOMEWORLD, 18);
 
 	if (DISPLAY_BOOL != 1)
 	{
@@ -647,6 +648,10 @@ GamestatesTab01 (void)
 		ImGui_NextColumn ();
 		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
 	}
+
+	GS_Binary (HM_ENCOUNTERS, 9);
+
+	Spacer ();
 
 	{
 		int gamestate = GET_CGAME_STATE (MELNORME_RAINBOW_COUNT);
