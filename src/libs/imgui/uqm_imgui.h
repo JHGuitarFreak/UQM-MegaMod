@@ -144,6 +144,7 @@ typedef struct
 	int devtools_tab;
 } TabState;
 
+extern ImVec2 content_col_size;
 void UQM_ImGui_Tabs (TabState *state);
 
 // Imgui Controls
@@ -178,7 +179,7 @@ extern ImGuiStyle *style;
 #define FONT_SCALE style->FontScaleMain
 #define SCALE_IT(a)((float)a * style->FontScaleMain)
 #define DISPLAY_SIZE io->DisplaySize
-#define DISPLAY_BOOL ((DISPLAY_SIZE.x > 640.0f && FONT_SCALE <= 1.5) ? 3 : 1)
+#define NUM_COLUMNS ((DISPLAY_SIZE.x > 640.0f && FONT_SCALE <= 1.5) ? 3 : 1)
 #define IN_MAIN_MENU (!inFullGame ())
 
 #define SCALE_20F SCALE_IT(20.0f)
@@ -186,8 +187,8 @@ extern ImGuiStyle *style;
 #define MAKE_IV2(x,y) ((ImVec2){ (x), (y) })
 #define MAKE_IV4(w,x,y,z) ((ImVec4){ (w), (x), (y), (z) })
 
+void GetColumnSize (ImVec2 *var, int num_columns);
 void Spacer (void);
-
 void Spacer_Column (int num_col);
 
 #define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, SCALE_IT (4.0f))

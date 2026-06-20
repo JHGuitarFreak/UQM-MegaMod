@@ -44,8 +44,6 @@
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
 
-#define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
-
 typedef struct
 {
 	BOOLEAN (*InputFunc) (void *pInputState);

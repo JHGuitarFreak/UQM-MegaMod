@@ -21,7 +21,6 @@
 #define NUM_TABS 4
 #define SUBTAB_SIZE 10
 
-
 #if defined(_WIN32)
 #define PLATFORM "Windows"
 #elif defined(__linux__)
@@ -38,14 +37,14 @@
 #define PLATFORM "iOS"
 #endif
 
+ImVec2 content_col_size;
+
 void
 draw_settings_menu (void)
 {
 	static const char *menu_settings_lbl, *menu_cntrlr_nav, *menu_bg_lbl;
 	static const char *bt_reset;
-
-	if (DISPLAY_BOOL != 1)
-		ImGui_ColumnsEx (2, "SettingsColumns", false);
+	ImVec2 column_size;
 
 	if (!menu_settings_lbl)
 	{
@@ -55,183 +54,189 @@ draw_settings_menu (void)
 		bt_reset = ImStr ("bt_reset");
 	}
 
-	// Menu Settings
-	ImGui_SeparatorText (menu_settings_lbl);
+	GetColumnSize (&column_size, NUM_COLUMNS != 1 ? 2 : 1);
 
-	Spacer ();
-
+	ImGui_BeginStyledChild ("##Column1", column_size, CHILD_FLAGS, 0, NULL);
 	{
-		int i;
-		int font_selection;
-		const ImFontAtlas *font_atlas = io->Fonts;
-		const int num_fonts = font_atlas->Fonts.Size;
-		const char **font_names = malloc (num_fonts * sizeof (const char *));
+		// Menu Settings
+		ImGui_SeparatorText (menu_settings_lbl);
 
-		font_selection = 0;
-		for (i = 0; i < num_fonts; i++)
+		Spacer ();
+
 		{
-			if (io->FontDefault == font_atlas->Fonts.Data[i])
+			int i;
+			int font_selection;
+			const ImFontAtlas *font_atlas = io->Fonts;
+			const int num_fonts = font_atlas->Fonts.Size;
+			const char **font_names = malloc (num_fonts * sizeof (const char *));
+
+			font_selection = 0;
+			for (i = 0; i < num_fonts; i++)
 			{
-				font_selection = i;
-				break;
+				if (io->FontDefault == font_atlas->Fonts.Data[i])
+				{
+					font_selection = i;
+					break;
+				}
+			}
+
+			for (i = 0; i < num_fonts; i++)
+				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
+
+			ImGui_Text ("FontSelector");
+			if (ImGui_ComboChar ("##FontSelector", &font_selection, font_names,
+				num_fonts))
+			{
+				io->FontDefault = font_atlas->Fonts.Data[font_selection];
+
+				ImPutInt (font_selection);
+			}
+
+			free (font_names);
+		}
+
+		Spacer ();
+
+		ImGui_Text ("UI Scale");
+		if (ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
+			0.01f, 0.5f, 3.0f, "%.2f", 0))
+		{
+			easy_PutFloat ("ui_scale", style->FontScaleMain);
+
+			UQM_ScaleAllSizes ();
+		}
+
+		Spacer ();
+
+		{	// Menu Controller Navigation
+			bool nav_gamepad = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
+
+			if (ImGui_Checkbox (menu_cntrlr_nav, &nav_gamepad))
+			{
+				io->ConfigFlags ^= ImGuiConfigFlags_NavEnableGamepad;
+
+				ImPutBool (nav_gamepad);
 			}
 		}
 
-		for (i = 0; i < num_fonts; i++)
-			font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
+		ImGui_NewLine ();
 
-		ImGui_Text ("FontSelector");
-		if (ImGui_ComboChar ("##FontSelector", &font_selection, font_names,
-				num_fonts))
-		{
-			io->FontDefault = font_atlas->Fonts.Data[font_selection];
-
-			ImPutInt (font_selection);
-		}
-		
-		free (font_names);
-	}
-
-	Spacer ();
-
-	ImGui_Text ("UI Scale");
-	if (ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
-			0.01f, 0.5f, 3.0f, "%.2f", 0))
-	{
-		easy_PutFloat ("ui_scale", style->FontScaleMain);
-
-		UQM_ScaleAllSizes ();
-	}
-
-	Spacer ();
-
-	{	// Menu Controller Navigation
-		bool nav_gamepad = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
-
-		if (ImGui_Checkbox (menu_cntrlr_nav, &nav_gamepad))
-		{
-			io->ConfigFlags ^= ImGuiConfigFlags_NavEnableGamepad;
-
-			ImPutBool (nav_gamepad);
-		}
-	}
-
-	ImGui_NewLine ();
-
-	{	// Menu Background Opacity
-		ImGui_TextUnformatted (menu_bg_lbl);
-		if (ImGui_Button (bt_reset)) // Reset
-		{
-			style->Colors[ImGuiCol_ChildBg].w = 0.8f;
-			easy_PutFloat ("background_opacity",
+		{	// Menu Background Opacity
+			ImGui_TextUnformatted (menu_bg_lbl);
+			if (ImGui_Button (bt_reset)) // Reset
+			{
+				style->Colors[ImGuiCol_ChildBg].w = 0.8f;
+				easy_PutFloat ("background_opacity",
 					style->Colors[ImGuiCol_ChildBg].w);
-		}
-		ImGui_SameLine ();
-		if (ImGui_SliderFloat ("##Transparency",
+			}
+			ImGui_SameLine ();
+			if (ImGui_SliderFloat ("##Transparency",
 				&style->Colors[ImGuiCol_ChildBg].w, 0.0f, 1.0f))
-		{
-			easy_PutFloat ("background_opacity",
+			{
+				easy_PutFloat ("background_opacity",
 					style->Colors[ImGuiCol_ChildBg].w);
+			}
 		}
-	}
-
-	ImGui_NewLine ();
-
-	{
-		static TimeCount NextTime = 0;
-		TimeCount Now = GetTimeCounter ();
-
-
-		static COUNT CurSound = 0;
-		char *insult[17] =
-		{
-			"- Sound Test -", "- Sound Test -", "Baby!", "Dodo!", "Dummy!",
-			"Fool!", "Idiot!", "Jerk!", "Loser!", "Moron!", "Stupid!", "Twit!",
-			"Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
-		};
-
-		if (Now >= NextTime && CurSound > 1)
-			CurSound = 0;
-
-		if (ImGui_ButtonEx (insult[CurSound],
-				MAKE_IV2 (SCALE_IT (150.0f), 0.0f)))
-		{
-			CurSound = 2 + ((COUNT)TFB_Random () % (
-					GetSoundCount (PkunkSounds) - 2));
-			PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
-					NotPositional (), NULL, GAME_SOUND_PRIORITY);
-
-			NextTime = Now + (ONE_SECOND);
-		}
-	}
-
-	ImGui_NewLine ();
-
-	if (DISPLAY_BOOL != 1)
-		ImGui_NextColumn ();
-
-	ImGui_SeparatorText ("About");
-
-	Spacer ();
-
-	{
-		ImGui_Text ("%s v0.8.0", UQM_TITLE_S);
-		ImGui_Text ("%s%s v%s", (IS_HD ? "HD " : ""),
-				UQM_EXTRA_VERSION, MM_BASE_VERSION_S);
-
-		Spacer ();
-
-		ImGui_Text ("Dear ImGui v%s", IMGUI_VERSION);
-
-		Spacer ();
-
-		ImGui_Text ("Platform: %s", PLATFORM);
-
-#ifdef DEBUG
-		Spacer ();
-
-		ImGui_Text ("Build Date: %s %s", __DATE__, __TIME__);
-		Spacer ();
-
-#	ifdef _MSC_VER
-		ImGui_Text ("MSC_VER: %d", _MSC_VER);
-		ImGui_Text ("MSC_FULL_VER: %d", _MSC_FULL_VER);
-		ImGui_Text ("MSC_BUILD: %d", _MSC_BUILD);
-#	endif // _MSC_VER
-
-#	ifdef __MINGW32__
-		ImGui_Text ("MINGW32_VERSION: %d.%d", __MINGW32_MAJOR_VERSION,
-				__MINGW32_MINOR_VERSION);
-#	endif // __MINGW32__
-
-#	ifdef __MINGW64__
-		ImGui_Text ("MINGW64_VERSION: %d.%d", __MINGW32_MAJOR_VERSION,
-				__MINGW32_MINOR_VERSION);
-#	endif // __MINGW32__
-
-#	ifdef __GNUC__
-		ImGui_Text ("GCC_VERSION: %d.%d.%d", __GNUC__, __GNUC_MINOR__,
-				__GNUC_PATCHLEVEL__);
-#	endif // __GNUC__
-
-#	ifdef __clang__
-		ImGui_Text ("CLANG_VERSION: %d.%d.%d", __clang_major__,
-				__clang_minor__, __clang_patchlevel__);
-#	endif // __clang__
 
 		ImGui_NewLine ();
 
 		{
-			if (ImGui_Button ("Show ImGui Demo Window"))
+			static TimeCount NextTime = 0;
+			TimeCount Now = GetTimeCounter ();
+
+
+			static COUNT CurSound = 0;
+			char *insult[17] =
 			{
-				show_demo = !show_demo;
+				"- Sound Test -", "- Sound Test -", "Baby!", "Dodo!", "Dummy!",
+				"Fool!", "Idiot!", "Jerk!", "Loser!", "Moron!", "Stupid!", "Twit!",
+				"Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
+			};
+
+			if (Now >= NextTime && CurSound > 1)
+				CurSound = 0;
+
+			if (ImGui_ButtonEx (insult[CurSound],
+				MAKE_IV2 (SCALE_IT (150.0f), 0.0f)))
+			{
+				CurSound = 2 + ((COUNT)TFB_Random () % (
+					GetSoundCount (PkunkSounds) - 2));
+				PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
+					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+
+				NextTime = Now + (ONE_SECOND);
 			}
 		}
-#endif // DEBUG
 	}
 
-	if (DISPLAY_BOOL != 1)
-		ImGui_Columns ();
+	if (NUM_COLUMNS != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_SameLine ();
+		ImGui_BeginStyledChild ("##Column2", column_size, CHILD_FLAGS, 0, NULL);
+	}
+
+	{
+		ImGui_SeparatorText ("About");
+
+		Spacer ();
+
+		{
+			ImGui_Text ("%s v0.8.0", UQM_TITLE_S);
+			ImGui_Text ("%s%s v%s", (IS_HD ? "HD " : ""),
+				UQM_EXTRA_VERSION, MM_BASE_VERSION_S);
+
+			Spacer ();
+
+			ImGui_Text ("Dear ImGui v%s", IMGUI_VERSION);
+
+			Spacer ();
+
+			ImGui_Text ("Platform: %s", PLATFORM);
+
+#ifdef DEBUG
+			Spacer ();
+
+			ImGui_Text ("Build Date: %s %s", __DATE__, __TIME__);
+			Spacer ();
+
+#	ifdef _MSC_VER
+			ImGui_Text ("MSC_VER: %d", _MSC_VER);
+			ImGui_Text ("MSC_FULL_VER: %d", _MSC_FULL_VER);
+			ImGui_Text ("MSC_BUILD: %d", _MSC_BUILD);
+#	endif // _MSC_VER
+
+#	ifdef __MINGW32__
+			ImGui_Text ("MINGW32_VERSION: %d.%d", __MINGW32_MAJOR_VERSION,
+				__MINGW32_MINOR_VERSION);
+#	endif // __MINGW32__
+
+#	ifdef __MINGW64__
+			ImGui_Text ("MINGW64_VERSION: %d.%d", __MINGW32_MAJOR_VERSION,
+				__MINGW32_MINOR_VERSION);
+#	endif // __MINGW32__
+
+#	ifdef __GNUC__
+			ImGui_Text ("GCC_VERSION: %d.%d.%d", __GNUC__, __GNUC_MINOR__,
+				__GNUC_PATCHLEVEL__);
+#	endif // __GNUC__
+
+#	ifdef __clang__
+			ImGui_Text ("CLANG_VERSION: %d.%d.%d", __clang_major__,
+				__clang_minor__, __clang_patchlevel__);
+#	endif // __clang__
+
+			ImGui_NewLine ();
+
+			{
+				if (ImGui_Button ("Show ImGui Demo Window"))
+				{
+					show_demo = !show_demo;
+				}
+			}
+#endif // DEBUG
+		}
+	} ImGui_EndChild ();
 }
 
 void
@@ -351,6 +356,8 @@ UQM_ImGui_Tabs (TabState *state)
 	{
 		ImGui_BeginStyledChild ("##PagePadding", ZERO_F, CH_FLAT_NAV, 0, NULL);
 		{
+			GetColumnSize (&content_col_size, NUM_COLUMNS);
+
 			switch (active_tab)
 			{
 			case 0:

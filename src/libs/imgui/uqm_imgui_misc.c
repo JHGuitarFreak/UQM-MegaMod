@@ -19,7 +19,7 @@
 
 void draw_qol_menu (void)
 {
-	ImGui_ColumnsEx (DISPLAY_BOOL, "QoLColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "QoLColumns", false);
 
 	ImGui_SeparatorText ("Basic QoL Options");
 
@@ -44,7 +44,7 @@ void draw_adv_menu (void)
 
 	UWORD activity = GLOBAL (CurrentActivity);
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "AdvancedColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "AdvancedColumns", false);
 
 	// Risky Click
 	if (!IN_MAIN_MENU)

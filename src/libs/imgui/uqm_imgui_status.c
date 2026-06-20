@@ -61,9 +61,9 @@ static void module_cache (BOOLEAN apply)
 
 void draw_status_menu (void)
 {
-	ImGui_ColumnsEx (DISPLAY_BOOL, "StatusColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "StatusColumns", false);
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
 
 	// Currency Status
@@ -328,7 +328,7 @@ void draw_status_menu (void)
 		ImGui_NewLine ();
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 	{
 		ImGui_EndChild ();
 		ImGui_NextColumn ();
@@ -397,7 +397,7 @@ void draw_status_menu (void)
 		}
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 	{
 		ImGui_EndChild ();
 		ImGui_NextColumn ();
@@ -677,7 +677,7 @@ void draw_status_menu (void)
 					ImGui_PushStyleColor (ImGuiCol_ButtonActive, U32_BUTTON_ACT_GS);
 				}
 
-				if (DISPLAY_BOOL != 1)
+				if (NUM_COLUMNS != 1)
 					ImGui_SetNextItemWidth (-1);
 
 				snprintf (buf, sizeof buf, "##module%d", i);
@@ -720,14 +720,14 @@ void draw_status_menu (void)
 			collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen;
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 		ImGui_EndChild ();
 }
 
 void
 draw_devices_menu (void)
 {
-	ImGui_ColumnsEx (DISPLAY_BOOL, "DeviceColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "DeviceColumns", false);
 
 	ImGui_SeparatorText ("Devices");
 
@@ -906,7 +906,7 @@ GetEvents (int delay)
 	}
 }
 
-#define NUM_COL (style->FontScaleMain > 2.0f ? 2 : 3)
+#define NUM_EVENT_COL (style->FontScaleMain > 2.0f ? 2 : 3)
 
 void
 draw_events_menu (void)
@@ -1015,7 +1015,7 @@ draw_events_menu (void)
 					block_btn = true;
 				}
 
-				if (col > 0 && col % NUM_COL != 0)
+				if (col > 0 && col % NUM_EVENT_COL != 0)
 					ImGui_SameLine ();
 
 				snprintf (buf, sizeof buf, "%s##%d",
@@ -1051,7 +1051,7 @@ draw_events_menu (void)
 				char buf[60];
 				char *buf_test = NULL;
 
-				if (col > 0 && col % NUM_COL != 0)
+				if (col > 0 && col % NUM_EVENT_COL != 0)
 					ImGui_SameLine ();
 				else
 					Spacer ();

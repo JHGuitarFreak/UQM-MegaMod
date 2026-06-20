@@ -55,7 +55,7 @@ void draw_graphics_menu (void)
 		"HQ (2x)"
 	};
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "GraphicsColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "GraphicsColumns", false);
 
 	ImGui_SeparatorText ("Graphics Options");
 

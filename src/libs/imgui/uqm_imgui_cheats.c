@@ -25,7 +25,7 @@ void draw_cheats_menu (void)
 			{ "None", "Infinite Energy", "Invulnerable", "Full God Mode" };
 	const char *time_modes[] = { "Normal", "Slow (x6)", "Fast (x5)" };
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "CheatColumns", false); // For taming width
+	ImGui_ColumnsEx (NUM_COLUMNS, "CheatColumns", false); // For taming width
 
 	ImGui_SeparatorText ("Basic Cheats");
 

@@ -18,6 +18,14 @@
 #include "uqm_imgui.h"
 
 void
+GetColumnSize (ImVec2 *var, int num_columns)
+{
+	var->x = (ImGui_GetContentRegionAvail ().x -
+			(style->ItemSpacing.x * 2)) / num_columns;
+	var->y = 0.0f;
+}
+
+void
 Spacer (void)
 {
 	ImGui_Dummy (MAKE_IV2 (0.0f, SCALE_IT (4.0f)));

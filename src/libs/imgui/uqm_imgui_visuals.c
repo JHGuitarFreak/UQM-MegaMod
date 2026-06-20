@@ -35,9 +35,9 @@ void draw_visual_menu (void)
 		Spacer ();
 	}
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "VisualsColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "VisualsColumns", false);
 	
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 		ImGui_BeginStyledChild ("##UI", ZERO_F, CHILD_FLAGS, 0, NULL);
 
 	// User Interface
@@ -106,7 +106,7 @@ void draw_visual_menu (void)
 		ImGui_NewLine ();
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 	{
 		ImGui_EndChild ();
 		ImGui_NextColumn ();
@@ -178,6 +178,6 @@ void draw_visual_menu (void)
 		ImGui_NewLine ();
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 		ImGui_EndChild ();
 }

@@ -25,7 +25,7 @@ void draw_audio_menu (void)
 	const char *alien_ambience[] = {"Disabled", "No Spoilers", "Spoilers"};
 	const char *music_resume[] = {"Disabled", "5 Minutes", "Indefinite"};
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "AudioColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "AudioColumns", false);
 
 	// Sound Options
 	{

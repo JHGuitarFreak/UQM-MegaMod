@@ -110,7 +110,7 @@ draw_controls_menu (void)
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "ControlsColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "ControlsColumns", false);
 
 	// Control Options
 	{

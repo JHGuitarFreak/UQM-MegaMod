@@ -55,9 +55,9 @@ draw_engine_menu (void)
 		Spacer ();
 	}
 
-	ImGui_ColumnsEx (DISPLAY_BOOL, "EngineColumns", false);
+	ImGui_ColumnsEx (NUM_COLUMNS, "EngineColumns", false);
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 		ImGui_BeginStyledChild ("##UI", ZERO_F, CHILD_FLAGS, 0, NULL);
 
 	// User Interface
@@ -202,7 +202,7 @@ draw_engine_menu (void)
 		ImGui_NewLine ();
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 	{
 		ImGui_EndChild ();
 		ImGui_NextColumn ();
@@ -301,7 +301,7 @@ draw_engine_menu (void)
 		ImGui_NewLine ();
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 	{
 		ImGui_EndChild ();
 		ImGui_NextColumn ();
@@ -386,6 +386,6 @@ draw_engine_menu (void)
 		ImGui_NewLine ();
 	}
 
-	if (DISPLAY_BOOL != 1)
+	if (NUM_COLUMNS != 1)
 		ImGui_EndChild ();
 }
