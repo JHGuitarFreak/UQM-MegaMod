@@ -23,6 +23,7 @@ void draw_qol_menu (void)
 
 	ImGui_SeparatorText ("Basic QoL Options");
 
+	UQM_ImGui_CheckBox ("Skip Intro", &optSkipIntro, "mm.skipIntro", false);
 	UQM_ImGui_CheckBox ("Partial Pickup", &optPartialPickup, "mm.partialPickup", false);
 	UQM_ImGui_CheckBox ("Scatter Elements", &optScatterElements, "mm.scatterElements", false);
 	UQM_ImGui_CheckBox ("In-Game Help Menus", &optSubmenu, "mm.submenu", false);
