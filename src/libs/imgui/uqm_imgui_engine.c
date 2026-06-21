@@ -47,345 +47,347 @@ draw_engine_menu (void)
 
 	if (!IN_MAIN_MENU)
 	{
+		ImGui_BeginStyledChild ("##WarningChild", ZERO_F, CHILD_FLAGS, 0, NULL);
 		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
 				"Some of the options in this part of the menu need a full "
 				"screen update for them to take full effect. If in doubt "
 				"enter/leave planet orbit, leave and re-enter "
 				"the current star system, or enter and leave the Starbase");
 		Spacer ();
+		ImGui_EndChild ();
 	}
 
-	ImGui_ColumnsEx (NUM_COLUMNS, "EngineColumns", false);
-
-	if (NUM_COLUMNS != 1)
-		ImGui_BeginStyledChild ("##UI", ZERO_F, CHILD_FLAGS, 0, NULL);
-
-	// User Interface
+	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0, NULL);
 	{
-		ImGui_SeparatorText ("User Interface");
-
+		// User Interface
 		{
-			int window_type = optWindowType;
+			ImGui_SeparatorText ("User Interface");
 
-			if (ImGui_SizedComboChar ("Platform UI:", &window_type,
-					dos_3do_uqm, 3))
 			{
-				if (IN_MAIN_MENU)
-					GLOBAL (CurrentActivity) = 0;
-				else
-					GLOBAL (CurrentActivity) |= CHECK_ABORT;
+				int window_type = optWindowType;
 
-				optWindowType = window_type;
-				optRequiresReload = TRUE;
+				if (ImGui_SizedComboChar ("Platform UI:", &window_type,
+						dos_3do_uqm, 3))
+				{
+					if (IN_MAIN_MENU)
+						GLOBAL (CurrentActivity) = 0;
+					else
+						GLOBAL (CurrentActivity) |= CHECK_ABORT;
 
-				res_PutInteger ("mm.windowType", optWindowType);
-				mmcfg_changed = true;
+					optWindowType = window_type;
+					optRequiresReload = TRUE;
+
+					res_PutInteger ("mm.windowType", optWindowType);
+					mmcfg_changed = true;
+				}
+				if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+				{
+					ImGui_BeginTooltip ();
+					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+						"WARNING! This option will drop you\nback to the "
+						"main menu to reload.");
+					ImGui_EndTooltip ();
+				}
 			}
-			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+
 			{
-				ImGui_BeginTooltip ();
-				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-					"WARNING! This option will drop you\nback to the "
-					"main menu to reload.");
-				ImGui_EndTooltip ();
+				int which_menu = is3DO (optWhichMenu);
+
+				if (ImGui_SizedComboChar ("Menu Style:", &which_menu,
+						menu_styles, 2))
+				{
+					optWhichMenu = ToCons (which_menu);
+					res_PutBoolean ("config.textmenu", (BOOLEAN)which_menu);
+					config_changed = true;
+				}
 			}
+
+			ImGui_NewLine ();
+
+			UQM_ImGui_CheckBox (" DOS Side Menu", &optDosMenus, "mm.dosMenus", false);
+
+			ImGui_NewLine ();
+
+			{
+				int which_fonts = is3DO (optWhichFonts);
+
+				if (ImGui_SizedComboChar ("Font Style:", &which_fonts,
+						font_styles, 2))
+				{
+					optWhichFonts = ToCons (which_fonts);
+					res_PutBoolean ("config.textgradients",
+							(BOOLEAN)which_fonts);
+					config_changed = true;
+				}
+			}
+
+			{
+				int which_intro = is3DO (optWhichIntro);
+
+				if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
+						cutscene_style, 2))
+				{
+					if (IN_MAIN_MENU)
+						GLOBAL (CurrentActivity) = 0;
+					else
+						GLOBAL (CurrentActivity) |= CHECK_ABORT;
+
+					optWhichIntro = ToCons (which_intro);
+					optRequiresReload = TRUE;
+
+					res_PutBoolean ("config.3domovies", (BOOLEAN)which_intro);
+					config_changed = true;
+				}
+				if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+				{
+					ImGui_BeginTooltip ();
+					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+						"WARNING! This option will drop you\nback to the "
+						"main menu to reload.");
+					ImGui_EndTooltip ();
+				}
+			}
+
+			Spacer ();
+
+			{
+				ImGui_BeginDisabled (!IN_MAIN_MENU);
+
+				int melee_scale = (optMeleeScale != TFB_SCALE_STEP);
+
+				if (ImGui_SizedComboChar ("Melee Zoom:", &melee_scale,
+						melee_style, 2))
+				{
+					optMeleeScale =
+							(melee_scale ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP);
+					res_PutBoolean ("config.smoothmelee", (BOOLEAN)melee_scale);
+					config_changed = true;
+				}
+
+				if (!IN_MAIN_MENU)
+				{
+					ImGui_TextWrappedColored (IV4_RED_COLOR,
+							"WARNING! Melee Zoom can only be "
+							"changed while in the Main Menu!");
+					Spacer ();
+				}
+
+				ImGui_EndDisabled ();
+			}
+
+			{
+				int engine_color = is3DO (optFlagshipColor);
+
+				if (ImGui_SizedComboChar ("Flagship Engine Color:",
+						&engine_color, engine_style, 2))
+				{
+					optFlagshipColor = ToCons (engine_color);
+					res_PutBoolean ("mm.flagshipColor", (BOOLEAN)engine_color);
+					mmcfg_changed = true;
+				}
+			}
+
+			{
+				int scr_trans = is3DO (optScrTrans);
+
+				if (ImGui_SizedComboChar ("Screen Transitions:",
+						&scr_trans, pc_or_3do, 2))
+				{
+					optScrTrans = ToCons (scr_trans);
+					res_PutBoolean ("mm.scrTransition", (BOOLEAN)scr_trans);
+					mmcfg_changed = true;
+				}
+			}
+			ImGui_NewLine ();
+		}
+	
+}
+	if (NUM_COLUMNS != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_SameLine ();
+		ImGui_BeginStyledChild ("##Column2", content_col_size, CHILD_FLAGS, 0, NULL);
+	}
+
+	{
+		// Conversation Screen
+		{
+			ImGui_SeparatorText ("Conversation Screen");
+
+			{
+				int smooth_scroll = is3DO (optSmoothScroll);
+
+				if (ImGui_SizedComboChar ("Scroll Style:",
+						&smooth_scroll, scroll_style, 2))
+				{
+					optSmoothScroll = ToCons (smooth_scroll);
+					res_PutBoolean ("config.smoothscroll", (BOOLEAN)smooth_scroll);
+					config_changed = true;
+				}
+			}
+
+			ImGui_NewLine ();
+
+			{
+				ImGui_BeginDisabled (true);
+
+				ImGui_Checkbox ("Speech", (bool *)&optSpeech);
+
+				if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
+				{
+					ImGui_SetTooltip (
+						"This option can only be changed in the Setup Menu.");
+				}
+
+				ImGui_EndDisabled ();
+			}
+
+			UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles", false);
+
+			ImGui_NewLine ();
+
+			{
+				int scope_style = is3DO (optScopeStyle);
+
+				if (ImGui_SizedComboChar ("Oscilloscope Style:",
+						&scope_style, pc_or_3do, 2))
+				{
+					optScopeStyle = ToCons (scope_style);
+					res_PutBoolean ("mm.scopeStyle", (BOOLEAN)scope_style);
+					mmcfg_changed = true;
+				}
+			}
+			ImGui_NewLine ();
 		}
 
+		// Star System View
 		{
-			int which_menu = is3DO (optWhichMenu);
+			ImGui_SeparatorText ("Star System View");
 
-			if (ImGui_SizedComboChar ("Menu Style:", &which_menu,
-					menu_styles, 2))
 			{
-				optWhichMenu = ToCons (which_menu);
-				res_PutBoolean ("config.textmenu", (BOOLEAN)which_menu);
-				config_changed = true;
+				ImGui_BeginDisabled (!IN_MAIN_MENU);
+
+				int planet_style = is3DO (optPlanetStyle);
+
+				if (ImGui_SizedComboChar ("Planet Style:", &planet_style,
+						pc_or_3do, 2))
+				{
+					optPlanetStyle = ToCons (planet_style);
+					res_PutBoolean ("mm.planetStyle", (BOOLEAN)planet_style);
+					mmcfg_changed = true;
+				}
+
+				if (!IN_MAIN_MENU)
+				{
+					ImGui_TextWrappedColored (IV4_RED_COLOR,
+							"WARNING! Planet Style can only be "
+							"changed while in the Main Menu!");
+					Spacer ();
+				}
+
+				ImGui_EndDisabled ();
 			}
+
+			{
+				int star_background = optStarBackground;
+
+				if (ImGui_SizedComboChar ("Star Background:", &star_background,
+					star_backgrounds, 4))
+				{
+					optStarBackground = star_background;
+					res_PutInteger ("mm.starBackground", optStarBackground);
+					mmcfg_changed = true;
+				}
+			}
+			ImGui_NewLine ();
 		}
-
-		ImGui_NewLine ();
-
-		UQM_ImGui_CheckBox (" DOS Side Menu", &optDosMenus, "mm.dosMenus", false);
-
-		ImGui_NewLine ();
-
-		{
-			int which_fonts = is3DO (optWhichFonts);
-
-			if (ImGui_SizedComboChar ("Font Style:", &which_fonts,
-					font_styles, 2))
-			{
-				optWhichFonts = ToCons (which_fonts);
-				res_PutBoolean ("config.textgradients",
-						(BOOLEAN)which_fonts);
-				config_changed = true;
-			}
-		}
-
-		{
-			int which_intro = is3DO (optWhichIntro);
-
-			if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
-					cutscene_style, 2))
-			{
-				if (IN_MAIN_MENU)
-					GLOBAL (CurrentActivity) = 0;
-				else
-					GLOBAL (CurrentActivity) |= CHECK_ABORT;
-
-				optWhichIntro = ToCons (which_intro);
-				optRequiresReload = TRUE;
-
-				res_PutBoolean ("config.3domovies", (BOOLEAN)which_intro);
-				config_changed = true;
-			}
-			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
-			{
-				ImGui_BeginTooltip ();
-				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-					"WARNING! This option will drop you\nback to the "
-					"main menu to reload.");
-				ImGui_EndTooltip ();
-			}
-		}
-
-		Spacer ();
-
-		{
-			ImGui_BeginDisabled (!IN_MAIN_MENU);
-
-			int melee_scale = (optMeleeScale != TFB_SCALE_STEP);
-
-			if (ImGui_SizedComboChar ("Melee Zoom:", &melee_scale,
-					melee_style, 2))
-			{
-				optMeleeScale =
-						(melee_scale ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP);
-				res_PutBoolean ("config.smoothmelee", (BOOLEAN)melee_scale);
-				config_changed = true;
-			}
-
-			if (!IN_MAIN_MENU)
-			{
-				ImGui_TextWrappedColored (IV4_RED_COLOR,
-						"WARNING! Melee Zoom can only be "
-						"changed while in the Main Menu!");
-				Spacer ();
-			}
-
-			ImGui_EndDisabled ();
-		}
-
-		{
-			int engine_color = is3DO (optFlagshipColor);
-
-			if (ImGui_SizedComboChar ("Flagship Engine Color:",
-					&engine_color, engine_style, 2))
-			{
-				optFlagshipColor = ToCons (engine_color);
-				res_PutBoolean ("mm.flagshipColor", (BOOLEAN)engine_color);
-				mmcfg_changed = true;
-			}
-		}
-
-		{
-			int scr_trans = is3DO (optScrTrans);
-
-			if (ImGui_SizedComboChar ("Screen Transitions:",
-					&scr_trans, pc_or_3do, 2))
-			{
-				optScrTrans = ToCons (scr_trans);
-				res_PutBoolean ("mm.scrTransition", (BOOLEAN)scr_trans);
-				mmcfg_changed = true;
-			}
-		}
-		ImGui_NewLine ();
 	}
 
 	if (NUM_COLUMNS != 1)
 	{
 		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Convo", ZERO_F, CHILD_FLAGS, 0, NULL);
+		ImGui_SameLine ();
+		ImGui_BeginStyledChild ("##Column3", content_col_size, CHILD_FLAGS, 0, NULL);
 	}
 
-	// Conversation Screen
 	{
-		ImGui_SeparatorText ("Conversation Screen");
-
+		// Orbit Screen
 		{
-			int smooth_scroll = is3DO (optSmoothScroll);
+			ImGui_SeparatorText ("Orbit Screen");
 
-			if (ImGui_SizedComboChar ("Scroll Style:",
-					&smooth_scroll, scroll_style, 2))
 			{
-				optSmoothScroll = ToCons (smooth_scroll);
-				res_PutBoolean ("config.smoothscroll", (BOOLEAN)smooth_scroll);
-				config_changed = true;
-			}
-		}
+				int which_scan = optWhichCoarseScan;
 
-		ImGui_NewLine ();
-
-		{
-			ImGui_BeginDisabled (true);
-
-			ImGui_Checkbox ("Speech", (bool *)&optSpeech);
-
-			if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
-			{
-				ImGui_SetTooltip (
-					"This option can only be changed in the Setup Menu.");
+				if (ImGui_SizedComboChar ("Stats Display:", &which_scan,
+						stats_display, 4))
+				{
+					optWhichCoarseScan = which_scan;
+					res_PutInteger ("config.iconicscan", optWhichCoarseScan);
+					config_changed = true;
+				}
 			}
 
-			ImGui_EndDisabled ();
-		}
-
-		UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles", false);
-
-		ImGui_NewLine ();
-
-		{
-			int scope_style = is3DO (optScopeStyle);
-
-			if (ImGui_SizedComboChar ("Oscilloscope Style:",
-					&scope_style, pc_or_3do, 2))
 			{
-				optScopeStyle = ToCons (scope_style);
-				res_PutBoolean ("mm.scopeStyle", (BOOLEAN)scope_style);
-				mmcfg_changed = true;
+				int which_shield = is3DO (optWhichShield);
+
+				if (ImGui_SizedComboChar ("Slave Shields:", &which_shield,
+						slave_shields, 2))
+				{
+					optWhichShield = ToCons (which_shield);
+					res_PutBoolean ("config.pulseshield", (BOOLEAN)which_shield);
+					config_changed = true;
+				}
 			}
-		}
-		ImGui_NewLine ();
-	}
 
-	// Star System View
-	{
-		ImGui_SeparatorText ("Star System View");
+			{
+				int scan_style = is3DO (optScanStyle);
 
-		{
-			ImGui_BeginDisabled (!IN_MAIN_MENU);
-
-			int planet_style = is3DO (optPlanetStyle);
-
-			if (ImGui_SizedComboChar ("Planet Style:", &planet_style,
+				if (ImGui_SizedComboChar ("Scanning Style:", &scan_style,
 					pc_or_3do, 2))
-			{
-				optPlanetStyle = ToCons (planet_style);
-				res_PutBoolean ("mm.planetStyle", (BOOLEAN)planet_style);
-				mmcfg_changed = true;
+				{
+					optScanStyle = ToCons (scan_style);
+					res_PutBoolean ("mm.scanStyle", (BOOLEAN)scan_style);
+					mmcfg_changed = true;
+				}
 			}
 
-			if (!IN_MAIN_MENU)
 			{
-				ImGui_TextWrappedColored (IV4_RED_COLOR,
-						"WARNING! Planet Style can only be "
-						"changed while in the Main Menu!");
-				Spacer ();
+				int sphere_style = optScanSphere;
+
+				if (ImGui_SizedComboChar ("Sphere Style:", &sphere_style,
+						dos_3do_uqm, 3))
+				{
+					optScanSphere = sphere_style;
+					res_PutInteger ("mm.sphereType", optScanSphere);
+					mmcfg_changed = true;
+				}
 			}
 
-			ImGui_EndDisabled ();
+			{
+				int tint_sphere = is3DO (optTintPlanSphere);
+
+				if (ImGui_SizedComboChar ("Tinted Sphere Scan:", &tint_sphere,
+						sphere_tint, 2))
+				{
+					optTintPlanSphere = ToCons (tint_sphere);
+					res_PutBoolean ("mm.tintPlanSphere", (BOOLEAN)tint_sphere);
+					mmcfg_changed = true;
+				}
+			}
+
+			{
+				int super_pc = is3DO (optSuperPC);
+
+				if (ImGui_SizedComboChar ("Lander View Style:", &super_pc,
+						pc_or_3do, 2))
+				{
+					optSuperPC = ToCons (super_pc);
+					res_PutBoolean ("mm.landerStyle", (BOOLEAN)super_pc);
+					mmcfg_changed = true;
+				}
+			}
+			ImGui_NewLine ();
 		}
-
-		{
-			int star_background = optStarBackground;
-
-			if (ImGui_SizedComboChar ("Star Background:", &star_background,
-				star_backgrounds, 4))
-			{
-				optStarBackground = star_background;
-				res_PutInteger ("mm.starBackground", optStarBackground);
-				mmcfg_changed = true;
-			}
-		}
-		ImGui_NewLine ();
 	}
-
-	if (NUM_COLUMNS != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Orbit", ZERO_F, CHILD_FLAGS, 0, NULL);
-	}
-
-	// Orbit Screen
-	{
-		ImGui_SeparatorText ("Orbit Screen");
-
-		{
-			int which_scan = optWhichCoarseScan;
-
-			if (ImGui_SizedComboChar ("Stats Display:", &which_scan,
-					stats_display, 4))
-			{
-				optWhichCoarseScan = which_scan;
-				res_PutInteger ("config.iconicscan", optWhichCoarseScan);
-				config_changed = true;
-			}
-		}
-
-		{
-			int which_shield = is3DO (optWhichShield);
-
-			if (ImGui_SizedComboChar ("Slave Shields:", &which_shield,
-					slave_shields, 2))
-			{
-				optWhichShield = ToCons (which_shield);
-				res_PutBoolean ("config.pulseshield", (BOOLEAN)which_shield);
-				config_changed = true;
-			}
-		}
-
-		{
-			int scan_style = is3DO (optScanStyle);
-
-			if (ImGui_SizedComboChar ("Scanning Style:", &scan_style,
-				pc_or_3do, 2))
-			{
-				optScanStyle = ToCons (scan_style);
-				res_PutBoolean ("mm.scanStyle", (BOOLEAN)scan_style);
-				mmcfg_changed = true;
-			}
-		}
-
-		{
-			int sphere_style = optScanSphere;
-
-			if (ImGui_SizedComboChar ("Sphere Style:", &sphere_style,
-					dos_3do_uqm, 3))
-			{
-				optScanSphere = sphere_style;
-				res_PutInteger ("mm.sphereType", optScanSphere);
-				mmcfg_changed = true;
-			}
-		}
-
-		{
-			int tint_sphere = is3DO (optTintPlanSphere);
-
-			if (ImGui_SizedComboChar ("Tinted Sphere Scan:", &tint_sphere,
-					sphere_tint, 2))
-			{
-				optTintPlanSphere = ToCons (tint_sphere);
-				res_PutBoolean ("mm.tintPlanSphere", (BOOLEAN)tint_sphere);
-				mmcfg_changed = true;
-			}
-		}
-
-		{
-			int super_pc = is3DO (optSuperPC);
-
-			if (ImGui_SizedComboChar ("Lander View Style:", &super_pc,
-					pc_or_3do, 2))
-			{
-				optSuperPC = ToCons (super_pc);
-				res_PutBoolean ("mm.landerStyle", (BOOLEAN)super_pc);
-				mmcfg_changed = true;
-			}
-		}
-		ImGui_NewLine ();
-	}
-
-	if (NUM_COLUMNS != 1)
-		ImGui_EndChild ();
+	ImGui_EndChild ();
 }

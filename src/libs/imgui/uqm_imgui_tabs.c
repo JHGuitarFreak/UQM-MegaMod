@@ -44,7 +44,6 @@ draw_settings_menu (void)
 {
 	static const char *menu_settings_lbl, *menu_cntrlr_nav, *menu_bg_lbl;
 	static const char *bt_reset;
-	ImVec2 column_size;
 
 	if (!menu_settings_lbl)
 	{
@@ -54,9 +53,7 @@ draw_settings_menu (void)
 		bt_reset = ImStr ("bt_reset");
 	}
 
-	GetColumnSize (&column_size, NUM_COLUMNS != 1 ? 2 : 1);
-
-	ImGui_BeginStyledChild ("##Column1", column_size, CHILD_FLAGS, 0, NULL);
+	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0, NULL);
 	{
 		// Menu Settings
 		ImGui_SeparatorText (menu_settings_lbl);
@@ -130,6 +127,8 @@ draw_settings_menu (void)
 					style->Colors[ImGuiCol_ChildBg].w);
 			}
 			ImGui_SameLine ();
+			ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
+					(ImGui_GetItemRectSize ().x + style->ItemSpacing.x));
 			if (ImGui_SliderFloat ("##Transparency",
 				&style->Colors[ImGuiCol_ChildBg].w, 0.0f, 1.0f))
 			{
@@ -173,7 +172,7 @@ draw_settings_menu (void)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();
-		ImGui_BeginStyledChild ("##Column2", column_size, CHILD_FLAGS, 0, NULL);
+		ImGui_BeginStyledChild ("##Column2", content_col_size, CH_FLAT_NAV, 0, NULL);
 	}
 
 	{

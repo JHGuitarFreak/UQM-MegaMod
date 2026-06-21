@@ -639,7 +639,6 @@ GamestatesTab01 (void)
 		GS_CHECKBOX (KNOW_SPATHI_EVIL);
 		GS_CHECKBOX (PKUNK_DONE_WAR);
 		GS_CHECKBOX (REFUSED_ULTRON_AT_BOMB);
-		GS_CHECKBOX (NO_TRICK_AT_SUN);
 
 		Spacer ();
 
@@ -660,6 +659,9 @@ GamestatesTab01 (void)
 	}
 
 	{
+		GS_CHECKBOX (NO_TRICK_AT_SUN);
+
+		Spacer ();
 
 		GS_Binary (HM_ENCOUNTERS, 9);
 
@@ -690,48 +692,77 @@ GamestatesTab01 (void)
 				GET_CGAME_STATE (RAINBOW_WORLD0),
 				GET_CGAME_STATE (RAINBOW_WORLD1));
 
-			ImGui_Text ("RAINBOW_WORLD");
-
-			ImGui_PushStyleVar (ImGuiStyleVar_SelectablesRounding, 0.0f);
-			ImGui_PushStyleColorImVec4 (ImGuiCol_BorderShadow, MAKE_IV4 (0, 0, 0, 0));
-			if (ImGui_BeginTable ("##RainbowTable", 8, ImGuiTableFlags_Borders |
-				ImGuiTableFlags_NoHostExtendX))
+			ImGui_BeginChild ("##RAINBOW_WORLD", ZERO_F, CARD_FLAGS,
+					ImGuiWindowFlags_MenuBar);
 			{
-				for (i = 0; i < MAX_RBW; i++)
+				if (ImGui_BeginMenuBar ())
 				{
-					ImGui_TableNextColumn ();
-
-					selected[i] = bitmask & (1 << i);
-					snprintf (buf, sizeof buf, "%d##%s%d", selected[i], "RBW", i);
-
-					if (ImGui_SelectableEx (buf,
-						selected[i], ImGuiSelectableFlags_None,
-						MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (19.0f))))
-					{
-						for (j = 0; j < MAX_RBW; j++)
-						{
-							if (bitmask & (1 << j))
-								cur_selected++;
-						}
-
-						bitmask ^= (1 << i);
-
-						SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
-						SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
-
-						if (selected[i] && cur_selected == rbw_count &&
-							rbw_count >= 0)
-						{
-							rbw_count--;
-							SET_CGAME_STATE (MELNORME_RAINBOW_COUNT, rbw_count);
-						}
-					}
+					ImGui_MenuItemEx ("RAINBOW_WORLD", NULL, false, false);
+					ImGui_EndMenuBar ();
 				}
 
-				ImGui_EndTable ();
-			}
-			ImGui_PopStyleColor ();
-			ImGui_PopStyleVar ();
+				ImGui_PushStyleVar (ImGuiStyleVar_SelectablesRounding, 0.0f);
+				ImGui_PushStyleColorImVec4 (ImGuiCol_BorderShadow,
+						MAKE_IV4 (0, 0, 0, 0));
+				if (ImGui_BeginTable ("##RainbowTable", 8,
+						ImGuiTableFlags_Borders |
+						ImGuiTableFlags_NoHostExtendX))
+				{
+					for (i = 0; i < MAX_RBW; i++)
+					{
+						ImGui_TableNextColumn ();
+
+						selected[i] = bitmask & (1 << i);
+						snprintf (buf, sizeof buf, "%d##%s%d", selected[i],
+								"RBW", i);
+
+						if (ImGui_SelectableEx (buf,
+							selected[i], ImGuiSelectableFlags_None,
+							MAKE_IV2 (SCALE_IT (15.0f), SCALE_IT (19.0f))))
+						{
+							for (j = 0; j < MAX_RBW; j++)
+							{
+								if (bitmask & (1 << j))
+									cur_selected++;
+							}
+
+							bitmask ^= (1 << i);
+
+							SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
+							SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
+
+							if (selected[i] && cur_selected == rbw_count &&
+								rbw_count >= 0)
+							{
+								rbw_count--;
+								SET_CGAME_STATE (MELNORME_RAINBOW_COUNT,
+										rbw_count);
+							}
+						}
+					}
+
+					ImGui_EndTable ();
+				}
+				ImGui_PopStyleColor ();
+				ImGui_PopStyleVar ();
+
+				if (ImGui_Button ("Set All##RAINBOW_WORLD"))
+				{
+					bitmask = ~0;
+					SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
+					SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
+				}
+				ImGui_SameLine ();
+
+				if (ImGui_Button ("Clear All##RAINBOW_WORLD"))
+				{
+					bitmask = 0;
+					SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
+					SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
+				}
+			}ImGui_EndChild ();
+
+			DrawBorderAroundLastItem ();
 		}
 	}
 

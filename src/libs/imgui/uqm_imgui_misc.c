@@ -19,19 +19,21 @@
 
 void draw_qol_menu (void)
 {
-	ImGui_ColumnsEx (NUM_COLUMNS, "QoLColumns", false);
+	ImGui_BeginStyledChild ("##QoLColumn", content_col_size,
+			CHILD_FLAGS, 0, NULL);
+	{
+		ImGui_SeparatorText ("Basic QoL Options");
 
-	ImGui_SeparatorText ("Basic QoL Options");
-
-	UQM_ImGui_CheckBox ("Skip Intro", &optSkipIntro, "mm.skipIntro", false);
-	UQM_ImGui_CheckBox ("Partial Pickup", &optPartialPickup, "mm.partialPickup", false);
-	UQM_ImGui_CheckBox ("Scatter Elements", &optScatterElements, "mm.scatterElements", false);
-	UQM_ImGui_CheckBox ("In-Game Help Menus", &optSubmenu, "mm.submenu", false);
-	UQM_ImGui_CheckBox ("Smart Auto-Pilot", &optSmartAutoPilot, "mm.smartAutoPilot", false);
-	UQM_ImGui_CheckBox ("Advanced Auto-Pilot", &optAdvancedAutoPilot, "mm.advancedAutoPilot", false);
-	UQM_ImGui_CheckBox ("Show Visited Stars", &optShowVisitedStars, "mm.showVisitedStars", false);
-	UQM_ImGui_CheckBox ("Super Melee Ship Descriptions", &optMeleeToolTips, "mm.meleeToolTips", false);
-	UQM_ImGui_CheckBox ("Ship Storage Queue", &optShipStore, "mm.shipStore", false);
+		UQM_ImGui_CheckBox ("Skip Intro", &optSkipIntro, "mm.skipIntro", false);
+		UQM_ImGui_CheckBox ("Partial Pickup", &optPartialPickup, "mm.partialPickup", false);
+		UQM_ImGui_CheckBox ("Scatter Elements", &optScatterElements, "mm.scatterElements", false);
+		UQM_ImGui_CheckBox ("In-Game Help Menus", &optSubmenu, "mm.submenu", false);
+		UQM_ImGui_CheckBox ("Smart Auto-Pilot", &optSmartAutoPilot, "mm.smartAutoPilot", false);
+		UQM_ImGui_CheckBox ("Advanced Auto-Pilot", &optAdvancedAutoPilot, "mm.advancedAutoPilot", false);
+		UQM_ImGui_CheckBox ("Show Visited Stars", &optShowVisitedStars, "mm.showVisitedStars", false);
+		UQM_ImGui_CheckBox ("Super Melee Ship Descriptions", &optMeleeToolTips, "mm.meleeToolTips", false);
+		UQM_ImGui_CheckBox ("Ship Storage Queue", &optShipStore, "mm.shipStore", false);
+	} ImGui_EndChild ();
 }
 
 void draw_adv_menu (void)
@@ -44,141 +46,141 @@ void draw_adv_menu (void)
 
 	UWORD activity = GLOBAL (CurrentActivity);
 
-	ImGui_ColumnsEx (NUM_COLUMNS, "AdvancedColumns", false);
-
-	// Risky Click
-	if (!IN_MAIN_MENU)
+	ImGui_BeginStyledChild ("##AdvancedOptsColumn", content_col_size,
+			CHILD_FLAGS, 0, NULL);
 	{
-		ImGui_Text ("Let me modify risky options in-game:");
-		ImGui_Checkbox ("##RiskyOptions", &risky_options);
-		ImGui_TextWrappedColored (IV4_RED_COLOR,
+		// Risky Click
+		if (!IN_MAIN_MENU)
+		{
+			ImGui_Text ("Let me modify risky options in-game:");
+			ImGui_Checkbox ("##RiskyOptions", &risky_options);
+			ImGui_TextWrappedColored (IV4_RED_COLOR,
 				"WARNING! Modifying risky options in-game have the "
 				"possibility of breaking the game or your game save!");
-
-		ImGui_NewLine ();
-	}
-
-	// Advanced Options
-	{
-		ImGui_SeparatorText ("Advanced Options");
-
-		Spacer ();
-
-		UQM_ImGui_CheckBox ("Slaughter Mode", &optSlaughterMode,
-				"mm.slaughterMode", false);
-		UQM_ImGui_CheckBox ("Fleet Point System", &optFleetPointSys,
-				"mm.fleetPointSys", false);
-
-		ImGui_NewLine ();
-	}
-
-	// Risky Options
-	{
-		ImGui_SeparatorText ("Risky Options");
-
-		ImGui_BeginDisabled (!IN_MAIN_MENU && !risky_options);
-
-		{
-			ImGui_Text ("Difficulty:");
-			if (ImGui_ComboChar ("##Difficulty", &optDifficulty,
-				difficulties, 3))
-			{
-				optDiffChooser = optDifficulty;
-				GLOBAL_SIS (Difficulty) = optDifficulty;
-				res_PutInteger ("mm.difficulty", optDifficulty);
-				mmcfg_changed = true;
-			}
 		}
 
-		Spacer ();
-
-		if (ImGui_Checkbox ("Extended Lore", (bool *)&optExtended))
+		// Advanced Options
 		{
-			GLOBAL_SIS (Extended) = optExtended;
-			res_PutBoolean ("mm.extended", optExtended);
-			mmcfg_changed = true;
+			ImGui_SeparatorText ("Advanced Options");
+
+			Spacer ();
+
+			UQM_ImGui_CheckBox ("Slaughter Mode", &optSlaughterMode,
+					"mm.slaughterMode", false);
+			UQM_ImGui_CheckBox ("Fleet Point System", &optFleetPointSys,
+					"mm.fleetPointSys", false);
+
+			ImGui_NewLine ();
 		}
 
-		Spacer ();
-
+		// Risky Options
 		{
-			ImGui_Text ("Nomad Mode:");
-			if (ImGui_ComboChar ("##Nomad", &optNomad, nomad_modes, 3))
+			ImGui_SeparatorText ("Risky Options");
+
+			ImGui_BeginDisabled (!IN_MAIN_MENU && !risky_options);
+
 			{
-				GLOBAL_SIS (Nomad) = optNomad;
-				res_PutInteger ("mm.nomad", optNomad);
+				ImGui_Text ("Difficulty:");
+				if (ImGui_ComboChar ("##Difficulty", &optDifficulty,
+						difficulties, 3))
+				{
+					optDiffChooser = optDifficulty;
+					GLOBAL_SIS (Difficulty) = optDifficulty;
+					res_PutInteger ("mm.difficulty", optDifficulty);
+					mmcfg_changed = true;
+				}
+			}
+
+			Spacer ();
+
+			if (ImGui_Checkbox ("Extended Lore", (bool *)&optExtended))
+			{
+				GLOBAL_SIS (Extended) = optExtended;
+				res_PutBoolean ("mm.extended", optExtended);
 				mmcfg_changed = true;
 			}
-		}
 
-		ImGui_NewLine ();
+			Spacer ();
 
-		{
-			ImGui_Text ("Starmap Seeding:");
-			if (ImGui_ComboChar ("##Seeding", &optSeedType, seed_modes, 4))
 			{
-				SET_GAME_STATE (SEED_TYPE, optSeedType);
-				res_PutInteger ("mm.seedType", optSeedType);
-				mmcfg_changed = true;
+				ImGui_Text ("Nomad Mode:");
+				if (ImGui_ComboChar ("##Nomad", &optNomad, nomad_modes, 3))
+				{
+					GLOBAL_SIS (Nomad) = optNomad;
+					res_PutInteger ("mm.nomad", optNomad);
+					mmcfg_changed = true;
+				}
 			}
-			if (!IN_MAIN_MENU)
+
+			ImGui_NewLine ();
+
 			{
-				ImGui_TextWrappedColored (IV4_RED_COLOR,
+				ImGui_Text ("Starmap Seeding:");
+				if (ImGui_ComboChar ("##Seeding", &optSeedType, seed_modes, 4))
+				{
+					SET_GAME_STATE (SEED_TYPE, optSeedType);
+					res_PutInteger ("mm.seedType", optSeedType);
+					mmcfg_changed = true;
+				}
+				if (!IN_MAIN_MENU)
+				{
+					ImGui_TextWrappedColored (IV4_RED_COLOR,
 						"WARNING! When changing Seed Type in-game make "
 						"sure to do so while in HyperSpace!");
-				ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+					ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
 						"ADDENDUM: Switching to and from MRQ or StarSeed "
 						"only works when changing in the Main Menu and "
 						"starting a new game or if you change it then "
 						"save and reload the game.");
+				}
 			}
-		}
 
-		Spacer ();
+			Spacer ();
 
-		if (ImGui_Checkbox ("Ship Seeding", (bool *)&optShipSeed))
-		{
-			GLOBAL_SIS (ShipSeed) = (optShipSeed ? 1 : 0);
-			res_PutBoolean ("mm.shipSeed", optShipSeed);
-			mmcfg_changed = true;
-		}
-		if (!IN_MAIN_MENU)
-		{
-			ImGui_TextWrappedColored (IV4_RED_COLOR,
-					"WARNING! Changing Ship Seed only works when changing "
-					"in the Main Menu and starting a new game or if you "
-					"change it then save and reload the game.");
-		}
-
-		Spacer ();
-
-		{
-			int custom_seed = optCustomSeed;
-
-			ImGui_Text ("Custom Seed:");
-			ImGui_InputInt ("##CustomSeed", &custom_seed);
-			if (ImGui_IsItemDeactivatedAfterEdit ()
-				&& SANE_SEED (custom_seed))
+			if (ImGui_Checkbox ("Ship Seeding", (bool *)&optShipSeed))
 			{
-				GLOBAL_SIS (Seed) = custom_seed;
-				optCustomSeed = custom_seed;
-				res_PutInteger ("mm.customSeed", custom_seed);
+				GLOBAL_SIS (ShipSeed) = (optShipSeed ? 1 : 0);
+				res_PutBoolean ("mm.shipSeed", optShipSeed);
 				mmcfg_changed = true;
 			}
 			if (!IN_MAIN_MENU)
 			{
 				ImGui_TextWrappedColored (IV4_RED_COLOR,
-					"WARNING! When changing seed in-game make sure to do "
-					"it while in HyperSpace!");
-				ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-					"ADDENDUM: Changing seeds with MRQ or StarSeed "
-					"enabled only works when changing in the Main Menu "
-					"and starting a new game or if you change it then "
-					"save and reload the game.");
+					"WARNING! Changing Ship Seed only works when changing "
+					"in the Main Menu and starting a new game or if you "
+					"change it then save and reload the game.");
 			}
-		}
-		ImGui_EndDisabled ();
 
-		ImGui_NewLine ();
-	}
+			Spacer ();
+
+			{
+				int custom_seed = optCustomSeed;
+
+				ImGui_Text ("Custom Seed:");
+				ImGui_InputInt ("##CustomSeed", &custom_seed);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& SANE_SEED (custom_seed))
+				{
+					GLOBAL_SIS (Seed) = custom_seed;
+					optCustomSeed = custom_seed;
+					res_PutInteger ("mm.customSeed", custom_seed);
+					mmcfg_changed = true;
+				}
+				if (!IN_MAIN_MENU)
+				{
+					ImGui_TextWrappedColored (IV4_RED_COLOR,
+						"WARNING! When changing seed in-game make sure to do "
+						"it while in HyperSpace!");
+					ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+						"ADDENDUM: Changing seeds with MRQ or StarSeed "
+						"enabled only works when changing in the Main Menu "
+						"and starting a new game or if you change it then "
+						"save and reload the game.");
+				}
+			}
+			ImGui_EndDisabled ();
+
+			ImGui_NewLine ();
+		}
+	} ImGui_EndChild ();
 }

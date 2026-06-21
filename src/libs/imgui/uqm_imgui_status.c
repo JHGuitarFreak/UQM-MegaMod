@@ -35,8 +35,7 @@ bool slots_cached = false;
 static int cached_landers;
 bool landers_cached = false;
 
-#define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame | \
-					ImGuiTableFlags_PadOuterX
+#define TABLE_FLAGS ImGuiTableFlags_SizingStretchSame
 
 enum
 {
@@ -50,7 +49,8 @@ static void module_cache (BOOLEAN apply)
 	{
 		memcpy (GLOBAL_SIS (DriveSlots), cached_drive_slots, NUM_DRIVE_SLOTS);
 		memcpy (GLOBAL_SIS (JetSlots), cached_jet_slots, NUM_JET_SLOTS);
-		memcpy (GLOBAL_SIS (ModuleSlots), cached_module_slots, NUM_MODULE_SLOTS);
+		memcpy (GLOBAL_SIS (ModuleSlots), cached_module_slots,
+				NUM_MODULE_SLOTS);
 		return;
 	}
 
@@ -61,742 +61,742 @@ static void module_cache (BOOLEAN apply)
 
 void draw_status_menu (void)
 {
-	ImGui_ColumnsEx (NUM_COLUMNS, "StatusColumns", false);
-
-	if (NUM_COLUMNS != 1)
-		ImGui_BeginStyledChild ("##Column1", ZERO_F, CHILD_FLAGS, 0, NULL);
-
-	// Currency Status
+	
+	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS,
+			0, NULL);
 	{
-		ImGui_SeparatorText ("Currency Status");
 
+		// Currency Status
 		{
-			DWORD curr_ru = GLOBAL_SIS (ResUnits);
+			ImGui_SeparatorText ("Currency Status");
 
-			ImGui_Text ("Current R.U.:");
-			ImGui_InputScalar ("##CurrentRU", ImGuiDataType_U32, &curr_ru);
-			if (ImGui_IsItemDeactivatedAfterEdit ()
-					&& curr_ru > 0 && curr_ru < (DWORD)~0)
 			{
-				GLOBAL_SIS (ResUnits) = curr_ru;
-			}
-		}
+				DWORD curr_ru = GLOBAL_SIS (ResUnits);
 
-		{
-			int Credits = MAKE_WORD (
+				ImGui_Text ("Current R.U.:");
+				ImGui_InputScalar ("##CurrentRU", ImGuiDataType_U32, &curr_ru);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& curr_ru > 0 && curr_ru < (DWORD)~0)
+				{
+					GLOBAL_SIS (ResUnits) = curr_ru;
+				}
+			}
+
+			{
+				int Credits = MAKE_WORD (
 					GET_CGAME_STATE (MELNORME_CREDIT0),
 					GET_CGAME_STATE (MELNORME_CREDIT1));
 
-			ImGui_Text ("Current Credits:");
-			ImGui_InputIntEx ("##CurrentCredits", &Credits,0,0,0);
-			if (ImGui_IsItemDeactivatedAfterEdit ()
+				ImGui_Text ("Current Credits:");
+				ImGui_InputIntEx ("##CurrentCredits", &Credits, 0, 0, 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
 					&& Credits < (COUNT)~0 && Credits > 0)
-			{
-				SET_CGAME_STATE (MELNORME_CREDIT0, LOBYTE (Credits));
-				SET_CGAME_STATE (MELNORME_CREDIT1, HIBYTE (Credits));
-			}
-		}
-
-		ImGui_NewLine ();
-	}
-
-	// Lander Upgrade Status
-	{
-		BYTE ShieldFlags = GET_CGAME_STATE (LANDER_SHIELDS);
-		bool QuakeShield = ShieldFlags & (1 << EARTHQUAKE_DISASTER);
-		bool BioShield = ShieldFlags & (1 << BIOLOGICAL_DISASTER);
-		bool LghtngShield = ShieldFlags & (1 << LIGHTNING_DISASTER);
-		bool LavaShield = ShieldFlags & (1 << LAVASPOT_DISASTER);
-		bool LanderShot = GET_CGAME_STATE (IMPROVED_LANDER_SHOT);
-		bool LanderSpeed = GET_CGAME_STATE (IMPROVED_LANDER_SPEED);
-		bool LanderCargo = GET_CGAME_STATE (IMPROVED_LANDER_CARGO);
-
-		ImGui_SeparatorText ("Lander Upgrades");
-
-		if (ImGui_BeginTable ("##LanderUpgrades", 3, TABLE_FLAGS))
-		{
-			ImGui_TableNextRow ();
-			ImGui_TableNextColumn ();
-
-			if (ImGui_Checkbox ("Quake", &QuakeShield))
-			{
-				ShieldFlags ^= 1 << EARTHQUAKE_DISASTER;
-				SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
-			}
-
-			ImGui_TableNextColumn ();
-
-			if (ImGui_Checkbox ("BIO", &BioShield))
-			{
-				ShieldFlags ^= 1 << BIOLOGICAL_DISASTER;
-				SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
-			}
-
-			ImGui_TableNextColumn ();
-
-			if (ImGui_Checkbox ("Lightning", &LghtngShield))
-			{
-				ShieldFlags ^= 1 << LIGHTNING_DISASTER;
-				SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
-			}
-
-			ImGui_TableNextRow ();
-			ImGui_TableNextColumn ();
-
-			if (ImGui_Checkbox ("Lava", &LavaShield))
-			{
-				ShieldFlags ^= 1 << LAVASPOT_DISASTER;
-				SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
-			}
-
-			ImGui_TableNextColumn ();
-
-			if (ImGui_Checkbox ("Weapon", &LanderShot))
-			{
-				SET_CGAME_STATE (IMPROVED_LANDER_SHOT, LanderShot);
-			}
-
-			ImGui_TableNextColumn ();
-
-			if (ImGui_Checkbox ("Speed", &LanderSpeed))
-			{
-				SET_CGAME_STATE (IMPROVED_LANDER_SPEED, LanderSpeed);
-			}
-
-			ImGui_TableNextRow ();
-			ImGui_TableNextColumn ();
-
-			if (ImGui_Checkbox ("Cargo", &LanderCargo))
-			{
-				SET_CGAME_STATE (IMPROVED_LANDER_CARGO, LanderCargo);
-			}
-
-			ImGui_EndTable ();
-		}
-
-		ImGui_NewLine ();
-	}
-
-	// Cargo Status
-	{
-		ImGui_SeparatorText ("Cargo Status");
-
-		if (ImGui_BeginTable ("##Cargo", 2, TABLE_FLAGS))
-		{
-			const char *elements[8] =
-			{
-				"Common", "Corrosive", "Base Metal", "Noble",
-				"Rare Earth", "Precious", "Radioactive", "Exotic"
-			};
-			int i;
-
-			for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
-			{
-				char buf[40];
-
-				int element[2] =
 				{
-					GLOBAL (ElementWorth[i]),
-					GLOBAL_SIS (ElementAmounts[i])
-				};
+					SET_CGAME_STATE (MELNORME_CREDIT0, LOBYTE (Credits));
+					SET_CGAME_STATE (MELNORME_CREDIT1, HIBYTE (Credits));
+				}
+			}
 
-				snprintf (buf, sizeof (buf), "##%s", elements[i]);
+			ImGui_NewLine ();
+		}
+
+		// Lander Upgrade Status
+		{
+			BYTE ShieldFlags = GET_CGAME_STATE (LANDER_SHIELDS);
+			bool QuakeShield = ShieldFlags & (1 << EARTHQUAKE_DISASTER);
+			bool BioShield = ShieldFlags & (1 << BIOLOGICAL_DISASTER);
+			bool LghtngShield = ShieldFlags & (1 << LIGHTNING_DISASTER);
+			bool LavaShield = ShieldFlags & (1 << LAVASPOT_DISASTER);
+			bool LanderShot = GET_CGAME_STATE (IMPROVED_LANDER_SHOT);
+			bool LanderSpeed = GET_CGAME_STATE (IMPROVED_LANDER_SPEED);
+			bool LanderCargo = GET_CGAME_STATE (IMPROVED_LANDER_CARGO);
+
+			ImGui_SeparatorText ("Lander Upgrades");
+
+			if (ImGui_BeginTable ("##LanderUpgrades", 3, TABLE_FLAGS))
+			{
+				ImGui_TableNextRow ();
+				ImGui_TableNextColumn ();
+
+				if (ImGui_Checkbox ("Quake", &QuakeShield))
+				{
+					ShieldFlags ^= 1 << EARTHQUAKE_DISASTER;
+					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
+				}
+
+				ImGui_TableNextColumn ();
+
+				if (ImGui_Checkbox ("BIO", &BioShield))
+				{
+					ShieldFlags ^= 1 << BIOLOGICAL_DISASTER;
+					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
+				}
+
+				ImGui_TableNextColumn ();
+
+				if (ImGui_Checkbox ("Lightning", &LghtngShield))
+				{
+					ShieldFlags ^= 1 << LIGHTNING_DISASTER;
+					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
+				}
 
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				ImGui_AlignTextToFramePadding ();
-				ImGui_TextUnformatted (elements[i]);
+				if (ImGui_Checkbox ("Lava", &LavaShield))
+				{
+					ShieldFlags ^= 1 << LAVASPOT_DISASTER;
+					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
+				}
 
 				ImGui_TableNextColumn ();
 
-				ImGui_InputInt2 (buf, element, 0);
-				if (ImGui_IsItemDeactivatedAfterEdit ()
-						&& element[0] < (BYTE)~0 && element[1] < (COUNT)~0)
+				if (ImGui_Checkbox ("Weapon", &LanderShot))
 				{
-					if (GLOBAL (ElementWorth[i]) != element[0])
-						GLOBAL (ElementWorth[i]) = element[0];
+					SET_CGAME_STATE (IMPROVED_LANDER_SHOT, LanderShot);
+				}
 
-					if (GLOBAL_SIS (ElementAmounts[i]) != element[1])
+				ImGui_TableNextColumn ();
+
+				if (ImGui_Checkbox ("Speed", &LanderSpeed))
+				{
+					SET_CGAME_STATE (IMPROVED_LANDER_SPEED, LanderSpeed);
+				}
+
+				ImGui_TableNextRow ();
+				ImGui_TableNextColumn ();
+
+				if (ImGui_Checkbox ("Cargo", &LanderCargo))
+				{
+					SET_CGAME_STATE (IMPROVED_LANDER_CARGO, LanderCargo);
+				}
+
+				ImGui_EndTable ();
+			}
+
+			ImGui_NewLine ();
+		}
+
+		// Cargo Status
+		{
+			ImGui_SeparatorText ("Cargo Status");
+
+			if (ImGui_BeginTable ("##Cargo", 2, TABLE_FLAGS))
+			{
+				const char *elements[8] =
+				{
+					"Common", "Corrosive", "Base Metal", "Noble",
+					"Rare Earth", "Precious", "Radioactive", "Exotic"
+				};
+				int i;
+
+				for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
+				{
+					char buf[40];
+
+					int element[2] =
 					{
-						int mass = GLOBAL_SIS (TotalElementMass);
-						int cap = GetStorageBayCapacity ();
-						int temp = element[1]
-							- GLOBAL_SIS (ElementAmounts[i]);
+						GLOBAL (ElementWorth[i]),
+						GLOBAL_SIS (ElementAmounts[i])
+					};
 
-						if (mass + temp <= cap)
+					snprintf (buf, sizeof (buf), "##%s", elements[i]);
+
+					ImGui_TableNextRow ();
+					ImGui_TableNextColumn ();
+
+					ImGui_AlignTextToFramePadding ();
+					ImGui_TextUnformatted (elements[i]);
+
+					ImGui_TableNextColumn ();
+
+					ImGui_InputInt2 (buf, element, 0);
+					if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& element[0] < (BYTE)~0 && element[1] < (COUNT)~0)
+					{
+						if (GLOBAL (ElementWorth[i]) != element[0])
+							GLOBAL (ElementWorth[i]) = element[0];
+
+						if (GLOBAL_SIS (ElementAmounts[i]) != element[1])
 						{
-							GLOBAL_SIS (ElementAmounts[i]) = element[1];
-							GLOBAL_SIS (TotalElementMass) += temp;
+							int mass = GLOBAL_SIS (TotalElementMass);
+							int cap = GetStorageBayCapacity ();
+							int temp = element[1]
+								- GLOBAL_SIS (ElementAmounts[i]);
+
+							if (mass + temp <= cap)
+							{
+								GLOBAL_SIS (ElementAmounts[i]) = element[1];
+								GLOBAL_SIS (TotalElementMass) += temp;
+							}
 						}
 					}
 				}
-			}
 
-			{
-				char buf[40];
-				float capacity_filled =
+				{
+					char buf[40];
+					float capacity_filled =
 						(float)GLOBAL_SIS (TotalElementMass)
 						/ (float)GetStorageBayCapacity ();
-				int rem_capacity = GetStorageBayCapacity ()
+					int rem_capacity = GetStorageBayCapacity ()
 						- GLOBAL_SIS (TotalElementMass);
 
-				ImGui_TableNextRow ();
-				ImGui_TableNextColumn ();
+					ImGui_TableNextRow ();
+					ImGui_TableNextColumn ();
 
-				ImGui_AlignTextToFramePadding ();
-				ImGui_Text ("Free Space");
+					ImGui_AlignTextToFramePadding ();
+					ImGui_Text ("Free Space");
 
-				ImGui_TableNextColumn ();
+					ImGui_TableNextColumn ();
 
-				snprintf (buf, sizeof buf, "%d", rem_capacity);
-				ImGui_ProgressBar (capacity_filled, ZERO_F, buf);
-			}
-
-			{
-				int BioData = GLOBAL_SIS (TotalBioMass);
-
-				ImGui_TableNextRow ();
-				ImGui_TableNextColumn ();
-
-				ImGui_AlignTextToFramePadding ();
-				ImGui_Text ("Bio-Data");
-
-				ImGui_TableNextColumn ();
-				ImGui_InputIntEx ("##BioData", &BioData, 0, 0, 0);
-				if (ImGui_IsItemDeactivatedAfterEdit ()
-						&& BioData < (COUNT)~0)
-				{
-					GLOBAL_SIS (TotalBioMass) = BioData;
+					snprintf (buf, sizeof buf, "%d", rem_capacity);
+					ImGui_ProgressBar (capacity_filled, ZERO_F, buf);
 				}
+
+				{
+					int BioData = GLOBAL_SIS (TotalBioMass);
+
+					ImGui_TableNextRow ();
+					ImGui_TableNextColumn ();
+
+					ImGui_AlignTextToFramePadding ();
+					ImGui_Text ("Bio-Data");
+
+					ImGui_TableNextColumn ();
+					ImGui_InputIntEx ("##BioData", &BioData, 0, 0, 0);
+					if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& BioData < (COUNT)~0)
+					{
+						GLOBAL_SIS (TotalBioMass) = BioData;
+					}
+				}
+
+				ImGui_EndTable ();
 			}
 
-			ImGui_EndTable ();
+			ImGui_NewLine ();
+
+			if (collapse_cargo == ImGuiTreeNodeFlags_None)
+				collapse_cargo = ImGuiTreeNodeFlags_DefaultOpen;
 		}
 
-		ImGui_NewLine ();
+		// Module Status
+		{
+			ImGui_SeparatorText ("Module Status");
 
-		if (collapse_cargo == ImGuiTreeNodeFlags_None)
-			collapse_cargo = ImGuiTreeNodeFlags_DefaultOpen;
+			if (ImGui_BeginTable ("##Modules", 2, TABLE_FLAGS))
+			{
+				int i;
+				const char *modules[NUM_PURCHASE_MODULES] =
+				{
+					"Lander", "Fusion Thruster", "Turning Jets", "Crew Pod",
+					"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
+					"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
+					"Fusion Blaster", "Hellbore Cannon", "Tracking System",
+					"Point Defense"
+				};
+
+				for (i = 0; i < NUM_PURCHASE_MODULES; i++)
+				{
+					char buf[40];
+
+					int module_cost =
+						GLOBAL (ModuleCost[i]) * MODULE_COST_SCALE;
+
+					snprintf (buf, sizeof (buf), "##%s", modules[i]);
+
+					ImGui_TableNextRow ();
+					ImGui_TableNextColumn ();
+
+					ImGui_AlignTextToFramePadding ();
+					ImGui_TextUnformatted (modules[i]);
+
+					ImGui_TableNextColumn ();
+
+					ImGui_InputIntEx (buf, &module_cost, 0, 0, 0);
+					if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& module_cost < 12750)
+					{
+						GLOBAL (ModuleCost[i]) =
+							module_cost / MODULE_COST_SCALE;
+					}
+				}
+
+				ImGui_EndTable ();
+			}
+
+			ImGui_NewLine ();
+		}
 	}
 
-	// Module Status
+	if (NUM_COLUMNS != 1)
 	{
-		ImGui_SeparatorText ("Module Status");
+		ImGui_EndChild ();
+		ImGui_SameLine ();
+		ImGui_BeginStyledChild ("##Column2", content_col_size, CHILD_FLAGS,
+				0, NULL);
+	}
+	{
 
-		if (ImGui_BeginTable ("##Modules", 2, TABLE_FLAGS))
+		// Alien Status
 		{
-			int i;
-			const char *modules[NUM_PURCHASE_MODULES] =
+			ImGui_SeparatorText ("Alien Status");
+
+			if (ImGui_BeginTable ("##Aliens", 2, TABLE_FLAGS))
 			{
-				"Lander", "Fusion Thruster", "Turning Jets", "Crew Pod",
+				HFLEETINFO hStarShip, hNextShip;
+				FLEET_INFO *FleetPtr;
+				int race_state;
+
+				const char *allied_states[3] = { "Dead", "Allied", "Enemy" };
+
+				int Index = 0;
+				for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
+						hStarShip && Index < NUM_BUILDABLE_SHIPS;
+						hStarShip = hNextShip, Index++)
+				{
+					ImGui_TableNextColumn ();
+
+					FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q),
+							hStarShip);
+
+					ImGui_PushIDInt (Index);
+
+					ImGui_Checkbox (GetStringAddress (
+							SetAbsStringTableIndex (FleetPtr->race_strings, 0)),
+							(bool *)&FleetPtr->can_build);
+					if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+					{
+						ImGui_SetTooltip ("Allows you to build their ships\n"
+							"regardless of alliance status");
+					}
+
+					ImGui_TableNextColumn ();
+
+					race_state = FleetPtr->allied_state;
+					if (ImGui_ComboChar ("##AlliedState", &race_state,
+							allied_states, 3))
+					{
+						FleetPtr->allied_state = race_state;
+					}
+
+					ImGui_PopID ();
+
+					hNextShip = _GetSuccLink (FleetPtr);
+					UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
+				}
+				ImGui_EndTable ();
+			}
+		}
+	}
+
+	if (NUM_COLUMNS != 1)
+	{
+		ImGui_EndChild ();
+		ImGui_SameLine ();
+		ImGui_BeginStyledChild ("##Column3", content_col_size, CHILD_FLAGS,
+				0, NULL);
+	}
+
+	{
+		// Flagship Status
+		{
+			static bool thrusters[11] = { false };
+			static bool jets[8] = { false };
+			int something = 0;
+			int num_m_slots = 16;
+			int jt_begin = num_m_slots - 4;
+			int i;
+			const char *ship_modules[] =
+			{
+				"None", "Crew Pod",
 				"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
 				"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
 				"Fusion Blaster", "Hellbore Cannon", "Tracking System",
-				"Point Defense"
+				"Point Defense", "Bomb Module 0", "Bomb Module 1",
+				"Bomb Module 2", "Bomb Module 3", "Bomb Module 4",
+				"Bomb Module 5"
 			};
 
-			for (i = 0; i < NUM_PURCHASE_MODULES; i++)
+			ImGuiStyle *style = ImGui_GetStyle ();
+			ImVec2 og_spacing = style->ItemSpacing;
+			style->ItemSpacing = MAKE_IV2 (4, 4);
+
+			ImGui_SeparatorText ("Flagship Status");
+
+			// Current Coordinates
 			{
-				char buf[40];
+				POINT universe;
+				char buf[SIS_NAME_SIZE];
 
-				int module_cost =
-						GLOBAL (ModuleCost[i]) * MODULE_COST_SCALE;
+				universe = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+					LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
 
-				snprintf (buf, sizeof (buf), "##%s", modules[i]);
+				snprintf (buf, sizeof buf, "%03u.%01u : %03u.%01u",
+					universe.x / 10, universe.x % 10,
+					universe.y / 10, universe.y % 10);
 
-				ImGui_TableNextRow ();
-				ImGui_TableNextColumn ();
-
-				ImGui_AlignTextToFramePadding ();
-				ImGui_TextUnformatted (modules[i]);
-
-				ImGui_TableNextColumn ();
-
-				ImGui_InputIntEx (buf, &module_cost, 0, 0, 0);
-				if (ImGui_IsItemDeactivatedAfterEdit ()
-						&& module_cost < 12750)
-				{
-					GLOBAL (ModuleCost[i]) =
-							module_cost / MODULE_COST_SCALE;
-				}
-			}
-
-			ImGui_EndTable ();
-		}
-
-		ImGui_NewLine ();
-	}
-
-	if (NUM_COLUMNS != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column2", ZERO_F, CHILD_FLAGS, 0, NULL);
-	}
-
-	// Alien Status
-	{
-		ImGui_SeparatorText ("Alien Status");
-
-		if (ImGui_BeginTable ("##Aliens", 2, TABLE_FLAGS))
-		{
-			HFLEETINFO hStarShip, hNextShip;
-			FLEET_INFO *FleetPtr;
-			int race_state;
-			float btn_size = SCALE_IT (110.0f);
-			float cmb_size = SCALE_IT (95.0f);
-
-			const char *allied_states[3] = {
-					"Dead", "Allied", "Enemy" };
-
-#define COLUMN_FLAGS ImGuiTableColumnFlags_WidthFixed
-
-			ImGui_TableSetupColumnEx ("Race", COLUMN_FLAGS, 0.0f, 0);
-			ImGui_TableSetupColumnEx ("Status", COLUMN_FLAGS, 0.0f, 0);
-
-			int Index = 0;
-			for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
-					hStarShip && Index < NUM_BUILDABLE_SHIPS;
-					hStarShip = hNextShip, Index++)
-			{
-				FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-
-				ImGui_PushIDInt (Index);
-
-				ImGui_TableNextRow ();
-				ImGui_TableNextColumn ();
-
-				ImGui_Checkbox (GetStringAddress (
-						SetAbsStringTableIndex (FleetPtr->race_strings, 0)),
-						(bool *)&FleetPtr->can_build);
-				if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
-				{
-					ImGui_SetTooltip ("Allows you to build their ships\n"
-							"regardless of alliance status");
-				}
-
-				ImGui_TableNextColumn ();
-
-				ImGui_SetNextItemWidth (cmb_size);
-
-				race_state = FleetPtr->allied_state;
-				if (ImGui_ComboChar ("##AlliedState", &race_state,
-						allied_states, 3))
-				{
-					FleetPtr->allied_state = race_state;
-				}
-
-				ImGui_PopID ();
-
-				hNextShip = _GetSuccLink (FleetPtr);
-				UnlockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
-			}
-
-			ImGui_EndTable ();
-		}
-	}
-
-	if (NUM_COLUMNS != 1)
-	{
-		ImGui_EndChild ();
-		ImGui_NextColumn ();
-		ImGui_BeginStyledChild ("##Column3", ZERO_F, CHILD_FLAGS, 0, NULL);
-	}
-
-	// Flagship Status
-	{
-		static bool thrusters[11] = { false };
-		static bool jets[8] = { false };
-		int something = 0;
-		int num_m_slots = 16;
-		int jt_begin = num_m_slots - 4;
-		int i;
-		const char *ship_modules[] =
-		{
-			"None", "Crew Pod",
-			"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
-			"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
-			"Fusion Blaster", "Hellbore Cannon", "Tracking System",
-			"Point Defense", "Bomb Module 0", "Bomb Module 1",
-			"Bomb Module 2", "Bomb Module 3", "Bomb Module 4",
-			"Bomb Module 5"
-		};
-
-		ImGuiStyle *style = ImGui_GetStyle ();
-		ImVec2 og_spacing = style->ItemSpacing;
-		style->ItemSpacing = MAKE_IV2 (4, 4);
-
-		ImGui_SeparatorText ("Flagship Status");
-
-		// Current Coordinates
-		{
-			POINT universe;
-			char buf[SIS_NAME_SIZE];
-
-			universe = MAKE_POINT (LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-				LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
-
-			snprintf (buf, sizeof buf, "%03u.%01u : %03u.%01u",
-				universe.x / 10, universe.x % 10,
-				universe.y / 10, universe.y % 10);
-
-			ImGui_Text ("Coordinates:");
-			ImGui_BeginDisabled (true);
-			ImGui_InputText ("##Coordinates", buf, sizeof (buf), 0);
-			ImGui_EndDisabled ();
-		}
-
-		//Current Location
-		{
-			char buf[256];
-
-			switch (LOBYTE (GLOBAL (CurrentActivity)))
-			{
-			default:
-			case IN_ENCOUNTER:
-				buf[0] = '\0';
-				break;
-			case IN_LAST_BATTLE:
-			case IN_INTERPLANETARY:
-				if (CurStarDescPtr != NULL)
-					GetClusterName (CurStarDescPtr, buf);
-				else
-					snprintf (buf, sizeof buf, "Unknown");
-				break;
-			case IN_HYPERSPACE:
-				if (GET_CGAME_STATE (ARILOU_SPACE_SIDE) <= 1)
-				{
-					snprintf (buf, sizeof buf, "%s",
-							GAME_STRING (NAVIGATION_STRING_BASE));
-					// "HyperSpace"
-				}
-				else
-				{
-					POINT Log = MAKE_POINT (
-						LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-						LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
-
-					snprintf (buf, sizeof buf, "%s",
-							GAME_STRING (NAVIGATION_STRING_BASE + 1));
-					// "QuasiSpace"
-
-					if (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y)
-					{
-						snprintf (buf, sizeof buf, "%s",
-								GAME_STRING (STAR_STRING_BASE + 148));
-						// "Falayalaralfali"
-					}
-				}
-				break;
-			}
-
-			ImGui_Text ("Location:");
-			ImGui_BeginDisabled (true);
-			ImGui_InputText ("##Location", buf, sizeof (buf), 0);
-			ImGui_EndDisabled ();
-		}
-
-		// Captain's Name
-		{
-			char CaptainsName[SIS_NAME_SIZE];
-
-			snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
-				"%s", GLOBAL_SIS (CommanderName));
-
-			ImGui_Text ("Captain's Name:");
-			ImGui_InputText ("##CaptainsName", CaptainsName,
-				sizeof (CaptainsName), 0);
-			if (ImGui_IsItemDeactivatedAfterEdit ()
-				&& strlen (CaptainsName) < SIS_NAME_SIZE)
-			{
-				snprintf (GLOBAL_SIS (CommanderName),
-					sizeof (GLOBAL_SIS (CommanderName)),
-					"%s", CaptainsName);
-
-				scr_refresh = true;
-			}
-		}
-
-		// Ship Name
-		{
-			char SISName[SIS_NAME_SIZE];
-
-			snprintf ((char *)&SISName, sizeof (SISName),
-				"%s", GLOBAL_SIS (ShipName));
-
-			ImGui_Text ("Ship Name:");
-			ImGui_InputText ("##SISName", SISName, sizeof (SISName), 0);
-			if (ImGui_IsItemDeactivatedAfterEdit ()
-				&& strlen (SISName) < SIS_NAME_SIZE)
-			{
-				snprintf (GLOBAL_SIS (ShipName),
-					sizeof (GLOBAL_SIS (ShipName)),
-					"%s", SISName);
-
-				scr_refresh = true;
-			}
-		}
-
-		// Landers
-		{
-			if (!landers_cached)
-			{
-				cached_landers = GLOBAL_SIS (NumLanders);
-				landers_cached = true;
-			}
-
-			ImGui_Text ("Landers:");
-			ImGui_InputInt ("##Landers", &cached_landers);
-			if (ImGui_IsItemDeactivatedAfterEdit ())
-			{
-				if (cached_landers < 0)
-					cached_landers = 0;
-				else if (cached_landers > MAX_LANDERS)
-					cached_landers = MAX_LANDERS;
-
-				GLOBAL_SIS (NumLanders) = cached_landers;
-
-				scr_refresh = true;
-				landers_cached = false;
-			}
-		}
-
-		// Fuel
-		{
-			int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
-			int volume = GetFuelTankCapacity ();
-
-			ImGui_Text ("Current Fuel:");
-			if (optInfiniteFuel)
-			{
-				char buf[40];
-				snprintf (buf, sizeof buf, "%s",
-						GAME_STRING (STATUS_STRING_BASE + 2));
+				ImGui_Text ("Coordinates:");
 				ImGui_BeginDisabled (true);
-				{
-					ImGui_InputText ("##CurrentFuel", buf, sizeof buf, 0);
-				}
-
+				ImGui_InputText ("##Coordinates", buf, sizeof (buf), 0);
 				ImGui_EndDisabled ();
 			}
-			else
-				ImGui_InputIntEx ("##CurrentFuel", &CurrentFuel,0,0,0);
-			if (ImGui_IsItemDeactivatedAfterEdit ())
+
+			//Current Location
 			{
-				if (CurrentFuel > volume)
-					CurrentFuel = volume;
+				char buf[256];
 
-				GLOBAL_SIS (FuelOnBoard) = CurrentFuel;
-
-				scr_refresh = true;
-			}
-		}
-
-		Spacer ();
-
-		// Ship Modules
-		if (!slots_cached)
-		{
-			module_cache (CACHE_SLOTS);
-			slots_cached = true;
-		}
-
-		for (i = num_m_slots-1; i >= 0; i--)
-		{
-			char buf[40];
-			int t_index = i - 1;
-			int j_index = i - 4;
-
-			if (i < jt_begin && t_index >= 0)
-			{
-				bool DriveSlot = cached_drive_slots[t_index] == 1;
-
-				ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_RED_COLOR);
-
-				snprintf (buf, sizeof buf, "##thruster%d", t_index);
-				if (ImGui_Checkbox (buf, &DriveSlot))
+				switch (LOBYTE (GLOBAL (CurrentActivity)))
 				{
-					cached_drive_slots[t_index] =
-							DriveSlot ? FUSION_THRUSTER : (EMPTY_SLOT + 0);
-					module_cache (APPLY_SLOTS);
-					scr_refresh = true;
+				default:
+				case IN_ENCOUNTER:
+					buf[0] = '\0';
+					break;
+				case IN_LAST_BATTLE:
+				case IN_INTERPLANETARY:
+					if (CurStarDescPtr != NULL)
+						GetClusterName (CurStarDescPtr, buf);
+					else
+						snprintf (buf, sizeof buf, "Unknown");
+					break;
+				case IN_HYPERSPACE:
+					if (GET_CGAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+					{
+						snprintf (buf, sizeof buf, "%s",
+							GAME_STRING (NAVIGATION_STRING_BASE));
+						// "HyperSpace"
+					}
+					else
+					{
+						POINT Log = MAKE_POINT (
+							LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
+							LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)));
+
+						snprintf (buf, sizeof buf, "%s",
+							GAME_STRING (NAVIGATION_STRING_BASE + 1));
+						// "QuasiSpace"
+
+						if (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y)
+						{
+							snprintf (buf, sizeof buf, "%s",
+								GAME_STRING (STAR_STRING_BASE + 148));
+							// "Falayalaralfali"
+						}
+					}
+					break;
 				}
 
-				ImGui_PopStyleColor ();
-			}
-			else
-			{
-				float checkbox_size = ImGui_GetFrameHeight ();
-				ImGui_Dummy (MAKE_IV2 (checkbox_size, checkbox_size));
+				ImGui_Text ("Location:");
+				ImGui_BeginDisabled (true);
+				ImGui_InputText ("##Location", buf, sizeof (buf), 0);
+				ImGui_EndDisabled ();
 			}
 
-			ImGui_SameLine ();
-
-			if (i < jt_begin && j_index >= 0)
+			// Captain's Name
 			{
-				bool JetSlot = cached_jet_slots[j_index] == 2;
+				char CaptainsName[SIS_NAME_SIZE];
 
-				ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_GREEN_COLOR);
+				snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
+					"%s", GLOBAL_SIS (CommanderName));
 
-				snprintf (buf, sizeof buf, "##jet%d", j_index);
-				if (ImGui_Checkbox (buf, &JetSlot))
+				ImGui_Text ("Captain's Name:");
+				ImGui_InputText ("##CaptainsName", CaptainsName,
+					sizeof (CaptainsName), 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& strlen (CaptainsName) < SIS_NAME_SIZE)
 				{
-					cached_jet_slots[j_index] =
-							JetSlot ? TURNING_JETS : (EMPTY_SLOT + 1);
-					module_cache (APPLY_SLOTS);
+					snprintf (GLOBAL_SIS (CommanderName),
+						sizeof (GLOBAL_SIS (CommanderName)),
+						"%s", CaptainsName);
+
 					scr_refresh = true;
 				}
-
-				ImGui_PopStyleColor ();
-			}
-			else
-			{
-				float checkbox_size = ImGui_GetFrameHeight ();
-				ImGui_Dummy (MAKE_IV2 (checkbox_size, checkbox_size));
 			}
 
-			ImGui_SameLine ();
-
+			// Ship Name
 			{
-				bool gun_slots = i < 2 || i > 12;
-				int ModuleSlot = cached_module_slots[i];
+				char SISName[SIS_NAME_SIZE];
 
-				if (ModuleSlot == EMPTY_SLOT + 2)
-					ModuleSlot = 0;
+				snprintf ((char *)&SISName, sizeof (SISName),
+					"%s", GLOBAL_SIS (ShipName));
+
+				ImGui_Text ("Ship Name:");
+				ImGui_InputText ("##SISName", SISName, sizeof (SISName), 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ()
+					&& strlen (SISName) < SIS_NAME_SIZE)
+				{
+					snprintf (GLOBAL_SIS (ShipName),
+						sizeof (GLOBAL_SIS (ShipName)),
+						"%s", SISName);
+
+					scr_refresh = true;
+				}
+			}
+
+			// Landers
+			{
+				if (!landers_cached)
+				{
+					cached_landers = GLOBAL_SIS (NumLanders);
+					landers_cached = true;
+				}
+
+				ImGui_Text ("Landers:");
+				ImGui_InputInt ("##Landers", &cached_landers);
+				if (ImGui_IsItemDeactivatedAfterEdit ())
+				{
+					if (cached_landers < 0)
+						cached_landers = 0;
+					else if (cached_landers > MAX_LANDERS)
+						cached_landers = MAX_LANDERS;
+
+					GLOBAL_SIS (NumLanders) = cached_landers;
+
+					scr_refresh = true;
+					landers_cached = false;
+				}
+			}
+
+			// Fuel
+			{
+				int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
+				int volume = GetFuelTankCapacity ();
+
+				ImGui_Text ("Current Fuel:");
+				if (optInfiniteFuel)
+				{
+					char buf[40];
+					snprintf (buf, sizeof buf, "%s",
+						GAME_STRING (STATUS_STRING_BASE + 2));
+					ImGui_BeginDisabled (true);
+					{
+						ImGui_InputText ("##CurrentFuel", buf, sizeof buf, 0);
+					}
+
+					ImGui_EndDisabled ();
+				}
 				else
-					ModuleSlot -= TURNING_JETS;
-
-				if (gun_slots)
+					ImGui_InputIntEx ("##CurrentFuel", &CurrentFuel, 0, 0, 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ())
 				{
-					ImGui_PushStyleColor (ImGuiCol_FrameBg, U32_FRAMEBG_GS);
-					ImGui_PushStyleColor (ImGuiCol_FrameBgHovered, U32_FRAMEBG_HOV_GS);
-					ImGui_PushStyleColor (ImGuiCol_FrameBgActive, U32_FRAMEBG_ACT_GS);
-					ImGui_PushStyleColor (ImGuiCol_Button, U32_BUTTON_GS);
-					ImGui_PushStyleColor (ImGuiCol_ButtonHovered, U32_BUTTON_HOV_GS);
-					ImGui_PushStyleColor (ImGuiCol_ButtonActive, U32_BUTTON_ACT_GS);
-				}
+					if (CurrentFuel > volume)
+						CurrentFuel = volume;
 
-				if (NUM_COLUMNS != 1)
-					ImGui_SetNextItemWidth (-1);
+					GLOBAL_SIS (FuelOnBoard) = CurrentFuel;
 
-				snprintf (buf, sizeof buf, "##module%d", i);
-				if (ImGui_ComboChar (buf, &ModuleSlot, ship_modules, 18))
-				{
-					cached_module_slots[i] = ModuleSlot > 0 ?
-							ModuleSlot + TURNING_JETS : (EMPTY_SLOT + 2);
-					module_cache (APPLY_SLOTS);
 					scr_refresh = true;
 				}
-
-				if (gun_slots)
-					ImGui_PopStyleColorEx (6);
 			}
-		}
 
-		style->ItemSpacing = og_spacing;
+			Spacer ();
 
-		Spacer ();
-
-		// Crew
-		{
-			int CurrentCrew = GLOBAL_SIS (CrewEnlisted);
-			int volume = GetCrewPodCapacity ();
-
-			ImGui_Text ("Current Crew:");
-			ImGui_InputIntEx ("##CurrentCrew", &CurrentCrew, 0, 0, 0);
-			if (ImGui_IsItemDeactivatedAfterEdit ())
+			// Ship Modules
+			if (!slots_cached)
 			{
-				if (CurrentCrew > volume)
-					CurrentCrew = volume;
-
-				GLOBAL_SIS (CrewEnlisted) = CurrentCrew;
-
-				scr_refresh = true;
+				module_cache (CACHE_SLOTS);
+				slots_cached = true;
 			}
+
+			for (i = num_m_slots - 1; i >= 0; i--)
+			{
+				char buf[40];
+				int t_index = i - 1;
+				int j_index = i - 4;
+
+				ImGui_BeginGroup ();
+
+				if (i < jt_begin && t_index >= 0)
+				{
+					bool DriveSlot = cached_drive_slots[t_index] == 1;
+
+					ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_RED_COLOR);
+
+					snprintf (buf, sizeof buf, "##thruster%d", t_index);
+					if (ImGui_Checkbox (buf, &DriveSlot))
+					{
+						cached_drive_slots[t_index] =
+							DriveSlot ? FUSION_THRUSTER : (EMPTY_SLOT + 0);
+						module_cache (APPLY_SLOTS);
+						scr_refresh = true;
+					}
+
+					ImGui_PopStyleColor ();
+				}
+				else
+				{
+					float checkbox_size = ImGui_GetFrameHeight ();
+					ImGui_Dummy (MAKE_IV2 (checkbox_size, checkbox_size));
+				}
+
+				ImGui_SameLine ();
+
+				if (i < jt_begin && j_index >= 0)
+				{
+					bool JetSlot = cached_jet_slots[j_index] == 2;
+
+					ImGui_PushStyleColor (ImGuiCol_CheckMark, U32_GREEN_COLOR);
+
+					snprintf (buf, sizeof buf, "##jet%d", j_index);
+					if (ImGui_Checkbox (buf, &JetSlot))
+					{
+						cached_jet_slots[j_index] =
+							JetSlot ? TURNING_JETS : (EMPTY_SLOT + 1);
+						module_cache (APPLY_SLOTS);
+						scr_refresh = true;
+					}
+
+					ImGui_PopStyleColor ();
+				}
+				else
+				{
+					float checkbox_size = ImGui_GetFrameHeight ();
+					ImGui_Dummy (MAKE_IV2 (checkbox_size, checkbox_size));
+				}
+
+				ImGui_EndGroup ();
+
+				ImGui_SameLine ();
+
+				ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
+					(ImGui_GetItemRectSize ().x + style->ItemSpacing.x));
+
+				{
+					bool gun_slots = i < 2 || i > 12;
+					int ModuleSlot = cached_module_slots[i];
+
+					if (ModuleSlot == EMPTY_SLOT + 2)
+						ModuleSlot = 0;
+					else
+						ModuleSlot -= TURNING_JETS;
+
+					if (gun_slots)
+					{
+						ImGui_PushStyleColor (ImGuiCol_FrameBg, U32_FRAMEBG_GS);
+						ImGui_PushStyleColor (ImGuiCol_FrameBgHovered, U32_FRAMEBG_HOV_GS);
+						ImGui_PushStyleColor (ImGuiCol_FrameBgActive, U32_FRAMEBG_ACT_GS);
+						ImGui_PushStyleColor (ImGuiCol_Button, U32_BUTTON_GS);
+						ImGui_PushStyleColor (ImGuiCol_ButtonHovered, U32_BUTTON_HOV_GS);
+						ImGui_PushStyleColor (ImGuiCol_ButtonActive, U32_BUTTON_ACT_GS);
+					}
+
+					snprintf (buf, sizeof buf, "##module%d", i);
+					if (ImGui_ComboChar (buf, &ModuleSlot, ship_modules, 18))
+					{
+						cached_module_slots[i] = ModuleSlot > 0 ?
+							ModuleSlot + TURNING_JETS : (EMPTY_SLOT + 2);
+						module_cache (APPLY_SLOTS);
+						scr_refresh = true;
+					}
+
+					if (gun_slots)
+						ImGui_PopStyleColorEx (6);
+				}
+			}
+
+			style->ItemSpacing = og_spacing;
+
+			Spacer ();
+
+			// Crew
+			{
+				int CurrentCrew = GLOBAL_SIS (CrewEnlisted);
+				int volume = GetCrewPodCapacity ();
+
+				ImGui_Text ("Current Crew:");
+				ImGui_InputIntEx ("##CurrentCrew", &CurrentCrew, 0, 0, 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ())
+				{
+					if (CurrentCrew > volume)
+						CurrentCrew = volume;
+
+					GLOBAL_SIS (CrewEnlisted) = CurrentCrew;
+
+					scr_refresh = true;
+				}
+			}
+
+			if (collapse_flagship == ImGuiTreeNodeFlags_None)
+				collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen;
 		}
-
-		if (collapse_flagship == ImGuiTreeNodeFlags_None)
-			collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen;
 	}
-
-	if (NUM_COLUMNS != 1)
-		ImGui_EndChild ();
+	ImGui_EndChild ();
 }
 
 void
 draw_devices_menu (void)
 {
-	ImGui_ColumnsEx (NUM_COLUMNS, "DeviceColumns", false);
-
-	ImGui_SeparatorText ("Devices");
-
-	ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
-			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
-	if (ImGui_BeginTable ("##EventManipulatorTable", 2,
-			ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg))
+	ImGui_BeginStyledChild ("##DevicesColumn", content_col_size,
+		CHILD_FLAGS, 0, NULL);
 	{
-		ImGui_TableSetupColumn ("Retrieved", 0);
-		ImGui_TableSetupColumn ("On-Board", 0);
-		ImGui_TableHeadersRow ();
-		ImGui_TableNextColumn ();
+		ImGui_SeparatorText ("Devices");
 
-		DBL_COL_CHECKBOX (PORTAL_SPAWNER, PORTAL_SPAWNER_ON_SHIP);
-		DBL_COL_CHECKBOX (TALKING_PET, TALKING_PET_ON_SHIP);
-		DBL_COL_CHECKBOX (UTWIG_BOMB, UTWIG_BOMB_ON_SHIP);
-		DBL_COL_CHECKBOX (SUN_DEVICE, SUN_DEVICE_ON_SHIP);
-		DBL_COL_CHECKBOX (ROSY_SPHERE, ROSY_SPHERE_ON_SHIP);
-		DBL_COL_CHECKBOX (AQUA_HELIX, AQUA_HELIX_ON_SHIP);
-		DBL_COL_CHECKBOX (CLEAR_SPINDLE, CLEAR_SPINDLE_ON_SHIP);
-		DBL_COL_CHECKBOX (SHOFIXTI_MAIDENS, MAIDENS_ON_SHIP);
-		DBL_COL_CHECKBOX (UMGAH_BROADCASTERS, UMGAH_BROADCASTERS_ON_SHIP);
-		DBL_COL_CHECKBOX (BURVIXESE_BROADCASTERS, BURV_BROADCASTERS_ON_SHIP);
-		DBL_COL_CHECKBOX (TAALO_PROTECTOR, TAALO_PROTECTOR_ON_SHIP);
-		DBL_COL_CHECKBOX (SYREEN_SHUTTLE, SYREEN_SHUTTLE_ON_SHIP);
-		DBL_COL_CHECKBOX (VUX_BEAST, VUX_BEAST_ON_SHIP);
-		DBL_COL_CHECKBOX (PORTAL_KEY, PORTAL_KEY_ON_SHIP);
+		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
+				MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
+		if (ImGui_BeginTable ("##EventManipulatorTable", 2,
+				ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg))
 		{
-			bool retrieved = GET_CGAME_STATE (MOONBASE_DESTROYED);
-			bool on_ship = GET_CGAME_STATE (MOONBASE_ON_SHIP);
-
-			if (ImGui_Checkbox ("##MOONBASE_DESTROYED", &retrieved))
-				SET_CGAME_STATE (MOONBASE_DESTROYED, retrieved);
+			ImGui_TableSetupColumn ("Retrieved", 0);
+			ImGui_TableSetupColumn ("On-Board", 0);
+			ImGui_TableHeadersRow ();
 			ImGui_TableNextColumn ();
 
-			if (ImGui_Checkbox ("MOONBASE", &on_ship))
-				SET_CGAME_STATE (MOONBASE_ON_SHIP, on_ship);
+			DBL_COL_CHECKBOX (PORTAL_SPAWNER, PORTAL_SPAWNER_ON_SHIP);
+			DBL_COL_CHECKBOX (TALKING_PET, TALKING_PET_ON_SHIP);
+			DBL_COL_CHECKBOX (UTWIG_BOMB, UTWIG_BOMB_ON_SHIP);
+			DBL_COL_CHECKBOX (SUN_DEVICE, SUN_DEVICE_ON_SHIP);
+			DBL_COL_CHECKBOX (ROSY_SPHERE, ROSY_SPHERE_ON_SHIP);
+			DBL_COL_CHECKBOX (AQUA_HELIX, AQUA_HELIX_ON_SHIP);
+			DBL_COL_CHECKBOX (CLEAR_SPINDLE, CLEAR_SPINDLE_ON_SHIP);
+			DBL_COL_CHECKBOX (SHOFIXTI_MAIDENS, MAIDENS_ON_SHIP);
+			DBL_COL_CHECKBOX (UMGAH_BROADCASTERS, UMGAH_BROADCASTERS_ON_SHIP);
+			DBL_COL_CHECKBOX (BURVIXESE_BROADCASTERS, BURV_BROADCASTERS_ON_SHIP);
+			DBL_COL_CHECKBOX (TAALO_PROTECTOR, TAALO_PROTECTOR_ON_SHIP);
+			DBL_COL_CHECKBOX (SYREEN_SHUTTLE, SYREEN_SHUTTLE_ON_SHIP);
+			DBL_COL_CHECKBOX (VUX_BEAST, VUX_BEAST_ON_SHIP);
+			DBL_COL_CHECKBOX (PORTAL_KEY, PORTAL_KEY_ON_SHIP);
+			{
+				bool retrieved = GET_CGAME_STATE (MOONBASE_DESTROYED);
+				bool on_ship = GET_CGAME_STATE (MOONBASE_ON_SHIP);
+
+				if (ImGui_Checkbox ("##MOONBASE_DESTROYED", &retrieved))
+					SET_CGAME_STATE (MOONBASE_DESTROYED, retrieved);
+				ImGui_TableNextColumn ();
+
+				if (ImGui_Checkbox ("MOONBASE", &on_ship))
+					SET_CGAME_STATE (MOONBASE_ON_SHIP, on_ship);
+			}
+			ImGui_EndTable ();
 		}
-		ImGui_EndTable ();
-	}
-	ImGui_PopStyleColor ();
+		ImGui_PopStyleColor ();
 
-	ImGui_Columns ();
+		ImGui_Columns ();
 
-	Spacer ();
+		Spacer ();
 
-	{
-		int ultron_state = GET_CGAME_STATE (ULTRON_CONDITION);
-		const char *ultron_status[] =
 		{
-			"Not On-Board", "Broken", "Fix 1",
-			"Fix 2", "Fixed", "Given Back"
-		};
-		ImGui_Text ("ULTRON_CONDITION");
-		if (ImGui_ComboChar ("##ULTRON_CONDITION", &ultron_state, ultron_status,
-			ARRAY_SIZE (ultron_status)))
-		{
-			SET_CGAME_STATE (ULTRON_CONDITION, ultron_state);
+			int ultron_state = GET_CGAME_STATE (ULTRON_CONDITION);
+			const char *ultron_status[] =
+			{
+				"Not On-Board", "Broken", "Fix 1",
+				"Fix 2", "Fixed", "Given Back"
+			};
+			ImGui_Text ("ULTRON_CONDITION");
+			if (ImGui_ComboChar ("##ULTRON_CONDITION", &ultron_state,
+					ultron_status, ARRAY_SIZE (ultron_status)))
+			{
+				SET_CGAME_STATE (ULTRON_CONDITION, ultron_state);
+			}
 		}
-	}
 
-	Spacer ();
+		Spacer ();
 
-	CGAME_STATE_CHECKBOX (EGG_CASE0_ON_SHIP, "EGG_CASE0");
-	CGAME_STATE_CHECKBOX (EGG_CASE1_ON_SHIP, "EGG_CASE1");
-	CGAME_STATE_CHECKBOX (EGG_CASE2_ON_SHIP, "EGG_CASE2");
-	CGAME_STATE_CHECKBOX (DESTRUCT_CODE_ON_SHIP, "DESTRUCT_CODE");
-	CGAME_STATE_CHECKBOX (WIMBLIS_TRIDENT_ON_SHIP, "WIMBLIS_TRIDENT");
-	CGAME_STATE_CHECKBOX (GLOWING_ROD_ON_SHIP, "GLOWING_ROD");
+		CGAME_STATE_CHECKBOX (EGG_CASE0_ON_SHIP, "EGG_CASE0");
+		CGAME_STATE_CHECKBOX (EGG_CASE1_ON_SHIP, "EGG_CASE1");
+		CGAME_STATE_CHECKBOX (EGG_CASE2_ON_SHIP, "EGG_CASE2");
+		CGAME_STATE_CHECKBOX (DESTRUCT_CODE_ON_SHIP, "DESTRUCT_CODE");
+		CGAME_STATE_CHECKBOX (WIMBLIS_TRIDENT_ON_SHIP, "WIMBLIS_TRIDENT");
+		CGAME_STATE_CHECKBOX (GLOWING_ROD_ON_SHIP, "GLOWING_ROD");
+	} ImGui_EndChild ();
 }
 
 typedef struct

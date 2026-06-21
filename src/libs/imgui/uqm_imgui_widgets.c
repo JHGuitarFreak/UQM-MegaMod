@@ -333,7 +333,7 @@ UQM_BitRegister (const char *gamestate, int size)
 	int bitmask = D_GET_CGAME_STATE (gamestate);
 	ImVec2 align = { 0.7f, 0.1f };
 
-	snprintf (buf, sizeof buf, "##AutoChild%s", gamestate);
+	snprintf (buf, sizeof buf, "##Child%s", gamestate);
 	ImGui_BeginChild (buf, ZERO_F, CARD_FLAGS, ImGuiWindowFlags_MenuBar);
 	{
 		if (ImGui_BeginMenuBar ())

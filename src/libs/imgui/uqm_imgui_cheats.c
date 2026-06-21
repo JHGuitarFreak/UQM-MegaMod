@@ -25,65 +25,71 @@ void draw_cheats_menu (void)
 			{ "None", "Infinite Energy", "Invulnerable", "Full God Mode" };
 	const char *time_modes[] = { "Normal", "Slow (x6)", "Fast (x5)" };
 
-	ImGui_ColumnsEx (NUM_COLUMNS, "CheatColumns", false); // For taming width
-
-	ImGui_SeparatorText ("Basic Cheats");
-
-	UQM_ImGui_CheckBox ("Kohr-Stahp", &optCheatMode, "cheat.kohrStahp", false);
-	UQM_ImGui_CheckBox ("Kohr-Ah DeCleansing", &optDeCleansing,
-			"cheat.deCleansing", false);
-
-	Spacer ();
-
-	ImGui_Text ("God Modes:");
-	if (ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4))
+	ImGui_BeginStyledChild ("##CheatsColumn", content_col_size,
+		CHILD_FLAGS, 0, NULL);
 	{
-		res_PutInteger ("cheat.godModes", optGodModes);
-		cheat_changed = true;
-	}
+		ImGui_SeparatorText ("Basic Cheats");
 
-	ImGui_Text ("Time Dilation:");
-	if (ImGui_ComboChar ("##TimeDilation", &timeDilationScale, time_modes, 3))
-	{
-		if (!IN_MAIN_MENU)
+		UQM_ImGui_CheckBox ("Kohr-Stahp", &optCheatMode, "cheat.kohrStahp",
+				false);
+		UQM_ImGui_CheckBox ("Kohr-Ah DeCleansing", &optDeCleansing,
+				"cheat.deCleansing", false);
+
+		Spacer ();
+
+		ImGui_Text ("God Modes:");
+		if (ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4))
 		{
-			LockGameClock ();
-			if (GLOBAL (CurrentActivity) & IN_INTERPLANETARY)
-				SetGameClockRate (INTERPLANETARY_CLOCK_RATE);
-			else if (GLOBAL (CurrentActivity) & IN_HYPERSPACE)
-				SetGameClockRate (HYPERSPACE_CLOCK_RATE);
-			UnlockGameClock ();
+			res_PutInteger ("cheat.godModes", optGodModes);
+			cheat_changed = true;
 		}
 
-		res_PutInteger ("cheat.timeDilation", timeDilationScale);
-		cheat_changed = true;
-	}
+		ImGui_Text ("Time Dilation:");
+		if (ImGui_ComboChar ("##TimeDilation", &timeDilationScale,
+				time_modes, 3))
+		{
+			if (!IN_MAIN_MENU)
+			{
+				LockGameClock ();
+				if (GLOBAL (CurrentActivity) & IN_INTERPLANETARY)
+					SetGameClockRate (INTERPLANETARY_CLOCK_RATE);
+				else if (GLOBAL (CurrentActivity) & IN_HYPERSPACE)
+					SetGameClockRate (HYPERSPACE_CLOCK_RATE);
+				UnlockGameClock ();
+			}
 
-	Spacer ();
+			res_PutInteger ("cheat.timeDilation", timeDilationScale);
+			cheat_changed = true;
+		}
 
-	UQM_ImGui_CheckBox ("Bubble Warp", &optBubbleWarp, "cheat.bubbleWarp", false);
-	UQM_ImGui_CheckBox ("Head Start", &optHeadStart, "cheat.headStart", false);
-	UQM_ImGui_CheckBox ("Unlock All Ships", &optUnlockShips, "cheat.unlockShips", false);
-	UQM_ImGui_CheckBox ("Infinite R.U.", &optInfiniteRU, "cheat.infiniteRU", false);
-	UQM_ImGui_CheckBox ("Infinite Fuel", &optInfiniteFuel, "cheat.infiniteFuel", false);
-	UQM_ImGui_CheckBox ("Infinite Credits", &optInfiniteCredits, "cheat.infiniteCredits", false);
-	UQM_ImGui_CheckBox ("No Hyperspace Encounters", &optNoHQEncounters, "cheat.noHQEncounters", false);
-	UQM_ImGui_CheckBox ("No Melee Obstacles", &optMeleeObstacles, "cheat.meleeObstacles", false);
+		Spacer ();
 
-	ImGui_NewLine ();
+		UQM_ImGui_CheckBox ("Bubble Warp", &optBubbleWarp, "cheat.bubbleWarp", false);
+		UQM_ImGui_CheckBox ("Head Start", &optHeadStart, "cheat.headStart", false);
+		UQM_ImGui_CheckBox ("Unlock All Ships", &optUnlockShips, "cheat.unlockShips", false);
+		UQM_ImGui_CheckBox ("Infinite R.U.", &optInfiniteRU, "cheat.infiniteRU", false);
+		UQM_ImGui_CheckBox ("Infinite Fuel", &optInfiniteFuel, "cheat.infiniteFuel", false);
+		UQM_ImGui_CheckBox ("Infinite Credits", &optInfiniteCredits, "cheat.infiniteCredits", false);
+		UQM_ImGui_CheckBox ("No Hyperspace Encounters", &optNoHQEncounters, "cheat.noHQEncounters", false);
+		UQM_ImGui_CheckBox ("No Melee Obstacles", &optMeleeObstacles, "cheat.meleeObstacles", false);
 
-	ImGui_SeparatorText ("Expanded Cheats");
+		ImGui_NewLine ();
 
-	ImGui_Text ("Lander Capacity:");
-	ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
-	ImGui_SameLine ();
-	ImGui_InputInt ("##LanderCapacity",
-			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
+		ImGui_SeparatorText ("Expanded Cheats");
 
-	ImGui_NewLine ();
+		ImGui_Text ("Lander Capacity:");
+		ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
+		ImGui_SameLine ();
+		ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
+				(ImGui_GetItemRectSize ().x + style->ItemSpacing.x));
+		ImGui_InputInt ("##LanderCapacity",
+				!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
 
-	if (ImGui_Button ("Ships GTFO!"))
-		ShipGTFO = true;
+		ImGui_NewLine ();
 
-	ImGui_NewLine ();
+		if (ImGui_Button ("Ships GTFO!"))
+			ShipGTFO = true;
+
+		ImGui_NewLine ();
+	} ImGui_EndChild ();
 }

@@ -110,55 +110,55 @@ draw_controls_menu (void)
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
 
-	ImGui_ColumnsEx (NUM_COLUMNS, "ControlsColumns", false);
-
-	// Control Options
+	ImGui_BeginStyledChild ("##ControlOptionsColumn", content_col_size,
+			CHILD_FLAGS, 0, NULL);
 	{
-		ImGui_SeparatorText ("Control Options");
-
-		ImGui_Checkbox ("Auto-Detect Icons", (bool *)&optAutoButtons);
-
-		Spacer ();
-
-		// Button Icons
+		// Control Options
 		{
-			ImGui_Text ("Button Icons:");
-			if (ImGui_ComboChar ("##ControlDisplay",
-				(int *)&optControllerType, control_display, 4))
+			ImGui_SeparatorText ("Control Options");
+
+			ImGui_Checkbox ("Auto-Detect Icons", (bool *)&optAutoButtons);
+
+			Spacer ();
+
+			// Button Icons
 			{
-				res_PutInteger ("mm.controllerType", optControllerType);
-				mmcfg_changed = true;
+				ImGui_Text ("Button Icons:");
+				if (ImGui_ComboChar ("##ControlDisplay",
+						(int *)&optControllerType, control_display, 4))
+				{
+					res_PutInteger ("mm.controllerType", optControllerType);
+					mmcfg_changed = true;
+				}
 			}
-		}
 
-		Spacer ();
+			Spacer ();
 
-		// Directional Joystick P1
-		{
-			ImGui_Text ("Directional Joystick P1:");
-			if (ImGui_ComboChar ("##DirJoyP1",
-				(int *)&optDirJoy[0], dirJoyDisp, 5))
+			// Directional Joystick P1
 			{
-				res_PutInteger ("mm.dirJoyP1", optDirJoy[0]);
-				mmcfg_changed = true;
+				ImGui_Text ("Directional Joystick P1:");
+				if (ImGui_ComboChar ("##DirJoyP1",
+						(int *)&optDirJoy[0], dirJoyDisp, 5))
+				{
+					res_PutInteger ("mm.dirJoyP1", optDirJoy[0]);
+					mmcfg_changed = true;
+				}
 			}
-		}
 
-		// Directional Joystick P2
-		{
-			ImGui_Text ("Directional Joystick P2:");
-			if (ImGui_ComboChar ("##DirJoyP2", 
-				(int *)&optDirJoy[1], dirJoyDisp, 5))
+			// Directional Joystick P2
 			{
-				res_PutInteger ("mm.dirJoyP2", optDirJoy[1]);
-				mmcfg_changed = true;
+				ImGui_Text ("Directional Joystick P2:");
+				if (ImGui_ComboChar ("##DirJoyP2",
+						(int *)&optDirJoy[1], dirJoyDisp, 5))
+				{
+					res_PutInteger ("mm.dirJoyP2", optDirJoy[1]);
+					mmcfg_changed = true;
+				}
 			}
+
+			ImGui_NewLine ();
 		}
-
-		ImGui_NewLine ();
-	}
-
-	ImGui_Columns ();
+	} ImGui_EndChild ();
 
 	Control_Tabs ();
 }
@@ -166,16 +166,20 @@ draw_controls_menu (void)
 static void
 Control_Tabs (void)
 {
-	ImGui_SeparatorText ("Edit Controls");
-
-	if (ImGui_BeginTabBar ("ControlTabs", 0))
+	ImGui_BeginStyledChild ("##EditControlsColumn", ZERO_F,
+		CHILD_FLAGS, 0, NULL);
 	{
-		FlightControlsTab ();
-		MenuControlsTab ();
-		DeadzoneControlsTab ();
+		ImGui_SeparatorText ("Edit Controls");
 
-		ImGui_EndTabBar ();
-	}
+		if (ImGui_BeginTabBar ("ControlTabs", 0))
+		{
+			FlightControlsTab ();
+			MenuControlsTab ();
+			DeadzoneControlsTab ();
+
+			ImGui_EndTabBar ();
+		}
+	} ImGui_EndChild ();
 }
 
 static void
