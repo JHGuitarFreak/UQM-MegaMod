@@ -80,7 +80,7 @@ draw_settings_menu (void)
 			for (i = 0; i < num_fonts; i++)
 				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
-			ImGui_Text ("FontSelector");
+			ImGui_Text ("Font Selector");
 			if (ImGui_ComboChar ("##FontSelector", &font_selection, font_names,
 				num_fonts))
 			{

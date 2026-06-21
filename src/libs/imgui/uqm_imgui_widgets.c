@@ -31,18 +31,6 @@ Spacer (void)
 	ImGui_Dummy (MAKE_IV2 (0.0f, SCALE_IT (4.0f)));
 }
 
-void
-Spacer_Column (int num_col)
-{
-	int i;
-
-	for (i = 0; i < num_col; i++)
-	{
-		Spacer ();
-		ImGui_NextColumn ();
-	}
-}
-
 ImVec2
 Float2Mult (ImVec2 iv2, float mul)
 {
@@ -64,10 +52,10 @@ ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...)
 }
 
 void
-ImGui_HorizontalSeparator (const char *str_id)
+ImGui_HoriVertSeparator (const char *str_id, bool v)
 {
 	ImGui_PushStyleColor (ImGuiCol_ChildBg, STYLE_COLOR (ImGuiCol_FrameBg));
-	ImGui_BeginChild (str_id, MAKE_IV2 (0, 1), 0, 0);
+	ImGui_BeginChild (str_id, MAKE_IV2 (v ? 1 : 0, v ? 0 : 1), 0, 0);
 	ImGui_EndChild ();
 	ImGui_PopStyleColor ();
 }
@@ -496,7 +484,6 @@ UQM_ImGui_Style (void)
 	ImGui_StyleColorsDark (NULL);
 
 	colors[ImGuiCol_WindowBg] = transparent;
-	colors[ImGuiCol_TableHeaderBg] = transparent;
 	colors[ImGuiCol_ModalWindowDimBg] = MAKE_IV4 (0, 0, 0, 0.64f);
 	colors[ImGuiCol_ChildBg] = MAKE_IV4 (0.06f, 0.06f, 0.06f, 0.80f);
 	colors[ImGuiCol_Border] = transparent;

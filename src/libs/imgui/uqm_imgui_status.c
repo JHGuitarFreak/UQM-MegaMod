@@ -730,8 +730,6 @@ draw_devices_menu (void)
 	{
 		ImGui_SeparatorText ("Devices");
 
-		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
-				MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
 		if (ImGui_BeginTable ("##EventManipulatorTable", 2,
 				ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg))
 		{
@@ -767,7 +765,6 @@ draw_devices_menu (void)
 			}
 			ImGui_EndTable ();
 		}
-		ImGui_PopStyleColor ();
 
 		ImGui_Columns ();
 
@@ -927,6 +924,7 @@ draw_events_menu (void)
 		Spacer ();
 
 
+		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg, MAKE_IV4 (0,0,0,0));
 		if (ImGui_BeginTable ("##EventManipulatorTable", 5, 0))
 		{
 			ImGui_TableSetupColumn ("", ImGuiTableColumnFlags_NoHeaderLabel);
@@ -977,6 +975,7 @@ draw_events_menu (void)
 
 			ImGui_EndTable ();
 		}
+		ImGui_PopStyleColor ();
 
 	} ImGui_EndChild (); // ##EventManipulation
 

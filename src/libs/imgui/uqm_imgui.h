@@ -189,7 +189,6 @@ extern ImGuiStyle *style;
 
 void GetColumnSize (ImVec2 *var, int num_columns);
 void Spacer (void);
-void Spacer_Column (int num_col);
 
 #define IMGUI_SPACER ImGui_Dummy (MAKE_IV2 (0, SCALE_IT (4.0f))
 #define CENTER_IT MAKE_IV2 (0.5f, 0.5f)
@@ -202,7 +201,7 @@ void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 bool ImGui_SizedComboChar (const char *label, int *curr_item,
 		const char *const items[], int items_count);
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
-void ImGui_HorizontalSeparator (const char *str_id);
+void ImGui_HoriVertSeparator (const char *str_id, bool v);
 void ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
 		ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags,
 		ImVec4 *col);

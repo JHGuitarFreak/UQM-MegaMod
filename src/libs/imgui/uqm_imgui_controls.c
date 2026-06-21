@@ -244,8 +244,6 @@ FlightControls (void)
 
 	ImGui_NewLine ();
 
-	ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
-			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
 	ImGui_PushStyleColor (ImGuiCol_ChildBg, 0x00000000);
 	if (ImGui_BeginTable ("##FlightControlsTable", 5, ImGuiTableFlags_ScrollX |
 			ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
@@ -306,7 +304,7 @@ FlightControls (void)
 		}
 		ImGui_EndTable ();
 	}
-	ImGui_PopStyleColorEx (2);
+	ImGui_PopStyleColor ();
 }
 
 static void
@@ -454,7 +452,7 @@ ShowFlightRebindPopup (void)
 
 	Spacer ();
 
-	ImGui_HorizontalSeparator ("##FlightRebindTop");
+	ImGui_HoriVertSeparator ("##FlightRebindTop", false);
 
 	Spacer ();
 
@@ -480,7 +478,7 @@ ShowFlightRebindPopup (void)
 
 	Spacer ();
 
-	ImGui_HorizontalSeparator ("##FlightRebindBottom");
+	ImGui_HoriVertSeparator ("##FlightRebindBottom", false);
 
 	Spacer ();
 
@@ -621,8 +619,6 @@ MenuControls (void)
 
 	GetKeyNameButtonWidth (&button_width);
 
-	ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
-			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
 	ImGui_PushStyleColor (ImGuiCol_ChildBg, 0x00000000);
 	if (ImGui_BeginTable ("##MenuControlsTable", 7, ImGuiTableFlags_ScrollX |
 			ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
@@ -686,7 +682,7 @@ MenuControls (void)
 		}
 		ImGui_EndTable ();
 	}
-	ImGui_PopStyleColorEx (2);
+	ImGui_PopStyleColor ();
 }
 
 static void
@@ -719,7 +715,7 @@ ShowMenuRebindPopup (void)
 
 	Spacer ();
 
-	ImGui_HorizontalSeparator ("##MenuRebindTop");
+	ImGui_HoriVertSeparator ("##MenuRebindTop", false);
 
 	Spacer ();
 
@@ -751,7 +747,7 @@ ShowMenuRebindPopup (void)
 
 	Spacer ();
 
-	ImGui_HorizontalSeparator ("##MenuRebindBottom");
+	ImGui_HoriVertSeparator ("##MenuRebindBottom", false);
 
 	Spacer ();
 
