@@ -81,7 +81,8 @@ extern void MaskLanderGraphics (void);
 extern void object_animation (ELEMENT *ElementPtr);
 
 extern void SetLanderTakeoff (void);
-extern bool KillLanderCrewSeq (COUNT numKilled, DWORD period);
+extern bool KillLanderCrewSeq (COUNT numKilled);
+extern void SetReportFunc (bool *func);
 
 extern unsigned GetThermalHazardRating (int temp);
 

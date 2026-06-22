@@ -9,7 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - 
 
 ### Changed
-- 
+- Optimized lander interactions with harards while God Mode enabled
+- Removed a lag spike when Fwiffo opens fire on lander
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
