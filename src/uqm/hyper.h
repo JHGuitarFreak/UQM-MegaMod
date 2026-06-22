@@ -53,6 +53,8 @@ extern BOOLEAN hyper_transition (ELEMENT *ElementPtr);
 extern void HyperspaceMenu (void);
 extern void SaveSisHyperState (void);
 
+#define CAN_TURN (1 << 0)
+
 #if defined(__cplusplus)
 }
 #endif
