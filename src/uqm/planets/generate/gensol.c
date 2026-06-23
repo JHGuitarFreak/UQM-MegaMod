@@ -744,7 +744,6 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 1);
 
 		SetReportFunc (GenerateDefault_landerReport);
-//		GenerateDefault_landerReport (solarSys);
 		SetLanderTakeoff ();
 
 		// Do not remove the node from the surface while the lander is
