@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 
 ### Changed
+- Optimized lander interactions with hazards while God Mode enabled
+- Removed a lag spike when Fwiffo opens fire on lander
 - UQM now scales to the window instead of the window scaling to UQM
 
 ### Fixed

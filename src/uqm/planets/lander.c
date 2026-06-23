@@ -180,6 +180,8 @@ extern PRIM_LINKS DisplayLinks;
 static BYTE lander_flags;
 static POINT curLanderLoc;
 static int crew_left;
+static int planned_frags;
+		// amount of crew to kill
 static int shieldHit;
 		// which shield was hit, assuming it helped
 static int damage_index;
@@ -194,6 +196,8 @@ static int weapon_wait;
 
 // TODO: We may want to make the PLANETSIDE_DESC fields into static vars
 PLANETSIDE_DESC *planetSideDesc;
+
+bool (*LanderReportFunc)(SOLARSYS_STATE* solarSys);
 
 EXTENT MapSurface;
 
@@ -530,62 +534,81 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 {
 	STAMP s;
 	CONTEXT OldContext;
+	COUNT old_crew = crew_left;
+	COUNT new_crew = crew_left;
+	COUNT i;
 
 	if (crew_delta > 0)
 	{
 		// Filling up the crew bar when landing.
-		crew_delta = crew_left;
 		crew_left += 1;
+		new_crew = crew_left;
 
 		s.frame = SetAbsFrameIndex (LanderFrame[0], 55);
 	}
 	else /* if (crew_delta < 0) */
 	{
+		shieldHit = 0;
+
+		if (optGodModes >= OPTVAL_INF_HEALTH)
+			return; // We're immortal
+
 		if (crew_left < 1)
 			return; // irrelevant -- all dead
-		
-		shieldHit = GET_GAME_STATE (LANDER_SHIELDS);
-		shieldHit &= 1 << which_disaster;
-		if (!shieldHit || TFB_Random () % 100 >= 95)
-		{	// No shield, or it did not help
-			if (optGodModes < OPTVAL_INF_HEALTH)
-			{
-				shieldHit = 0;
-				--crew_left;
-			} else 
-				shieldHit = 1;
-		}
 
 		damage_index = DAMAGE_CYCLE;
-		if (shieldHit)
+		
+		if (!(GET_GAME_STATE (LANDER_SHIELDS) &
+				(1 << which_disaster)) || TFB_Random () % 100 >= 95)
+		{	// No shield, or it did not help
+			crew_left += crew_delta;
+			old_crew--;
+			new_crew = crew_left - 1;
+		}
+		else
+		{	// Shield absorbed damage
+			shieldHit = which_disaster + 1;
 			return;
+		}
 
-		crew_delta = crew_left;
+		if (which_disaster == LANDER_INJURED)
+			damage_index = (TFB_Random () % 5) + 2;
+
+		crew_delta = crew_delta / abs (crew_delta);
 		s.frame = SetAbsFrameIndex (LanderFrame[0], 56);
 
 		PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_INJURED),
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 	}
 
-	if(is3DO (optSuperPC))
+	if (is3DO (optSuperPC))
 	{
-		s.origin.x = RES_SCALE (11) + (RES_SCALE (6)
-				* (crew_delta % NUM_CREW_COLS));
-		s.origin.y = RES_SCALE (35) - (RES_SCALE (6)
-				* (crew_delta / NUM_CREW_COLS));
 		OldContext = SetContext (RadarContext);
+		for (i = old_crew; i != new_crew; i += crew_delta)
+		{
+			s.origin.x = RES_SCALE (11) + (RES_SCALE (6)
+					* (i % NUM_CREW_COLS));
+			s.origin.y = RES_SCALE (35) - (RES_SCALE (6)
+					* (i / NUM_CREW_COLS));
+
+			DrawStamp (&s);
+		}
+		SetContext (OldContext);
 	}
 	else
 	{
-		s.origin.x = RES_SCALE (6) + (RES_SCALE (6)
-				* (crew_delta % NUM_CREW_COLS));
-		s.origin.y = RES_SCALE (39) - (RES_SCALE (6)
-				* (crew_delta / NUM_CREW_COLS));
 		OldContext = SetContext (PCLanderContext);
-	}
+		for (i = old_crew; i != new_crew; i += crew_delta)
+		{
+			s.origin.x = RES_SCALE (6) + (RES_SCALE (6)
+					* (i % NUM_CREW_COLS));
+			s.origin.y = RES_SCALE (39) - (RES_SCALE (6)
+					* (i / NUM_CREW_COLS));
 
-	DrawStamp (&s);
-	SetContext (OldContext);
+			DrawStamp (&s);
+		}
+		SetContext (OldContext);
+	}
 }
 
 static void
@@ -2113,6 +2136,7 @@ DoPlanetSide (LanderInputState *pMS)
 		
 		turn_wait = 0;
 		weapon_wait = 0;
+		planned_frags = 0;
 
 		angle = FACING_TO_ANGLE (GetFrameIndex (LanderFrame[0]));
 		landerSpeedNumer = GET_GAME_STATE (IMPROVED_LANDER_SPEED) ?
@@ -2129,6 +2153,33 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 		return TRUE;
 	}
+	else if (planned_frags)
+	{
+		if (planned_frags & 1)
+			DeltaLanderCrew (-1, LANDER_INJURED);
+			
+		planned_frags--;
+
+		if (planned_frags == 2)
+			damage_index = 1;
+
+		if (!planned_frags)
+		{
+			LanderReportFunc (pSolarSysState);
+			UnbatchGraphics ();
+			damage_index = 0;
+		}
+		else
+		{
+			ScrollPlanetSide (dx, dy, ON_THE_GROUND);
+		}
+
+		SleepThreadUntil (pMS->NextTime);
+		// NOTE: The rate is not stabilized
+		pMS->NextTime = GetTimeCounter () + PLANET_SIDE_RATE;		
+
+		return TRUE;
+	}
 	else if (crew_left /* alive and taking off */
 			&& ((CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
 			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL])
@@ -2140,7 +2191,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 #ifdef DEBUG
 	if (PulsedInputState.menu[KEY_DEBUG_2])
 	{
-		KillLanderCrewSeq (crew_left, ONE_SECOND / 20);
+		DeltaLanderCrew (-crew_left, LANDER_INJURED);
 	}
 #endif
 
@@ -2517,20 +2568,24 @@ SetLanderTakeoff (void)
 
 // Returns whether the lander is still alive at the end of the sequence
 bool
-KillLanderCrewSeq (COUNT numKilled, DWORD period)
+KillLanderCrewSeq (COUNT numKilled)
 {
-	TimeCount TimeOut;
-	COUNT i;
+	// We cannot kill everyone - atleast 1 will survive
+	planned_frags = (crew_left > numKilled ? numKilled : crew_left - 1) * 2;
 
-	TimeOut = GetTimeCounter ();
-	for (i = 0; i < numKilled && crew_left; ++i)
-	{
-		TimeOut += period;
-		DeltaLanderCrew (-1, LANDER_INJURED);
-		SleepThreadUntil (TimeOut);
-	}
+	// Killing every other frame so double the value
+
+	// We cannot kill anyone at all if god mode enabled
+	if (optGodModes >= OPTVAL_INF_HEALTH)
+		planned_frags = 0;
 	
-	return crew_left > 0;
+	return 1;
+}
+
+void
+SetReportFunc (bool (*func)(SOLARSYS_STATE *))
+{
+	LanderReportFunc = func;
 }
 
 // Maps a temperature to a (0-7) hazard rating.

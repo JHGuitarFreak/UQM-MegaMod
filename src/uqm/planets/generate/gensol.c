@@ -738,12 +738,12 @@ GenerateSol_pickupEnergy (SOLARSYS_STATE *solarSys, PLANET_DESC *world,
 
 		// Ran into Fwiffo on Pluto
 		#define FWIFFO_FRAGS  8
-		if (!KillLanderCrewSeq (FWIFFO_FRAGS, ONE_SECOND / 20))
+		if (!KillLanderCrewSeq (FWIFFO_FRAGS))
 			return false; // lander probably died
 
 		SET_GAME_STATE (FOUND_PLUTO_SPATHI, 1);
 
-		GenerateDefault_landerReport (solarSys);
+		SetReportFunc (GenerateDefault_landerReport);
 		SetLanderTakeoff ();
 
 		// Do not remove the node from the surface while the lander is
