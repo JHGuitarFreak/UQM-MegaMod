@@ -38,6 +38,7 @@ typedef struct
 	FLEET_STUFF Fleet;
 			// FLEET_STUFF is only necessary here because avail_race_q
 			// is initialized in part from master_q (kinda hacky)
+	DATA_STUFF ShipData;
 } MASTER_SHIP_INFO;
 
 extern QUEUE master_q;
@@ -62,6 +63,7 @@ extern int FindMasterShipIndex (SPECIES_ID ship_ref);
 COUNT GetShipCostFromIndex (unsigned Index);
 FRAME GetShipIconsFromIndex (unsigned Index);
 FRAME GetShipMeleeIconsFromIndex (unsigned Index);
+DATA_STUFF *GetDataFromIndex (unsigned Index);
 
 #if defined(__cplusplus)
 }

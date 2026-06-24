@@ -45,6 +45,7 @@
 #include "libs/mathlib.h"
 #include "libs/log.h"
 #include "util.h"
+#include "master.h"
 
 #define XOFFS ((RADAR_SCAN_WIDTH + (UNIT_SCREEN_WIDTH << 2)) >> 1)
 #define YOFFS ((RADAR_SCAN_HEIGHT + (UNIT_SCREEN_HEIGHT << 2)) >> 1)
@@ -1314,11 +1315,15 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 		if (EXTENDED && CheckSphereTracking (EncounterPtr->race_id))
 		{
 			COUNT j;
-			DATA_STUFF *ship_data =
-					&load_ship (EncounterPtr->race_id + 1, TRUE)->ship_data;
+			static bool edited[LAST_MELEE_ID] = { false };
+			static bool orz_turreted = false;
+			int master_idx = FindMasterShipIndex (EncounterPtr->race_id + 1);
+			DATA_STUFF *ship_data = GetDataFromIndex (master_idx);
 			COUNT numFrames = GetFrameCount (ship_data->ship[0]);
 
-			if (EncounterPtr->race_id == ORZ_SHIP)
+			printf ("%d\n", master_idx);
+
+			if (master_idx == FindMasterShipIndex (ORZ_ID) && !orz_turreted)
 			{
 				for (j = 0; j < numFrames; j++)
 				{
@@ -1327,9 +1332,11 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 							SetAbsFrameIndex (ship_data->special[0], j),
 							(COORD)~0, (COORD)~0);
 				}
+
+				orz_turreted = true;
 			}
 		
-			if (IS_HD)
+			if (IS_HD && !edited[master_idx])
 			{
 				DrawMode mode1 = MAKE_DRAW_MODE (DRAW_HYPER, 0xFF);
 				Color c = GetColorMapColor (0x35, 0xFB);
@@ -1339,6 +1346,8 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 					ApplyMask (NULL, SetAbsFrameIndex (
 							ship_data->ship[0], j), mode1, &c);
 				}
+
+				edited[master_idx] = true;
 			}
 
 			ElementPtr->current.image.farray = &ship_data->ship[0];

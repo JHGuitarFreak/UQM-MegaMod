@@ -54,7 +54,7 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 
 		BuiltPtr = LockMasterShip (&master_q, hBuiltShip);
 		BuiltPtr->SpeciesID = s_id++;
-		RDPtr = load_ship (BuiltPtr->SpeciesID, FALSE);
+		RDPtr = load_ship (BuiltPtr->SpeciesID, TRUE);
 		if (!RDPtr)
 		{
 			UnlockMasterShip (&master_q, hBuiltShip);
@@ -65,6 +65,7 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 		// XXX: SHIP_INFO implicitly referenced here
 		BuiltPtr->ShipInfo = RDPtr->ship_info;
 		BuiltPtr->Fleet = RDPtr->fleet;
+		BuiltPtr->ShipData = RDPtr->ship_data;
 		free_ship (RDPtr, FALSE, FALSE);
 
 		builtName = GetStringAddress (SetAbsStringTableIndex (
@@ -225,6 +226,24 @@ GetShipMeleeIconsFromIndex (unsigned Index)
 
 	MasterPtr = LockMasterShip (&master_q, hMasterShip);
 	val = MasterPtr->ShipInfo.melee_icon;
+	UnlockMasterShip (&master_q, hMasterShip);
+
+	return val;
+}
+
+DATA_STUFF *
+GetDataFromIndex (unsigned Index)
+{
+	HMASTERSHIP hMasterShip;
+	MASTER_SHIP_INFO *MasterPtr;
+	DATA_STUFF *val;
+
+	hMasterShip = GetStarShipFromIndex (&master_q, Index);
+	if (!hMasterShip)
+		return 0;
+
+	MasterPtr = LockMasterShip (&master_q, hMasterShip);
+	val = &MasterPtr->ShipData;
 	UnlockMasterShip (&master_q, hMasterShip);
 
 	return val;
