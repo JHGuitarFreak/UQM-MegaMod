@@ -33,7 +33,6 @@ typedef struct
 	HMASTERSHIP succ;
 
 	SPECIES_ID SpeciesID;
-
 	SHIP_INFO ShipInfo;
 	FLEET_STUFF Fleet;
 			// FLEET_STUFF is only necessary here because avail_race_q
@@ -44,6 +43,9 @@ typedef struct
 extern QUEUE master_q;
 		/* List of ships available in SuperMelee;
 		 * queue element is MASTER_SHIP_INFO */
+
+extern bool hyper_ship[LAST_MELEE_ID];
+extern bool orz_turreted;
 
 static inline MASTER_SHIP_INFO *
 LockMasterShip (const QUEUE *pq, HMASTERSHIP h)

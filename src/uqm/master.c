@@ -27,6 +27,8 @@
 
 QUEUE master_q;
 static int master_ship_seed = 0;
+bool hyper_ship[LAST_MELEE_ID] = { false };
+bool orz_turreted = false;
 
 void
 LoadMasterShipList (void (* YieldProcessing)(void))
@@ -98,8 +100,10 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 void
 FreeMasterShipList (void)
 {
+	COUNT i = 0;
 	HMASTERSHIP hStarShip, hNextShip;
 
+	orz_turreted = false;
 	for (hStarShip = GetHeadLink (&master_q);
 			hStarShip != 0; hStarShip = hNextShip)
 	{
@@ -114,6 +118,8 @@ FreeMasterShipList (void)
 				MasterPtr->ShipInfo.race_strings));
 
 		UnlockMasterShip (&master_q, hStarShip);
+		hyper_ship[i] = false;
+		i++;
 	}
 
 	UninitQueue (&master_q);

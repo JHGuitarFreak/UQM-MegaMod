@@ -54,6 +54,7 @@ extern void HyperspaceMenu (void);
 extern void SaveSisHyperState (void);
 
 #define CAN_TURN (1 << 0)
+#define SPIN_IT (1 << 1)
 
 #if defined(__cplusplus)
 }

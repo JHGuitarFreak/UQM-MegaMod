@@ -1315,15 +1315,13 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 		if (EXTENDED && CheckSphereTracking (EncounterPtr->race_id))
 		{
 			COUNT j;
-			static bool edited[LAST_MELEE_ID] = { false };
-			static bool orz_turreted = false;
-			int master_idx = FindMasterShipIndex (EncounterPtr->race_id + 1);
+			SPECIES_ID SpeciesID = EncounterPtr->race_id + 1;
+			SPECIES_ID ship_class = SeedShip (SpeciesID, false);
+			COUNT master_idx = FindMasterShipIndex (SpeciesID);
 			DATA_STUFF *ship_data = GetDataFromIndex (master_idx);
 			COUNT numFrames = GetFrameCount (ship_data->ship[0]);
 
-			printf ("%d\n", master_idx);
-
-			if (master_idx == FindMasterShipIndex (ORZ_ID) && !orz_turreted)
+			if (ship_class == ORZ_ID && !orz_turreted)
 			{
 				for (j = 0; j < numFrames; j++)
 				{
@@ -1336,7 +1334,7 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 				orz_turreted = true;
 			}
 		
-			if (IS_HD && !edited[master_idx])
+			if (IS_HD && !hyper_ship[ship_class])
 			{
 				DrawMode mode1 = MAKE_DRAW_MODE (DRAW_HYPER, 0xFF);
 				Color c = GetColorMapColor (0x35, 0xFB);
@@ -1347,7 +1345,7 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 							ship_data->ship[0], j), mode1, &c);
 				}
 
-				edited[master_idx] = true;
+				hyper_ship[ship_class] = true;
 			}
 
 			ElementPtr->current.image.farray = &ship_data->ship[0];
@@ -1355,7 +1353,12 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 					ship_data->ship[0], 0);
 
 			if (optShipDirectionIP)
-				ElementPtr->state_flags |= CAN_TURN;
+			{
+				if (ship_class == SLYLANDRO_ID)
+					ElementPtr->state_flags |= SPIN_IT;
+				else
+					ElementPtr->state_flags |= CAN_TURN;
+			}
 		}
 		else if (i || NewEncounter)
 		{
@@ -1552,6 +1555,11 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 		EncounterPtr->loc_pt.x = LOGX_TO_UNIVERSE (EncounterPtr->log_x);
 		EncounterPtr->loc_pt.y = LOGY_TO_UNIVERSE (EncounterPtr->log_y);
 
+
+		if (ElementPtr->state_flags & SPIN_IT)
+		{
+			ElementPtr->next.image.frame = IncFrameIndex (ElementPtr->next.image.frame);
+		}
 		if ((ElementPtr->state_flags & CAN_TURN) && !ElementPtr->hTarget)
 		{
 			SIZE vdx, vdy, facing;
@@ -1559,8 +1567,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 
 			facing = ANGLE_TO_FACING (ARCTAN (vdx, -vdy));
 			ElementPtr->next.image.frame = SetAbsFrameIndex (
-					ElementPtr->next.image.farray[0],
-					NORMALIZE_FACING (facing));
+				ElementPtr->next.image.farray[0],
+				NORMALIZE_FACING (facing));
 		}
 
 		encounter_radius = EncounterPtr->radius + (GRID_OFFSET >> 1);
@@ -1622,8 +1630,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 					STAMP_PRIM);
 			if (ElementPtr->death_func == 0)
 			{
-				InitIntersectStartPoint (ElementPtr);
-				ElementPtr->state_flags &= ~NONSOLID;
+				//InitIntersectStartPoint (ElementPtr);
+				//ElementPtr->state_flags &= ~NONSOLID;
 			}
 		}
 	}
