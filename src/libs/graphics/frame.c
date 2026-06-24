@@ -343,3 +343,22 @@ ApplyMask (FRAME layer, FRAME base, DrawMode mode, Color *fill)
 	}
 }
 
+void
+CompositeFrames (FRAME base, FRAME overlay, COORD x, COORD y)
+{
+	COORD hs_x, hs_y;
+
+	if (x == (COORD)~0 && y == (COORD)~0)
+	{
+		hs_x = base->HotSpot.x - overlay->HotSpot.x;
+		hs_y = base->HotSpot.y - overlay->HotSpot.y;
+	}
+	else
+	{
+		hs_x = x;
+		hs_y = y;
+	}
+
+	TFB_DrawCanvas_Image (overlay->image, hs_x, hs_y, 0, 0, NULL,
+			DRAW_REPLACE_MODE, base->image->NormalImg);
+}

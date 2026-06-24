@@ -570,6 +570,7 @@ typedef enum
 	DRAW_LINEARBURN,
 	DRAW_HYPTOQUAS,
 	DRAW_DESATURATE, // Desaturate image. Not optimized for high fps
+	DRAW_HYPER,
 
 	DRAW_DEFAULT = DRAW_REPLACE,
 } DrawKind;
@@ -637,6 +638,7 @@ extern void DrawRectangle (RECT *pRect, BOOLEAN scaled);
 extern void DrawFilledRectangle (RECT *pRect);
 extern void DrawLine (LINE *pLine, BYTE thickness);
 extern void ApplyMask (FRAME layer, FRAME base, DrawMode mode, Color *fill);
+extern void CompositeFrames (FRAME base, FRAME overlay, COORD x, COORD y);
 extern void InstaPoint (int x, int y);
 extern void InstaRect (int x, int y, int w, int h, BOOLEAN scaled);
 extern void InstaFilledRect (int x, int y, int w, int h);

@@ -1313,10 +1313,37 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 
 		if (EXTENDED && CheckSphereTracking (EncounterPtr->race_id))
 		{
-			ship_info = load_ship (EncounterPtr->race_id+1, TRUE);
+			COUNT j;
+			DATA_STUFF *ship_data =
+					&load_ship (EncounterPtr->race_id + 1, TRUE)->ship_data;
+			COUNT numFrames = GetFrameCount (ship_data->ship[0]);
 
-			ElementPtr->current.image.farray = &ship_info->ship_data.ship[0];
-			ElementPtr->current.image.frame = SetAbsFrameIndex (ship_info->ship_data.ship[0], 0);
+			if (EncounterPtr->race_id == ORZ_SHIP)
+			{
+				for (j = 0; j < numFrames; j++)
+				{
+					CompositeFrames (
+							SetAbsFrameIndex (ship_data->ship[0], j),
+							SetAbsFrameIndex (ship_data->special[0], j),
+							(COORD)~0, (COORD)~0);
+				}
+			}
+		
+			if (IS_HD)
+			{
+				DrawMode mode1 = MAKE_DRAW_MODE (DRAW_HYPER, 0xFF);
+				Color c = GetColorMapColor (0x35, 0xFB);
+
+				for (j = 0; j < numFrames; j++)
+				{
+					ApplyMask (NULL, SetAbsFrameIndex (
+							ship_data->ship[0], j), mode1, &c);
+				}
+			}
+
+			ElementPtr->current.image.farray = &ship_data->ship[0];
+			ElementPtr->current.image.frame = SetAbsFrameIndex (
+					ship_data->ship[0], 0);
 
 			if (optShipDirectionIP)
 				ElementPtr->state_flags |= CAN_TURN;
@@ -1523,7 +1550,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 
 			facing = ANGLE_TO_FACING (ARCTAN (vdx, -vdy));
 			ElementPtr->next.image.frame = SetAbsFrameIndex (
-					ElementPtr->next.image.farray[0], NORMALIZE_FACING (facing));
+					ElementPtr->next.image.farray[0],
+					NORMALIZE_FACING (facing));
 		}
 
 		encounter_radius = EncounterPtr->radius + (GRID_OFFSET >> 1);

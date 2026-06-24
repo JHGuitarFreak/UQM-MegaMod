@@ -472,6 +472,35 @@ renderpixel_hypertoquasi (SDL_Surface* surface, int x, int y, Uint32 pixel,
 	*p = PACK_PIXEL_RGB (fmt, r, g, b);
 }
 
+static void
+renderpixel_hyper (SDL_Surface *surface, int x, int y, Uint32 pixel,
+	int factor)
+{
+	const SDL_PixelFormat *fmt = surface->format;
+	Uint32 *p;
+	Uint32 sp;
+	Uint8 sr, sg, sb;
+	Uint8 dr, dg, db;
+	int r, g, b;
+	int luma;
+
+	p = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch + x * 4);
+	sp = *p;
+	UNPACK_PIXEL_RGB (sp, fmt, sr, sg, sb);
+	UNPACK_PIXEL_RGB (pixel, fmt, r, g, b);
+
+	luma = ((3 * sr + 6 * sg + sb) * 205) >> 11;
+	dr = clip_channel (sr + ((factor * (luma - sr)) >> 8));
+	dg = clip_channel (sg + ((factor * (luma - sg)) >> 8));
+	db = clip_channel (sb + ((factor * (luma - sb)) >> 8));
+
+	r = alpha_blend (dr, overlay_blend (dr, r), factor);
+	g = alpha_blend (dg, overlay_blend (dg, g), factor);
+	b = alpha_blend (db, overlay_blend (db, b), factor);
+
+	*p = PACK_PIXEL_RGB (fmt, r, g, b);
+}
+
 RenderPixelFn
 renderpixel_for (SDL_Surface *surface, RenderKind kind, BOOLEAN forMask)
 {
@@ -508,6 +537,8 @@ renderpixel_for (SDL_Surface *surface, RenderKind kind, BOOLEAN forMask)
 		return &renderpixel_hypertoquasi;
 	case renderDesatur:
 		return &renderpixel_desaturate;
+	case renderHyper:
+		return &renderpixel_hyper;
 	}
 	// should not ever get here
 	return NULL;
