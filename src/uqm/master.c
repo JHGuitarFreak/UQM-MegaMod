@@ -27,7 +27,7 @@
 
 QUEUE master_q;
 static int master_ship_seed = 0;
-bool hyper_ship[LAST_MELEE_ID] = { false };
+bool hyper_ship[NUM_SPECIES_ID] = { false };
 bool orz_turreted = false;
 
 void

@@ -44,7 +44,7 @@ extern QUEUE master_q;
 		/* List of ships available in SuperMelee;
 		 * queue element is MASTER_SHIP_INFO */
 
-extern bool hyper_ship[LAST_MELEE_ID];
+extern bool hyper_ship[NUM_SPECIES_ID];
 extern bool orz_turreted;
 
 static inline MASTER_SHIP_INFO *

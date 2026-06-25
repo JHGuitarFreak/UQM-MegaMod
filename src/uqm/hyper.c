@@ -1314,20 +1314,25 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 
 		if (EXTENDED && CheckSphereTracking (EncounterPtr->race_id))
 		{
-			COUNT j;
-			SPECIES_ID SpeciesID = EncounterPtr->race_id + 1;
-			SPECIES_ID ship_class = SeedShip (SpeciesID, false);
-			COUNT master_idx = FindMasterShipIndex (SpeciesID);
-			DATA_STUFF *ship_data = GetDataFromIndex (master_idx);
-			COUNT numFrames = GetFrameCount (ship_data->ship[0]);
+			COUNT j, num_frames;
+			DATA_STUFF *ship_data;
+			SPECIES_ID species_id = EncounterPtr->race_id + 1;
+			SPECIES_ID ship_class = SeedShip (species_id, false);
+			FRAME *ship_big;
+
+			ship_data = GetDataFromIndex (FindMasterShipIndex (species_id));
+			ship_big = &ship_data->ship[0];
+			num_frames = GetFrameCount (ship_data->ship[0]);
+
+			if (ship_class == MMRNMHRM_ID)
+				ship_big = &ship_data->special[0];
 
 			if (ship_class == ORZ_ID && !orz_turreted)
 			{
-				for (j = 0; j < numFrames; j++)
+				for (j = 0; j < num_frames; j++)
 				{
-					CompositeFrames (
-							SetAbsFrameIndex (ship_data->ship[0], j),
-							SetAbsFrameIndex (ship_data->special[0], j),
+					CompositeFrames (SetAbsFrameIndex (*ship_big, j),
+							SetAbsFrameIndex (ship_data->special[0], j ^ 8),
 							(COORD)~0, (COORD)~0);
 				}
 
@@ -1336,21 +1341,19 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 		
 			if (IS_HD && !hyper_ship[ship_class])
 			{
-				DrawMode mode1 = MAKE_DRAW_MODE (DRAW_HYPER, 0xFF);
+				DrawMode mode = MAKE_DRAW_MODE (DRAW_HYPER, 0xFF);
 				Color c = GetColorMapColor (0x35, 0xFB);
 
-				for (j = 0; j < numFrames; j++)
+				for (j = 0; j < num_frames; j++)
 				{
-					ApplyMask (NULL, SetAbsFrameIndex (
-							ship_data->ship[0], j), mode1, &c);
+					ApplyMask (NULL, SetAbsFrameIndex (*ship_big, j), mode, &c);
 				}
 
 				hyper_ship[ship_class] = true;
 			}
 
-			ElementPtr->current.image.farray = &ship_data->ship[0];
-			ElementPtr->current.image.frame = SetAbsFrameIndex (
-					ship_data->ship[0], 0);
+			ElementPtr->current.image.farray = ship_big;
+			ElementPtr->current.image.frame = SetAbsFrameIndex (*ship_big, 0);
 
 			if (optShipDirectionIP)
 			{
