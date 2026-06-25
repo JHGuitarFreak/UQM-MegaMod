@@ -448,7 +448,7 @@ LoadHyperspace (void)
 	SetContext (RadarContext);
 	SetContextBackGroundColor (GetColorMapColor (0x35, 0xFD));
 
-	SetContext (SpaceContext);	
+	SetContext (SpaceContext);
 
 	// Space color is in the last spot of hyper palette (index 53)
 	SetContextBackGroundColor (GetColorMapColor (0x35, 0xFF));
@@ -1312,13 +1312,14 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 
 		i = EncounterPtr->transition_state;
 
-		if (EXTENDED && CheckSphereTracking (EncounterPtr->race_id))
+		if ((optShipsInHS == 1 && CheckSphereTracking (EncounterPtr->race_id))
+				|| optShipsInHS == 2)
 		{
 			COUNT j, num_frames;
 			DATA_STUFF *ship_data;
 			SPECIES_ID species_id = EncounterPtr->race_id + 1;
 			SPECIES_ID ship_class = SeedShip (species_id, false);
-			FRAME *ship_big;
+			FRAME *ship_big = NULL;
 
 			ship_data = GetDataFromIndex (FindMasterShipIndex (species_id));
 			ship_big = &ship_data->ship[0];
@@ -1345,9 +1346,7 @@ AddEncounterElement (ENCOUNTER *EncounterPtr, POINT *puniverse)
 				Color c = GetColorMapColor (0x35, 0xFB);
 
 				for (j = 0; j < num_frames; j++)
-				{
 					ApplyMask (NULL, SetAbsFrameIndex (*ship_big, j), mode, &c);
-				}
 
 				hyper_ship[ship_class] = true;
 			}
@@ -1633,8 +1632,8 @@ ProcessEncounter (ENCOUNTER *EncounterPtr, POINT *puniverse,
 					STAMP_PRIM);
 			if (ElementPtr->death_func == 0)
 			{
-				//InitIntersectStartPoint (ElementPtr);
-				//ElementPtr->state_flags &= ~NONSOLID;
+				InitIntersectStartPoint (ElementPtr);
+				ElementPtr->state_flags &= ~NONSOLID;
 			}
 		}
 	}

@@ -215,6 +215,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   deadZoneLeftP2);
 	DECL_CONFIG_OPTION(int,   deadZoneRightP2);
 	DECL_CONFIG_OPTION(int,   dirJoyP2);
+	DECL_CONFIG_OPTION(int,   shipsInHS);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -431,6 +432,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  deadZoneLeftP2,    DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  deadZoneRightP2,   DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
+		INIT_CONFIG_OPTION(  shipsInHS,         0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -669,6 +671,7 @@ int main(int argc, char** argv)
 	DeadZoneLeftStick[1] = options.deadZoneLeftP2.value;
 	DeadZoneRightStick[1] = options.deadZoneRightP2.value;
 	optDirJoy[1] = options.dirJoyP2.value;
+	optShipsInHS = options.shipsInHS.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1248,6 +1251,11 @@ getUserConfigOptions (struct options_struct *options)
 		options->dirJoyP2.value = res_GetInteger ("mm.dirJoyP2");
 	}
 
+	if (res_IsInteger ("mm.shipsInHS") && !options->shipsInHS.set)
+	{
+		options->shipsInHS.value = res_GetInteger ("mm.shipsInHS");
+	}
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1341,6 +1349,7 @@ enum
 	DZRP1_OPT,
 	DZLP2_OPT,
 	DZRP2_OPT,
+	SHOWSHIPSINHS_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1462,6 +1471,7 @@ static struct option longOptions[] =
 	{"deadzonerightp1", 1, NULL, DZRP1_OPT},
 	{"deadzoneleftp2", 1, NULL, DZLP2_OPT},
 	{"deadzonerightp2", 1, NULL, DZRP2_OPT},
+	{"showshipsinhs", 1, NULL, SHOWSHIPSINHS_OPT },
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2354,6 +2364,27 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				saveError ("\nEditing Deadzone in commandline has not yet been"
 						" implemented\n");
 				badArg = true;
+			case SHOWSHIPSINHS_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp,
+						"Show Ships in HyperSpace") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nThis setting has to be between 0-2\n");
+					badArg = true;
+				}
+				else
+				{
+					options->shipsInHS.value = temp;
+					options->shipsInHS.set = true;
+				}
+				break;
+			}
 			case CLAPAK_OPT:
 				optNoClassic = TRUE;
 				break;
@@ -2746,6 +2777,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --hyperspacecolor : Choose between either the PC"
 			" or 3DO Flagship engine color (default: %s)",
 			choiceOptString (&defaults->hyperSpaceColor));
+	log_add (log_User, "  --showshipsinhs : Shows alien ships in HyperSpace "
+		"instead of a black TrueSpace vortex : 0: Off | 1: No Spoilers | "
+		"2: Yes Spoilers (default: 0)");
 
 	log_setOutput (old);
 }

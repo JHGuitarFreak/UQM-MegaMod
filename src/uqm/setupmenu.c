@@ -347,6 +347,7 @@ static WIDGET *visual_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_ANIMHYPER    ]), // Animated HyperStars
 	(WIDGET *)(&choices[CHOICE_CAPTNAMES    ]), // Captain names in shipyard
 	(WIDGET *)(&choices[CHOICE_GAMEOVER     ]), // Game Over switch
+	(WIDGET *)(&choices[CHOICE_SHIPSINHS    ]), // Show ships in HyperSpace
 
 	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
 	(WIDGET *)(&labels [LABEL_COMM          ]), // Comm Label
@@ -1501,6 +1502,7 @@ SetDefaults (void)
 	choices[CHOICE_FLEETPOINT   ].selected = opts.fleetPointSys;
 	choices[CHOICE_HSCOLOR      ].selected = opts.hyperSpaceColor;
 	choices[CHOICE_DIRJOYP2     ].selected = opts.dirJoy[1];
+	choices[CHOICE_SHIPSINHS     ].selected = opts.shipsInHS;
 
 	// Devices
 	for (i = DEVICE_START; i < DEVICE_START
@@ -1631,6 +1633,7 @@ PropagateResults (void)
 	opts.fleetPointSys =    choices[CHOICE_FLEETPOINT   ].selected;
 	opts.hyperSpaceColor =  choices[CHOICE_HSCOLOR      ].selected;
 	opts.dirJoy[1] =        choices[CHOICE_DIRJOYP2     ].selected;
+	opts.shipsInHS =        choices[CHOICE_SHIPSINHS     ].selected;
 
 	// Devices
 	for (i = DEVICE_START;
@@ -2965,6 +2968,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->sphereColors = optSphereColors;
 	opts->dosMenus = optDosMenus;
 	opts->hyperSpaceColor = is3DO (optHyperSpaceColor);
+	opts->shipsInHS = optShipsInHS;
 
 	// Interplanetary
 	opts->nebulae = optNebulae;
@@ -3241,6 +3245,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optCaptainNames, &opts->captainNames, "mm.captainNames", FALSE);
 	PutBoolOpt (&optDosMenus, &opts->dosMenus, "mm.dosMenus", FALSE);
 	PutConsOpt (&optHyperSpaceColor, &opts->hyperSpaceColor, "mm.hyperSpaceColor", FALSE);
+	PutIntOpt  (&optShipsInHS, (int *)&opts->shipsInHS, "mm.shipsInHS", FALSE);
 	
 	// Interplanetary
 	PutBoolOpt (&optNebulae, &opts->nebulae, "mm.nebulae", FALSE);

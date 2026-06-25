@@ -311,6 +311,7 @@ enum {
 	CHOICE_DOSMENUS,
 	CHOICE_HSCOLOR,
 	CHOICE_DIRJOYP2,
+	CHOICE_SHIPSINHS,
 
 	CHOICE_COUNT
 };
@@ -490,7 +491,8 @@ typedef struct globalopts_struct {
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
-	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2];
+	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2],
+			shipsInHS;
 } GLOBALOPTS;
 
 void SetupMenu (void);
