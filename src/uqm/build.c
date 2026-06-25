@@ -489,6 +489,20 @@ StartSphereTracking (RACE_ID race)
 		FleetPtr->known_strength = 1;
 		FleetPtr->known_loc = FleetPtr->loc;
 	}
+	else
+	{
+		if (FleetPtr->SpeciesID == SLYLANDRO_ID &&
+			!GET_GAME_STATE (SLY_ENCOUNTERED))
+		{
+			SET_GAME_STATE (SLY_ENCOUNTERED, 1);
+		}
+
+		if (FleetPtr->SpeciesID == MELNORME_ID &&
+			!GET_GAME_STATE (MEL_ENCOUNTERED))
+		{
+			SET_GAME_STATE (MEL_ENCOUNTERED, 1);
+		}
+	}
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
 	return race;
@@ -518,7 +532,15 @@ CheckSphereTracking (RACE_ID race)
 	}
 	else
 	{
-		result = (FleetPtr->known_strength > 0);
+		SPECIES_ID SpeciesID = FleetPtr->SpeciesID;
+
+		if ((SpeciesID == SLYLANDRO_ID && GET_GAME_STATE (SLY_ENCOUNTERED)) ||
+			(SpeciesID == MELNORME_ID && GET_GAME_STATE (MEL_ENCOUNTERED)))
+		{
+			result = TRUE;
+		}
+		else
+			result = (FleetPtr->known_strength > 0);
 	}
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);

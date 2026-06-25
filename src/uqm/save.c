@@ -737,7 +737,10 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	{ "HM_ENCOUNTERS", 9 },
 
-	{ "RESERVED", 32 },
+	{ "SLY_ENCOUNTERED", 1 },
+	{ "MEL_ENCOUNTERED", 1 },
+
+	{ "RESERVED", 30 },
 
 	/* end rev 2, MegaMod v0.8.1 */
 	{ NULL, 3 },
