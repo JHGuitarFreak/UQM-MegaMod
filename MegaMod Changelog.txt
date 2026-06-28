@@ -6,14 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.6]
 
 ### Added
-- 
+- EXTENDED: New sounds when Fwiffo opens fire on lander
 
 ### Changed
-- Optimized lander interactions with hazards while God Mode enabled
 - Removed a lag spike when Fwiffo opens fire on lander
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
+
+### Dev
+- Added Doxygen style comments to lander.c
+- Slight optimixation in lander.c and more readable code
+- New function GetBatchCount() to check amount of GFX batches
+- Optimized lander interactions with hazards while God Mode enabled
 
 ## [v0.8.5]
 
