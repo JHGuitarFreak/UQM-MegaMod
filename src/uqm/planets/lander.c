@@ -203,6 +203,12 @@ EXTENT MapSurface;
 
 #define ON_THE_GROUND   0
 
+/*
+* @function
+* @description	Creates a context for PC lander UI at the bottom left
+* While standard lander uses Radar context
+* @returns		CONTEXT	- PC lander context
+*/
 CONTEXT
 CreatePCLanderContext (void)
 {
@@ -230,6 +236,12 @@ CreatePCLanderContext (void)
 	return context;
 }
 
+/*
+* @function
+* @description	Returns a context for PC lander UI if it already exists
+* or creates it from the scratch
+* @returns		CONTEXT	- PC lander context
+*/
 CONTEXT
 GetPCLanderContext (BOOLEAN *owner)
 {
@@ -248,6 +260,10 @@ GetPCLanderContext (BOOLEAN *owner)
 	return PCLanderContext;
 }
 
+/*
+* @function
+* @description Frees PC lander context from memory
+*/
 void
 DestroyPCLanderContext (void)
 {
@@ -258,7 +274,14 @@ DestroyPCLanderContext (void)
 	}
 }
 
-
+/*
+* @function
+* @decription	Returns a color with which lander or a lifeform should be
+* colored. Triggered when receive damage and called every frame
+* for DAMAGE_CYCLE frames
+* @param0	Color	- last frame color
+* @param1	COUNT	- damage index
+*/
 static Color
 DamageColorCycle (Color c, COUNT i)
 {
@@ -287,6 +310,11 @@ DamageColorCycle (Color c, COUNT i)
 
 static HELEMENT AddGroundDisaster (COUNT which_disaster);
 
+/*
+* @function
+* @description	Process environmental animation during lander logic loop -
+* lifeforms, lava spots, earthquakes, lightning
+*/
 void
 object_animation (ELEMENT *ElementPtr)
 {
@@ -529,6 +557,14 @@ object_animation (ELEMENT *ElementPtr)
 #define NUM_CREW_COLS (is3DO (optSuperPC) ? 6 : 3)
 #define NUM_CREW_ROWS (is3DO (optSuperPC) ? 2 : 4)
 
+/*
+* @function
+* @description	Controls amount of crew on the lander - adds during warmup
+* and removes if received damage. Also processes shields and 5% fail chance
+* and draws green/red circles on the UI
+* @param0	SIZE	- crew to add/remove (signed)
+* @param1	COUNT	- disaster from ENUM at planets.h
+*/
 static void
 DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 {
