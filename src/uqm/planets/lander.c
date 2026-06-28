@@ -621,6 +621,14 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 	SetContext (OldContext);
 }
 
+/*
+* @function
+* @description	Updates lander UI gauge for both minerals and bio cargo.
+* Also plays *slurp* sound
+* @param0	PLANETSIDE_DESC		- a pointer to current planet desc
+* @param1	COUNT				- scan ID (either BIO or Mineral)
+* @param2	COUNT				- amount of corresponding data retrieved
+*/
 static void
 FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 {
@@ -681,7 +689,18 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	SetContext (OldContext);
 }
 
-// returns true iff the node was picked up.
+/*
+* @function
+* @description	Picks up node if intersected and there is space for it.
+* Handles partial pick up. Also plays full cargo sounds.
+* @param0	PLANETSIDE_DESC		- a pointer to current planet desc
+* @param1	COUNT				- amount of corresponding data retrieved
+* @param2	ELEMENT				- a pointer to mineral or bio node
+* @param3	INTERSECT_CONTROL	- lander intersect control
+* @param4	INTERSECT_CONTROL	- node intersect control
+* @param5	COUNT				- scan ID (either BIO or Mineral)
+* @returns	BOOLEAN				- TRUE if the node was picked up
+*/
 static bool
 pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 		ELEMENT *ElementPtr, const INTERSECT_CONTROL *LanderControl,
@@ -823,6 +842,11 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 	return (PartialPickup ? false : true);
 }
 
+/*
+* @function
+* @description	Blows up a critter. Namely moon bulldozers
+* @param0	ELEMENT		- a pointer to a critter
+*/
 static void
 ExplodeCritter (ELEMENT *ElementPtr)
 {
@@ -890,6 +914,17 @@ ExplodeCritter (ELEMENT *ElementPtr)
 	}
 }
 
+/*
+* @function
+* @description	Process a creature being shot, handles its awareness and
+* cans them to pick up as bio data
+* @param0	ELEMENT				- a pointer to a creature
+* @param1	BYTE				- amount of bio data for said creature
+* (stored in mass_points)
+* @param2	INTERSECT_CONTROL	- lander intersect control 
+* (for chase behaviour)
+* @param3	PRIMITIVE			- creature primitive pointer
+*/
 static void
 shotCreature (ELEMENT *ElementPtr, BYTE value,
 		INTERSECT_CONTROL *LanderControl, PRIMITIVE *pPrim)
@@ -942,6 +977,11 @@ shotCreature (ELEMENT *ElementPtr, BYTE value,
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
 }
 
+/*
+* @function
+* @description	Updates status window with returned crew and amount of
+* landers onboard (tiny UI landers)
+*/
 static void
 DrawRadarArea (void)
 {
@@ -949,6 +989,11 @@ DrawRadarArea (void)
 	DrawMineralHelpers ();
 }
 
+/*
+* @function
+* @description	Check the collision with planet nodes and lander
+* @param0	COUNT	- index on node or lander in local object list
+*/
 static void
 CheckObjectCollision (COUNT index)
 {
@@ -1142,6 +1187,11 @@ CheckObjectCollision (COUNT index)
 	}
 }
 
+/*
+* @function
+* @description	Processes lightning disaster
+* @param0	ELEMENT		- a pointer to lightning element
+*/
 static void
 lightning_process (ELEMENT *ElementPtr)
 {
@@ -1196,6 +1246,11 @@ lightning_process (ELEMENT *ElementPtr)
 		lander_flags |= ADD_AT_END;
 }
 
+/*
+* @function
+* @description	Adds lightning disaster as it needs to be processed 
+* separately
+*/
 static void
 AddLightning (void)
 {
@@ -1256,6 +1311,11 @@ AddLightning (void)
 	}
 }
 
+/*
+* @function
+* @description	Adds an earthquake or hotspot disaster
+* @param0	COUNT	- which disaster
+*/
 static HELEMENT
 AddGroundDisaster (COUNT which_disaster)
 {
@@ -1318,10 +1378,13 @@ AddGroundDisaster (COUNT which_disaster)
 	return (hGroundDisasterElement);
 }
 
-// This function replaces the ELEMENT manipulations typically done by
-// PreProcess() and PostProcess() in process.c. Lander code does not
-// call RedrawQueue() & Co and thus does not reap the benefits (or curses,
-// depending how you look at it) of automatic flags processing.
+/*
+* @function
+* @description This function replaces the ELEMENT manipulations typically 
+* done by PreProcess() and PostProcess() in process.c. Lander code does not
+* call RedrawQueue() & Co and thus does not reap the benefits (or curses,
+* depending how you look at it) of automatic flags processing.
+*/
 static void
 BuildObjectList (void)
 {
@@ -1441,6 +1504,15 @@ BuildObjectList (void)
 	}
 }
 
+/*
+* @function
+* @description	Processes and redraws everything on the planet surface
+* every frame
+* @param0	SIZE	- delta for horizontal frame movement
+* @param1	SIZE	- delta for vertical frame movement
+* @param3	int		- offset to calculate lander position and shadow during
+* landing nad takeoff (0 = on the ground)
+*/
 static void
 ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 {
@@ -1608,6 +1680,13 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	SetContext (OldContext);
 }
 
+/*
+* @function
+* @description	Processes planet sphere frame during PC lander option
+* selected.
+* @param0	TimeCount	- a pointer to global timer
+* @param1	COUNT		- amount of how many frames we require
+*/
 static void
 animationInterframe (TimeCount *TimeIn, COUNT periods)
 {
@@ -1625,6 +1704,12 @@ animationInterframe (TimeCount *TimeIn, COUNT periods)
 	}
 }
 
+/*
+* @function
+* @description	Animates lander launch and takeoff in PlanetContext
+* @param0	FRAME	- an array of frames to animate
+* @param1	BOOLEAN	- TRUE for landing and FALSE for takeoff
+*/
 static void
 AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 {
@@ -1680,6 +1765,11 @@ AnimateLaunch (FRAME farray, BOOLEAN isLanding)
 	}
 }
 
+/*
+* @function
+* @description	Animates lander UI, fills crew and adds currently available
+* mods
+*/
 static void
 AnimateLanderWarmup (void)
 {
@@ -1753,6 +1843,11 @@ AnimateLanderWarmup (void)
 			NotPositional (), NULL, GAME_SOUND_PRIORITY + 1);
 }
 
+/*
+* @function
+* @description	Initiates planet side at the chosen landing point
+* @param0	POINT	- landing point chosen with cursor
+*/
 static void
 InitPlanetSide (POINT pt)
 {
@@ -1829,6 +1924,11 @@ InitPlanetSide (POINT pt)
 	SET_GAME_STATE (PLANETARY_LANDING, 1);
 }
 
+/*
+* @function
+* @description	Processes lander shooting
+* @param0	SIZE	- angle lander facing
+*/
 static void
 LanderFire (SIZE facing)
 {
@@ -1881,6 +1981,12 @@ LanderFire (SIZE facing)
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
 }
 
+/*
+* @function
+* @description	Puts a new node once it finishes flying from 
+* exploded lander
+* @param0	ELEMENT	- a pointer to a new node
+*/
 static void
 put_node (ELEMENT *ElementPtr)
 {
@@ -1945,6 +2051,11 @@ put_node (ELEMENT *ElementPtr)
 	PutElement (hNodeElement);
 }
 
+/*
+* @function
+* @description	Processes new node during flying from exploded lander
+* @param0	ELEMENT	- a pointer to a new node
+*/
 static void
 spawn_node (ELEMENT *ElementPtr)
 {
@@ -1997,6 +2108,13 @@ spawn_node (ELEMENT *ElementPtr)
 	put_node (ElementPtr);
 }
 
+/*
+* @function
+* @description	Lobs moneral node "into the air" after lander explosion
+* @param0	COUNT	- which node in the DisplayArray
+* @param1	BYTE	- node type (corrosive, base, precious etc)
+* @param2	COUNT	- new node size
+*/
 static void
 LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 {
@@ -2051,6 +2169,10 @@ LobMineralNode (COUNT which_node, BYTE type, const COUNT amount)
 	InsertElement (hNodeElement, GetHeadElement());
 }
 
+/*
+* @function
+* @description	Scatters some amount of mineral cargo from exploded lander
+*/
 static void
 ScatterDeposits (void)
 {
@@ -2082,6 +2204,11 @@ ScatterDeposits (void)
 	}
 }
 
+/*
+* @function
+* @description	Handles lander explosion when remaining crew = 0
+* @returns	BOOLEAN	- FALSE if explosion ELEMENT allocated, TRUE if all good
+*/
 static BOOLEAN
 LanderExplosion (void)
 {
@@ -2121,6 +2248,11 @@ LanderExplosion (void)
 	return TRUE;
 }
 
+/*
+* @function
+* @description	PlanetSide input function. Processes inputs and lander state
+* @param0	LanderInputState	- pointer to a process function
+*/
 static BOOLEAN
 DoPlanetSide (LanderInputState *pMS)
 {
@@ -2288,6 +2420,10 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	return TRUE;
 }
 
+/*
+* @function
+* @description	Adds lander modules to planetside lander sprites
+*/
 void
 MaskLanderGraphics (void)
 {
@@ -2333,6 +2469,10 @@ MaskLanderGraphics (void)
 	}	
 }
 
+/*
+* @function
+* @description	Frees lander data
+*/
 void
 FreeLanderData (void)
 {
@@ -2361,6 +2501,10 @@ FreeLanderData (void)
 	LanderUpgradesFlag = 0;
 }
 
+/*
+* @function
+* @description	Loads planet data
+*/
 void
 LoadLanderData (void)
 {
@@ -2396,6 +2540,10 @@ LoadLanderData (void)
 	}
 }
 
+/*
+* @function
+* @description	Sets a planet music track from availables
+*/
 BYTE
 SetPlanetMusic (BYTE planet_type)
 {
@@ -2405,6 +2553,10 @@ SetPlanetMusic (BYTE planet_type)
 	return !(opt3doMusic || optRemixMusic || optVolasMusic) ? 0 : OrbitNum;
 }
 
+/*
+* @function
+* @description	Transition PlanetCOntext from planet surface to planet sphere
+*/
 static void
 ReturnToOrbit (void)
 {
@@ -2452,6 +2604,12 @@ ReturnToOrbit (void)
 	SetContext (OldContext);
 }
 
+/*
+* @function
+* @description	Draws planetside without a lander during landing or takeoff
+* @param0	LanderInputState	- input function
+* @param1	TimeCount			- how long to idle
+*/
 static void
 IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 {
@@ -2467,6 +2625,13 @@ IdlePlanetSide (LanderInputState *inputState, TimeCount howLong)
 	}
 }
 
+/*
+* @function
+* @description	Processes landing and takeoff animations. Calculates shadow
+* positions
+* @param0	LanderInputState	- input function
+* @param1	BOOLEAN				- TRUE for landing, FLASE for takeoff
+*/
 static void
 LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 {
@@ -2534,6 +2699,10 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 		IdlePlanetSide (inputState, ONE_SECOND / 2);
 }
 
+/*
+* @function
+* @description	Sets lander takeoff flag
+*/
 void
 SetLanderTakeoff (void)
 {
@@ -2614,9 +2783,14 @@ KillLanderCrewSeq (COUNT numKilled, BOOLEAN extraSFX)
 	return crew_left > 0;
 }
 
-// Maps a temperature to a (0-7) hazard rating.
-// Thermal hazards aren't exposed to the user as a hazard number,
-// but the code still works with them that way.
+/*
+* @function
+* @description	Maps a temperature to a (0-7) hazard rating.
+* Thermal hazards aren't exposed to the user as a hazard number,
+* but the code still works with them that way.
+* @param0	int		- planet temperature
+* @returns	uint	- temperature rating
+*/
 unsigned
 GetThermalHazardRating (int temp)
 {
@@ -2634,8 +2808,14 @@ GetThermalHazardRating (int temp)
 	return numBreakpoints;
 }
 
-// Given a hazard type and rating, return the chance (out of 256) of the hazard
-// being generated.
+/*
+* @function
+* @description	Given a hazard type and rating, return the chance 
+* (out of 256) of the hazard being generated
+* @param0	int		- hazard type
+* @param1	uint	- hazard rating (0-7)
+* @returns	BYTE	- a chance 0-256
+*/
 static BYTE
 GetHazardChance (int hazardType, unsigned HazardRating)
 {
@@ -2662,6 +2842,11 @@ GetHazardChance (int hazardType, unsigned HazardRating)
 	return 0;
 }
 
+/*
+* @function
+* @description	Enter function for planetside gameloop
+* @param0	POINT	- a point of planet surface chosen by cursor
+*/
 void
 PlanetSide (POINT planetLoc)
 {
@@ -2823,6 +3008,10 @@ PlanetSide (POINT planetLoc)
 	DirJoyActive = FALSE;
 }
 
+/*
+* @function
+* @description	Draws lander UI MIN and DAT labels near gauges
+*/
 static void
 DrawMinDatText (void)
 {
@@ -2864,6 +3053,11 @@ DrawMinDatText (void)
 	SetContextForeGroundColor (OldColor);
 }
 
+/*
+* @function
+* @description	Initialize lander graphics for 3DO mode and a save recap
+* @param0	BYTE	- override lander flags from a save file
+*/
 void
 InitLander (BYTE LanderFlags)
 {
@@ -2970,6 +3164,11 @@ InitLander (BYTE LanderFlags)
 	UnbatchGraphics ();
 }
 
+/*
+* @function
+* @description	Initialize lander graphics for PC mode
+* @param0	BOOLEAN	- can land or not (black rectangle if cannot)
+*/
 void
 InitPCLander (BOOLEAN Loading)
 {
