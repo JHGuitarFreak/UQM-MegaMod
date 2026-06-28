@@ -472,6 +472,8 @@ extern void SaveSolarSysLocation (void);
 
 extern BYTE PickClosestHabitable (SOLARSYS_STATE *solarSys);
 
+extern void SetReportFunc (bool (*func)(SOLARSYS_STATE *));
+
 #if defined(__cplusplus)
 }
 #endif

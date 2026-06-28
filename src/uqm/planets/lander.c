@@ -2619,7 +2619,7 @@ KillLanderCrewSeq (COUNT numKilled)
 }
 
 void
-SetReportFunc (bool *func)
+SetReportFunc (bool (*func)(SOLARSYS_STATE *))
 {
 	LanderReportFunc = func;
 }
