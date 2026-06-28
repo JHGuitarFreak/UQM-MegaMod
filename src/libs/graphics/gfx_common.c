@@ -111,6 +111,12 @@ UnbatchGraphics (void)
 	TFB_UnbatchGraphics ();
 }
 
+int
+GetBatchCount (void)
+{
+	return TFB_BatchCount ();
+}
+
 /* Sleeps this thread until all Draw Commands queued by that thread have
    been processed. */
 

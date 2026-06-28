@@ -73,6 +73,7 @@ BYTE LanderUpgradesFlag;
 static SOUND LanderSounds;
 MUSIC_REF LanderMusic;
 static CONTEXT PCLanderContext;
+static CONTEXT LanderContext;
 static MUSIC_REF OrbitMusic[NUM_ORBIT_THEMES];
 
 LIFEFORM_DESC CreatureData[] =
@@ -173,6 +174,7 @@ extern PRIM_LINKS DisplayLinks;
 #define REPAIR_TRANSITION (1 << 6)
 #define KILL_CREW (1 << 5)
 #define ADD_AT_END (1 << 4)
+#define NO_COLLISION (1 << 3)
 #define REPAIR_COUNT (0xf)
 
 #define LANDER_SPEED_DENOM (isPC (optSuperPC) ? 14 : 10)
@@ -180,8 +182,6 @@ extern PRIM_LINKS DisplayLinks;
 static BYTE lander_flags;
 static POINT curLanderLoc;
 static int crew_left;
-static int planned_frags;
-		// amount of crew to kill
 static int shieldHit;
 		// which shield was hit, assuming it helped
 static int damage_index;
@@ -194,10 +194,13 @@ static int turn_wait;
 static int weapon_wait;
 		// semantics similar to STARSHIP.weapon_counter
 
+static BYTE num_crew_rows = 0;
+static BYTE num_crew_cols = 0;
+static BYTE crew_x_offs = 0;
+static BYTE crew_y_offs = 0;
+
 // TODO: We may want to make the PLANETSIDE_DESC fields into static vars
 PLANETSIDE_DESC *planetSideDesc;
-
-bool (*LanderReportFunc)(SOLARSYS_STATE* solarSys);
 
 EXTENT MapSurface;
 
@@ -554,8 +557,7 @@ object_animation (ELEMENT *ElementPtr)
 		lander_flags |= ADD_AT_END;
 }
 
-#define NUM_CREW_COLS (is3DO (optSuperPC) ? 6 : 3)
-#define NUM_CREW_ROWS (is3DO (optSuperPC) ? 2 : 4)
+#define NUM_LANDER_CREW 12
 
 /*
 * @function
@@ -570,19 +572,15 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 {
 	STAMP s;
 	CONTEXT OldContext;
-	COUNT old_crew = crew_left;
-	COUNT new_crew = crew_left;
-	COUNT i;
 
 	if (crew_delta > 0)
-	{
-		// Filling up the crew bar when landing.
+	{// Filling up the crew bar when landing.
+		crew_delta = crew_left;
 		crew_left += 1;
-		new_crew = crew_left;
 
 		s.frame = SetAbsFrameIndex (LanderFrame[0], 55);
 	}
-	else /* if (crew_delta < 0) */
+	else
 	{
 		shieldHit = 0;
 
@@ -596,55 +594,31 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 		
 		if (!(GET_GAME_STATE (LANDER_SHIELDS) &
 				(1 << which_disaster)) || TFB_Random () % 100 >= 95)
-		{	// No shield, or it did not help
-			crew_left += crew_delta;
-			old_crew--;
-			new_crew = crew_left - 1;
+		{// No shield, or it did not help
+			--crew_left;
+			crew_delta = crew_left;
+
+			s.frame = SetAbsFrameIndex (LanderFrame[0], 56);
+
+			PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_INJURED),
+					NotPositional (), NULL, GAME_SOUND_PRIORITY);
 		}
 		else
-		{	// Shield absorbed damage
+		{// Shield absorbed damage
 			shieldHit = which_disaster + 1;
 			return;
 		}
-
-		if (which_disaster == LANDER_INJURED)
-			damage_index = (TFB_Random () % 5) + 2;
-
-		crew_delta = crew_delta / abs (crew_delta);
-		s.frame = SetAbsFrameIndex (LanderFrame[0], 56);
-
-		PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_INJURED),
-				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 	}
 
-	if (is3DO (optSuperPC))
-	{
-		OldContext = SetContext (RadarContext);
-		for (i = old_crew; i != new_crew; i += crew_delta)
-		{
-			s.origin.x = RES_SCALE (11) + (RES_SCALE (6)
-					* (i % NUM_CREW_COLS));
-			s.origin.y = RES_SCALE (35) - (RES_SCALE (6)
-					* (i / NUM_CREW_COLS));
+	OldContext = SetContext (LanderContext);
 
-			DrawStamp (&s);
-		}
-		SetContext (OldContext);
-	}
-	else
-	{
-		OldContext = SetContext (PCLanderContext);
-		for (i = old_crew; i != new_crew; i += crew_delta)
-		{
-			s.origin.x = RES_SCALE (6) + (RES_SCALE (6)
-					* (i % NUM_CREW_COLS));
-			s.origin.y = RES_SCALE (39) - (RES_SCALE (6)
-					* (i / NUM_CREW_COLS));
+	s.origin.x = crew_x_offs + (RES_SCALE (6)
+					* (crew_delta % num_crew_cols));
+	s.origin.y = crew_y_offs - (RES_SCALE (6)
+					* (crew_delta / num_crew_cols));
 
-			DrawStamp (&s);
-		}
-		SetContext (OldContext);
-	}
+	DrawStamp (&s);
+	SetContext (OldContext);
 }
 
 static void
@@ -693,10 +667,7 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 	if (!(start_count & 1))
 		s.frame = IncFrameIndex (s.frame);
 
-	if (isPC (optSuperPC))
-		OldContext = SetContext (PCLanderContext);
-	else
-		OldContext = SetContext (RadarContext);
+	OldContext = SetContext (LanderContext);
 
 	while (NumRetrieved--)
 	{
@@ -1582,6 +1553,7 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	}
 	
 	if (landingOffset == ON_THE_GROUND && crew_left
+			&& !(lander_flags & NO_COLLISION) 
 			&& GetPredLink (DisplayLinks) != END_OF_LIST)
 		CheckObjectCollision (END_OF_LIST);
 
@@ -1713,13 +1685,9 @@ AnimateLanderWarmup (void)
 {
 	SIZE num_crew;
 	STAMP s;
-	//CONTEXT OldContext; unused
 	TimeCount TimeIn = GetTimeCounter ();
 
-	if(is3DO (optSuperPC))
-		SetContext (RadarContext);
-	else
-		SetContext (PCLanderContext);
+	SetContext (LanderContext);
 
 	s.origin.x = 0;
 	s.origin.y = 0;
@@ -1732,7 +1700,7 @@ AnimateLanderWarmup (void)
 
 	animationInterframe (&TimeIn, 2);
 
-	for (num_crew = 0; num_crew < (NUM_CREW_COLS * NUM_CREW_ROWS)
+	for (num_crew = 0; num_crew < NUM_LANDER_CREW
 			&& GLOBAL_SIS (CrewEnlisted); ++num_crew)
 	{
 		animationInterframe (&TimeIn, 1);
@@ -2172,7 +2140,6 @@ DoPlanetSide (LanderInputState *pMS)
 		
 		turn_wait = 0;
 		weapon_wait = 0;
-		planned_frags = 0;
 
 		angle = FACING_TO_ANGLE (GetFrameIndex (LanderFrame[0]));
 		landerSpeedNumer = GET_GAME_STATE (IMPROVED_LANDER_SPEED) ?
@@ -2189,33 +2156,6 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 		return TRUE;
 	}
-	else if (planned_frags)
-	{
-		if (planned_frags & 1)
-			DeltaLanderCrew (-1, LANDER_INJURED);
-			
-		planned_frags--;
-
-		if (planned_frags == 2)
-			damage_index = 1;
-
-		if (!planned_frags)
-		{
-			LanderReportFunc (pSolarSysState);
-			UnbatchGraphics ();
-			damage_index = 0;
-		}
-		else
-		{
-			ScrollPlanetSide (dx, dy, ON_THE_GROUND);
-		}
-
-		SleepThreadUntil (pMS->NextTime);
-		// NOTE: The rate is not stabilized
-		pMS->NextTime = GetTimeCounter () + PLANET_SIDE_RATE;		
-
-		return TRUE;
-	}
 	else if (crew_left /* alive and taking off */
 			&& ((CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
 			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL])
@@ -2227,7 +2167,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 #ifdef DEBUG
 	if (PulsedInputState.menu[KEY_DEBUG_2])
 	{
-		DeltaLanderCrew (-crew_left, LANDER_INJURED);
+		KillLanderCrewSeq (crew_left, FALSE);
 	}
 #endif
 
@@ -2602,26 +2542,76 @@ SetLanderTakeoff (void)
 		planetSideDesc->InTransit = TRUE;
 }
 
-// Returns whether the lander is still alive at the end of the sequence
+/*
+* @function
+* @description	Kills the passed amount of crew. Turns off lander collision
+* and can play special sounds during Fwiffo encounter. Kills every other
+* frame, randomizes the damage_index. Updates planetside view and controls
+* batching during this sequence.
+* @param0	SIZE	- crew to kill
+* @param1	BOOLEAN	- to play special sounds (Fwiffo attack) in EXTENDED
+* @returns	BOOLEAN - whether the lander is still alive at the end 
+* of the sequence
+*/
 bool
-KillLanderCrewSeq (COUNT numKilled)
+KillLanderCrewSeq (COUNT numKilled, BOOLEAN extraSFX)
 {
-	// We cannot kill everyone - atleast 1 will survive
-	planned_frags = (crew_left > numKilled ? numKilled : crew_left - 1) * 2;
+	BYTE damage_ticks = numKilled;
+	TimeCount timeout;
+	COUNT gfx_batching = GetBatchCount ();
 
-	// Killing every other frame so double the value
+	if (damage_ticks > crew_left)
+	{// do not kill more than we currently have
+		damage_ticks = crew_left;
+	}
 
 	// We cannot kill anyone at all if god mode enabled
 	if (optGodModes >= OPTVAL_INF_HEALTH)
-		planned_frags = 0;
-	
-	return 1;
-}
+		damage_ticks = 0;
 
-void
-SetReportFunc (bool (*func)(SOLARSYS_STATE *))
-{
-	LanderReportFunc = func;
+	// Double for "every other tick"
+	damage_ticks <<= 1;
+
+	timeout = GetTimeCounter () + PLANET_SIDE_RATE;
+	lander_flags |= NO_COLLISION;
+	
+	// Since it's called from inside ScrollPlanetSide() - we need to
+	// unbatch first
+	if (gfx_batching)
+		UnbatchGraphics ();
+
+	while (damage_ticks--)
+	{
+		if (damage_ticks & 1)
+		{
+			if (extraSFX)
+				PlaySound (SetAbsSoundIndex (LanderSounds, FWIFFO_FIRE),
+					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+		}
+		else
+		{
+			if (extraSFX)
+				PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_HULL_HIT),
+					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+			DeltaLanderCrew (-1, LANDER_INJURED);
+		}
+
+		if (!damage_ticks)
+			damage_index = 0;
+		else
+			damage_index = (TFB_Random () % 5) + 2;			
+
+		ScrollPlanetSide (0, 0, ON_THE_GROUND);
+		SleepThreadUntil (timeout);
+		timeout = GetTimeCounter () + PLANET_SIDE_RATE;
+	}
+
+	lander_flags &= ~NO_COLLISION;
+
+	if (gfx_batching)// Restore batching
+		BatchGraphics ();
+
+	return crew_left > 0;
 }
 
 // Maps a temperature to a (0-7) hazard rating.
@@ -2879,7 +2869,8 @@ InitLander (BYTE LanderFlags)
 {
 	RECT r;
 
-	SetContext (RadarContext);
+	LanderContext = RadarContext;
+	SetContext (LanderContext);
 	BatchGraphics ();
 	
 	r.corner.x = 0;
@@ -2888,6 +2879,11 @@ InitLander (BYTE LanderFlags)
 	r.extent.height = RADAR_HEIGHT;
 	SetContextForeGroundColor (BLACK_COLOR);
 	DrawFilledRectangle (&r);
+
+	crew_x_offs = RES_SCALE (11);
+	crew_y_offs = RES_SCALE (35);
+	num_crew_rows = 2;
+	num_crew_cols = 6;
 	
 	if (GLOBAL_SIS (NumLanders) || LanderFlags)
 	{
@@ -2979,11 +2975,17 @@ InitPCLander (BOOLEAN Loading)
 {
 	RECT r;
 
-	SetContext (GetPCLanderContext (NULL));
+	LanderContext = GetPCLanderContext (NULL);
+	SetContext (LanderContext);
 
 	GetContextClipRect (&r);
 	r.corner = MAKE_POINT (0, 0);
 	SetContextForeGroundColor (BLACK_COLOR);
+
+	crew_x_offs = RES_SCALE (6);
+	crew_y_offs = RES_SCALE (39);
+	num_crew_rows = 4;
+	num_crew_cols = 3;
 
 	BatchGraphics ();
 

@@ -654,6 +654,7 @@ extern void DrawBatch (PRIMITIVE *pBasePrim, PRIM_LINKS PrimLinks,
 		BATCH_FLAGS BatchFlags);
 extern void BatchGraphics (void);
 extern void UnbatchGraphics (void);
+extern int GetBatchCount (void);
 extern void FlushGraphics (void);
 extern void ClearDrawable (void);
 extern void ClearScreen (void);
