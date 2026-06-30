@@ -121,6 +121,12 @@ TFB_UnbatchGraphics (void)
 	UnlockRecursiveMutex (DCQ_Mutex);
 }
 
+int 
+TFB_BatchCount (void)
+{
+	return DrawCommandQueue.Batching;
+}
+
 // Cancel all pending batch operations, making them unbatched.  This will
 // cause a small amount of flicker when invoked, but prevents 
 // batching problems from freezing the game.
