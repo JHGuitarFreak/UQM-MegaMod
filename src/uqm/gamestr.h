@@ -33,7 +33,7 @@ extern "C" {
 #define STAR_STRING_COUNT       149
 #define DEVICE_STRING_COUNT      29
 #define CARGO_STRING_COUNT       14
-#define ELEMENTS_STRING_COUNT   133
+#define ELEMENTS_STRING_COUNT   135
 #define SCAN_STRING_COUNT        66
 #define STAR_NUMBER_COUNT        14
 #define PLANET_NUMBER_COUNT      43
