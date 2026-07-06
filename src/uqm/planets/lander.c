@@ -181,6 +181,7 @@ extern PRIM_LINKS DisplayLinks;
 
 static BYTE lander_flags;
 static POINT curLanderLoc;
+static BYTE AlarmTextIndex = NUM_TEXT_FRAMES;
 static int crew_left;
 static int shieldHit;
 		// which shield was hit, assuming it helped
@@ -648,7 +649,7 @@ static bool
 pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 		ELEMENT *ElementPtr, const INTERSECT_CONTROL *LanderControl,
 		const INTERSECT_CONTROL *ElementControl, COUNT Scan)
-{
+{	
 	BYTE EType;
 	UNICODE ch, *pStr;
 	COUNT *Amount, Max, Offset;
@@ -675,6 +676,21 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 		// Lander full
 		PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_FULL),
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
+
+		pPSD->NumFrames = AlarmTextIndex;
+		sprintf (pPSD->AmountBuf, GAME_STRING (ELEMENTS_STRING_BASE 
+				+ 133));
+
+		pPSD->MineralText[0].baseline.x = (MapSurface.width >> 1)
+			+ (ElementControl->EndPoint.x - LanderControl->EndPoint.x);
+		pPSD->MineralText[0].baseline.y = (MapSurface.height >> 1)
+			+ (ElementControl->EndPoint.y - LanderControl->EndPoint.y)
+				- RES_SCALE (7);
+		pPSD->MineralText[0].CharCount = (COUNT)~0;
+
+		pPSD->MineralText[1].CharCount = 0;
+		pPSD->MineralText[2].CharCount = 0;
+
 		return false;
 	}
 
@@ -736,6 +752,20 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 			// Lander full
 			PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_FULL),
 					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+
+			pPSD->NumFrames = AlarmTextIndex;
+			sprintf (pPSD->AmountBuf, GAME_STRING (ELEMENTS_STRING_BASE 
+					+ 134));
+
+			pPSD->MineralText[0].baseline.x = (MapSurface.width >> 1)
+				+ (ElementControl->EndPoint.x - LanderControl->EndPoint.x);
+			pPSD->MineralText[0].baseline.y = (MapSurface.height >> 1)
+				+ (ElementControl->EndPoint.y - LanderControl->EndPoint.y)
+					- RES_SCALE (7);
+			pPSD->MineralText[0].CharCount = (COUNT)~0;
+
+			pPSD->MineralText[1].CharCount = 0;
+			pPSD->MineralText[2].CharCount = 0;
 			return false;
 		}
 	}
@@ -1549,6 +1579,14 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 			pPSD->MineralText[2].baseline.y =
 					pPSD->MineralText[1].baseline.y + RES_SCALE (7);
 			font_DrawText (&pPSD->MineralText[2]);
+
+			AlarmTextIndex--;
+			if (!AlarmTextIndex)
+				AlarmTextIndex = NUM_TEXT_FRAMES;
+		}
+		else
+		{
+			AlarmTextIndex = NUM_TEXT_FRAMES;
 		}
 	}
 
