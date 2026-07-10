@@ -49,10 +49,10 @@ enum PlanetScanTypes
 #define MAP_WIDTH RES_SCALE (UQM_MAP_WIDTH)
 #define MAP_HEIGHT RES_SCALE (SC2_MAP_HEIGHT)
 #define SCALED_MAP_WIDTH RES_SCALE \
-		(((is3DO (optSuperPC) ? UQM_MAP_WIDTH \
+		(((optLanderView ? UQM_MAP_WIDTH \
 		: SC2_MAP_WIDTH)) - SAFE_NUM (33))
 #define UNSCALED_MAP_WIDTH \
-		(((is3DO (optSuperPC) ? UQM_MAP_WIDTH \
+		(((optLanderView ? UQM_MAP_WIDTH \
 		: SC2_MAP_WIDTH)) - SAFE_NUM (33))
 
 #define MAP_DIMENSIONS \
@@ -80,8 +80,8 @@ enum
 	LANDER_HULL_HIT
 };
 
-#define MAX_SCROUNGED (isPC (optSuperPC) ? 64 : 50)
-#define MAX_HOLD_BARS (isPC (optSuperPC) ? 64 : 50)
+#define MAX_SCROUNGED (optLanderView == 0 ? 64 : 50)
+#define MAX_HOLD_BARS (optLanderView == 0 ? 64 : 50)
 
 #define SCALE_RADIUS(r) ((r) << 6)
 #define UNSCALE_RADIUS(r) ((r) >> 6)

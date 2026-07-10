@@ -188,7 +188,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  nonStopOscill);
 	DECL_CONFIG_OPTION(int,   scopeStyle);
 	DECL_CONFIG_OPTION(bool,  hyperStars);
-	DECL_CONFIG_OPTION(int,   landerStyle);
+	DECL_CONFIG_OPTION(int,   landerView);
 	DECL_CONFIG_OPTION(bool,  planetTexture);
 	DECL_CONFIG_OPTION(int,   flagshipColor);
 	DECL_CONFIG_OPTION(bool,  noHQEncounters);
@@ -404,7 +404,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  nonStopOscill,     false ),
 		INIT_CONFIG_OPTION(  scopeStyle,        OPT_3DO ),
 		INIT_CONFIG_OPTION(  hyperStars,        false ),
-		INIT_CONFIG_OPTION(  landerStyle,       OPT_3DO ),
+		INIT_CONFIG_OPTION(  landerView,       1 ),
 		INIT_CONFIG_OPTION(  planetTexture,     true ),
 		INIT_CONFIG_OPTION(  flagshipColor,     OPT_PC ),
 		INIT_CONFIG_OPTION(  noHQEncounters,    false ),
@@ -643,7 +643,7 @@ int main(int argc, char** argv)
 	optNonStopOscill = options.nonStopOscill.value;
 	optScopeStyle = options.scopeStyle.value;
 	optHyperStars = options.hyperStars.value;
-	optSuperPC = options.landerStyle.value;
+	optLanderView = options.landerView.value;
 	optPlanetTexture = options.planetTexture.value;
 	optFlagshipColor = options.flagshipColor.value;
 	optNoHQEncounters = options.noHQEncounters.value;
@@ -1177,8 +1177,9 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->hyperStars, "mm.hyperStars");
 
-	getBoolConfigValueXlat (&options->landerStyle, "mm.landerStyle",
-			OPT_3DO, OPT_PC);
+
+	if (res_IsInteger ("mm.landerView") && !options->landerView.set)
+		options->landerView.value = res_GetInteger ("mm.landerView");
 
 	getBoolConfigValue (&options->planetTexture, "mm.planetTexture");
 
@@ -2186,12 +2187,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->hyperStars, true);
 				break;
 			case LANDSTYLE_OPT:
-				if (!setChoiceOption (&options->landerStyle, optarg))
 				{
-					InvalidArgument (optarg, "--landerview");
-					badArg = true;
+					int temp;
+					if (parseIntOption (optarg, &temp, "landerview") == -1)
+					{
+						badArg = true;
+						break;
+					}
+					else if (temp < 0 || temp > 2)
+					{
+						saveError ("\landerview has to be between 0-2\n");
+						badArg = true;
+					}
+					else
+					{
+						options->landerView.value = temp;
+						options->landerView.set = true;
+					}
+					break;
 				}
-				break;
 			case PLANTEX_OPT:
 				if (strcmp (optarg, "uqm") == 0)
 					setBoolOption (&options->planetTexture, true);
@@ -2680,8 +2694,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			"animated HyperSpace stars (default: %s)",
 			boolOptString (&defaults->hyperStars));
 	log_add (log_User, "  --landerview : Choose between either the PC or"
-			" 3DO lander view (default: %s)",
-			choiceOptString (&defaults->landerStyle));
+			" 3DO lander view (default: 1)");
 	log_add (log_User, "  --planettexture : Choose between either 3DO or"
 			" UQM planet map texture [when not using custom seed] "
 			"(default: 3do)");

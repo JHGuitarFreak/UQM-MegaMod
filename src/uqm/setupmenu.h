@@ -487,10 +487,11 @@ typedef struct globalopts_struct {
 			shipSeed, shipStore, captainNames, dosMenus;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
-			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
+			scopeStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
-	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2];
+	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2],
+		landerView;
 } GLOBALOPTS;
 
 void SetupMenu (void);

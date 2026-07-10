@@ -296,7 +296,8 @@ debugKeyPressedSynchronous (void)
 void
 debugKey2PressedSynchronous (void)
 {
-	scuttleOpponent ();
+	//scuttleOpponent ();
+	HaltShips ();
 }
 
 void
@@ -555,11 +556,11 @@ equipShip (void)
 		GLOBAL_SIS (JetSlots[i]) = TURNING_JETS;
 
 	// Shields:
-	SET_GAME_STATE (LANDER_SHIELDS,
-			(1 << EARTHQUAKE_DISASTER) |
-			(1 << BIOLOGICAL_DISASTER) |
-			(1 << LIGHTNING_DISASTER) |
-			(1 << LAVASPOT_DISASTER));
+	//SET_GAME_STATE (LANDER_SHIELDS,
+	//		(1 << EARTHQUAKE_DISASTER) |
+	//		(1 << BIOLOGICAL_DISASTER) |
+	//		(1 << LIGHTNING_DISASTER) |
+	//		(1 << LAVASPOT_DISASTER));
 	// Lander upgrades:
 	SET_GAME_STATE (IMPROVED_LANDER_SPEED, 1);
 	SET_GAME_STATE (IMPROVED_LANDER_CARGO, 1);

@@ -114,7 +114,7 @@ int optStarBackground;
 int optScanStyle;
 OPT_ENABLABLE optNonStopOscill;
 int optScopeStyle;
-int optSuperPC;
+int optLanderView;
 OPT_ENABLABLE optHyperStars;
 OPT_ENABLABLE optPlanetTexture;
 int optFlagshipColor;

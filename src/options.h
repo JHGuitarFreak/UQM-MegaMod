@@ -103,7 +103,7 @@ extern int optStarBackground;
 extern int optScanStyle;
 extern OPT_ENABLABLE optNonStopOscill;
 extern int optScopeStyle;
-extern int optSuperPC;
+extern int optLanderView;
 extern OPT_ENABLABLE optHyperStars;
 extern OPT_ENABLABLE optPlanetTexture;
 extern int optFlagshipColor;

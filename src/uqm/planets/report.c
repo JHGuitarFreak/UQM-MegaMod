@@ -37,7 +37,7 @@
 #include "../lua/luacomm.h"
 
 
-#define COL_MULTIPLIER (isPC (optSuperPC) || IS_PAD ? 7 : 6)
+#define COL_MULTIPLIER (optLanderView == 0 || IS_PAD ? 7 : 6)
 #define NUM_CELL_COLS (UQM_MAP_WIDTH / COL_MULTIPLIER)
 #define NUM_CELL_ROWS (SC2_MAP_HEIGHT / 6)
 #define MAX_CELL_COLS 40 // Why is this is never used???
@@ -124,7 +124,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 	{	// In DOS version first cell is 3p away from the edge of the
 		// context, and 2 in UQM
 		startx = RES_SCALE (RES_DESCALE (r.extent.width) >> 1)
-			+ (isPC (optSuperPC) ? RES_SCALE (1) : 0);
+			+ (optLanderView == 0 ? RES_SCALE (1) : 0);
 	}
 
 	startx += SAFE_NUM_SCL (1);
@@ -134,7 +134,7 @@ MakeReport (SOUND ReadOutSounds, UNICODE *pStr, COUNT StrLen)
 		ClearReportArea (startx);
 		SetContextForeGroundColor (fgcolor);
 
-		if (is3DO (optSuperPC))
+		if (optLanderView)
 		{
 			const UNICODE* pCurrStr;
 			COUNT length;

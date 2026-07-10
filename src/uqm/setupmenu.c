@@ -1480,7 +1480,7 @@ SetDefaults (void)
 	choices[CHOICE_NOSTOSCILL   ].selected = opts.nonStopOscill;
 	choices[CHOICE_OSCILLSTYLE  ].selected = opts.scopeStyle;
 	choices[CHOICE_ANIMHYPER    ].selected = opts.hyperStars;
-	choices[CHOICE_LANDERSTYLE  ].selected = opts.landerStyle;
+	choices[CHOICE_LANDERSTYLE  ].selected = opts.landerView;
 	choices[CHOICE_PLNTEXTURE   ].selected = opts.planetTexture;
 	choices[CHOICE_FLAGSHIP     ].selected = opts.flagshipColor;
 	choices[CHOICE_CHCLEANHYPER ].selected = opts.noHQEncounters;
@@ -1610,7 +1610,7 @@ PropagateResults (void)
 	opts.nonStopOscill =    choices[CHOICE_NOSTOSCILL   ].selected;
 	opts.scopeStyle =       choices[CHOICE_OSCILLSTYLE  ].selected;
 	opts.hyperStars =       choices[CHOICE_ANIMHYPER    ].selected;
-	opts.landerStyle =      choices[CHOICE_LANDERSTYLE  ].selected;
+	opts.landerView =      choices[CHOICE_LANDERSTYLE  ].selected;
 	opts.planetTexture =    choices[CHOICE_PLNTEXTURE   ].selected;
 	opts.flagshipColor =    choices[CHOICE_FLAGSHIP     ].selected;
 	opts.noHQEncounters =   choices[CHOICE_CHCLEANHYPER ].selected;
@@ -2981,7 +2981,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->cscan = optWhichCoarseScan;
 	opts->hazardColors = optHazardColors;
 	opts->scanStyle = is3DO (optScanStyle);
-	opts->landerStyle = is3DO (optSuperPC);
+	opts->landerView = optLanderView;
 	opts->planetTexture = optPlanetTexture;
 	opts->sphereType = optScanSphere;
 	opts->tintPlanSphere = is3DO (optTintPlanSphere);
@@ -3257,7 +3257,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt  (&optWhichCoarseScan, &opts->cscan, "config.iconicscan", FALSE);
 	PutBoolOpt (&optHazardColors, &opts->hazardColors, "mm.hazardColors", FALSE);
 	PutConsOpt (&optScanStyle, &opts->scanStyle, "mm.scanStyle", FALSE);
-	PutConsOpt (&optSuperPC, &opts->landerStyle, "mm.landerStyle", FALSE);
+	PutIntOpt  (&optLanderView, (int *)&opts->landerView, "mm.landerView", FALSE);
 	PutBoolOpt (&optPlanetTexture, &opts->planetTexture, "mm.planetTexture", FALSE);
 	PutIntOpt  (&optScanSphere, (int*)&opts->sphereType, "mm.sphereType", FALSE);
 	PutConsOpt (&optTintPlanSphere, &opts->tintPlanSphere, "mm.tintPlanSphere", FALSE);

@@ -59,16 +59,6 @@ static POINT planetLoc;
 static RECT cursorRect;
 static FRAME eraseFrame;
 
-// ScanSystem() menu items
-// The first three are from enum PlanetScanTypes in planets.h
-enum ScanMenuItems
-{
-	EXIT_SCAN = NUM_SCAN_TYPES,
-	AUTO_SCAN,
-	DISPATCH_SHUTTLE,
-};
-
-
 void
 RepairBackRect (RECT *pRect)
 {
@@ -918,7 +908,7 @@ PickPlanetSide (void)
 	memset (&MenuState, 0, sizeof MenuState);
 	MenuState.privData = &PickState;
 
-	if (is3DO (optSuperPC))
+	if (optLanderView)
 		ClearSISRect (CLEAR_SIS_RADAR);
 
 	SetContext (ScanContext);
@@ -932,7 +922,7 @@ PickPlanetSide (void)
 	setPlanetCursorLoc (planetLoc);
 	savePlanetLocationImage ();
 
-	if (is3DO (optSuperPC))
+	if (optLanderView)
 	{
 		InitLander (0);
 		DrawRadarBorder ();

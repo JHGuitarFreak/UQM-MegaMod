@@ -46,6 +46,15 @@ struct scan_block
 	SCAN_DESC *scan_base;
 };
 
+// ScanSystem() menu items
+// The first three are from enum PlanetScanTypes in planets.h
+enum ScanMenuItems
+{
+	EXIT_SCAN = NUM_SCAN_TYPES,
+	AUTO_SCAN,
+	DISPATCH_SHUTTLE,
+};
+
 extern void ScanSystem (void);
 
 extern void RepairBackRect (RECT *pRect);

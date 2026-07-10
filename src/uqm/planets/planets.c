@@ -279,7 +279,7 @@ DrawPlanetSurfaceBorder (void)
 	r.extent.height = RES_SCALE (1);
 	DrawFilledRectangle (&r);
 
-	if (isPC (optSuperPC))
+	if (optLanderView == 0)
 	{
 		r.corner.x = RES_SCALE (UQM_MAP_WIDTH - SC2_MAP_WIDTH)
 				- SIS_ORG_X + RES_SCALE (1) + SAFE_POS (1);
@@ -388,7 +388,7 @@ DrawOrbitMapGraphic (void)
 		s.origin.x = -SAFE_X;
 		s.origin.y = 0;
 
-		if (isPC (optSuperPC))
+		if (optLanderView == 0)
 		{
 			s.origin.x -=
 				RES_SCALE (((UQM_MAP_WIDTH - SC2_MAP_WIDTH) / 2)
@@ -464,7 +464,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	{
 		DrawOrbitMapGraphic ();
 
-		if (isPC (optSuperPC))
+		if (optLanderView == 0)
 			InitPCLander (TRUE);
 	}
 	else if (Mode == DRAW_ORBITAL_FULL)
@@ -484,7 +484,7 @@ DrawOrbitalDisplay (DRAW_ORBITAL_MODE Mode)
 	{
 		SetContext (GetScanContext (NULL));
 		DrawPlanet (0, BLACK_COLOR);
-		if (isPC (optSuperPC))
+		if (optLanderView == 0)
 			InitPCLander (FALSE);
 	}
 
