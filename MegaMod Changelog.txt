@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Added
 - EXTENDED: New sounds when Fwiffo opens fire on lander
 - New floating message above lander in playable area if its cargo or data bank is full
+- Two new full screen lander views. One takes up just the inner screen space with no minimap and the other is a proper whole screen view, again, no minimap.
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander
@@ -18,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Dev
 - Slight optimixation in lander.c and more readable code
 - New function GetBatchCount() to check amount of GFX batches
-- Optimized lander interactions with hazards while God Mode enabled
+- Optimized lander interactions with hazards while God Mode is enabled
 
 ## [v0.8.5]
 
