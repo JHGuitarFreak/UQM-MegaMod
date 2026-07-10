@@ -34,6 +34,7 @@ extern "C" {
 #define MAG_SHIFT 2
 
 #define NUM_TEXT_FRAMES 32
+#define NUM_CREW_FRAMES 42
 
 typedef struct
 {

@@ -76,6 +76,8 @@ static CONTEXT PCLanderContext;
 static CONTEXT LanderContext;
 static MUSIC_REF OrbitMusic[NUM_ORBIT_THEMES];
 
+static int CrewTimeOut = 0;
+
 LIFEFORM_DESC CreatureData[] =
 {
 	{SPEED_MOTIONLESS | DANGER_HARMLESS, MAKE_BYTE (1, 1)},
@@ -572,7 +574,13 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 			shieldHit = which_disaster + 1;
 			return;
 		}
+
+		if (optLanderView == 3)
+			CrewTimeOut = NUM_CREW_FRAMES;
 	}
+
+	if (optLanderView == 3 && CrewTimeOut > 0)
+		return;
 
 	OldContext = SetContext (LanderContext);
 
@@ -583,6 +591,33 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 
 	DrawStamp (&s);
 	SetContext (OldContext);
+}
+
+static void
+FullScreenLanderCrew (void)
+{
+	int i;
+	RECT r;
+	POINT baseline;
+
+	if (CrewTimeOut == 0)
+		return;
+
+	r.extent.width = RES_SCALE (3);
+	r.extent.height = RES_SCALE (3);
+
+	baseline.x = (SCREEN_WIDTH >> 1) - (RES_SCALE (4) * (num_crew_cols - 1) / 2);
+	baseline.y = (SCREEN_HEIGHT >> 1) + RES_SCALE (12) + RES_SCALE (2);
+
+	for (i = 0; i < crew_left; ++i)
+	{
+		r.corner.x = baseline.x + (RES_SCALE (4) * (i % num_crew_cols));
+		r.corner.y = baseline.y - (RES_SCALE (4) * (i / num_crew_cols));
+		DrawStarConBox (&r, RES_SCALE (1), BLACK_COLOR, BLACK_COLOR,
+				TRUE, BRIGHT_GREEN_COLOR, FALSE, NULL_COLOR);
+	}
+
+	CrewTimeOut--;
 }
 
 static void
@@ -639,7 +674,10 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 			s.frame = IncFrameIndex (s.frame);
 		else
 			s.frame = DecFrameIndex (s.frame);
-		DrawStamp(&s);
+
+		if (optLanderView < 3)
+			DrawStamp(&s);
+
 		s.origin.y -= RES_SCALE (1);
 	}
 	SetContext (OldContext);
@@ -770,8 +808,7 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 		}
 	}
 
-	if (optLanderView < 2)
-		FillLanderHold (pPSD, Scan, NumRetrieved);
+	FillLanderHold (pPSD, Scan, NumRetrieved);
 
 	if (Scan != BIOLOGICAL_SCAN)
 	{
@@ -1593,29 +1630,6 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		{
 			AlarmTextIndex = NUM_TEXT_FRAMES;
 		}
-
-		if (optLanderView == 3)
-		{
-			int i;
-			RECT r;
-			POINT baseline;
-
-			r.extent.width = RES_SCALE (3);
-			r.extent.height = RES_SCALE (3);
-
-			baseline.x = (SCREEN_WIDTH >> 1) - (RES_SCALE (4) * (num_crew_cols - 1) / 2);
-			baseline.y = (SCREEN_HEIGHT >> 1) + RES_SCALE (12) + RES_SCALE (2);
-
-			for (i = 0; i < crew_left; ++i)
-			{
-				r.corner.x = baseline.x + (RES_SCALE (4)
-					* (i % num_crew_cols));
-				r.corner.y = baseline.y - (RES_SCALE (4)
-					* (i / num_crew_cols));
-				DrawStarConBox (&r, RES_SCALE (1), BLACK_COLOR, BLACK_COLOR,
-					TRUE, BRIGHT_GREEN_COLOR, FALSE, NULL_COLOR);
-			}
-		}
 	}
 
 	if (optLanderView < 2)
@@ -1629,6 +1643,9 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		DrawRadarBorder ();
 		RotatePlanetSphere (TRUE, NULL);
 	}
+
+	if (optLanderView == 3)
+		FullScreenLanderCrew ();
 
 	UnbatchGraphics ();
 
@@ -1838,6 +1855,9 @@ InitPlanetSide (POINT pt)
 
 		SetTransitionSource(&r);
 		BatchGraphics();
+
+		if (optLanderView == 2)
+			RepairSISBorder ();
 		
 		{
 			STAMP s;
