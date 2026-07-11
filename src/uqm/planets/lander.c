@@ -628,6 +628,9 @@ FullScreenLanderCrew (void)
 	CrewTimeOut--;
 }
 
+#define CREW_SHIFT (RES_SCALE (8) - (crew_left < 7 ? RES_SCALE (4) : 0))
+#define ELEMENT_SHIFT (pPSD->ElementLevel == 0 ? RES_SCALE (4) : 0)
+
 static void
 WholeScreenCargo (void)
 {
@@ -654,8 +657,7 @@ WholeScreenCargo (void)
 	{
 		r.corner = MAKE_POINT (WS_BASELINE_X, WS_BASELINE_Y);
 		if (CrewTimeOut)
-			r.corner.y = WS_BASELINE_Y + RES_SCALE (8) -
-			(crew_left < 7 ? RES_SCALE (4) : 0);
+			r.corner.y = WS_BASELINE_Y + CREW_SHIFT;
 
 		r.extent.width = RES_SCALE (23);
 		r.extent.height = RES_SCALE (3);
@@ -666,9 +668,9 @@ WholeScreenCargo (void)
 		r.corner.x = WS_BASELINE_X + RES_SCALE (1);
 		r.corner.y = WS_BASELINE_Y + RES_SCALE (1);
 		r.extent.height = RES_SCALE (1);
+
 		if (CrewTimeOut)
-			r.corner.y = WS_BASELINE_Y + RES_SCALE (1) + RES_SCALE (8) -
-			(crew_left < 7 ? RES_SCALE (4) : 0);
+			r.corner.y = WS_BASELINE_Y + RES_SCALE (1) + CREW_SHIFT;
 
 		element_percent =
 					(float)pPSD->ElementLevel / (float)pPSD->MaxElementLevel;
@@ -682,12 +684,14 @@ WholeScreenCargo (void)
 	// Biologicals Bar
 	if (pPSD->BiologicalLevel > 0)
 	{
-		r.corner = MAKE_POINT (WS_BASELINE_X, WS_BASELINE_Y + RES_SCALE (4) -
-				(!pPSD->ElementLevel ? RES_SCALE (4) : 0));
+		r.corner = MAKE_POINT (WS_BASELINE_X, WS_BASELINE_Y +
+				RES_SCALE (4) - ELEMENT_SHIFT);
+
 		if (CrewTimeOut)
-			r.corner.y = WS_BASELINE_Y + RES_SCALE (4) + RES_SCALE (8) -
-					(crew_left < 7 ? RES_SCALE (4) : 0) -
-					(!pPSD->ElementLevel ? RES_SCALE (4) : 0);
+		{
+			r.corner.y = WS_BASELINE_Y + RES_SCALE (4) +
+					CREW_SHIFT - ELEMENT_SHIFT;
+		}
 
 		r.extent.width = RES_SCALE (23);
 		r.extent.height = RES_SCALE (3);
@@ -697,12 +701,14 @@ WholeScreenCargo (void)
 
 
 		r.corner.x = WS_BASELINE_X + RES_SCALE (1);
-		r.corner.y = WS_BASELINE_Y + RES_SCALE (4) + RES_SCALE (1) -
-				(!pPSD->ElementLevel ? RES_SCALE (4) : 0);
+		r.corner.y = WS_BASELINE_Y + RES_SCALE (5) - ELEMENT_SHIFT;
 		r.extent.height = RES_SCALE (1);
+
 		if (CrewTimeOut)
-			r.corner.y = WS_BASELINE_Y + RES_SCALE (4) + RES_SCALE (8) +
-					RES_SCALE (1) - (crew_left < 7 ? RES_SCALE (4) : 0);
+		{
+			r.corner.y = WS_BASELINE_Y + RES_SCALE (5) +
+					CREW_SHIFT - ELEMENT_SHIFT;
+		}
 
 		SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
 
