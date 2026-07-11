@@ -39,6 +39,7 @@
 #include "options.h"
 #include "uqm/menustat.h"
 #include "../util.h"
+#include "libs/gfxlib.h"
 
 //define SPIN_ON_LAUNCH to let the planet spin while
 // the lander animation is playing
@@ -77,6 +78,7 @@ static CONTEXT LanderContext;
 static MUSIC_REF OrbitMusic[NUM_ORBIT_THEMES];
 
 static int CrewTimeOut = 0;
+static int CargoTimeOut = 0;
 
 LIFEFORM_DESC CreatureData[] =
 {
@@ -593,31 +595,128 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 	SetContext (OldContext);
 }
 
+#define WS_BASELINE_X ((SCREEN_WIDTH >> 1) - (RES_SCALE (4) * (num_crew_cols - 1) / 2))
+#define WS_BASELINE_Y ((SCREEN_HEIGHT >> 1) + RES_SCALE (8) + RES_SCALE (2))
+
 static void
 FullScreenLanderCrew (void)
 {
 	int i;
 	RECT r;
-	POINT baseline;
+
+	if (crew_left == 0)
+	{
+		CrewTimeOut = 0;
+		return;
+	}
 
 	if (CrewTimeOut == 0)
 		return;
 
+	r.corner = MAKE_POINT (0, 0);
 	r.extent.width = RES_SCALE (3);
 	r.extent.height = RES_SCALE (3);
 
-	baseline.x = (SCREEN_WIDTH >> 1) - (RES_SCALE (4) * (num_crew_cols - 1) / 2);
-	baseline.y = (SCREEN_HEIGHT >> 1) + RES_SCALE (12) + RES_SCALE (2);
-
 	for (i = 0; i < crew_left; ++i)
 	{
-		r.corner.x = baseline.x + (RES_SCALE (4) * (i % num_crew_cols));
-		r.corner.y = baseline.y - (RES_SCALE (4) * (i / num_crew_cols));
+		r.corner.x = WS_BASELINE_X + (RES_SCALE (4) * (i % num_crew_cols));
+		r.corner.y = WS_BASELINE_Y + (RES_SCALE (4) * (i / num_crew_cols));
 		DrawStarConBox (&r, RES_SCALE (1), BLACK_COLOR, BLACK_COLOR,
 				TRUE, BRIGHT_GREEN_COLOR, FALSE, NULL_COLOR);
 	}
 
 	CrewTimeOut--;
+}
+
+static void
+WholeScreenCargo (void)
+{
+	RECT r;
+	Color old_color;
+	PLANETSIDE_DESC *pPSD;
+	float element_percent = 0.0f;
+
+	if (crew_left == 0)
+	{
+		CargoTimeOut = 0;
+		return;
+	}
+
+	if (CargoTimeOut == 0)
+		return;
+
+	pPSD = planetSideDesc;
+
+	old_color = SetContextForeGroundColor (BRIGHT_RED_COLOR);
+
+	// Minerals Bar
+	if (pPSD->ElementLevel > 0)
+	{
+		r.corner = MAKE_POINT (WS_BASELINE_X, WS_BASELINE_Y);
+		if (CrewTimeOut)
+			r.corner.y = WS_BASELINE_Y + RES_SCALE (8) -
+			(crew_left < 7 ? RES_SCALE (4) : 0);
+
+		r.extent.width = RES_SCALE (23);
+		r.extent.height = RES_SCALE (3);
+
+		DrawStarConBox (&r, RES_SCALE (1), BLACK_COLOR, BLACK_COLOR,
+			TRUE, BUILD_COLOR_RGB (64, 0, 0), FALSE, NULL_COLOR);
+
+		r.corner.x = WS_BASELINE_X + RES_SCALE (1);
+		r.corner.y = WS_BASELINE_Y + RES_SCALE (1);
+		r.extent.height = RES_SCALE (1);
+		if (CrewTimeOut)
+			r.corner.y = WS_BASELINE_Y + RES_SCALE (1) + RES_SCALE (8) -
+			(crew_left < 7 ? RES_SCALE (4) : 0);
+
+		element_percent =
+					(float)pPSD->ElementLevel / (float)pPSD->MaxElementLevel;
+		if (element_percent > 0.04f)
+		{
+			r.extent.width = RES_SCALE (21) * element_percent;
+			DrawFilledRectangle (&r);
+		}
+	}
+
+	// Biologicals Bar
+	if (pPSD->BiologicalLevel > 0)
+	{
+		r.corner = MAKE_POINT (WS_BASELINE_X, WS_BASELINE_Y + RES_SCALE (4) -
+				(!pPSD->ElementLevel ? RES_SCALE (4) : 0));
+		if (CrewTimeOut)
+			r.corner.y = WS_BASELINE_Y + RES_SCALE (4) + RES_SCALE (8) -
+					(crew_left < 7 ? RES_SCALE (4) : 0) -
+					(!pPSD->ElementLevel ? RES_SCALE (4) : 0);
+
+		r.extent.width = RES_SCALE (23);
+		r.extent.height = RES_SCALE (3);
+
+		DrawStarConBox (&r, RES_SCALE (1), BLACK_COLOR, BLACK_COLOR,
+			TRUE, BUILD_COLOR_RGB (0, 0, 64), FALSE, NULL_COLOR);
+
+
+		r.corner.x = WS_BASELINE_X + RES_SCALE (1);
+		r.corner.y = WS_BASELINE_Y + RES_SCALE (4) + RES_SCALE (1) -
+				(!pPSD->ElementLevel ? RES_SCALE (4) : 0);
+		r.extent.height = RES_SCALE (1);
+		if (CrewTimeOut)
+			r.corner.y = WS_BASELINE_Y + RES_SCALE (4) + RES_SCALE (8) +
+					RES_SCALE (1) - (crew_left < 7 ? RES_SCALE (4) : 0);
+
+		SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
+
+		element_percent = (float)pPSD->BiologicalLevel / (float)MAX_SCROUNGED;
+		if (element_percent > 0.04f)
+		{
+			r.extent.width = RES_SCALE (21) * element_percent;
+			DrawFilledRectangle (&r);
+		}
+	}
+
+	SetContextForeGroundColor (old_color);
+
+	CargoTimeOut--;
 }
 
 static void
@@ -629,6 +728,8 @@ FillLanderHold (PLANETSIDE_DESC *pPSD, COUNT scan, COUNT NumRetrieved)
 
 	PlaySound (SetAbsSoundIndex (LanderSounds, LANDER_PICKUP),
 			NotPositional (), NULL, GAME_SOUND_PRIORITY);
+
+	CargoTimeOut = NUM_CREW_FRAMES;
 
 	if (scan == BIOLOGICAL_SCAN)
 	{
@@ -1645,7 +1746,11 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 	}
 
 	if (optLanderView == 3)
+	{
 		FullScreenLanderCrew ();
+		WholeScreenCargo ();
+	}
+
 
 	UnbatchGraphics ();
 
