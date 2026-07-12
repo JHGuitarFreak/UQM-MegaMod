@@ -1778,7 +1778,6 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		WholeScreenCargo ();
 	}
 
-
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
@@ -1988,30 +1987,20 @@ InitPlanetSide (POINT pt)
 		SetTransitionSource(&r);
 		BatchGraphics();
 
+		ClearDrawable ();
+
 		if (optLanderView == 2)
 			RepairSISBorder ();
-		
-		{
-			STAMP s;
 
-			// Note - This code is the same as in ScrollPlanetSize,
-			// Display planet area, accounting for horizontal wrapping if
-			// near the edges.
-			ClearDrawable ();
-			s.origin.x = -pt.x + (MapSurface.width >> 1);
-			s.origin.y = -pt.y + (MapSurface.height >> 1);
-			s.frame = pSolarSysState->Orbit.TopoZoomFrame;
-			DrawStamp (&s);
-			s.origin.x += SCALED_MAP_WIDTH << MAG_SHIFT;
-			DrawStamp (&s);
-			s.origin.x -= SCALED_MAP_WIDTH << (MAG_SHIFT + 1);
-			DrawStamp (&s);
+		// 10 to clear the lander off of the screen
+		ScrollPlanetSide (0, 0, -(MapSurface.height / 2 + RES_SCALE (10)));
 
+		if (optLanderView < 3)
 			DrawRadarArea ();
 
-			if (optLanderView)
-				ScreenTransition (optScrTrans, &r);
-		}		
+		if (optLanderView)
+			ScreenTransition (optScrTrans, &r);
+
 		UnbatchGraphics ();
 	}
 
@@ -2611,6 +2600,7 @@ ReturnToOrbit (void)
 		if (optLanderView == 3)
 		{
 			DrawSISFrame ();
+			DrawStatusMessage ("FARTS");
 			DrawMineralHelpers ();
 			DrawMenuStateStrings (PM_MIN_SCAN, DISPATCH_SHUTTLE);
 		}

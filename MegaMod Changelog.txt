@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
+- Fixed drawing of planet surface without any objects during landing transition
 
 ### Dev
 - Slight optimixation in lander.c and more readable code

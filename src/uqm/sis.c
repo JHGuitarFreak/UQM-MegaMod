@@ -16,6 +16,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <math.h>
+#include <stdio.h>
+
 #include "sis.h"
 
 #include "colors.h"
@@ -38,9 +41,7 @@
 #include "libs/log.h"
 #include "hyper.h"
 #include "gameopt.h"
-#include <math.h>
-
-#include <stdio.h>
+#include "planets/lander.h"
 
 static StatMsgMode curMsgMode = SMM_DEFAULT;
 
@@ -528,6 +529,14 @@ DrawStatusMessage (const UNICODE *pStr)
 	TEXT t;
 	UNICODE buf[128];
 	CONTEXT OldContext;
+
+	if (DIF_HARD && optLanderView == 3 && planetSideDesc != NULL)
+	{
+		if (pStr != NULL && strcmp (pStr, "FARTS") == 0)
+			pStr = NULL;
+		else
+			return;
+	}
 
 	OldContext = SetContext (StatusContext);
 	GetContextClipRect (&ctxRect);
