@@ -40,6 +40,7 @@
 #include "uqm/menustat.h"
 #include "../util.h"
 #include "libs/gfxlib.h"
+#include "libs/graphics/widgets.h"
 
 //define SPIN_ON_LAUNCH to let the planet spin while
 // the lander animation is playing
@@ -1186,7 +1187,27 @@ CheckObjectCollision (COUNT index)
 					else if (scan == ENERGY_SCAN)
 					{
 						// noop; handled by generation funcs, see below
-						DrawRadarArea ();
+						if (optLanderView < 3)
+							DrawRadarArea ();
+						else
+						{
+							RECT r;
+							r.corner.x = RES_SCALE (4) + SAFE_POS (1);
+							r.corner.y = SCREEN_HEIGHT - RES_SCALE (73) - SAFE_NEG (1);
+							r.extent.width = SCALED_MAP_WIDTH + RES_SCALE (4);
+							r.extent.height = MAP_HEIGHT + RES_SCALE (4);
+							if (!IS_HD)
+							{
+								DrawShadowedBox (&r, NULL_COLOR,
+									SHADOWBOX_DARK_COLOR,
+									SHADOWBOX_MEDIUM_COLOR);
+							}
+							else
+							{
+								DrawRenderedBox (&r, FALSE, NULL_COLOR,
+									THICK_OUTER_BEVEL, FALSE);
+							}
+						}
 					}
 					else if (scan == BIOLOGICAL_SCAN
 							&& ElementPtr->hit_points)
@@ -2658,7 +2679,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	int delta;
 	int index;
 	int max_offsets; 
-	int landingOfsHD[MAX_OFFSETS_HD]; 
+	int landingOfsHD[MAX_OFFSETS_HD];
 
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;
@@ -2709,6 +2730,9 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 
 	if (!landing)
 		IdlePlanetSide (inputState, ONE_SECOND / 2);
+
+	CrewTimeOut = 0;
+	CargoTimeOut = 0;
 }
 
 void
@@ -2769,7 +2793,7 @@ KillLanderCrewSeq (COUNT numKilled, BOOLEAN extraSFX)
 		if (!damage_ticks)
 			damage_index = 0;
 		else
-			damage_index = (TFB_Random () % 5) + 2;			
+			damage_index = (TFB_Random () % 5) + 2;
 
 		ScrollPlanetSide (0, 0, ON_THE_GROUND);
 		SleepThreadUntil (timeout);
