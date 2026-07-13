@@ -1189,25 +1189,6 @@ CheckObjectCollision (COUNT index)
 						// noop; handled by generation funcs, see below
 						if (optLanderView < 3)
 							DrawRadarArea ();
-						else
-						{
-							RECT r;
-							r.corner.x = RES_SCALE (4) + SAFE_POS (1);
-							r.corner.y = SCREEN_HEIGHT - RES_SCALE (73) - SAFE_NEG (1);
-							r.extent.width = SCALED_MAP_WIDTH + RES_SCALE (4);
-							r.extent.height = MAP_HEIGHT + RES_SCALE (4);
-							if (!IS_HD)
-							{
-								DrawShadowedBox (&r, NULL_COLOR,
-									SHADOWBOX_DARK_COLOR,
-									SHADOWBOX_MEDIUM_COLOR);
-							}
-							else
-							{
-								DrawRenderedBox (&r, FALSE, NULL_COLOR,
-									THICK_OUTER_BEVEL, FALSE);
-							}
-						}
 					}
 					else if (scan == BIOLOGICAL_SCAN
 							&& ElementPtr->hit_points)

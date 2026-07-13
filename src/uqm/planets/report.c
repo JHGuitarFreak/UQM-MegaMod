@@ -16,6 +16,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <ctype.h>
+#include <string.h>
+
 #include "lander.h"
 #include "scan.h"
 #include "planets.h"
@@ -31,10 +34,8 @@
 #include "../nameref.h"
 #include "../ifontres.h"
 #include "../igfxres.h"
-
-#include <ctype.h>
-#include <string.h>
 #include "../lua/luacomm.h"
+#include "libs/graphics/widgets.h"
 
 
 #define COL_MULTIPLIER (optLanderView == 0 || IS_PAD ? 7 : 6)
@@ -43,6 +44,49 @@
 #define MAX_CELL_COLS 40 // Why is this is never used???
 
 extern FRAME SpaceJunkFrame;
+
+static void
+DrawWholeScreenReportBorder (void)
+{
+	RECT r;
+	CONTEXT old_context = SetContext (ScreenContext);
+
+	r.corner.x = SAFE_X;
+	r.corner.y = SCREEN_HEIGHT - SAFE_Y - MAP_HEIGHT -
+			(MAP_BORDER_HEIGHT * 2) + RES_SCALE (1);
+	r.extent.width = SPACE_WIDTH - NSAFE_NUM_SCL (1);
+	r.extent.height = MAP_HEIGHT + (MAP_BORDER_HEIGHT * 2) -
+			SAFE_BOOL_SCL (1, -2);
+
+	if (!IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+				SIS_BOTTOM_RIGHT_BORDER_COLOR, SIS_LEFT_BORDER_COLOR,
+				TRUE, MENU_FOREGROUND_COLOR, FALSE, NULL_COLOR);
+	}
+	else
+	{
+		DrawRenderedBox (&r, TRUE, MENU_FOREGROUND_COLOR,
+				THIN_OUTER_BEVEL, FALSE);
+	}
+
+	r.corner.x = SIS_ORG_X - RES_SCALE (1);
+	r.corner.y = SCREEN_HEIGHT - SAFE_Y - MAP_HEIGHT - MAP_BORDER_HEIGHT +
+			RES_SCALE (1);
+	r.extent.width = SCALED_MAP_WIDTH + RES_SCALE (2);
+	r.extent.height = MAP_HEIGHT + RES_SCALE (2);
+
+	if (!IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+				SIS_LEFT_BORDER_COLOR, SIS_BOTTOM_RIGHT_BORDER_COLOR,
+				FALSE, NULL_COLOR, FALSE, NULL_COLOR);
+	}
+	else
+		DrawRenderedBox (&r, FALSE, NULL_COLOR, THIN_INNER_BEVEL, FALSE);
+
+	SetContext (old_context);
+}
 
 static void
 ClearReportArea (COORD startx)
@@ -57,6 +101,9 @@ ClearReportArea (COORD startx)
 		s.frame = SetAbsFrameIndex (SpaceJunkFrame, 18);
 	GetFrameRect (s.frame, &r);
 	BatchGraphics ();
+
+	if (optLanderView == 3)
+		DrawWholeScreenReportBorder ();
 
 	SetContextBackGroundColor (BLACK_COLOR);
 	ClearDrawable ();
@@ -327,8 +374,17 @@ DoDiscoveryReport (SOUND ReadOutSounds)
 #endif
 
 	context = GetScanContext (&ownContext);
+
 	OldContext = SetContext (context);
+
+	if (optLanderView == 3)
+		SetContext (ScreenContext);
+
 	saveStamp = SaveContextFrame (NULL);
+
+	if (optLanderView == 3)
+		SetContext (context);
+
 	{
 		FONT OldFont;
 		FRAME OldFontEffect;
@@ -360,6 +416,10 @@ DoDiscoveryReport (SOUND ReadOutSounds)
 		SetContextFont (OldFont);
 	}
 	// Restore previous screen
+
+	if (optLanderView == 3)
+		SetContext (ScreenContext);
+
 	DrawStamp (&saveStamp);
 	SetContext (OldContext);
 	// TODO: Make CONTEXT ref-counted
