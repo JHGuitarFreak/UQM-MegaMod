@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Added
 - EXTENDED: New sounds when Fwiffo opens fire on lander
 - New floating message above lander in playable area if its cargo or data bank is full
-- Two new full screen lander views. One takes up just the inner screen space with no minimap and the other is a proper whole screen view, again, no minimap.
+- Two new full lander views. One takes up just the entire inner space, taking up minimap area, and the other is a proper whole screen view. Both will not have a minimap and whole screen view will show crew, minerals, and bio-data dynamically.
+below the lander.
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander
