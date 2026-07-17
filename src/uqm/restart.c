@@ -46,6 +46,7 @@
 #include "cons_res.h"
 #include "build.h"
 #include "master.h"
+#include "libs/gfxlib.h"
 
 #include "libs/resource/stringbank.h"
 // for StringBank_Create() & SplitString()
@@ -313,7 +314,8 @@ DoDiffChooser (MENU_STATE *pMS)
 #define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
 #define MAIN_TEXT_Y (RES_SCALE (42) - DOS_NUM_SCL (20))
 
-FRAME TextCache[5];
+FRAME TextCache[NUM_MENU_ELEMENTS];
+RECT MenuRects[NUM_MENU_ELEMENTS];
 
 static void
 InitPulseText (void)
@@ -352,6 +354,8 @@ InitPulseText (void)
 		SetContextFGFrame (OldFrame);
 
 		TextCache[i] = frame;
+
+		MenuRects[i] = font_GetTextRect (&t);
 
 		t.baseline.y += leading;
 	}
@@ -456,6 +460,23 @@ RestartMessage (void)
 	return TRUE;
 }
 
+// Makes it so the mouse has to be on a menu entry to be able to click on it
+static BOOLEAN
+MouseClicker (MENU_STATE *pMS)
+{
+	POINT mousePos;
+	RECT r;
+
+	mousePos = ScreenToCanvas (ScreenContext);
+
+	r = MenuRects[pMS->CurState];
+
+	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
+		return TRUE;
+	else
+		return FALSE;
+}
+
 static BOOLEAN
 DoRestart (MENU_STATE *pMS)
 {
@@ -518,7 +539,7 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT))
+			|| MouseClicker (pMS))
 	{
 		if (ClearMouseEvents ())
 			PlayMenuSound (MENU_SOUND_SUCCESS);
@@ -608,21 +629,19 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_UP] ||
-			PulsedInputState.menu[KEY_MENU_DOWN] ||
-			MouseWheelDelta != 0)
+			PulsedInputState.menu[KEY_MENU_DOWN])
 	{
 		BYTE NewState;
 
 		NewState = pMS->CurState;
-		if (PulsedInputState.menu[KEY_MENU_UP] || MouseWheelDelta > 0)
+		if (PulsedInputState.menu[KEY_MENU_UP])
 		{
 			if (NewState == START_NEW_GAME)
 				NewState = QUIT_GAME;
 			else
 				--NewState;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_DOWN]
-				|| MouseWheelDelta < 0)
+		else if (PulsedInputState.menu[KEY_MENU_DOWN])
 		{
 			if (NewState == QUIT_GAME)
 				NewState = START_NEW_GAME;
@@ -647,16 +666,45 @@ DoRestart (MENU_STATE *pMS)
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
-#ifndef DEBUG
 	else
-	{	// No input received, check if timed out
-		if (GetTimeCounter () - LastInputTime > InactTimeOut)
+	{
+		if (IsMouseInViewport (ScreenContext))
 		{
-			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
-			return FALSE;
+			POINT mousePos;
+			BYTE i;
+			BYTE hoveredItem = pMS->CurState;
+
+			mousePos = ScreenToCanvas (ScreenContext);
+
+			for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
+			{
+				if (pointWithinRect (MenuRects[i], mousePos))
+					hoveredItem = i;
+			}
+
+			if (hoveredItem != pMS->CurState)
+			{
+				BatchGraphics ();
+				DrawRestartMenu (pMS, hoveredItem, NULL);
+				UnbatchGraphics ();
+				pMS->CurState = hoveredItem;
+
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
+
+			LastInputTime = GetTimeCounter ();
 		}
-	}
+#ifndef DEBUG
+		else
+		{	// No input received, check if timed out
+			if (GetTimeCounter () - LastInputTime > InactTimeOut)
+			{
+				GLOBAL (CurrentActivity) = (ACTIVITY)~0;
+				return FALSE;
+			}
+		}
 #endif
+	}
 	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 
 	return TRUE;
@@ -678,7 +726,7 @@ RestartMenu (MENU_STATE *pMS)
 			&& GET_GAME_STATE (UTWIG_BOMB_ON_SHIP)
 			&& !GET_GAME_STATE (UTWIG_BOMB)
 			&& DeathBySuicide)
-	{	// player blew himself up with Utwig bomb
+	{	// player blew themself up with Utwig bomb
 		SET_GAME_STATE (UTWIG_BOMB_ON_SHIP, 0);
 
 		SleepThreadUntil (FadeScreen (FadeAllToWhite, ONE_SECOND / 8)
