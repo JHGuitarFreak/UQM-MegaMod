@@ -647,6 +647,7 @@ DoRestart (MENU_STATE *pMS)
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
+#ifndef DEBUG
 	else
 	{	// No input received, check if timed out
 		if (GetTimeCounter () - LastInputTime > InactTimeOut)
@@ -655,6 +656,7 @@ DoRestart (MENU_STATE *pMS)
 			return FALSE;
 		}
 	}
+#endif
 	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 
 	return TRUE;
