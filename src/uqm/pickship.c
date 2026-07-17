@@ -33,6 +33,7 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 #include "util.h"
+#include "libs/inplib.h"
 
 #define NUM_PICK_SHIP_ROWS 2
 #define NUM_PICK_SHIP_COLUMNS 6
@@ -100,7 +101,8 @@ DoPickBattleShip (MENU_STATE *pMS)
 
 		goto ChangeSelection;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		if ((HSTARSHIP)pMS->CurFrame)
 		{

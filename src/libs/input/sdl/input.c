@@ -28,8 +28,10 @@
 #include "libs/file.h"
 #include "libs/log.h"
 #include "libs/reslib.h"
-#include "options.h"
-
+#include "libs/graphics/gfx_common.h"
+#include "uqm/colors.h"
+#include "uqm/units.h"
+#include "uqm/sounds.h"
 
 #define KBDBUFSIZE (1 << 8)
 static int kbdhead=0, kbdtail=0;
@@ -52,6 +54,10 @@ static int num_flight;
 static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
+
+volatile int MouseButtonDown = 0;
+volatile int MouseWheelDelta = 0;
+POINT CurrentMousePos = { 0, 0 };
 
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
@@ -390,6 +396,75 @@ GetLastCharacter (void)
 	return lastchar;
 }
 
+static void
+ProcessMouseEvent (const SDL_Event *e)
+{
+	if (!optMouseInput)
+		return;
+
+	switch (e->type)
+	{
+	case SDL_MOUSEBUTTONDOWN:
+		MouseButtonDown = e->button.button;
+		break;
+	case SDL_MOUSEBUTTONUP:
+		MouseButtonDown = 0;
+		break;
+	case SDL_MOUSEMOTION:
+		CurrentMousePos.x = e->motion.x;
+		CurrentMousePos.y = e->motion.y;
+		break;
+#if SDL_MAJOR_VERSION > 1
+	case SDL_MOUSEWHEEL:
+	{
+		static TimeCount lastWheelTime = 0;
+		TimeCount currentTime = GetTimeCounter ();
+
+		if (currentTime - lastWheelTime > (ONE_SECOND / 16))
+		{
+			if (e->wheel.y != 0)
+			{
+				MouseWheelDelta = (e->wheel.y > 0) ? 1 : -1;
+				lastWheelTime = currentTime;
+			}
+		}
+		break;
+	}
+#endif
+	default:
+		break;
+	}
+}
+
+BOOLEAN
+ClearMouseEvents (void)
+{
+	BOOLEAN had_event = (MouseButtonDown != 0) || (MouseWheelDelta != 0);
+
+	if (MouseButtonDown != 0)
+		MouseButtonDown = 0;
+
+	if (MouseWheelDelta != 0)
+		MouseWheelDelta = 0;
+
+	return had_event;
+}
+
+BOOLEAN
+MouseButton (int button)
+{
+	return MouseButtonDown == button;
+}
+
+void
+DoMouseSounds (void)
+{
+	if (MouseButtonDown)
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+	if (MouseWheelDelta)
+		PlayMenuSound (MENU_SOUND_MOVE);
+}
+
 static inline int
 is_numpad_char_event (const SDL_Event * Event)
 {
@@ -406,6 +481,8 @@ ProcessInputEvent (const SDL_Event *Event)
 {
 	if (!InputInitialized)
 		return;
+
+	ProcessMouseEvent (Event);
 
 	if (in_character_mode && !set_character_mode)
 	{
@@ -785,3 +862,131 @@ int GetActionFromEvent (const SDL_Event *event, int player)
 
 	return -1;
 }
+
+POINT
+ScaleCanvas (void)
+{
+	POINT temp;
+	POINT pt = CurrentMousePos;
+
+	temp.x = (COORD)(pt.x * ((float)CanvasWidth / (float)WindowWidth));
+	temp.y = (COORD)(pt.y * ((float)CanvasHeight / (float)WindowHeight));
+
+	return temp;
+}
+
+POINT
+ScreenToCanvas (CONTEXT context)
+{
+	POINT ipPos;
+	RECT r;
+	CONTEXT OldContext = SetContext (context);
+	GetContextClipRect (&r);
+	SetContext (OldContext);
+
+	ipPos = ScaleCanvas ();
+
+	ipPos.x = (COORD)inBounds (ipPos.x - r.corner.x, 0, r.extent.width);
+	ipPos.y = (COORD)inBounds (ipPos.y - r.corner.y, 0, r.extent.height);
+
+	return ipPos;
+}
+
+BOOLEAN
+IsMouseInViewport (CONTEXT context)
+{
+	BOOLEAN WellIsIt = FALSE;
+	CONTEXT OldContext;
+	RECT r;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	OldContext = SetContext (context);
+	GetContextClipRect (&r);
+	SetContext (OldContext);
+
+	WellIsIt = pointWithinRect (r, ScaleCanvas ());
+
+	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
+
+	return WellIsIt;
+}
+
+void
+DrawMouseCursor (CONTEXT context)
+{
+	LINE line;
+	Color OldColor;
+	POINT pt;
+
+	if (!optMouseInput)
+		return;
+
+	pt = ScreenToCanvas (context);
+
+	BatchGraphics ();
+
+	OldColor = SetContextForeGroundColor (BRIGHT_PINK_COLOR);
+
+	line.first.x = pt.x - RES_SCALE (3);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (3);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+
+	SetContextForeGroundColor (OldColor);
+
+	UnbatchGraphics ();
+}
+
+void
+DrawAutopilotTarget (POINT pt)
+{
+	LINE line;
+	RECT diag;
+
+	BatchGraphics ();
+
+	line.first.x = pt.x - RES_SCALE (4);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (4);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+
+	diag.corner.x = pt.x - RES_SCALE (2);
+	diag.corner.y = pt.y - RES_SCALE (2);
+	diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
+	DrawFilledRectangle (&diag);
+	diag.corner.x += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.y += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.x -= RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+
+	UnbatchGraphics ();
+}
+

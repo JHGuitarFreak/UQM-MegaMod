@@ -311,6 +311,7 @@ enum {
 	CHOICE_DOSMENUS,
 	CHOICE_HSCOLOR,
 	CHOICE_DIRJOYP2,
+	CHOICE_MOUSEINPUT,
 
 	CHOICE_COUNT
 };
@@ -484,7 +485,7 @@ typedef struct globalopts_struct {
 			noHQEncounters, deCleansing, meleeObstacles, showVisitedStars,
 			unscaledStarSystem, slaughterMode, advancedAutoPilot,
 			meleeToolTips, scatterElements, showUpgrades, fleetPointSys,
-			shipSeed, shipStore, captainNames, dosMenus;
+			shipSeed, shipStore, captainNames, dosMenus, mouseInput;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;

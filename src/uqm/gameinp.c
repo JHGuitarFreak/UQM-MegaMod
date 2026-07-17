@@ -358,6 +358,7 @@ FlushInput (void)
 {
 	TFB_ResetControls ();
 	_clear_menu_state ();
+	ClearMouseEvents ();
 }
 
 static MENU_SOUND_FLAGS
@@ -528,6 +529,11 @@ DirKeysPress (void)
 BOOLEAN
 ActKeysPress (void)
 {
+	BOOLEAN MouseButtonsPressed = MouseButton (MOUSE_LFT)
+			|| MouseButton (MOUSE_RGT) || MouseButton (MOUSE_MID);
+
+	ClearMouseEvents ();
+
 	UpdateInputState ();
 
 	return (
@@ -536,7 +542,7 @@ ActKeysPress (void)
 		CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
 		CurrentInputState.menu[KEY_MENU_SELECT] ||
 		CurrentInputState.menu[KEY_MENU_CANCEL] ||
-		CurrentInputState.menu[KEY_MENU_SPECIAL]
+		CurrentInputState.menu[KEY_MENU_SPECIAL] || MouseButtonsPressed
 	);
 }
 

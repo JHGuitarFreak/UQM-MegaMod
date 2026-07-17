@@ -317,6 +317,7 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&buttons[BTN_EDITMENUKEYS  ]), // Edit Menu Controls
 	(WIDGET *)(&buttons[BTN_EDIT_DEADZONES]), // Edit Axis Deadzones
 
+	(WIDGET *)(&choices[CHOICE_MOUSEINPUT]), // Mouse Input
 	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
@@ -1290,7 +1291,7 @@ process_graphics_options (WIDGET_CHOICE *self, int OldVal)
 			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
 
 		TFB_DrawScreen_ReinitVideo (NewGfxDriver, NewGfxFlags,
-			NewWidth, NewHeight);		
+			NewWidth, NewHeight);
 	}
 
 	FlushInput ();
@@ -1519,6 +1520,7 @@ SetDefaults (void)
 	choices[CHOICE_SHIPSTORE ].selected = opts.shipStore;
 	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
 	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
+	choices[CHOICE_MOUSEINPUT].selected = opts.mouseInput;
 
 	sliders[SLIDER_MUSVOLUME  ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME  ].value = opts.sfxvol;
@@ -1648,6 +1650,7 @@ PropagateResults (void)
 	opts.shipStore = choices[CHOICE_SHIPSTORE].selected;
 	opts.captainNames = choices[CHOICE_CAPTNAMES].selected;
 	opts.dosMenus = choices[CHOICE_DOSMENUS].selected;
+	opts.mouseInput = choices[CHOICE_MOUSEINPUT].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -1666,6 +1669,7 @@ PropagateResults (void)
 static BOOLEAN
 DoSetupMenu (SETUP_MENU_STATE *pInputState)
 {
+	static BOOLEAN clicked_in = FALSE;
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
@@ -1700,28 +1704,70 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 
 	UnbatchGraphics ();
 
-	if (PulsedInputState.menu[KEY_MENU_UP])
+	if (current && current->tag == WIDGET_TYPE_MENU_SCREEN)
+	{
+		BOOLEAN horizontal = FALSE;
+		WIDGET_MENU_SCREEN *menu = (WIDGET_MENU_SCREEN *)current;
+		if (menu->highlighted >= 0
+				&& menu->highlighted < menu->num_children)
+		{
+			WIDGET *highlighted_widget = menu->child[menu->highlighted];
+			if (highlighted_widget)
+			{
+				switch (highlighted_widget->tag)
+				{
+					case WIDGET_TYPE_SLIDER:
+						horizontal = TRUE;
+						break;
+					case WIDGET_TYPE_CHOICE:
+						horizontal = TRUE;
+						break;
+					case WIDGET_TYPE_TEXTENTRY:
+					case WIDGET_TYPE_CONTROLENTRY:
+						horizontal = FALSE;
+						ClearMouseEvents ();
+						break;
+					default:
+						horizontal = FALSE;
+						break;
+				}
+			}
+		}
+
+		if (MouseButton (MOUSE_LFT) && horizontal)
+		{
+			clicked_in ^= 1 << 0;
+		}
+	}
+
+	if (PulsedInputState.menu[KEY_MENU_UP]
+			|| (!clicked_in && MouseWheelDelta > 0))
 	{
 		Widget_Event (WIDGET_EVENT_UP);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_DOWN])
+	else if (PulsedInputState.menu[KEY_MENU_DOWN]
+			|| (!clicked_in && MouseWheelDelta < 0))
 	{
 		Widget_Event (WIDGET_EVENT_DOWN);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_LEFT])
+	else if (PulsedInputState.menu[KEY_MENU_LEFT]
+			|| (clicked_in && MouseWheelDelta < 0))
 	{
 		Widget_Event (WIDGET_EVENT_LEFT);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+	else if (PulsedInputState.menu[KEY_MENU_RIGHT]
+			|| (clicked_in && MouseWheelDelta > 0))
 	{
 		Widget_Event (WIDGET_EVENT_RIGHT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_SELECT])
+	if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| (MouseButton (MOUSE_LFT)))
 	{
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_CANCEL);
 	}
 	if (PulsedInputState.menu[KEY_MENU_DELETE])
@@ -1729,10 +1775,12 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
 
+	DoMouseSounds ();
+	ClearMouseEvents ();
+
 	SleepThreadUntil (pInputState->NextTime + MENU_FRAME_RATE);
 	pInputState->NextTime = GetTimeCounter ();
-	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || 
-		 (next == NULL));
+	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || (next == NULL));
 }
 
 static void
@@ -3019,6 +3067,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
+	opts->mouseInput = optMouseInput;
 
 	// QoL
 	opts->scatterElements = optScatterElements;
@@ -3305,6 +3354,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
+
+	PutBoolOpt (&optMouseInput, &opts->mouseInput, "mm.mouseInput", FALSE);
 
 /*
  *		Cheats

@@ -221,30 +221,38 @@ DoDiffChooser (MENU_STATE *pMS)
 		{
 			return FALSE;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_SELECT])
+		else if (PulsedInputState.menu[KEY_MENU_SELECT]
+				|| MouseButton (MOUSE_LFT))
 		{
 			done = TRUE;
 			response = TRUE;
 			DrawDiffChooser (pMS, a, TRUE);
 			PlayMenuSound (MENU_SOUND_SUCCESS);
+			ClearMouseEvents ();
 		}
 		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
-				|| CurrentInputState.menu[KEY_EXIT])
+				|| CurrentInputState.menu[KEY_EXIT]
+				|| MouseButton (MOUSE_RGT))
 		{
 			done = TRUE;
 			response = FALSE;
+
 			DrawStamp (&s);
+
+			ClearMouseEvents ();
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP] ||
 				PulsedInputState.menu[KEY_MENU_DOWN] ||
 				PulsedInputState.menu[KEY_MENU_LEFT] ||
-				PulsedInputState.menu[KEY_MENU_RIGHT])
+				PulsedInputState.menu[KEY_MENU_RIGHT] ||
+				MouseWheelDelta != 0)
 		{
 			BYTE NewState;
 
 			NewState = a;
 			if (PulsedInputState.menu[KEY_MENU_UP]
-					|| PulsedInputState.menu[KEY_MENU_LEFT])
+					|| PulsedInputState.menu[KEY_MENU_LEFT]
+					|| MouseWheelDelta > 0)
 			{
 				if (NewState == EASY_DIFF)
 					NewState = HARD_DIFF;
@@ -252,7 +260,8 @@ DoDiffChooser (MENU_STATE *pMS)
 					--NewState;
 			}
 			else if (PulsedInputState.menu[KEY_MENU_DOWN]
-					|| PulsedInputState.menu[KEY_MENU_RIGHT])
+					|| PulsedInputState.menu[KEY_MENU_RIGHT]
+					|| MouseWheelDelta < 0)
 			{
 				if (NewState == HARD_DIFF)
 					NewState = EASY_DIFF;
@@ -268,6 +277,8 @@ DoDiffChooser (MENU_STATE *pMS)
 			}
 
 			PlayMenuSound (MENU_SOUND_MOVE);
+
+			ClearMouseEvents ();
 
 			LastInputTime = GetTimeCounter ();
 
@@ -506,8 +517,12 @@ DoRestart (MENU_STATE *pMS)
 				FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+
 		switch (pMS->CurState)
 		{
 			case START_NEW_GAME:
@@ -593,19 +608,21 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_UP] ||
-			PulsedInputState.menu[KEY_MENU_DOWN])
+			PulsedInputState.menu[KEY_MENU_DOWN] ||
+			MouseWheelDelta != 0)
 	{
 		BYTE NewState;
 
 		NewState = pMS->CurState;
-		if (PulsedInputState.menu[KEY_MENU_UP])
+		if (PulsedInputState.menu[KEY_MENU_UP] || MouseWheelDelta > 0)
 		{
 			if (NewState == START_NEW_GAME)
 				NewState = QUIT_GAME;
 			else
 				--NewState;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_DOWN])
+		else if (PulsedInputState.menu[KEY_MENU_DOWN]
+				|| MouseWheelDelta < 0)
 		{
 			if (NewState == QUIT_GAME)
 				NewState = START_NEW_GAME;
@@ -620,6 +637,9 @@ DoRestart (MENU_STATE *pMS)
 			pMS->CurState = NewState;
 		}
 
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_MOVE);
+
 		LastInputTime = GetTimeCounter ();
 	}
 	else if (PulsedInputState.menu[KEY_MENU_LEFT] ||
@@ -627,24 +647,6 @@ DoRestart (MENU_STATE *pMS)
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
-	//else if (MouseButtonDown)
-	//{
-	//	Flash_pause (pMS->flashContext);
-	//	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
-	//			// Mouse not supported message
-	//	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
-
-	//	SetTransitionSource (NULL);
-	//	BatchGraphics ();
-	//	DrawRestartMenuGraphic (pMS);
-	//	ScreenTransition (3, NULL);
-	//	DrawRestartMenu (pMS, pMS->CurState, NULL);
-	//	Flash_continue (pMS->flashContext);
-	//	UnbatchGraphics ();
-
-	//	LastInputTime = GetTimeCounter ();
-	//}
-#ifndef DEBUG
 	else
 	{	// No input received, check if timed out
 		if (GetTimeCounter () - LastInputTime > InactTimeOut)
@@ -653,9 +655,6 @@ DoRestart (MENU_STATE *pMS)
 			return FALSE;
 		}
 	}
-#endif
-#
-
 	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 
 	return TRUE;

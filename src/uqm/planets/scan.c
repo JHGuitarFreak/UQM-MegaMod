@@ -44,6 +44,7 @@
 #include "libs/graphics/drawable.h"
 #include "libs/inplib.h"
 #include "libs/mathlib.h"
+#include "uqm/shipcont.h"
 
 extern FRAME SpaceJunkFrame;
 
@@ -68,6 +69,91 @@ enum ScanMenuItems
 	DISPATCH_SHUTTLE,
 };
 
+// Begin mouse-centric code chunk
+
+static BOOLEAN ScanMouseDragging = FALSE;
+
+static POINT
+ScreenToScanCoords (void)
+{
+	POINT pos;
+	POINT pt = ScaleCanvas ();
+
+	RECT scanRect;
+	CONTEXT OldContext = SetContext (ScanContext);
+	GetContextClipRect (&scanRect);
+	SetContext (OldContext);
+
+	pos.x = (pt.x - scanRect.corner.x) << MAG_SHIFT;
+	pos.y = (pt.y - scanRect.corner.y) << MAG_SHIFT;
+
+	if (pos.x < 0) pos.x = 0;
+	else if (pos.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+		pos.x = (SCALED_MAP_WIDTH << MAG_SHIFT) - 1;
+	if (pos.y < 0) pos.y = 0;
+	else if (pos.y >= (MAP_HEIGHT << MAG_SHIFT))
+		pos.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+
+	return pos;
+}
+
+static void restorePlanetLocationImage (void);
+static void drawPlanetCursor (BOOLEAN filled);
+static void setPlanetLoc (POINT new_pt, BOOLEAN restoreOld);
+
+static BOOLEAN
+ScanCursorLocation (void)
+{
+	POINT pt = ScreenToScanCoords ();
+
+	if (pointsEqual (pt, planetLoc))
+		return FALSE;
+
+	restorePlanetLocationImage ();
+	setPlanetLoc (pt, FALSE);
+	drawPlanetCursor (FALSE);
+
+	return TRUE;
+}
+
+static BOOLEAN
+ScanMouseInput (void)
+{
+	BOOLEAN cursorMoved = FALSE;
+	POINT newCursorLoc;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	if (!IsMouseInViewport (ScanContext))
+	{
+		if (ScanMouseDragging)
+		{
+			ScanMouseDragging = FALSE;
+		}
+		return FALSE;
+	}
+
+	if (!ScanMouseDragging)
+		cursorMoved = ScanCursorLocation ();
+
+	if (MouseButton (MOUSE_LFT) && !ScanMouseDragging)
+	{
+		ScanMouseDragging = TRUE;
+		cursorMoved = ScanCursorLocation ();
+	}
+	else if (!MouseButtonDown && ScanMouseDragging)
+	{
+		ScanMouseDragging = FALSE;
+	}
+
+	if (ScanMouseDragging)
+		cursorMoved = ScanCursorLocation ();
+
+	return cursorMoved;
+}
+
+// End mouse-centric code chunk
 
 void
 RepairBackRect (RECT *pRect)
@@ -679,6 +765,7 @@ RedrawSurfaceScan (const POINT *newLoc)
 		setPlanetLoc (*newLoc, FALSE);
 		drawPlanetCursor (FALSE);
 	}
+
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
@@ -785,8 +872,13 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN select, cancel;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	if (ScanMouseInput ())
+	{
+		flashPlanetLocation ();
+	}
+
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
@@ -794,13 +886,18 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		return FALSE;
 	}
 
+	if (MouseButtonDown)
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+
 	if (cancel)
 	{
+		ClearMouseEvents ();
 		pickState->success = false;
 		return FALSE;
 	}
 	else if (select)
 	{
+		ClearMouseEvents ();
 		pickState->success = true;
 		return FALSE;
 	}
@@ -1343,18 +1440,27 @@ DoScan (MENU_STATE *pMS)
 {
 	BOOLEAN select, cancel;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
+	if (MouseButton (MOUSE_LFT))
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
+		ClearMouseEvents ();
+
 		return FALSE;
 	}
 	else if (select)
 	{
+		ClearMouseEvents ();
+
 		if (pMS->CurState == DISPATCH_SHUTTLE)
 		{
 			COUNT fuel_required;

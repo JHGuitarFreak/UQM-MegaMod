@@ -171,6 +171,98 @@ universeToDispy2 (COORD uy)
 #define UNIVERSE_TO_DISPY2(uy) \
 		(IS_HD ? universeToDispy2(uy) : universeToDispy(uy))
 
+// Begin mouse-centric chunk of code
+
+static void DrawStarMap (COUNT race_update, RECT *pClipRect);
+static void DrawCursor (COORD curs_x, COORD curs_y);
+static void EraseCursor (COORD curs_x, COORD curs_y);
+static void ZoomStarMap (SIZE dir);
+
+static BOOLEAN MouseDragging = FALSE;
+static DWORD MouseDownTime = 0;
+
+static POINT
+ScreenToStarMapCoords (void)
+{
+	POINT pos;
+	POINT pt = ScaleCanvas ();
+	POINT max = { MAX_X_UNIVERSE, MAX_Y_UNIVERSE };
+
+	pos.x = inBounds (DISP_TO_UNIVERSEX (pt.x - SIS_ORG_X), 0, max.x);
+	pos.y = inBounds (DISP_TO_UNIVERSEY (pt.y - SIS_ORG_Y), 0, max.y);
+
+	return pos;
+}
+
+static BOOLEAN
+CursorLocation (POINT pt)
+{
+	if (pointsEqual (pt, cursorLoc))
+		return FALSE;
+
+	EraseCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
+		UNIVERSE_TO_DISPY (cursorLoc.y));
+
+	cursorLoc = pt;
+
+	DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
+		UNIVERSE_TO_DISPY (cursorLoc.y));
+
+	return TRUE;
+}
+
+static BOOLEAN
+StarMapMouseInput (void)
+{
+	BOOLEAN cursorMoved = FALSE;
+	POINT newCursorLoc;
+	POINT pt;
+	STAR_DESC *SDPtr = NULL;
+	STAR_DESC *BestSDPtr = NULL;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	if (!IsMouseInViewport (SpaceContext))
+	{
+		if (MouseDragging)
+		{
+			MouseDragging = FALSE;
+			MouseDownTime = 0;
+		}
+		return FALSE;
+	}
+
+	newCursorLoc = ScreenToStarMapCoords ();
+
+	pt.x = UNIVERSE_TO_DISPX (newCursorLoc.x);
+	pt.y = UNIVERSE_TO_DISPY (newCursorLoc.y);
+
+	while ((SDPtr = FindStar (SDPtr, &newCursorLoc, 75, 75)))
+	{
+		if (UNIVERSE_TO_DISPX (SDPtr->star_pt.x) == pt.x &&
+				UNIVERSE_TO_DISPY (SDPtr->star_pt.y) == pt.y &&
+				(BestSDPtr == NULL ||
+				STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
+		{
+			BestSDPtr = SDPtr;
+		}
+	}
+
+	if (BestSDPtr)
+		newCursorLoc = BestSDPtr->star_pt;
+
+	if (!MouseDragging)
+		cursorMoved = CursorLocation (newCursorLoc);
+
+	if (MouseDragging)
+		cursorMoved = CursorLocation (newCursorLoc);
+
+	return cursorMoved;
+}
+
+// End mouse-centric chunk of code
+
 static BOOLEAN transition_pending;
 
 static void
@@ -250,9 +342,9 @@ static void
 DrawAutoPilot (POINT *pDstPt)
 {
 	SIZE dx, dy,
-				xincr, yincr,
-				xerror, yerror,
-				cycle, delta;
+			xincr, yincr,
+			xerror, yerror,
+			cycle, delta;
 	POINT pt;
 	STAMP s;
 
@@ -1648,6 +1740,12 @@ ZoomStarMap (SIZE dir)
 		if (zoomLevel < MAX_ZOOM_SHIFT)
 		{
 			++zoomLevel;
+
+			if (IsMouseInViewport (SpaceContext))
+			{
+				cursorLoc = ScreenToStarMapCoords ();
+			}
+
 			mapOrigin = cursorLoc;
 
 			DrawStarMap (0, NULL);
@@ -1659,7 +1757,12 @@ ZoomStarMap (SIZE dir)
 		if (zoomLevel > 0)
 		{
 			if (zoomLevel > 1)
+			{
+				if (IsMouseInViewport (SpaceContext))
+					cursorLoc = ScreenToStarMapCoords ();
+
 				mapOrigin = cursorLoc;
+			}
 			else
 			{
 				mapOrigin.x = MAX_X_UNIVERSE >> 1;
@@ -2523,9 +2626,24 @@ DoMoveCursor (MENU_STATE *pMS)
 		UpdateCursorInfo (last_buf);
 		UpdateFuelRequirement ();
 
+		if (optMouseInput)
+		{
+			MouseDragging = FALSE;
+			MouseDownTime = 0;
+		}
+
 		return TRUE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
+
+	if (StarMapMouseInput ())
+	{
+		UpdateCursorInfo (last_buf);
+		UpdateFuelRequirement ();
+		flashCurrentLocation (NULL, TRUE);
+		isMove = TRUE;
+	}
+	
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
 		FlushInput ();
 
@@ -2556,11 +2674,11 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| (MouseButton (MOUSE_LFT) && !MouseDragging))
 	{
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
-
 		FlushInput ();
 
 		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
@@ -2636,7 +2754,8 @@ DoMoveCursor (MENU_STATE *pMS)
 			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+	else if (PulsedInputState.menu[KEY_MENU_SPECIAL]
+			|| MouseButton (MOUSE_MID))
 	{
 		FlushInput ();
 
@@ -2676,10 +2795,12 @@ DoMoveCursor (MENU_STATE *pMS)
 		SIZE ZoomIn, ZoomOut;
 
 		ZoomIn = ZoomOut = 0;
-		if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
+		if (PulsedInputState.menu[KEY_MENU_ZOOM_IN] || MouseWheelDelta > 0)
 			ZoomIn = 1;
-		else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
+		else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT] || MouseWheelDelta < 0)
 			ZoomOut = 1;
+
+		ClearMouseEvents ();
 
 		ZoomStarMap (ZoomIn - ZoomOut);
 

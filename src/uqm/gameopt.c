@@ -34,6 +34,7 @@
 #include "util.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/log/uqmlog.h"
+#include "libs/inplib.h"
 #include "comm.h"
 #include "master.h"
 
@@ -624,13 +625,15 @@ DoSettings (MENU_STATE *pMS)
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| (PulsedInputState.menu[KEY_MENU_SELECT]
+	if ((PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+			|| ((PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_SETTINGS_MENU))
 	{
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{
@@ -1643,13 +1646,20 @@ DoPickGame (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT))
 	{
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+
 		pickState->success = FALSE;
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
+		ClearMouseEvents ();
+
 		pSD = &pickState->summary[pMS->CurState];
 		if (pickState->saving || pSD->year_index ||
 			(!pickState->saving && pMS->CurState == MAX_SAVED_GAMES))
@@ -1700,15 +1710,22 @@ DoPickGame (MENU_STATE *pMS)
 			else
 				NewState = maxSlots;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_UP])
+		else if (PulsedInputState.menu[KEY_MENU_UP] || MouseWheelDelta > 0)
 		{
+			if (ClearMouseEvents ())
+				PlayMenuSound (MENU_SOUND_MOVE);
+
 			if (NewState == 0)
 				NewState = maxSlots;
 			else
 				NewState--;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_DOWN])
+		else if (PulsedInputState.menu[KEY_MENU_DOWN]
+				|| MouseWheelDelta < 0)
 		{
+			if (ClearMouseEvents ())
+				PlayMenuSound (MENU_SOUND_MOVE);
+
 			if (NewState == maxSlots)
 				NewState = 0;
 			else
@@ -2053,13 +2070,15 @@ DoGameOptions (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| (PulsedInputState.menu[KEY_MENU_SELECT]
+	if ((PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+			|| ((PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_GAME_MENU))
 	{
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{

@@ -24,6 +24,7 @@
 #include "libs/uio.h"
 #include "libs/unicode.h"
 #include "libs/input/sdl/vcontrol.h"
+#include "options.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -36,14 +37,10 @@ extern BOOLEAN ActKeysPress (void);
 
 extern void TFB_ResetControls (void);
 
-/*
- * Not used right now
-extern BOOLEAN FindMouse (void);
-extern void MoveMouse (SWORD x, SWORD y);
-extern BYTE LocateMouse (SWORD *px, SWORD *py);
-*/
-
 extern volatile int MouseButtonDown;
+extern volatile int MouseWheelDelta;
+extern POINT CurrentMousePos;
+
 extern volatile int QuitPosted;
 extern volatile int GameActive;
 
@@ -76,6 +73,19 @@ extern const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
 extern const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16];
 extern const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
 extern const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+
+#define MOUSE_LFT 1
+#define MOUSE_MID 2
+#define MOUSE_RGT 3
+
+extern BOOLEAN ClearMouseEvents (void);
+extern BOOLEAN MouseButton (int button);
+extern void DoMouseSounds (void);
+extern POINT ScaleCanvas (void);
+extern POINT ScreenToCanvas (CONTEXT context);
+extern BOOLEAN IsMouseInViewport (CONTEXT context);
+extern void DrawMouseCursor (CONTEXT context);
+extern void DrawAutopilotTarget (POINT pt);
 
 #if defined(__cplusplus)
 }
