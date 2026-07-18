@@ -310,6 +310,7 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
 	(WIDGET *)(&choices[CHOICE_DIRJOYP1  ]), // Directional Joystick P1
 	(WIDGET *)(&choices[CHOICE_DIRJOYP2  ]), // Directional Joystick P2
+	(WIDGET *)(&choices[CHOICE_MOUSEINPUT]), // Mouse Input
 
 	(WIDGET *)(&labels [LABEL_SPACER      ]), // Spacer
 	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP ]), // "To view or edit..."
@@ -317,8 +318,7 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&buttons[BTN_EDITMENUKEYS  ]), // Edit Menu Controls
 	(WIDGET *)(&buttons[BTN_EDIT_DEADZONES]), // Edit Axis Deadzones
 
-	(WIDGET *)(&choices[CHOICE_MOUSEINPUT]), // Mouse Input
-	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
