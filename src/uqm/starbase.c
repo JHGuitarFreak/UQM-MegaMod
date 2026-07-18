@@ -38,8 +38,40 @@
 #include "util.h"
 #include "libs/inplib.h"
 
+RECT BaseRects[NUM_STARBASE_STRINGS];
 
 static void CleanupAfterStarBase (void);
+
+static void
+InitBaseTextRects (void)
+{
+	BYTE i;
+	TEXT t;
+	CONTEXT oldContext;
+	FONT oldFont;
+	COUNT text_base_y = RES_SCALE (106 + 28);
+	COUNT text_spacing_y = RES_SCALE (23 - 4);
+
+	oldContext = SetContext (ScreenContext);
+	oldFont = SetContextFont (StarConFont);
+
+	memset (BaseRects, 0, sizeof (BaseRects));
+
+	t.baseline.x = RES_SCALE (73 - 4) + SAFE_X;
+	t.align = ALIGN_CENTER;
+	t.CharCount = (COUNT)~0;
+
+	for (i = TALK_COMMANDER; i < NUM_STARBASE_STRINGS; ++i)
+	{
+		t.baseline.y = text_base_y + SAFE_Y + (text_spacing_y * i);
+		t.pStr = GAME_STRING (STARBASE_STRING_BASE + 1 + i);
+
+		BaseRects[i] = font_GetTextRect (&t);
+	}
+
+	SetContextFont (oldFont);
+	SetContext (oldContext);
+}
 
 static void
 DrawBaseStateStrings (STARBASE_STATE OldState, STARBASE_STATE NewState)
@@ -345,6 +377,7 @@ DoStarBase (MENU_STATE *pMS)
 		SetContextBackGroundColor (BLACK_COLOR);
 		ClearDrawable ();
 		rotateStarbase (pMS, pMS->CurFrame);
+		InitBaseTextRects ();
 		DrawBaseStateStrings ((STARBASE_STATE)~0, pMS->CurState);
 		ScreenTransition (optScrTrans, NULL);
 
@@ -429,22 +462,14 @@ ExitStarBase:
 
 		NewState = pMS->CurState;
 		if (PulsedInputState.menu[KEY_MENU_LEFT]
-				|| PulsedInputState.menu[KEY_MENU_UP]
-				|| MouseWheelDelta > 0)
+				|| PulsedInputState.menu[KEY_MENU_UP])
 		{
-			if (ClearMouseEvents ())
-				PlayMenuSound (MENU_SOUND_MOVE);
-
 			if (NewState-- == TALK_COMMANDER)
 				NewState = DEPART_BASE;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_RIGHT]
-				|| PulsedInputState.menu[KEY_MENU_DOWN]
-				|| MouseWheelDelta < 0)
+				|| PulsedInputState.menu[KEY_MENU_DOWN])
 		{
-			if (ClearMouseEvents ())
-				PlayMenuSound (MENU_SOUND_MOVE);
-
 			if (NewState++ == DEPART_BASE)
 				NewState = TALK_COMMANDER;
 		}
@@ -456,6 +481,33 @@ ExitStarBase:
 		{
 			DrawBaseStateStrings (pMS->CurState, NewState);
 			pMS->CurState = NewState;
+		}
+		else if (IsMouseInViewport (ScreenContext))
+		{
+			BYTE i;
+			POINT mousePos;
+			BYTE hoveredItem = pMS->CurState;
+
+			mousePos = ScreenToCanvas (ScreenContext);
+
+			for (i = 0; i < NUM_STARBASE_STRINGS; i++)
+			{
+				if (pointWithinRect (BaseRects[i], mousePos))
+					hoveredItem = i;
+			}
+
+			if (hoveredItem != pMS->CurState)
+			{
+				DrawBaseStateStrings (pMS->CurState, hoveredItem);
+				pMS->CurState = hoveredItem;
+
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
+
+			if (pointWithinRect (BaseRects[hoveredItem], mousePos))
+				SDL_SetCursor (HandCursor);
+			else
+				SDL_SetCursor (ArrowCursor);
 		}
 
 		rotateStarbase (pMS, NULL);
