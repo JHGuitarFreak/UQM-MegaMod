@@ -485,26 +485,26 @@ ExitStarBase:
 		else if (IsMouseInViewport (ScreenContext))
 		{
 			BYTE i;
-			POINT mousePos;
-			BYTE hoveredItem = pMS->CurState;
+			POINT mouse_pos;
+			BYTE hovered_item = pMS->CurState;
 
-			mousePos = ScreenToCanvas (ScreenContext);
+			mouse_pos = ScreenToCanvas (ScreenContext);
 
 			for (i = 0; i < NUM_STARBASE_STRINGS; i++)
 			{
-				if (pointWithinRect (BaseRects[i], mousePos))
-					hoveredItem = i;
+				if (pointWithinRect (BaseRects[i], mouse_pos))
+					hovered_item = i;
 			}
 
-			if (hoveredItem != pMS->CurState)
+			if (hovered_item != pMS->CurState)
 			{
-				DrawBaseStateStrings (pMS->CurState, hoveredItem);
-				pMS->CurState = hoveredItem;
+				DrawBaseStateStrings (pMS->CurState, hovered_item);
+				pMS->CurState = hovered_item;
 
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 
-			if (pointWithinRect (BaseRects[hoveredItem], mousePos))
+			if (pointWithinRect (BaseRects[hovered_item], mouse_pos))
 				SDL_SetCursor (HandCursor);
 			else
 				SDL_SetCursor (ArrowCursor);

@@ -1754,28 +1754,28 @@ DoPickGame (MENU_STATE *pMS)
 		else if (IsMouseInViewport (ScreenContext))
 		{
 			BYTE i;
-			POINT mousePos;
-			COUNT totalSlots = MAX_SAVED_GAMES + (pickState->saving ? 0 : 1);
-			BYTE hoveredItem = pMS->CurState;
+			POINT mouse_pos;
+			COUNT total_slots = MAX_SAVED_GAMES + (pickState->saving ? 0 : 1);
+			BYTE hovered_item = pMS->CurState;
 
-			mousePos = ScreenToCanvas (SpaceContext);
+			mouse_pos = ScreenToCanvas (SpaceContext);
 
-			for (i = 0; i < totalSlots; i++)
+			for (i = 0; i < total_slots; i++)
 			{
-				if (pointWithinRect (SlotRects[i], mousePos))
-					hoveredItem = i;
+				if (pointWithinRect (SlotRects[i], mouse_pos))
+					hovered_item = i;
 			}
 
-			if (hoveredItem != pMS->CurState)
+			if (hovered_item != pMS->CurState)
 			{
-				pMS->CurState = hoveredItem;
+				pMS->CurState = hovered_item;
 				SetContext (SpaceContext);
-				RedrawPickDisplay (pickState, hoveredItem);
+				RedrawPickDisplay (pickState, hovered_item);
 
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 
-			if (pointWithinRect (SlotRects[hoveredItem], mousePos))
+			if (pointWithinRect (SlotRects[hovered_item], mouse_pos))
 				SDL_SetCursor (HandCursor);
 			else
 				SDL_SetCursor (ArrowCursor);

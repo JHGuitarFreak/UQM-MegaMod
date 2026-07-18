@@ -306,29 +306,29 @@ DoDiffChooser (MENU_STATE *pMS)
 		{
 			if (IsMouseInViewport (ScreenContext))
 			{
-				POINT mousePos;
 				BYTE i;
-				BYTE hoveredItem = a;
+				POINT mouse_pos;
+				BYTE hovered_item = a;
 
-				mousePos = ScreenToCanvas (ScreenContext);
+				mouse_pos = ScreenToCanvas (ScreenContext);
 
 				for (i = 0; i <= 2; i++)
 				{
-					if (pointWithinRect (DiffRects[i], mousePos))
-						hoveredItem = i;
+					if (pointWithinRect (DiffRects[i], mouse_pos))
+						hovered_item = i;
 				}
 
-				if (hoveredItem != a)
+				if (hovered_item != a)
 				{
 					BatchGraphics ();
-					DrawDiffChooser (pMS, hoveredItem, FALSE);
+					DrawDiffChooser (pMS, hovered_item, FALSE);
 					UnbatchGraphics ();
-					a = hoveredItem;
+					a = hovered_item;
 
 					PlayMenuSound (MENU_SOUND_MOVE);
 				}
 
-				if (pointWithinRect (DiffRects[hoveredItem], mousePos))
+				if (pointWithinRect (DiffRects[hovered_item], mouse_pos))
 					SDL_SetCursor (HandCursor);
 				else
 					SDL_SetCursor (ArrowCursor);
@@ -700,29 +700,29 @@ DoRestart (MENU_STATE *pMS)
 	{
 		if (IsMouseInViewport (ScreenContext))
 		{
-			POINT mousePos;
 			BYTE i;
-			BYTE hoveredItem = pMS->CurState;
+			POINT mouse_pos;
+			BYTE hovered_item = pMS->CurState;
 
-			mousePos = ScreenToCanvas (ScreenContext);
+			mouse_pos = ScreenToCanvas (ScreenContext);
 
 			for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
 			{
-				if (pointWithinRect (MenuRects[i], mousePos))
-					hoveredItem = i;
+				if (pointWithinRect (MenuRects[i], mouse_pos))
+					hovered_item = i;
 			}
 
-			if (hoveredItem != pMS->CurState)
+			if (hovered_item != pMS->CurState)
 			{
 				BatchGraphics ();
-				DrawRestartMenu (pMS, hoveredItem, NULL);
+				DrawRestartMenu (pMS, hovered_item, NULL);
 				UnbatchGraphics ();
-				pMS->CurState = hoveredItem;
+				pMS->CurState = hovered_item;
 
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 
-			if (pointWithinRect (MenuRects[hoveredItem], mousePos))
+			if (pointWithinRect (MenuRects[hovered_item], mouse_pos))
 				SDL_SetCursor (HandCursor);
 			else
 				SDL_SetCursor (ArrowCursor);
