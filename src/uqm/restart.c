@@ -151,6 +151,8 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 	StringBank_Free (bank);
 }
 
+RECT DiffRects[3];
+
 static void
 DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 {
@@ -184,10 +186,29 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 			);
 		font_DrawText (&t);
 
+		DiffRects[i] = font_GetTextRect (&t);
+
 		t.baseline.y += RES_SCALE (23);
 	}
 
 	SetContextFont (oldFont);
+}
+
+// Makes it so the mouse has to be on a diff entry to be able to click on it
+static BOOLEAN
+DiffMouseClicker (BYTE a)
+{
+	POINT mousePos;
+	RECT r;
+
+	mousePos = ScreenToCanvas (ScreenContext);
+
+	r = DiffRects[a];
+
+	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
+		return TRUE;
+	else
+		return FALSE;
 }
 
 static BOOLEAN
@@ -223,7 +244,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			return FALSE;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_SELECT]
-				|| MouseButton (MOUSE_LFT))
+				|| DiffMouseClicker (a))
 		{
 			done = TRUE;
 			response = TRUE;
@@ -245,15 +266,13 @@ DoDiffChooser (MENU_STATE *pMS)
 		else if (PulsedInputState.menu[KEY_MENU_UP] ||
 				PulsedInputState.menu[KEY_MENU_DOWN] ||
 				PulsedInputState.menu[KEY_MENU_LEFT] ||
-				PulsedInputState.menu[KEY_MENU_RIGHT] ||
-				MouseWheelDelta != 0)
+				PulsedInputState.menu[KEY_MENU_RIGHT])
 		{
 			BYTE NewState;
 
 			NewState = a;
 			if (PulsedInputState.menu[KEY_MENU_UP]
-					|| PulsedInputState.menu[KEY_MENU_LEFT]
-					|| MouseWheelDelta > 0)
+					|| PulsedInputState.menu[KEY_MENU_LEFT])
 			{
 				if (NewState == EASY_DIFF)
 					NewState = HARD_DIFF;
@@ -261,8 +280,7 @@ DoDiffChooser (MENU_STATE *pMS)
 					--NewState;
 			}
 			else if (PulsedInputState.menu[KEY_MENU_DOWN]
-					|| PulsedInputState.menu[KEY_MENU_RIGHT]
-					|| MouseWheelDelta < 0)
+					|| PulsedInputState.menu[KEY_MENU_RIGHT])
 			{
 				if (NewState == HARD_DIFF)
 					NewState = EASY_DIFF;
@@ -284,14 +302,43 @@ DoDiffChooser (MENU_STATE *pMS)
 			LastInputTime = GetTimeCounter ();
 
 		}
+		else
+		{
+			if (IsMouseInViewport (ScreenContext))
+			{
+				POINT mousePos;
+				BYTE i;
+				BYTE hoveredItem = a;
+
+				mousePos = ScreenToCanvas (ScreenContext);
+
+				for (i = 0; i <= 2; i++)
+				{
+					if (pointWithinRect (DiffRects[i], mousePos))
+						hoveredItem = i;
+				}
+
+				if (hoveredItem != a)
+				{
+					BatchGraphics ();
+					DrawDiffChooser (pMS, hoveredItem, FALSE);
+					UnbatchGraphics ();
+					a = hoveredItem;
+
+					PlayMenuSound (MENU_SOUND_MOVE);
+				}
+
+				LastInputTime = GetTimeCounter ();
+			}
 #ifndef DEBUG
-		else if (GetTimeCounter () - LastInputTime > InactTimeOut)
-		{	// timed out
-			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
-			done = TRUE;
-			response = FALSE;
-		}
+			else if (GetTimeCounter () - LastInputTime > InactTimeOut)
+			{	// timed out
+				GLOBAL (CurrentActivity) = (ACTIVITY)~0;
+				done = TRUE;
+				response = FALSE;
+			}
 #endif
+		}
 
 		SleepThread (ONE_SECOND / 30);
 	}
@@ -343,7 +390,7 @@ InitPulseText (void)
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
 
 		frame = CaptureDrawable (CreateDrawable (WANT_PIXMAP, SCREEN_WIDTH,
-			SCREEN_HEIGHT, 1));
+				SCREEN_HEIGHT, 1));
 		SetFrameTransparentColor (frame, BLACK_COLOR);
 		OldFrame = SetContextFGFrame (frame);
 		ClearDrawable ();
