@@ -65,11 +65,32 @@ enum
 {
 	EASY_DIFF = 0,
 	ORIGINAL_DIFF,
-	HARD_DIFF
+	HARD_DIFF,
+	NUM_DIFF_ELEMENTS
 };
 
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
+
+#define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
+#define MAIN_TEXT_Y (RES_SCALE (42) - DOS_NUM_SCL (20))
+
+FRAME TextCache[NUM_MENU_ELEMENTS];
+RECT MenuRects[NUM_MENU_ELEMENTS];
+RECT DiffRects[NUM_DIFF_ELEMENTS];
+
+// Makes it so the mouse has to be on the rectangle of an entry to be able to
+// click on it
+static BOOLEAN
+MouseClicker (RECT r)
+{
+	POINT mousePos = ScreenToCanvas (ScreenContext);
+
+	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
+		return TRUE;
+	else
+		return FALSE;
+}
 
 // Kruzen: Having this ref separated gains more control
 // We can load and free it whenever we want and not rely on menu volume
@@ -117,6 +138,7 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 	int line_count;
 	RECT r;
 	STAMP s;
+	Color oldColor;
 
 	SetContextFont (TinyFont);
 
@@ -126,32 +148,34 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 	s.frame = SetRelFrameIndex (pMS->CurFrame, 3);
 	r.extent = GetFrameBounds (s.frame);
 	r.corner.x = RES_SCALE (
-		(RES_DESCALE (CanvasWidth) - RES_DESCALE (r.extent.width)) >> 1);
+			(RES_DESCALE (CanvasWidth) - RES_DESCALE (r.extent.width)) >> 1);
 	s.origin = r.corner;
 	DrawStamp (&s);
 
-	SetContextForeGroundColor (BLACK_COLOR);
+	oldColor = SetContextForeGroundColor (BLACK_COLOR);
+
+	t.CharCount = (COUNT)~0;
+	t.align = ALIGN_CENTER;
 
 	t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 66 + answer);
 	line_count = SplitString (t.pStr, '\n', 30, lines, bank);
 
 	t.baseline.x = r.corner.x
-		+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+			+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
 	t.baseline.y = r.corner.y + RES_SCALE (10)
 			+ RES_SCALE (line_count < 2 ? 8 : (line_count > 2 ? 0 : 3));
+
 	for (i = 0; i < line_count; i++)
 	{
 		t.pStr = lines[i];
-		t.align = ALIGN_CENTER;
-		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.baseline.y += RES_SCALE (8);
 	}
 
+	SetContextForeGroundColor (oldColor);
+
 	StringBank_Free (bank);
 }
-
-RECT DiffRects[3];
 
 static void
 DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
@@ -160,6 +184,9 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	FONT oldFont;
 	TEXT t;
 	COUNT i;
+	Color oldColor;
+	Color carray[3] =
+			{ MENU_BACKGROUND_COLOR, MENU_HIGHLIGHT_COLOR, BLACK_COLOR };
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
 	s.frame = SetRelFrameIndex (pMS->CurFrame, 2);
@@ -169,21 +196,23 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 
 	oldFont = SetContextFont (MicroFont);
 
+	oldColor = SetContextForeGroundColor (BLACK_COLOR);
+
 	t.align = ALIGN_CENTER;
 	t.baseline.x = s.origin.x;
 	t.baseline.y = s.origin.y - RES_SCALE (20);
+	t.CharCount = (COUNT)~0;
 
-	for (i = 0; i <= 2; i++)
+	for (i = EASY_DIFF; i < NUM_DIFF_ELEMENTS; i++)
 	{
-		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
-				+ (!i ? 1 : (i > 1 ? 2 : 0)));
-		t.CharCount = (COUNT)utf8StringCount (t.pStr);
+		BYTE which_color;
+		BYTE which_diff = i == 0 ? 1 : (i > 1 ? 2 : 0);
 
-		SetContextForeGroundColor (
-				i == answer ?
-				(confirm ? MENU_BACKGROUND_COLOR
-				: MENU_HIGHLIGHT_COLOR) : BLACK_COLOR
-			);
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56 + which_diff);
+
+		which_color = i == answer ? (confirm ? 0 : 1) : 2;
+		SetContextForeGroundColor (carray[which_color]);
+
 		font_DrawText (&t);
 
 		DiffRects[i] = font_GetTextRect (&t);
@@ -191,24 +220,8 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 		t.baseline.y += RES_SCALE (23);
 	}
 
+	SetContextForeGroundColor (oldColor);
 	SetContextFont (oldFont);
-}
-
-// Makes it so the mouse has to be on a diff entry to be able to click on it
-static BOOLEAN
-DiffMouseClicker (BYTE a)
-{
-	POINT mousePos;
-	RECT r;
-
-	mousePos = ScreenToCanvas (ScreenContext);
-
-	r = DiffRects[a];
-
-	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
-		return TRUE;
-	else
-		return FALSE;
 }
 
 static BOOLEAN
@@ -244,7 +257,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			return FALSE;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_SELECT]
-				|| DiffMouseClicker (a))
+				|| MouseClicker (DiffRects[a]))
 		{
 			done = TRUE;
 			response = TRUE;
@@ -362,12 +375,6 @@ DoDiffChooser (MENU_STATE *pMS)
 
 	return response;
 }
-
-#define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
-#define MAIN_TEXT_Y (RES_SCALE (42) - DOS_NUM_SCL (20))
-
-FRAME TextCache[NUM_MENU_ELEMENTS];
-RECT MenuRects[NUM_MENU_ELEMENTS];
 
 static void
 InitPulseText (void)
@@ -512,23 +519,6 @@ RestartMessage (void)
 	return TRUE;
 }
 
-// Makes it so the mouse has to be on a menu entry to be able to click on it
-static BOOLEAN
-MouseClicker (MENU_STATE *pMS)
-{
-	POINT mousePos;
-	RECT r;
-
-	mousePos = ScreenToCanvas (ScreenContext);
-
-	r = MenuRects[pMS->CurState];
-
-	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
-		return TRUE;
-	else
-		return FALSE;
-}
-
 static BOOLEAN
 DoRestart (MENU_STATE *pMS)
 {
@@ -591,7 +581,7 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseClicker (pMS))
+			|| MouseClicker (MenuRects[pMS->CurState]))
 	{
 		if (ClearMouseEvents ())
 			PlayMenuSound (MENU_SOUND_SUCCESS);
@@ -623,7 +613,8 @@ DoRestart (MENU_STATE *pMS)
 						 (3 * ONE_SECOND) / 16);
 					if (!DoDiffChooser (pMS))
 					{
-						LastInputTime = GetTimeCounter ();// if we timed out - don't start second credit roll
+						// if we timed out - don't start second credit roll
+						LastInputTime = GetTimeCounter ();
 						if (GLOBAL (CurrentActivity) != (ACTIVITY)~0)// just declined
 							Flash_continue (pMS->flashContext);
 						return TRUE;
