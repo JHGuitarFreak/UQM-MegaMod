@@ -42,7 +42,7 @@
 #include "util.h"
 #include "shipcont.h"
 
-#define DOS_MENU (optDosMenus || IS_DOS)	// The DOS Menu window
+#define DOS_MENU (optDosMenus || IS_DOS) // The DOS Menu window
 
 // 3DO 4x3 hangar layout
 #	define HANGAR_SHIPS_ROW_3DO  4
@@ -101,10 +101,10 @@ typedef enum {
 
 static BOOLEAN DoShipSpins;
 
-static BOOLEAN stowed_q;			// Build queue or storage queue
-static BYTE currentStowShip = 0;	// Saves location in storage queue
-static COUNT stowCount = 0;			// Number of ships stowed
-static COUNT availableCount = 0;	// Number of ships available to purchase
+static BOOLEAN stowed_q;         // Build queue or storage queue
+static BYTE currentStowShip = 0; // Saves location in storage queue
+static COUNT stowCount = 0;      // Number of ships stowed
+static COUNT availableCount = 0; // Number of ships available to purchase
 
 // This is all for drawing the DOS version modules menu
 #define SHIPS_ORG_Y       RES_SCALE (36)
@@ -131,12 +131,26 @@ typedef struct
 
 typedef struct
 {
-	COUNT count;		// Number of buildable ships in the list
-	COUNT topIndex;		// Index of the top ship displayed
+	COUNT count;    // Number of buildable ships in the list
+	COUNT topIndex; // Index of the top ship displayed
 	SHIP_STATS ShipStats[NUM_BUILDABLE_SHIPS + MAX_STOWED_SHIPS];
 } SHIPS_STATE;
 
 SHIPS_STATE ShipState;
+
+// Width of an escort ship window.
+#define SHIP_WIN_WIDTH RES_SCALE (34) 
+
+// Height of an escort ship window.
+#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE (6))
+
+// For how many animation frames' time the escort ship bay doors
+// are slid left and right when opening them. If this number is not large
+// enough, part of the doors are left visible upon opening.
+#define SHIP_WIN_FRAMES ((SHIP_WIN_WIDTH >> 1) + 1)
+
+
+static RECT ShipSlotRects[MAX_BUILT_SHIPS+1];
 
 // Count the ships in the stowed queue
 static COUNT
@@ -1012,17 +1026,6 @@ DrawRaceStrings (BYTE NewRaceItem)
 	SetContext (OldContext);
 }
 
-// Width of an escort ship window.
-#define SHIP_WIN_WIDTH RES_SCALE (34) 
-
-// Height of an escort ship window.
-#define SHIP_WIN_HEIGHT (SHIP_WIN_WIDTH + RES_SCALE (6))
-
-// For how many animation frames' time the escort ship bay doors
-// are slid left and right when opening them. If this number is not large
-// enough, part of the doors are left visible upon opening.
-#define SHIP_WIN_FRAMES ((SHIP_WIN_WIDTH >> 1) + 1)
-
 // Print the crew count of an escort ship on top of its (already drawn)
 // image, either as '30' (full), '28/30' (partially full), or 'SCRAP'
 // (empty).
@@ -1348,16 +1351,22 @@ CrewTransaction (SIZE crew_delta)
 }
 
 static void
+DMS_GetFlagShipRect (RECT *rOut)
+{
+	rOut->corner.x = 0;
+	rOut->corner.y = 0;
+	rOut->extent.width = SIS_SCREEN_WIDTH;
+	if (optWhichMenu != OPT_PC)
+		rOut->extent.height = RES_SCALE (63) - SAFE_NUM_SCL (2);
+	else
+		rOut->extent.height = RES_SCALE (74) - DOS_NUM_SCL (9) - SAFE_NEG (3);
+}
+
+static void
 DMS_FlashFlagShip (void)
 {
 	RECT r;
-	r.corner.x = 0;
-	r.corner.y = 0;
-	r.extent.width = SIS_SCREEN_WIDTH;
-	if (optWhichMenu != OPT_PC)
-		r.extent.height = RES_SCALE (63) - SAFE_NUM_SCL (2);
-	else
-		r.extent.height = RES_SCALE (74) - DOS_NUM_SCL (9) - SAFE_NEG (3);
+	DMS_GetFlagShipRect (&r);
 	SetFlashRect (&r, optWhichMenu == OPT_PC);
 }
 
@@ -1402,7 +1411,7 @@ DMS_FlashEscortShipCrewCount (BYTE slotNr)
 	r.corner.y = (HANGAR_Y + (HANGAR_DY * row))
 			+ (SHIP_WIN_HEIGHT - RES_SCALE (6));
 	r.extent.width = SHIP_WIN_WIDTH;
-	r.extent.height = RES_SCALE (5); 
+	r.extent.height = RES_SCALE (5);
 
 	SetContext (SpaceContext);
 	SetFlashRect (&r, FALSE);
@@ -2325,6 +2334,7 @@ DoModifyShips (MENU_STATE *pMS)
 		SBYTE dx = 0;
 		SBYTE dy = 0;
 
+		ClearMouseEvents ();
 
 		if (!(pMS->delta_item & MODIFY_CREW_FLAG))
 		{
@@ -2371,6 +2381,47 @@ DoModifyShips (MENU_STATE *pMS)
 				DMS_EditCrewMode (pMS, hStarShip, special && STORAGE_Q,
 						select || cancel, dy);
 			}
+		}
+
+		if (IsMouseInViewport (ScreenContext) &&
+				!(pMS->delta_item & MODIFY_CREW_FLAG))
+		{
+			BYTE i;
+			POINT mouse_pos;
+			BYTE hovered_item = pMS->CurState;
+			BYTE cursor_thing = 0;
+
+			mouse_pos = ScreenToCanvas (SpaceContext);
+
+			for (i = 0; i <= MAX_BUILT_SHIPS; i++)
+			{
+				if (pointWithinRect (ShipSlotRects[i], mouse_pos))
+				{
+					if (i == MAX_BUILT_SHIPS)
+					{	// Flagship
+						hovered_item = MAKE_BYTE (0, 0xF);
+						continue;
+					}
+
+					hovered_item = i;
+				}
+			}
+
+			if (hovered_item != pMS->CurState)
+			{
+				pMS->CurState = hovered_item;
+				DMS_FlashActiveShip (pMS);
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
+
+			cursor_thing = hovered_item;
+			if (cursor_thing == MAKE_BYTE (0, 0xF))
+				cursor_thing = MAX_BUILT_SHIPS;
+
+			if (pointWithinRect (ShipSlotRects[cursor_thing], mouse_pos))
+				SDL_SetCursor (HandCursor);
+			else
+				SDL_SetCursor (ArrowCursor);
 		}
 
 	}
@@ -2488,14 +2539,23 @@ DoShipyard (MENU_STATE *pMS)
 
 	OutfitOrShipyard = 3;
 
-	FillHangarX ();
-
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 	if (!pMS->Initialized)
 	{
 		pMS->InputFunc = DoShipyard;
 		stowCount = GetStowedShipCount();
 		availableCount = GetAvailableRaceCount ();
+
+		FillHangarX ();
+		
+		{ // Initialize ShipSlotRects
+			BYTE i;
+
+			for (i = 0; i < MAX_BUILT_SHIPS; i++)
+				DMS_GetEscortShipRect (&ShipSlotRects[i], i);
+
+			DMS_GetFlagShipRect (&ShipSlotRects[MAX_BUILT_SHIPS]);
+		}
 
 		if (DOS_MENU)
 		{
@@ -2588,8 +2648,6 @@ DoShipyard (MENU_STATE *pMS)
 ExitShipyard:
 		SetInputCallback (NULL);
 
-
-
 		if (pMS->CurState < SHIPYARD_EXIT)
 			DrawMenuStateStrings (PM_CREW, SHIPYARD_EXIT);
 
@@ -2603,6 +2661,8 @@ ExitShipyard:
 			DestroyFont (ModuleFont);
 
 		SetMusicPosition ();
+
+		memset (ShipSlotRects, 0, sizeof (ShipSlotRects));
 
 		return FALSE;
 	}
