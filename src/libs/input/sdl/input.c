@@ -997,3 +997,15 @@ DrawAutopilotTarget (POINT pt)
 	UnbatchGraphics ();
 }
 
+// Makes it so the mouse has to be on the rectangle of an entry to be able to
+// click on it
+BOOLEAN
+MouseClicker (RECT r, CONTEXT context)
+{
+	POINT mousePos = ScreenToCanvas (context);
+
+	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
+		return TRUE;
+	else
+		return FALSE;
+}

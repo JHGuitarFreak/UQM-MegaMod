@@ -79,19 +79,6 @@ FRAME TextCache[NUM_MENU_ELEMENTS];
 RECT MenuRects[NUM_MENU_ELEMENTS];
 RECT DiffRects[NUM_DIFF_ELEMENTS];
 
-// Makes it so the mouse has to be on the rectangle of an entry to be able to
-// click on it
-static BOOLEAN
-MouseClicker (RECT r)
-{
-	POINT mousePos = ScreenToCanvas (ScreenContext);
-
-	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
-		return TRUE;
-	else
-		return FALSE;
-}
-
 // Kruzen: Having this ref separated gains more control
 // We can load and free it whenever we want and not rely on menu volume
 MUSIC_REF menuMusic;
@@ -257,7 +244,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			return FALSE;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_SELECT]
-				|| MouseClicker (DiffRects[a]))
+				|| MouseClicker (DiffRects[a], ScreenContext))
 		{
 			done = TRUE;
 			response = TRUE;
@@ -581,7 +568,7 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseClicker (MenuRects[pMS->CurState]))
+			|| MouseClicker (MenuRects[pMS->CurState], ScreenContext))
 	{
 		if (ClearMouseEvents ())
 			PlayMenuSound (MENU_SOUND_SUCCESS);

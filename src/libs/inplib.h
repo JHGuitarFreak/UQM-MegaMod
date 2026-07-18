@@ -91,6 +91,7 @@ extern POINT ScreenToCanvas (CONTEXT context);
 extern BOOLEAN IsMouseInViewport (CONTEXT context);
 extern void DrawMouseCursor (CONTEXT context);
 extern void DrawAutopilotTarget (POINT pt);
+extern BOOLEAN MouseClicker (RECT r, CONTEXT context);
 
 #if defined(__cplusplus)
 }
