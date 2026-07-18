@@ -59,6 +59,10 @@ volatile int MouseButtonDown = 0;
 volatile int MouseWheelDelta = 0;
 POINT CurrentMousePos = { 0, 0 };
 
+SDL_Cursor *ArrowCursor = NULL;
+SDL_Cursor *HandCursor = NULL;
+SDL_Cursor *CrossHairCursor = NULL;
+
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
 
@@ -340,6 +344,13 @@ TFB_InitInput (int driver, int flags)
 	initJoystick ();
 #endif
 
+	if (!ArrowCursor)
+		ArrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
+	if (!HandCursor)
+		HandCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_HAND);
+	if (!CrossHairCursor)
+		CrossHairCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_CROSSHAIR);
+
 	in_character_mode = FALSE;
 
 	/* Prepare the Virtual Controller system. */
@@ -414,7 +425,6 @@ ProcessMouseEvent (const SDL_Event *e)
 		CurrentMousePos.x = e->motion.x;
 		CurrentMousePos.y = e->motion.y;
 		break;
-#if SDL_MAJOR_VERSION > 1
 	case SDL_MOUSEWHEEL:
 	{
 		static TimeCount lastWheelTime = 0;
@@ -430,7 +440,6 @@ ProcessMouseEvent (const SDL_Event *e)
 		}
 		break;
 	}
-#endif
 	default:
 		break;
 	}
@@ -907,8 +916,6 @@ IsMouseInViewport (CONTEXT context)
 	SetContext (OldContext);
 
 	WellIsIt = pointWithinRect (r, ScaleCanvas ());
-
-	SDL_ShowCursor (WellIsIt ? SDL_DISABLE : SDL_ENABLE);
 
 	return WellIsIt;
 }

@@ -328,6 +328,11 @@ DoDiffChooser (MENU_STATE *pMS)
 					PlayMenuSound (MENU_SOUND_MOVE);
 				}
 
+				if (pointWithinRect (DiffRects[hoveredItem], mousePos))
+					SDL_SetCursor (HandCursor);
+				else
+					SDL_SetCursor (ArrowCursor);
+
 				LastInputTime = GetTimeCounter ();
 			}
 #ifndef DEBUG
@@ -738,6 +743,11 @@ DoRestart (MENU_STATE *pMS)
 
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
+
+			if (pointWithinRect (MenuRects[hoveredItem], mousePos))
+				SDL_SetCursor (HandCursor);
+			else
+				SDL_SetCursor (ArrowCursor);
 
 			LastInputTime = GetTimeCounter ();
 		}

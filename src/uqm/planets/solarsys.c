@@ -3653,7 +3653,9 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 		}
 
 		if (IsMouseInViewport (SpaceContext))
-			DrawMouseCursor (SpaceContext);
+			SDL_SetCursor (CrossHairCursor);
+		else
+			SDL_SetCursor (ArrowCursor);
 
 		if (NewGameInit)
 		{
