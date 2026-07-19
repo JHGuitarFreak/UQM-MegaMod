@@ -40,6 +40,7 @@
 #include "libs/vidlib.h"
 #include "libs/log.h"
 #include "libs/misc.h"
+#include "libs/graphics/sdl/sdl_common.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -378,6 +379,15 @@ InitKernel (void)
 	InitStatusOffsets ();
 	InitSpace ();
 	AdvanceLoadProgress ();
+
+	{
+		FRAME cursor_frame = CaptureDrawable (LoadGraphic (CURSOR_MASK_PMAP_ANIM));
+
+		LoadCustomCursor (&ArrowCursor, SetAbsFrameIndex (cursor_frame, 0));
+		LoadCustomCursor (&ArrowHiLite, SetAbsFrameIndex (cursor_frame, 1));
+		LoadCustomCursor (&CrossHairCursor, SetAbsFrameIndex (cursor_frame, 2));
+		LoadCustomCursor (&CrossHairHiLite, SetAbsFrameIndex (cursor_frame, 3));
+	}
 
 	return TRUE;
 }

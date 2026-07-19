@@ -2116,31 +2116,40 @@ CheckShipLocation (SIZE *newRadius)
 
 	if (optMouseInput)
 	{
-		if (MouseButton (MOUSE_LFT) && !SISonScreen
-				&& IsMouseInViewport (SpaceContext))
+		if (IsMouseInViewport (SpaceContext))
 		{
-			PLANET_DESC *clicked_body = GetWorldAtTarget ();
-			if (IsMouseOnShip ())
-				ExitImmediateArea ();
-			else if (GetWorldAtTarget ())
-				SetAutopilotToWorld (clicked_body);
+			if (MouseButton (MOUSE_LFT) && !SISonScreen)
+			{
+				PLANET_DESC *clicked_body = GetWorldAtTarget ();
+				if (IsMouseOnShip ())
+					ExitImmediateArea ();
+				else if (GetWorldAtTarget ())
+					SetAutopilotToWorld (clicked_body);
+				else
+					SetIPAutopilot ();
+
+				ClearMouseEvents ();
+			}
+
+			if (last_radius != radius && ip_autopilot.x != ~0)
+			{
+				UpdateIPAutopilot (radius);
+			}
+			last_radius = radius;
+
+			if (SISonScreen && ip_autopilot.x != ~0)
+			{
+				if (radius == MAX_ZOOM_RADIUS && !playerInInnerSystem ())
+					KillAutopilot ();
+			}
+
+			if (IsMouseOnShip () || GetWorldAtTarget () != NULL)
+				SDL_SetCursor (CrossHairHiLite);
 			else
-				SetIPAutopilot ();
-
-			ClearMouseEvents ();
+				SDL_SetCursor (CrossHairCursor);
 		}
-
-		if (last_radius != radius && ip_autopilot.x != ~0)
-		{
-			UpdateIPAutopilot (radius);
-		}
-		last_radius = radius;
-
-		if (SISonScreen && ip_autopilot.x != ~0)
-		{
-			if (radius == MAX_ZOOM_RADIUS && !playerInInnerSystem ())
-				KillAutopilot ();
-		}
+		else
+			SDL_SetCursor (ArrowCursor);
 	}
 	
 	if (SISonScreen)
@@ -3651,11 +3660,6 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 			IP_frame ();
 			TimeOutIP = Now + IP_FRAME_RATE;
 		}
-
-		if (IsMouseInViewport (SpaceContext))
-			SDL_SetCursor (CrossHairCursor);
-		else
-			SDL_SetCursor (ArrowCursor);
 
 		if (NewGameInit)
 		{

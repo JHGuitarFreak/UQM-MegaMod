@@ -2419,7 +2419,7 @@ DoModifyShips (MENU_STATE *pMS)
 				cursor_thing = MAX_BUILT_SHIPS;
 
 			if (pointWithinRect (ShipSlotRects[cursor_thing], mouse_pos))
-				SDL_SetCursor (HandCursor);
+				SDL_SetCursor (ArrowHiLite);
 			else
 				SDL_SetCursor (ArrowCursor);
 		}

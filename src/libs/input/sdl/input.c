@@ -59,10 +59,6 @@ volatile int MouseButtonDown = 0;
 volatile int MouseWheelDelta = 0;
 POINT CurrentMousePos = { 0, 0 };
 
-SDL_Cursor *ArrowCursor = NULL;
-SDL_Cursor *HandCursor = NULL;
-SDL_Cursor *CrossHairCursor = NULL;
-
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
 
@@ -343,13 +339,6 @@ TFB_InitInput (int driver, int flags)
 #ifdef HAVE_JOYSTICK
 	initJoystick ();
 #endif
-
-	if (!ArrowCursor)
-		ArrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
-	if (!HandCursor)
-		HandCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_HAND);
-	if (!CrossHairCursor)
-		CrossHairCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_CROSSHAIR);
 
 	in_character_mode = FALSE;
 

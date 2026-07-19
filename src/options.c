@@ -60,6 +60,11 @@ unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 
+SDL_Cursor *ArrowCursor = NULL;
+SDL_Cursor *ArrowHiLite = NULL;
+SDL_Cursor *CrossHairCursor = NULL;
+SDL_Cursor *CrossHairHiLite = NULL;
+
 // Added options
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;

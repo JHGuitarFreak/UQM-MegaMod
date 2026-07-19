@@ -49,6 +49,11 @@ extern unsigned int resolutionFactor;
 extern unsigned int audioDriver;
 extern unsigned int audioQuality;
 
+extern SDL_Cursor *ArrowCursor;
+extern SDL_Cursor *ArrowHiLite;
+extern SDL_Cursor *CrossHairCursor;
+extern SDL_Cursor *CrossHairHiLite;
+
 // Added options
 extern BOOLEAN optRequiresReload;
 extern BOOLEAN optRequiresRestart;

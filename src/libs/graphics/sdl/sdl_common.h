@@ -62,4 +62,6 @@ extern BOOLEAN TFB_SDL_ScreenShot (const char *path);
 
 extern int CopySurfaceToClipboard (SDL_Surface *surface);
 
+extern void LoadCustomCursor (SDL_Cursor **cursor, FRAME frame);
+
 #endif /* SDL_COMMON_H */

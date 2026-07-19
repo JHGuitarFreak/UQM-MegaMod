@@ -505,7 +505,7 @@ ExitStarBase:
 			}
 
 			if (pointWithinRect (BaseRects[hovered_item], mouse_pos))
-				SDL_SetCursor (HandCursor);
+				SDL_SetCursor (ArrowHiLite);
 			else
 				SDL_SetCursor (ArrowCursor);
 		}

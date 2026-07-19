@@ -41,11 +41,6 @@ extern volatile int MouseButtonDown;
 extern volatile int MouseWheelDelta;
 extern POINT CurrentMousePos;
 
-
-extern SDL_Cursor *ArrowCursor;
-extern SDL_Cursor *HandCursor;
-extern SDL_Cursor *CrossHairCursor;
-
 extern volatile int QuitPosted;
 extern volatile int GameActive;
 

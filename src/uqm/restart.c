@@ -329,7 +329,7 @@ DoDiffChooser (MENU_STATE *pMS)
 				}
 
 				if (pointWithinRect (DiffRects[hovered_item], mouse_pos))
-					SDL_SetCursor (HandCursor);
+					SDL_SetCursor (ArrowHiLite);
 				else
 					SDL_SetCursor (ArrowCursor);
 
@@ -723,7 +723,7 @@ DoRestart (MENU_STATE *pMS)
 			}
 
 			if (pointWithinRect (MenuRects[hovered_item], mouse_pos))
-				SDL_SetCursor (HandCursor);
+				SDL_SetCursor (ArrowHiLite);
 			else
 				SDL_SetCursor (ArrowCursor);
 

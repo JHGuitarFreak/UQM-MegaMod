@@ -649,3 +649,19 @@ TFB_GetScreenSize (SIZE *width, SIZE *height)
 	*width = bounds.w;
 	*height = bounds.h;
 }
+
+void LoadCustomCursor (SDL_Cursor **cursor, FRAME frame)
+{
+	int pixel_format;
+	SDL_Surface *surface, *converted;
+	POINT hot_spot;
+
+	surface = (SDL_Surface *)frame->image->NormalImg;
+	pixel_format = SDL_PIXELFORMAT_ABGR8888;
+	converted = SDL_ConvertSurfaceFormat (surface, pixel_format, 0);
+	hot_spot = frame->HotSpot;
+
+	*cursor = SDL_CreateColorCursor (converted, hot_spot.x, hot_spot.y);
+
+	SDL_FreeSurface (converted);
+}

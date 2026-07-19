@@ -1776,7 +1776,7 @@ DoPickGame (MENU_STATE *pMS)
 			}
 
 			if (pointWithinRect (SlotRects[hovered_item], mouse_pos))
-				SDL_SetCursor (HandCursor);
+				SDL_SetCursor (ArrowHiLite);
 			else
 				SDL_SetCursor (ArrowCursor);
 		}
