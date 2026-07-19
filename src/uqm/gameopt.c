@@ -1776,9 +1776,9 @@ DoPickGame (MENU_STATE *pMS)
 			}
 
 			if (pointWithinRect (SlotRects[hovered_item], mouse_pos))
-				SDL_SetCursor (ArrowHiLite);
+				UQM_SetCursor (CURSOR_POINTER_HILITE);
 			else
-				SDL_SetCursor (ArrowCursor);
+				UQM_SetCursor (CURSOR_POINTER);
 		}
 
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);

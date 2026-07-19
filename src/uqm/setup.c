@@ -381,12 +381,13 @@ InitKernel (void)
 	AdvanceLoadProgress ();
 
 	{
+		BYTE i;
 		FRAME cursor_frame = CaptureDrawable (LoadGraphic (CURSOR_MASK_PMAP_ANIM));
 
-		LoadCustomCursor (&ArrowCursor, SetAbsFrameIndex (cursor_frame, 0));
-		LoadCustomCursor (&ArrowHiLite, SetAbsFrameIndex (cursor_frame, 1));
-		LoadCustomCursor (&CrossHairCursor, SetAbsFrameIndex (cursor_frame, 2));
-		LoadCustomCursor (&CrossHairHiLite, SetAbsFrameIndex (cursor_frame, 3));
+		for (i = 0; i < NUM_CURSORS; i++)
+			LoadCustomCursor (&UQM_Cursors[i], SetAbsFrameIndex (cursor_frame, i));
+
+		DestroyDrawable (ReleaseDrawable (cursor_frame));
 	}
 
 	return TRUE;

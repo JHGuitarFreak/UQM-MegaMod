@@ -60,10 +60,7 @@ unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 
-SDL_Cursor *ArrowCursor = NULL;
-SDL_Cursor *ArrowHiLite = NULL;
-SDL_Cursor *CrossHairCursor = NULL;
-SDL_Cursor *CrossHairHiLite = NULL;
+SDL_Cursor *UQM_Cursors[NUM_CURSORS] = { NULL };
 
 // Added options
 BOOLEAN optRequiresReload;
@@ -879,4 +876,37 @@ setGammaCorrection (float gamma)
 	else
 		log_add (log_Warning, "Unable to set gamma correction.");
 	return set;
+}
+
+static BOOLEAN
+UQM_IsCursorVisible (void)
+{
+	BOOLEAN old_state = SDL_ShowCursor (SDL_DISABLE);
+
+	if (old_state == SDL_ENABLE)
+	{
+		SDL_ShowCursor (SDL_ENABLE);
+		return TRUE;
+	}
+	else
+		return FALSE;
+}
+
+BOOLEAN
+UQM_SetCursor (int cursor)
+{
+	SDL_Cursor *new_cursor;
+
+	if ((!optMouseInput && UQM_IsCursorVisible ()) ||
+		cursor == CURSOR_DISABLE)
+	{
+		SDL_ShowCursor (SDL_DISABLE);
+		return FALSE;
+	}
+
+	if (!UQM_IsCursorVisible ())
+		SDL_ShowCursor (SDL_ENABLE);
+
+	SDL_SetCursor (UQM_Cursors[cursor]);
+	return TRUE;
 }

@@ -994,7 +994,10 @@ MouseClicker (RECT r, CONTEXT context)
 	POINT mousePos = ScreenToCanvas (context);
 
 	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
+	{
+		UQM_SetCursor (CURSOR_POINTER);
 		return TRUE;
+	}
 	else
 		return FALSE;
 }

@@ -505,9 +505,9 @@ ExitStarBase:
 			}
 
 			if (pointWithinRect (BaseRects[hovered_item], mouse_pos))
-				SDL_SetCursor (ArrowHiLite);
+				UQM_SetCursor (CURSOR_POINTER_HILITE);
 			else
-				SDL_SetCursor (ArrowCursor);
+				UQM_SetCursor (CURSOR_POINTER);
 		}
 
 		rotateStarbase (pMS, NULL);

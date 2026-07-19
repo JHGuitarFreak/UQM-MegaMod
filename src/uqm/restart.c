@@ -329,9 +329,9 @@ DoDiffChooser (MENU_STATE *pMS)
 				}
 
 				if (pointWithinRect (DiffRects[hovered_item], mouse_pos))
-					SDL_SetCursor (ArrowHiLite);
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
 				else
-					SDL_SetCursor (ArrowCursor);
+					UQM_SetCursor (CURSOR_POINTER);
 
 				LastInputTime = GetTimeCounter ();
 			}
@@ -723,9 +723,9 @@ DoRestart (MENU_STATE *pMS)
 			}
 
 			if (pointWithinRect (MenuRects[hovered_item], mouse_pos))
-				SDL_SetCursor (ArrowHiLite);
+				UQM_SetCursor (CURSOR_POINTER_HILITE);
 			else
-				SDL_SetCursor (ArrowCursor);
+				UQM_SetCursor (CURSOR_POINTER);
 
 			LastInputTime = GetTimeCounter ();
 		}

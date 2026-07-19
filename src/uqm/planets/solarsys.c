@@ -2144,12 +2144,12 @@ CheckShipLocation (SIZE *newRadius)
 			}
 
 			if (IsMouseOnShip () || GetWorldAtTarget () != NULL)
-				SDL_SetCursor (CrossHairHiLite);
+				UQM_SetCursor (CURSOR_CROSSHAIR_HILITE);
 			else
-				SDL_SetCursor (CrossHairCursor);
+				UQM_SetCursor (CURSOR_CROSSHAIR);
 		}
 		else
-			SDL_SetCursor (ArrowCursor);
+			UQM_SetCursor (CURSOR_POINTER);
 	}
 	
 	if (SISonScreen)
