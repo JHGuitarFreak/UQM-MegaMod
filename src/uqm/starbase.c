@@ -388,7 +388,7 @@ DoStarBase (MENU_STATE *pMS)
 		UnbatchGraphics ();
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT))
+			|| MouseClicker (BaseRects[pMS->CurState], ScreenContext))
 	{
 		if (ClearMouseEvents ())
 			PlayMenuSound (MENU_SOUND_SUCCESS);

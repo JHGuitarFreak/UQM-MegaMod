@@ -366,19 +366,27 @@ KillAutopilot (void)
 }
 
 static BOOLEAN
-IsMouseOnWorld (POINT point, PLANET_DESC *planet)
+IsMouseOnWorld (POINT point, PLANET_DESC *planet, BOOLEAN inner)
 {
-	RECT planet_rect;
+	RECT plan_rect;
 
 	if (!planet->image.frame)
 		return FALSE;
 
-	GetFrameRect (planet->image.frame, &planet_rect);
+	GetFrameRect (planet->image.frame, &plan_rect);
 
-	planet_rect.corner.x += planet->image.origin.x;
-	planet_rect.corner.y += planet->image.origin.y;
+	if (inner)
+	{
+		plan_rect.corner.x = (SIS_SCREEN_WIDTH - plan_rect.extent.width) >> 1;
+		plan_rect.corner.y = (SIS_SCREEN_HEIGHT - plan_rect.extent.height) >> 1;
+	}
+	else
+	{
+		plan_rect.corner.x += planet->image.origin.x;
+		plan_rect.corner.y += planet->image.origin.y;
+	}
 
-	return pointWithinRect (planet_rect, point);
+	return pointWithinRect (plan_rect, point);
 }
 
 static BOOLEAN
@@ -406,14 +414,14 @@ GetWorldAtTarget (void)
 	{
 		pCurDesc = pSolarSysState->pOrbitalDesc;
 
-		if (IsMouseOnWorld (canvas_point, pCurDesc))
+		if (IsMouseOnWorld (canvas_point, pCurDesc, TRUE))
 			return pCurDesc;
 
 		for (i = 0; i < pCurDesc->NumPlanets; i++)
 		{
 			PLANET_DESC *moon = &pSolarSysState->MoonDesc[i];
 
-			if (IsMouseOnWorld (canvas_point, moon))
+			if (IsMouseOnWorld (canvas_point, moon, FALSE))
 				return moon;
 		}
 	}
@@ -422,7 +430,7 @@ GetWorldAtTarget (void)
 		pCurDesc = pSolarSysState->pBaseDesc->pPrevDesc;
 
 		if (pCurDesc != pSolarSysState->SunDesc &&
-			IsMouseOnWorld (canvas_point, pCurDesc))
+			IsMouseOnWorld (canvas_point, pCurDesc, FALSE))
 		{
 			return pCurDesc;
 		}
@@ -430,7 +438,7 @@ GetWorldAtTarget (void)
 		for (i = pCurDesc->NumPlanets,
 			pCurDesc = pSolarSysState->pBaseDesc; i; --i, ++pCurDesc)
 		{
-			if (IsMouseOnWorld (canvas_point, pCurDesc))
+			if (IsMouseOnWorld (canvas_point, pCurDesc, FALSE))
 				return pCurDesc;
 		}
 	}
