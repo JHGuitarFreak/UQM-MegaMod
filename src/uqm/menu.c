@@ -45,6 +45,8 @@ static BOOLEAN GetAlternateMenu (BYTE *BaseState, BYTE *CurState);
 static BYTE ConvertAlternateMenu (BYTE BaseState, BYTE NewState);
 void FunkyMenu (BYTE m, STAMP stmp);
 
+RECT MenuItemRects[NUM_PM_ENTRIES];
+
 /* Draw the blue background for PC Menu Text, with a border around it.
  * The specified rectangle includes the border. */
 static void
@@ -129,6 +131,9 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	t.CharCount = (COUNT)~0;
 	r->corner.x += RES_SCALE (1);
 	r->extent.width -= RES_SCALE (2);
+
+	memset (MenuItemRects, 0, sizeof (MenuItemRects));
+
 	for (i = beg_index; i <= end_index; i++)
 	{
 		// To compensate for the read speed menu entries
@@ -177,6 +182,10 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 			SetContextForeGroundColor (PCMENU_TEXT_COLOR);
 			font_DrawText (&t);
 		}
+
+		MenuItemRects[i] = font_GetTextRect (&t);
+		MenuItemRects[i].extent.width = r->extent.width;
+
 		t.baseline.y += PC_MENU_HEIGHT;
 	}
 	SetContextFont (OldFont);
@@ -488,6 +497,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 
 	if (optWhichMenu == OPT_PC)
 		useAltMenu = GetAlternateMenu (&BaseState, &NewState);
+
 	if (PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_UP] ||
 			MouseWheelDelta > 0)
@@ -496,8 +506,8 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 			PulsedInputState.menu[KEY_MENU_DOWN] ||
 			MouseWheelDelta < 0)
 		NewState = NextMenuState (BaseState, NewState);
-	else if (useAltMenu && (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT)))
+	else if (useAltMenu && PulsedInputState.menu[KEY_MENU_SELECT]
+		|| MouseButton (MOUSE_LFT))
 	{
 		ClearMouseEvents ();
 
@@ -539,8 +549,51 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	}
 	else
 	{
-		ClearMouseEvents ();
+		if (isPC (optWhichMenu) && MouseInContext (ScreenContext))
+		{
+			BYTE i, base_index, end_index, num_items;
+			POINT mouse_pos = ScreenToCanvas (StatusContext);
+			BYTE hovered_item = NewState;
 
+			base_index = BaseState;
+			if (BaseState == PM_STARMAP)
+				base_index--;
+
+			end_index = GetEndMenuState (BaseState);
+			num_items = end_index - base_index;
+
+			for (i = base_index; i <= end_index; i++)
+			{
+				if (pointWithinRect (MenuItemRects[i], mouse_pos))
+				{
+					hovered_item = i - base_index;
+					printf ("i %d, base_index %d, hovered_item %d\n", i, base_index, hovered_item);
+					break;
+				}
+			}
+
+			if (hovered_item != NewState && hovered_item <= num_items)
+			{
+				NewState = hovered_item;
+
+				DrawMenuStateStrings (BaseState, NewState);
+
+				if (useAltMenu)
+					NewState = ConvertAlternateMenu (BaseState, NewState);
+
+				pMS->CurState = NewState;
+
+				PlayMenuSound (MENU_SOUND_MOVE);
+				return TRUE;
+			}
+
+			if (pointWithinRect (MenuItemRects[hovered_item + base_index], mouse_pos))
+				UQM_SetCursor (CURSOR_POINTER_HILITE);
+			else
+				UQM_SetCursor (CURSOR_POINTER);
+		}
+
+		ClearMouseEvents ();
 		return FALSE;
 	}
 
@@ -680,6 +733,9 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	CONTEXT OldContext;
 	BYTE hilite = 1;
 	extern FRAME PlayFrame;
+
+	if (optWhichMenu != OPT_PC)
+		memset (MenuItemRects, 0, sizeof (MenuItemRects));
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return;
