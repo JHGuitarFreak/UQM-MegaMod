@@ -895,14 +895,15 @@ UQM_IsCursorVisible (void)
 BOOLEAN
 UQM_SetCursor (int cursor)
 {
-	if ((!optMouseInput && UQM_IsCursorVisible ()) ||
-		cursor == CURSOR_DISABLE)
+	BOOLEAN cursor_visible = UQM_IsCursorVisible ();
+
+	if ((!optMouseInput && cursor_visible) || cursor == CURSOR_DISABLE)
 	{
 		SDL_ShowCursor (SDL_DISABLE);
 		return FALSE;
 	}
 
-	if (!UQM_IsCursorVisible ())
+	if (!cursor_visible)
 		SDL_ShowCursor (SDL_ENABLE);
 
 	SDL_SetCursor (UQM_Cursors[cursor]);

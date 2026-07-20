@@ -2892,6 +2892,8 @@ UninitSolarSys (void)
 	DestroyDrawable (ReleaseDrawable (StarsFrame));
 	StarsFrame = NULL;
 
+	UQM_SetCursor (CURSOR_POINTER);
+
 	if (GLOBAL (CurrentActivity) & END_INTERPLANETARY)
 	{
 		endInterPlanetary ();
