@@ -2383,7 +2383,7 @@ DoModifyShips (MENU_STATE *pMS)
 			}
 		}
 
-		if (IsMouseInViewport (ScreenContext) &&
+		if (MouseInContext (ScreenContext) &&
 				!(pMS->delta_item & MODIFY_CREW_FLAG))
 		{
 			BYTE i;

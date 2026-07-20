@@ -1751,7 +1751,7 @@ DoPickGame (MENU_STATE *pMS)
 			SetContext (SpaceContext);
 			RedrawPickDisplay (pickState, pMS->CurState);
 		}
-		else if (IsMouseInViewport (ScreenContext))
+		else if (MouseInContext (ScreenContext))
 		{
 			BYTE i;
 			POINT mouse_pos;

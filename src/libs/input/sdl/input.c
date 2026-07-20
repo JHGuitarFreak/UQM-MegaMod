@@ -454,6 +454,18 @@ MouseButton (int button)
 	return MouseButtonDown == button;
 }
 
+BOOLEAN
+AnyMouseButton (void)
+{
+	return MouseButtonDown;
+}
+
+BOOLEAN
+MouseBtnInCtx (int button, CONTEXT context)
+{
+	return MouseInContext (context) && MouseButtonDown == button;
+}
+
 void
 DoMouseSounds (void)
 {
@@ -878,9 +890,8 @@ ScreenToCanvas (CONTEXT context)
 {
 	POINT ipPos;
 	RECT r;
-	CONTEXT OldContext = SetContext (context);
-	GetContextClipRect (&r);
-	SetContext (OldContext);
+
+	GetContextClipDiRect (&r, context);
 
 	ipPos = ScaleCanvas ();
 
@@ -891,22 +902,16 @@ ScreenToCanvas (CONTEXT context)
 }
 
 BOOLEAN
-IsMouseInViewport (CONTEXT context)
+MouseInContext (CONTEXT context)
 {
-	BOOLEAN WellIsIt = FALSE;
-	CONTEXT OldContext;
 	RECT r;
 
 	if (!optMouseInput)
 		return FALSE;
 
-	OldContext = SetContext (context);
-	GetContextClipRect (&r);
-	SetContext (OldContext);
+	GetContextClipDiRect (&r, context);
 
-	WellIsIt = pointWithinRect (r, ScaleCanvas ());
-
-	return WellIsIt;
+	return pointWithinRect (r, ScaleCanvas ());
 }
 
 void

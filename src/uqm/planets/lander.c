@@ -223,6 +223,9 @@ DrawPlanetAutopilotTarget (void)
 	POINT target;
 	SIZE ship_perimeter;
 
+	if (!optMouseInput)
+		return;
+
 	target.x = ((targetLanderLoc.x - curLanderLoc.x))
 			+ (MapSurface.width >> 1);
 	target.y = ((targetLanderLoc.y - curLanderLoc.y))
@@ -1299,6 +1302,7 @@ CheckObjectCollision (COUNT index)
 					{
 						// noop; handled by generation funcs, see below
 						DrawRadarArea ();
+						KillAutopilot ();
 					}
 					else if (scan == BIOLOGICAL_SCAN
 							&& ElementPtr->hit_points)
@@ -1858,7 +1862,30 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		RotatePlanetSphere (TRUE, NULL);
 	}
 
+	if (is3DO (optSuperPC) && hasMouseTarget)
+		DrawPlanetAutopilotTarget ();
+
+	if (isPC (optSuperPC) && hasMouseTarget)
+	{
+		SetContext (ScanContext);
+		DrawScanAutopilotTarget ();
+	}
+
 	UnbatchGraphics ();
+
+	if (!planetSideDesc->InTransit)
+	{
+		if ((is3DO (optSuperPC)
+			&& MouseInContext (PlanetContext))
+			|| MouseInContext (ScanContext))
+		{
+			UQM_SetCursor (CURSOR_CROSSHAIR);
+		}
+		else
+			UQM_SetCursor (CURSOR_POINTER);
+	}
+	else
+		UQM_SetCursor (CURSOR_DISABLE);
 
 	SetContext (OldContext);
 }
@@ -2387,12 +2414,12 @@ DoPlanetSide (LanderInputState *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
 
-	if (IsMouseInViewport (ScanContext)
-			|| IsMouseInViewport (PlanetContext))
+	if (MouseInContext (ScanContext)
+		|| (is3DO (optSuperPC) && MouseInContext (PlanetContext)))
 	{
 		if (MouseButton (MOUSE_LFT))
 		{
-			if (IsMouseInViewport (ScanContext))
+			if (MouseInContext (ScanContext))
 				targetLanderLoc = GetMouseScanCoords ();
 			else
 				targetLanderLoc = GetMousePlanetCoords ();
@@ -2430,8 +2457,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	}
 	else if (crew_left /* alive and taking off */
 			&& ((CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
-			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL])
-			|| planetSideDesc->InTransit))
+			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL]) ||
+			MouseButton (MOUSE_MID) || planetSideDesc->InTransit))
 	{
 		return FALSE;
 	}
@@ -2556,30 +2583,6 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			GameClockTick ();
 			TimeOutClock = Now + CLOCK_FRAME_RATE;
 		}
-	}
-
-	if (optMouseInput)
-	{
-		CONTEXT OldContext;
-
-		if (is3DO (optSuperPC)
-				&& IsMouseInViewport (PlanetContext))
-		{
-			DrawMouseCursor (PlanetContext);
-		}
-
-		if (is3DO (optSuperPC) && hasMouseTarget)
-			DrawPlanetAutopilotTarget ();
-		
-		OldContext = SetContext (ScanContext);
-
-		if (IsMouseInViewport (ScanContext))
-			DrawMouseCursor (ScanContext);
-
-		if (isPC (optSuperPC) && hasMouseTarget)
-			DrawScanAutopilotTarget ();
-
-		SetContext (OldContext);
 	}
 
 	SleepThreadUntil (pMS->NextTime);

@@ -482,7 +482,7 @@ ExitStarBase:
 			DrawBaseStateStrings (pMS->CurState, NewState);
 			pMS->CurState = NewState;
 		}
-		else if (IsMouseInViewport (ScreenContext))
+		else if (MouseInContext (ScreenContext))
 		{
 			BYTE i;
 			POINT mouse_pos;

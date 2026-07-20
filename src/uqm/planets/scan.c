@@ -80,9 +80,8 @@ ScreenToScanCoords (void)
 	POINT pt = ScaleCanvas ();
 
 	RECT scanRect;
-	CONTEXT OldContext = SetContext (ScanContext);
-	GetContextClipRect (&scanRect);
-	SetContext (OldContext);
+
+	GetContextClipDiRect (&scanRect, ScanContext);
 
 	pos.x = (pt.x - scanRect.corner.x) << MAG_SHIFT;
 	pos.y = (pt.y - scanRect.corner.y) << MAG_SHIFT;
@@ -125,19 +124,22 @@ ScanMouseInput (void)
 	if (!optMouseInput)
 		return FALSE;
 
-	if (!IsMouseInViewport (ScanContext))
+	if (!MouseInContext (ScanContext))
 	{
 		if (ScanMouseDragging)
-		{
 			ScanMouseDragging = FALSE;
-		}
+
+		UQM_SetCursor (CURSOR_POINTER);
+
 		return FALSE;
 	}
+	else
+		UQM_SetCursor (CURSOR_DISABLE);
 
 	if (!ScanMouseDragging)
 		cursorMoved = ScanCursorLocation ();
 
-	if (MouseButton (MOUSE_LFT) && !ScanMouseDragging)
+	if (MouseBtnInCtx (MOUSE_LFT, ScanContext) && !ScanMouseDragging)
 	{
 		ScanMouseDragging = TRUE;
 		cursorMoved = ScanCursorLocation ();
@@ -877,7 +879,8 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		flashPlanetLocation ();
 	}
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			MouseBtnInCtx (MOUSE_LFT, ScanContext);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
@@ -886,18 +889,16 @@ DoPickPlanetSide (MENU_STATE *pMS)
 		return FALSE;
 	}
 
-	if (MouseButtonDown)
-		PlayMenuSound (MENU_SOUND_SUCCESS);
-
 	if (cancel)
 	{
-		ClearMouseEvents ();
 		pickState->success = false;
 		return FALSE;
 	}
 	else if (select)
 	{
-		ClearMouseEvents ();
+		if (ClearMouseEvents ())
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+
 		pickState->success = true;
 		return FALSE;
 	}
@@ -1364,7 +1365,7 @@ ScanPlanet (COUNT scanType)
 				Now = GetTimeCounter ();
 				if (Now >= TimeOut)
 				{
-					if (AnyButtonPress (TRUE))
+					if (AnyButtonPress (TRUE) || AnyMouseButton ())
 						break;
 
 					TimeOut = Now + SCAN_LINE_WAIT;
@@ -1396,12 +1397,12 @@ ScanPlanet (COUNT scanType)
 			{	// delay between scans
 				TimeOut = GetTimeCounter () + ONE_SECOND;
 				while (GetTimeCounter () < TimeOut
-						&& !AnyButtonPress (TRUE))
+					&& (!AnyButtonPress (TRUE) || !AnyMouseButton ()))
 					RotatePlanetSphere (TRUE, NULL);
 			}
 			else
 			{	// endless state - mimics PC "Exit Scan"
-				while (!AnyButtonPress (TRUE))
+				while (!AnyButtonPress (TRUE) || !AnyMouseButton ())
 					RotatePlanetSphere (TRUE, NULL);
 			}
 		}
@@ -1448,19 +1449,14 @@ DoScan (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
-	if (MouseButton (MOUSE_LFT))
-		PlayMenuSound (MENU_SOUND_SUCCESS);
 
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
 		ClearMouseEvents ();
-
 		return FALSE;
 	}
 	else if (select)
 	{
-		ClearMouseEvents ();
-
 		if (pMS->CurState == DISPATCH_SHUTTLE)
 		{
 			COUNT fuel_required;
@@ -1481,6 +1477,9 @@ DoScan (MENU_STATE *pMS)
 				PlayMenuSound (MENU_SOUND_FAILURE);
 				return TRUE;
 			}
+
+			if (ClearMouseEvents ())
+				PlayMenuSound (MENU_SOUND_SUCCESS);
 
 			SetFlashRect (NULL, FALSE);
 			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
@@ -1511,8 +1510,11 @@ DoScan (MENU_STATE *pMS)
 			&& pSolarSysState->SysInfo.PlanetInfo.AtmoDensity !=
 				GAS_GIANT_ATMOSPHERE))
 	{
+		ClearMouseEvents ();
 		DoMenuChooser (pMS, PM_MIN_SCAN);
 	}
+
+	ClearMouseEvents ();
 
 	return TRUE;
 }

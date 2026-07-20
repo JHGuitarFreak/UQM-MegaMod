@@ -223,15 +223,18 @@ StarMapMouseInput (void)
 	if (!optMouseInput)
 		return FALSE;
 
-	if (!IsMouseInViewport (SpaceContext))
+	if (!MouseInContext (SpaceContext))
 	{
 		if (MouseDragging)
 		{
 			MouseDragging = FALSE;
 			MouseDownTime = 0;
 		}
+		UQM_SetCursor (CURSOR_POINTER);
 		return FALSE;
 	}
+	else
+		UQM_SetCursor (CURSOR_DISABLE);
 
 	newCursorLoc = ScreenToStarMapCoords ();
 
@@ -1741,7 +1744,7 @@ ZoomStarMap (SIZE dir)
 		{
 			++zoomLevel;
 
-			if (IsMouseInViewport (SpaceContext))
+			if (MouseInContext (SpaceContext))
 			{
 				cursorLoc = ScreenToStarMapCoords ();
 			}
@@ -1758,7 +1761,7 @@ ZoomStarMap (SIZE dir)
 		{
 			if (zoomLevel > 1)
 			{
-				if (IsMouseInViewport (SpaceContext))
+				if (MouseInContext (SpaceContext))
 					cursorLoc = ScreenToStarMapCoords ();
 
 				mapOrigin = cursorLoc;
@@ -2675,7 +2678,7 @@ DoMoveCursor (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| (MouseButton (MOUSE_LFT) && !MouseDragging))
+			|| (MouseBtnInCtx (MOUSE_LFT, SpaceContext) && !MouseDragging))
 	{
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/

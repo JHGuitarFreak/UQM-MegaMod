@@ -304,7 +304,7 @@ DoDiffChooser (MENU_STATE *pMS)
 		}
 		else
 		{
-			if (IsMouseInViewport (ScreenContext))
+			if (MouseInContext (ScreenContext))
 			{
 				BYTE i;
 				POINT mouse_pos;
@@ -698,7 +698,7 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else
 	{
-		if (IsMouseInViewport (ScreenContext))
+		if (MouseInContext (ScreenContext))
 		{
 			BYTE i;
 			POINT mouse_pos;

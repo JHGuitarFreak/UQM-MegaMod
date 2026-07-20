@@ -2107,7 +2107,7 @@ CheckShipLocation (SIZE *newRadius)
 			KillAutopilot ();
 
 		if (MouseButton (MOUSE_RGT)
-				&& IsMouseInViewport (SpaceContext))
+				&& MouseInContext (SpaceContext))
 		{
 			if (ip_autopilot.x != ~0 || ip_autopilot.y != ~0)
 				KillAutopilot ();
@@ -2124,7 +2124,7 @@ CheckShipLocation (SIZE *newRadius)
 
 	if (optMouseInput)
 	{
-		if (IsMouseInViewport (SpaceContext))
+		if (MouseInContext (SpaceContext))
 		{
 			if (MouseButton (MOUSE_LFT) && !SISonScreen)
 			{

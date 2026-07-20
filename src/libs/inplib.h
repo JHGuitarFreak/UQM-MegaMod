@@ -80,10 +80,12 @@ extern const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
 
 extern BOOLEAN ClearMouseEvents (void);
 extern BOOLEAN MouseButton (int button);
+extern BOOLEAN AnyMouseButton (void);
+extern BOOLEAN MouseBtnInCtx (int button, CONTEXT context);
 extern void DoMouseSounds (void);
 extern POINT ScaleCanvas (void);
 extern POINT ScreenToCanvas (CONTEXT context);
-extern BOOLEAN IsMouseInViewport (CONTEXT context);
+extern BOOLEAN MouseInContext (CONTEXT context);
 extern void DrawMouseCursor (CONTEXT context);
 extern void DrawAutopilotTarget (POINT pt);
 extern BOOLEAN MouseClicker (RECT r, CONTEXT context);
