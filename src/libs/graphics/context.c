@@ -279,6 +279,26 @@ GetContextClipRect (RECT *lpRect)
 	return (_pCurContext->ClipRect.extent.width != 0);
 }
 
+
+BOOLEAN
+GetContextClipDiRect (RECT *lpRect, CONTEXT context)
+{
+	if (!context)
+		return FALSE;
+
+	*lpRect = context->ClipRect;
+	if (!context->ClipRect.extent.width)
+	{
+		RECT r = { 0 };
+
+		if (context->ForeGroundFrame)
+			r.extent = GetFrameBounds (context->ForeGroundFrame);
+
+		*lpRect = r;
+	}
+	return (context->ClipRect.extent.width != 0);
+}
+
 POINT
 SetContextOrigin (POINT orgOffset)
 {
@@ -400,5 +420,6 @@ GetNextContext (CONTEXT context)
 {
 	return context->next;
 }
+
 #endif  /* DEBUG */
 
