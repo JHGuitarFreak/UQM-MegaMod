@@ -2295,6 +2295,37 @@ DMS_NavigateShipSlots (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		DrawMenuStateStrings (PM_CREW, pMS->CurState);
 		DMS_SetMode (pMS, DMS_Mode_exit);
 	}
+	else if (MouseInContext (ScreenContext))
+	{
+		BYTE i;
+		POINT mouse_pos = ScreenToCanvas (SpaceContext);
+		BYTE hovered_item = pMS->CurState;
+
+		for (i = 0; i <= MAX_BUILT_SHIPS; i++)
+		{
+			if (pointWithinRect (ShipSlotRects[i], mouse_pos))
+			{
+				if (i == MAX_BUILT_SHIPS)
+				{	// Flagship
+					hovered_item = MAKE_BYTE (0, 0xF);
+				}
+				else
+					hovered_item = i;
+
+				UQM_SetCursor (CURSOR_POINTER_HILITE);
+				break;
+			}
+			else
+				UQM_SetCursor (CURSOR_POINTER);
+		}
+
+		if (hovered_item != pMS->CurState)
+		{
+			pMS->CurState = hovered_item;
+			DMS_FlashActiveShip (pMS);
+			PlayMenuSound (MENU_SOUND_MOVE);
+		}
+	}
 }
 
 /* In this routine, the least significant byte of pMS->CurState is used
@@ -2334,7 +2365,8 @@ DoModifyShips (MENU_STATE *pMS)
 		SBYTE dx = 0;
 		SBYTE dy = 0;
 
-		ClearMouseEvents ();
+		if (select || cancel)
+			ClearMouseEvents ();
 
 		if (!(pMS->delta_item & MODIFY_CREW_FLAG))
 		{
@@ -2374,45 +2406,18 @@ DoModifyShips (MENU_STATE *pMS)
 				if (PulsedInputState.menu[KEY_MENU_LEFT])      dy =  10;
 				if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])   dy = -50;
 				if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])  dy =  50;
+				if (MouseWheelDelta != 0)
+				{
+					if (MouseWheelDelta > 0) dy = -5;
+					if (MouseWheelDelta < 0) dy = 5;
+					ClearMouseEvents ();
+				}
 				special = false;
 				if (PulsedInputState.menu[KEY_MENU_NEXT])      special = true;
 
 				// Special prepares / unprepares stowing, select = cancel
 				DMS_EditCrewMode (pMS, hStarShip, special && STORAGE_Q,
 						select || cancel, dy);
-			}
-		}
-
-		if (MouseInContext (ScreenContext) &&
-				!(pMS->delta_item & MODIFY_CREW_FLAG))
-		{
-			BYTE i;
-			POINT mouse_pos = ScreenToCanvas (SpaceContext);
-			BYTE hovered_item = pMS->CurState;
-
-			for (i = 0; i <= MAX_BUILT_SHIPS; i++)
-			{
-				if (pointWithinRect (ShipSlotRects[i], mouse_pos))
-				{
-					if (i == MAX_BUILT_SHIPS)
-					{	// Flagship
-						hovered_item = MAKE_BYTE (0, 0xF);
-					}
-					else
-						hovered_item = i;
-
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
-					break;
-				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
-			}
-
-			if (hovered_item != pMS->CurState)
-			{
-				pMS->CurState = hovered_item;
-				DMS_FlashActiveShip (pMS);
-				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 		}
 	}
@@ -2525,8 +2530,11 @@ DoShipyard (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		goto ExitShipyard;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
+
+	if (select || cancel)
+		ClearMouseEvents ();
 
 	OutfitOrShipyard = 3;
 

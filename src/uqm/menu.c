@@ -499,11 +499,17 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	if (PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_UP] ||
 			MouseWheelDelta > 0)
+	{
+		ClearMouseEvents ();
 		NewState = PreviousMenuState (BaseState, NewState);
+	}
 	else if (PulsedInputState.menu[KEY_MENU_RIGHT] ||
 			PulsedInputState.menu[KEY_MENU_DOWN] ||
 			MouseWheelDelta < 0)
+	{
+		ClearMouseEvents ();
 		NewState = NextMenuState (BaseState, NewState);
+	}
 	else if (useAltMenu && PulsedInputState.menu[KEY_MENU_SELECT]
 		|| MouseButton (MOUSE_LFT))
 	{
