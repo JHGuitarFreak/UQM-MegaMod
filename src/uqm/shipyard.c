@@ -2387,11 +2387,8 @@ DoModifyShips (MENU_STATE *pMS)
 				!(pMS->delta_item & MODIFY_CREW_FLAG))
 		{
 			BYTE i;
-			POINT mouse_pos;
+			POINT mouse_pos = ScreenToCanvas (SpaceContext);
 			BYTE hovered_item = pMS->CurState;
-			BYTE cursor_thing = 0;
-
-			mouse_pos = ScreenToCanvas (SpaceContext);
 
 			for (i = 0; i <= MAX_BUILT_SHIPS; i++)
 			{
@@ -2400,11 +2397,15 @@ DoModifyShips (MENU_STATE *pMS)
 					if (i == MAX_BUILT_SHIPS)
 					{	// Flagship
 						hovered_item = MAKE_BYTE (0, 0xF);
-						continue;
 					}
+					else
+						hovered_item = i;
 
-					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
 				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
 			}
 
 			if (hovered_item != pMS->CurState)
@@ -2413,17 +2414,7 @@ DoModifyShips (MENU_STATE *pMS)
 				DMS_FlashActiveShip (pMS);
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
-
-			cursor_thing = hovered_item;
-			if (cursor_thing == MAKE_BYTE (0, 0xF))
-				cursor_thing = MAX_BUILT_SHIPS;
-
-			if (pointWithinRect (ShipSlotRects[cursor_thing], mouse_pos))
-				UQM_SetCursor (CURSOR_POINTER_HILITE);
-			else
-				UQM_SetCursor (CURSOR_POINTER);
 		}
-
 	}
 
 	SleepThread (ONE_SECOND / 60);

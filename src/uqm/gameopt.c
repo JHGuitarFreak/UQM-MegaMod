@@ -1754,16 +1754,20 @@ DoPickGame (MENU_STATE *pMS)
 		else if (MouseInContext (ScreenContext))
 		{
 			BYTE i;
-			POINT mouse_pos;
+			POINT mouse_pos = ScreenToCanvas (SpaceContext);
 			COUNT total_slots = MAX_SAVED_GAMES + (pickState->saving ? 0 : 1);
 			BYTE hovered_item = pMS->CurState;
-
-			mouse_pos = ScreenToCanvas (SpaceContext);
 
 			for (i = 0; i < total_slots; i++)
 			{
 				if (pointWithinRect (SlotRects[i], mouse_pos))
+				{
 					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
 			}
 
 			if (hovered_item != pMS->CurState)
@@ -1774,11 +1778,6 @@ DoPickGame (MENU_STATE *pMS)
 
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
-
-			if (pointWithinRect (SlotRects[hovered_item], mouse_pos))
-				UQM_SetCursor (CURSOR_POINTER_HILITE);
-			else
-				UQM_SetCursor (CURSOR_POINTER);
 		}
 
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);

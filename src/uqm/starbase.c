@@ -485,15 +485,19 @@ ExitStarBase:
 		else if (MouseInContext (ScreenContext))
 		{
 			BYTE i;
-			POINT mouse_pos;
+			POINT mouse_pos = ScreenToCanvas (ScreenContext);
 			BYTE hovered_item = pMS->CurState;
-
-			mouse_pos = ScreenToCanvas (ScreenContext);
 
 			for (i = 0; i < NUM_STARBASE_STRINGS; i++)
 			{
 				if (pointWithinRect (BaseRects[i], mouse_pos))
+				{
 					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
 			}
 
 			if (hovered_item != pMS->CurState)
@@ -503,11 +507,6 @@ ExitStarBase:
 
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
-
-			if (pointWithinRect (BaseRects[hovered_item], mouse_pos))
-				UQM_SetCursor (CURSOR_POINTER_HILITE);
-			else
-				UQM_SetCursor (CURSOR_POINTER);
 		}
 
 		rotateStarbase (pMS, NULL);

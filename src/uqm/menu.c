@@ -554,6 +554,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 			BYTE i, base_index, end_index, num_items;
 			POINT mouse_pos = ScreenToCanvas (StatusContext);
 			BYTE hovered_item = NewState;
+			BYTE cursor_hover = NewState;
 
 			base_index = BaseState;
 			if (BaseState == PM_STARMAP)
@@ -566,34 +567,57 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 			{
 				if (pointWithinRect (MenuItemRects[i], mouse_pos))
 				{
-					hovered_item = i - base_index;
-					printf ("i %d, base_index %d, hovered_item %d\n", i, base_index, hovered_item);
+					if (BaseState == PM_SOUND_ON)
+					{
+						BYTE item;
+
+						switch (i - base_index)
+						{
+						case 0:
+							item = (GLOBAL (glob_flags) & SOUND_DISABLED) ?
+									PM_SOUND_OFF : PM_SOUND_ON;
+							break;
+						case 1:
+							item = (GLOBAL (glob_flags) & MUSIC_DISABLED) ?
+									PM_MUSIC_OFF : PM_MUSIC_ON;
+							break;
+						case 2:
+							item = PM_CYBORG_OFF +
+									((GLOBAL (glob_flags) & COMBAT_SPEED_MASK)
+										>> COMBAT_SPEED_SHIFT);
+							break;
+						case 3:
+							item = PM_READ_VERY_SLOW +
+									(GLOBAL (glob_flags) & READ_SPEED_MASK);
+							break;
+						case 4: item = PM_CHANGE_CAPTAIN; break;
+						case 5: item = PM_CHANGE_SHIP;    break;
+						case 6: item = PM_EXIT_SETTINGS;  break;
+						default: item = i;
+						}
+						hovered_item = item - base_index;
+					}
+					else
+						hovered_item = i - base_index;
+
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
 					break;
 				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
 			}
 
 			if (hovered_item != NewState && hovered_item <= num_items)
 			{
 				NewState = hovered_item;
-
 				DrawMenuStateStrings (BaseState, NewState);
-
 				if (useAltMenu)
 					NewState = ConvertAlternateMenu (BaseState, NewState);
-
 				pMS->CurState = NewState;
-
 				PlayMenuSound (MENU_SOUND_MOVE);
 				return TRUE;
 			}
-
-			if (pointWithinRect (MenuItemRects[hovered_item + base_index], mouse_pos))
-				UQM_SetCursor (CURSOR_POINTER_HILITE);
-			else
-				UQM_SetCursor (CURSOR_POINTER);
 		}
-
-		ClearMouseEvents ();
 		return FALSE;
 	}
 
@@ -601,7 +625,6 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	if (useAltMenu)
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 	pMS->CurState = NewState;
-	ClearMouseEvents ();
 
 	return TRUE;
 }

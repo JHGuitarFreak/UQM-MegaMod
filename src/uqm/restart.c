@@ -307,15 +307,19 @@ DoDiffChooser (MENU_STATE *pMS)
 			if (MouseInContext (ScreenContext))
 			{
 				BYTE i;
-				POINT mouse_pos;
+				POINT mouse_pos = ScreenToCanvas (ScreenContext);
 				BYTE hovered_item = a;
-
-				mouse_pos = ScreenToCanvas (ScreenContext);
 
 				for (i = 0; i <= 2; i++)
 				{
 					if (pointWithinRect (DiffRects[i], mouse_pos))
+					{
 						hovered_item = i;
+						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						break;
+					}
+					else
+						UQM_SetCursor (CURSOR_POINTER);
 				}
 
 				if (hovered_item != a)
@@ -327,11 +331,6 @@ DoDiffChooser (MENU_STATE *pMS)
 
 					PlayMenuSound (MENU_SOUND_MOVE);
 				}
-
-				if (pointWithinRect (DiffRects[hovered_item], mouse_pos))
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 
 				LastInputTime = GetTimeCounter ();
 			}
@@ -701,15 +700,19 @@ DoRestart (MENU_STATE *pMS)
 		if (MouseInContext (ScreenContext))
 		{
 			BYTE i;
-			POINT mouse_pos;
+			POINT mouse_pos = ScreenToCanvas (ScreenContext);
 			BYTE hovered_item = pMS->CurState;
-
-			mouse_pos = ScreenToCanvas (ScreenContext);
 
 			for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
 			{
 				if (pointWithinRect (MenuRects[i], mouse_pos))
+				{
 					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
 			}
 
 			if (hovered_item != pMS->CurState)
@@ -721,11 +724,6 @@ DoRestart (MENU_STATE *pMS)
 
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
-
-			if (pointWithinRect (MenuRects[hovered_item], mouse_pos))
-				UQM_SetCursor (CURSOR_POINTER_HILITE);
-			else
-				UQM_SetCursor (CURSOR_POINTER);
 
 			LastInputTime = GetTimeCounter ();
 		}
