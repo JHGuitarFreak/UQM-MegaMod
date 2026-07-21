@@ -3551,6 +3551,8 @@ DoSolarSysMenu (MENU_STATE *pMS)
 	if (!select)
 		return TRUE;
 
+	ClearMouseEvents ();
+
 	SetFlashRect (NULL, FALSE);
 
 	switch (pMS->CurState)
@@ -3645,10 +3647,10 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	}
 	else if (!NewGameInit && (cancel || LastActivity == CHECK_LOAD))
 	{
+		ClearMouseEvents ();
 		DirJoyActive = FALSE;
 		SolarSysMenu ();
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);
-
 	}
 	else if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{

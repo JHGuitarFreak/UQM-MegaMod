@@ -882,6 +882,8 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
 			MouseBtnInCtx (MOUSE_LFT, ScanContext);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
+
+	ClearMouseEvents ();
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
@@ -896,9 +898,6 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	}
 	else if (select)
 	{
-		if (ClearMouseEvents ())
-			PlayMenuSound (MENU_SOUND_SUCCESS);
-
 		pickState->success = true;
 		return FALSE;
 	}
@@ -1449,7 +1448,6 @@ DoScan (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
-
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
 		ClearMouseEvents ();
@@ -1457,6 +1455,7 @@ DoScan (MENU_STATE *pMS)
 	}
 	else if (select)
 	{
+		ClearMouseEvents ();
 		if (pMS->CurState == DISPATCH_SHUTTLE)
 		{
 			COUNT fuel_required;
@@ -1477,9 +1476,6 @@ DoScan (MENU_STATE *pMS)
 				PlayMenuSound (MENU_SOUND_FAILURE);
 				return TRUE;
 			}
-
-			if (ClearMouseEvents ())
-				PlayMenuSound (MENU_SOUND_SUCCESS);
 
 			SetFlashRect (NULL, FALSE);
 			DrawMenuStateStrings (PM_MIN_SCAN, pMS->CurState);
@@ -1510,11 +1506,8 @@ DoScan (MENU_STATE *pMS)
 			&& pSolarSysState->SysInfo.PlanetInfo.AtmoDensity !=
 				GAS_GIANT_ATMOSPHERE))
 	{
-		ClearMouseEvents ();
 		DoMenuChooser (pMS, PM_MIN_SCAN);
 	}
-
-	ClearMouseEvents ();
 
 	return TRUE;
 }

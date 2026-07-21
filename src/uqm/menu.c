@@ -493,8 +493,6 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	BYTE OrigBase = BaseState;
 	BOOLEAN useAltMenu = FALSE;
 
-	DoMouseSounds ();
-
 	if (optWhichMenu == OPT_PC)
 		useAltMenu = GetAlternateMenu (&BaseState, &NewState);
 

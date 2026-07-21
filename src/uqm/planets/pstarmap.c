@@ -2649,6 +2649,7 @@ DoMoveCursor (MENU_STATE *pMS)
 	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
 		FlushInput ();
+		ClearMouseEvents ();
 
 		if ((optBubbleWarp && !optInfiniteFuel && !inQuasiSpace ())
 				&& GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0
@@ -2683,6 +2684,7 @@ DoMoveCursor (MENU_STATE *pMS)
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
 		FlushInput ();
+		ClearMouseEvents ();
 
 		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
 		{
@@ -2761,6 +2763,7 @@ DoMoveCursor (MENU_STATE *pMS)
 			|| MouseButton (MOUSE_MID))
 	{
 		FlushInput ();
+		ClearMouseEvents ();
 
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{

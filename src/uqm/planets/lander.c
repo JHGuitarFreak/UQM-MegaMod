@@ -2460,6 +2460,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL]) ||
 			MouseButton (MOUSE_MID) || planetSideDesc->InTransit))
 	{
+		ClearMouseEvents ();
 		return FALSE;
 	}
 

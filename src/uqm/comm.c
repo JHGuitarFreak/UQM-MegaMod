@@ -1497,8 +1497,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseButton (MOUSE_LFT))
 	{
-		if (ClearMouseEvents ())
-			PlayMenuSound (MENU_SOUND_SUCCESS);
+		ClearMouseEvents ();
 
 		SelectResponse (pES);
 	}
@@ -1507,8 +1506,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE &&
 			!IsDarkMode)
 	{
-		if (ClearMouseEvents ())
-			PlayMenuSound (MENU_SOUND_SUCCESS);
+		ClearMouseEvents ();
 
 		SelectConversationSummary (pES);
 	}

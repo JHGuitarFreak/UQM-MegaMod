@@ -628,6 +628,8 @@ DoInstallModule (MENU_STATE *pMS)
 			PulsedInputState.menu[KEY_MENU_UP] ||
 			PulsedInputState.menu[KEY_MENU_DOWN];
 
+	ClearMouseEvents ();
+
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
 	FirstItem = 0;
@@ -678,8 +680,6 @@ DoInstallModule (MENU_STATE *pMS)
 	}
 	else if (select || cancel)
 	{
-		ClearMouseEvents ();
-
 		new_slot_piece = pMS->CurState;
 		if (select)
 		{
@@ -831,8 +831,6 @@ DoInstallModule (MENU_STATE *pMS)
 		}
 		else if (!cancel)
 		{
-			ClearMouseEvents ();
-
 			if ((new_slot_piece == EMPTY_SLOT + 3) &&
 					(old_slot_piece == PLANET_LANDER) &&
 					(pMS->delta_item < GLOBAL_SIS (NumLanders)))
@@ -1341,6 +1339,8 @@ ExitOutfit:
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseButton (MOUSE_LFT))
 	{
+		ClearMouseEvents ();
+
 		switch (pMS->CurState)
 		{
 			case OUTFIT_FUEL:

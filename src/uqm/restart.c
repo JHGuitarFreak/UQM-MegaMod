@@ -246,22 +246,21 @@ DoDiffChooser (MENU_STATE *pMS)
 		else if (PulsedInputState.menu[KEY_MENU_SELECT]
 				|| MouseClicker (DiffRects[a], ScreenContext))
 		{
+			ClearMouseEvents ();
 			done = TRUE;
 			response = TRUE;
 			DrawDiffChooser (pMS, a, TRUE);
 			PlayMenuSound (MENU_SOUND_SUCCESS);
-			ClearMouseEvents ();
 		}
 		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
 				|| CurrentInputState.menu[KEY_EXIT]
 				|| MouseButton (MOUSE_RGT))
 		{
+			ClearMouseEvents ();
 			done = TRUE;
 			response = FALSE;
 
 			DrawStamp (&s);
-
-			ClearMouseEvents ();
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP] ||
 				PulsedInputState.menu[KEY_MENU_DOWN] ||
@@ -296,8 +295,6 @@ DoDiffChooser (MENU_STATE *pMS)
 			}
 
 			PlayMenuSound (MENU_SOUND_MOVE);
-
-			ClearMouseEvents ();
 
 			LastInputTime = GetTimeCounter ();
 
@@ -569,8 +566,7 @@ DoRestart (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseClicker (MenuRects[pMS->CurState], ScreenContext))
 	{
-		if (ClearMouseEvents ())
-			PlayMenuSound (MENU_SOUND_SUCCESS);
+		ClearMouseEvents ();
 
 		switch (pMS->CurState)
 		{
@@ -685,8 +681,7 @@ DoRestart (MENU_STATE *pMS)
 			pMS->CurState = NewState;
 		}
 
-		if (ClearMouseEvents ())
-			PlayMenuSound (MENU_SOUND_MOVE);
+		ClearMouseEvents ();
 
 		LastInputTime = GetTimeCounter ();
 	}

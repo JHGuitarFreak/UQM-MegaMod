@@ -633,11 +633,14 @@ DoSettings (MENU_STATE *pMS)
 			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_SETTINGS_MENU))
 	{
+		ClearMouseEvents ();
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseButton (MOUSE_LFT))
 	{
+		ClearMouseEvents ();
+
 		switch (pMS->CurState)
 		{
 			case SOUND_ON_SETTING:
@@ -1659,8 +1662,7 @@ DoPickGame (MENU_STATE *pMS)
 	if (PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| MouseButton (MOUSE_RGT))
 	{
-		if (ClearMouseEvents ())
-			PlayMenuSound (MENU_SOUND_SUCCESS);
+		ClearMouseEvents ();
 
 		pickState->success = FALSE;
 		return FALSE;
@@ -1705,8 +1707,7 @@ DoPickGame (MENU_STATE *pMS)
 			|| PulsedInputState.menu[KEY_MENU_PAGE_UP]
 			|| MouseWheelDelta > 0)
 		{
-			if (ClearMouseEvents ())
-				PlayMenuSound (MENU_SOUND_MOVE);
+			ClearMouseEvents ();
 
 			if (NewState == 0)
 				NewState = maxSlots;
@@ -1719,8 +1720,7 @@ DoPickGame (MENU_STATE *pMS)
 			|| PulsedInputState.menu[KEY_MENU_PAGE_DOWN]
 			|| MouseWheelDelta < 0)
 		{
-			if (ClearMouseEvents ())
-				PlayMenuSound (MENU_SOUND_MOVE);
+			ClearMouseEvents ();
 
 			if (NewState == maxSlots)
 				NewState = 0;
@@ -2120,11 +2120,13 @@ DoGameOptions (MENU_STATE *pMS)
 			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_GAME_MENU))
 	{
+		ClearMouseEvents ();
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseButton (MOUSE_LFT))
 	{
+		ClearMouseEvents ();
 		switch (pMS->CurState)
 		{
 			case SAVE_GAME:
