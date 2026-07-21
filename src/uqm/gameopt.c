@@ -1670,8 +1670,6 @@ DoPickGame (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseClicker (SlotRects[pMS->CurState], SpaceContext))
 	{
-		ClearMouseEvents ();
-
 		pSD = &pickState->summary[pMS->CurState];
 		if (pickState->saving || pSD->year_index ||
 			(!pickState->saving && pMS->CurState == MAX_SAVED_GAMES))

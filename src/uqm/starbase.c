@@ -390,8 +390,6 @@ DoStarBase (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseClicker (BaseRects[pMS->CurState], ScreenContext))
 	{
-		ClearMouseEvents ();
-
 ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;

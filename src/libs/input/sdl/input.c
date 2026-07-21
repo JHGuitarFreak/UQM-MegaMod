@@ -1001,6 +1001,7 @@ MouseClicker (RECT r, CONTEXT context)
 	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
 	{
 		UQM_SetCursor (CURSOR_POINTER);
+		ClearMouseEvents ();
 		return TRUE;
 	}
 	else

@@ -246,7 +246,6 @@ DoDiffChooser (MENU_STATE *pMS)
 		else if (PulsedInputState.menu[KEY_MENU_SELECT]
 				|| MouseClicker (DiffRects[a], ScreenContext))
 		{
-			ClearMouseEvents ();
 			done = TRUE;
 			response = TRUE;
 			DrawDiffChooser (pMS, a, TRUE);
@@ -566,8 +565,6 @@ DoRestart (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseClicker (MenuRects[pMS->CurState], ScreenContext))
 	{
-		ClearMouseEvents ();
-
 		switch (pMS->CurState)
 		{
 			case START_NEW_GAME:
