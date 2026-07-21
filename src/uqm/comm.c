@@ -52,6 +52,7 @@
 #include <ctype.h>
 
 #define MAX_RESPONSES 8
+static RECT ResponseRects[MAX_RESPONSES];
 
 // Oscilloscope frame rate
 // Should be <= COMM_ANIM_RATE
@@ -618,11 +619,10 @@ RefreshResponsesSpecial (ENCOUNTER_STATE *pES)
 static void
 RefreshResponses (ENCOUNTER_STATE *pES)
 {
-	COORD y;
+	COORD y, start_y, num_lines;
 	BYTE response;
 	SIZE leading;
 	STAMP s;
-
 
 	SetContext (SpaceContext);
 	GetContextFontLeading (&leading);
@@ -638,10 +638,23 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 		pES->response_list[response].response_text.baseline.y =
 					y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
+
+		start_y = pES->response_list[response].response_text.baseline.y;
+
 		if (response == pES->cur_response)
 			y = add_text (-1, &pES->response_list[response].response_text);
 		else
 			y = add_text (-2, &pES->response_list[response].response_text);
+
+		num_lines = (y - start_y) / leading;
+
+		ResponseRects[response] = font_GetTextRect (
+				&pES->response_list[response].response_text);
+		ResponseRects[response].corner.x -= RES_SCALE (2);
+		ResponseRects[response].extent.width = SIS_SCREEN_WIDTH - RES_SCALE (8)
+				- (TEXT_X_OFFS << 2) + RES_SCALE (2);
+		if (num_lines > 0)
+			ResponseRects[response].extent.height += leading * num_lines;
 	}
 
 	if (pES->top_response)
@@ -1495,7 +1508,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	}
 
 	if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT))
+			|| MouseClicker (ResponseRects[pES->cur_response], SpaceContext))
 	{
 		ClearMouseEvents ();
 
@@ -1532,21 +1545,31 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		{
 			response = (BYTE)((BYTE)(response + 1) % pES->num_responses);
 		}
-		else if (MouseWheelDelta != 0)
+		else
 		{
-			if (MouseWheelDelta > 0)
+			if (MouseInContext (SpaceContext) && pES->num_responses > 0)
 			{
-				response =
-						(BYTE)((response + (BYTE)(pES->num_responses - 1))
-						% pES->num_responses);
+				BYTE i;
+				POINT mouse_pos = ScreenToCanvas (SpaceContext);
+				BYTE hovered_item = pES->cur_response;
+
+				for (i = pES->top_response; i < pES->num_responses; i++)
+				{
+					if (pointWithinRect (ResponseRects[i], mouse_pos))
+					{
+						hovered_item = i;
+						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						break;
+					}
+					else
+						UQM_SetCursor (CURSOR_POINTER);
+				}
+
+				if (hovered_item != pES->cur_response)
+					response = hovered_item;
 			}
 			else
-			{
-				response =
-						(BYTE)((BYTE)(response + 1) % pES->num_responses);
-			}
-			ClearMouseEvents ();
-			PlayMenuSound (MENU_SOUND_MOVE);
+				UQM_SetCursor (CURSOR_POINTER);
 		}
 
 		if (response != pES->cur_response)
