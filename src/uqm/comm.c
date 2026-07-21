@@ -53,6 +53,7 @@
 
 #define MAX_RESPONSES 8
 static RECT ResponseRects[MAX_RESPONSES];
+static RECT ArrowRect;
 
 // Oscilloscope frame rate
 // Should be <= COMM_ANIM_RATE
@@ -628,6 +629,8 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	GetContextFontLeading (&leading);
 	BatchGraphics ();
 
+	memset (&ArrowRect, 0, sizeof (RECT));
+
 	DrawSISComWindow ();
 	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO (optWhichFonts));
 	for (response = pES->top_response; response < pES->num_responses;
@@ -650,9 +653,9 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 		ResponseRects[response] = font_GetTextRect (
 				&pES->response_list[response].response_text);
-		ResponseRects[response].corner.x -= RES_SCALE (2);
+		ResponseRects[response].corner.x = 0;
 		ResponseRects[response].extent.width = SIS_SCREEN_WIDTH - RES_SCALE (8)
-				- (TEXT_X_OFFS << 2) + RES_SCALE (2);
+				- (TEXT_X_OFFS << 2) + RES_SCALE (1);
 		if (num_lines > 0)
 			ResponseRects[response].extent.height += leading * num_lines;
 	}
@@ -661,11 +664,15 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 	{
 		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (1);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 6);
+		GetFrameRect (s.frame, &ArrowRect);
+		ArrowRect.corner.y += s.origin.y;
 	}
 	else if (y > SIS_SCREEN_HEIGHT)
 	{
 		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE (2);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 7);
+		GetFrameRect (s.frame, &ArrowRect);
+		ArrowRect.corner.y += s.origin.y;
 	}
 	else
 		s.frame = 0;
@@ -675,6 +682,9 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 		GetFrameRect (s.frame, &r);
 		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE (1);
+
+		ArrowRect.corner.x = s.origin.x;
+
 		DrawStamp (&s);
 	}
 
@@ -1545,6 +1555,32 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		{
 			response = (BYTE)((BYTE)(response + 1) % pES->num_responses);
 		}
+		else if (optMouseInput && MouseWheelDelta != 0)
+		{
+			BYTE i;
+			if (ArrowRect.extent.width > 0)
+			{
+				if (pES->top_response && MouseWheelDelta > 0)
+				{
+					ClearMouseEvents ();
+					response = 0;
+				}
+				else if (MouseWheelDelta < 0)
+				{
+					ClearMouseEvents ();
+					for (i = 0; i < pES->num_responses; i++)
+					{
+						if (ResponseRects[i].corner.y +
+							ResponseRects[i].extent.height >
+							SIS_SCREEN_HEIGHT)
+						{
+							response = i;
+							break;
+						}
+					}
+				}
+			}
+		}
 		else
 		{
 			if (MouseInContext (SpaceContext) && pES->num_responses > 0)
@@ -1555,6 +1591,13 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 
 				for (i = pES->top_response; i < pES->num_responses; i++)
 				{
+					//if (ResponseRects[i].corner.y +
+					//		ResponseRects[i].extent.height >
+					//		SIS_SCREEN_HEIGHT)
+					//{
+					//	continue;
+					//}
+
 					if (pointWithinRect (ResponseRects[i], mouse_pos))
 					{
 						hovered_item = i;
@@ -1567,6 +1610,36 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 
 				if (hovered_item != pES->cur_response)
 					response = hovered_item;
+
+				if (ArrowRect.extent.width > 0 &&
+						pointWithinRect (ArrowRect, mouse_pos))
+				{
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+
+					if (MouseButton (MOUSE_LFT))
+					{
+						ClearMouseEvents ();
+						UQM_SetCursor (CURSOR_POINTER);
+
+						if (pES->top_response)
+						{
+							response = 0;
+						}
+						else
+						{
+							for (i = 0; i < pES->num_responses; i++)
+							{
+								if (ResponseRects[i].corner.y +
+										ResponseRects[i].extent.height >
+										SIS_SCREEN_HEIGHT)
+								{
+									response = i;
+									break;
+								}
+							}
+						}
+					}
+				}
 			}
 			else
 				UQM_SetCursor (CURSOR_POINTER);
