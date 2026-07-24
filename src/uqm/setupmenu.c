@@ -1724,27 +1724,60 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 			}
 		}
 
+		if (optMouseInput && clicked_in)
+		{
+			RECT r = menu->widget_rects[menu->highlighted];
+
+			r.corner.x -= RES_SCALE (2);
+			r.corner.y -= RES_SCALE (1);
+			r.extent.width += RES_SCALE (4);
+			r.extent.height += RES_SCALE (2);
+
+			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+			DrawRectangle (&r, IS_HD);
+		}
+
 		if (MouseInContext (ScreenContext))
 		{
 			int i;
 			POINT mouse_pos = ScreenToCanvas (ScreenContext);
 			BYTE hovered_item = menu->highlighted;
 
-			for (i = 0; i < menu->num_children; i++)
+			if (!clicked_in)
 			{
-				WIDGET *child = menu->child[i];
-
-				if (child->tag == WIDGET_TYPE_LABEL)
-					continue;
-
-				if (pointWithinRect (menu->widget_rects[i], mouse_pos))
+				for (i = 0; i < menu->num_children; i++)
 				{
-					hovered_item = i;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
-					break;
+					WIDGET *child = menu->child[i];
+
+					if (child->tag == WIDGET_TYPE_LABEL)
+						continue;
+
+					if (pointWithinRect (menu->widget_rects[i], mouse_pos))
+					{
+						hovered_item = i;
+						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						break;
+					}
+					else
+						UQM_SetCursor (CURSOR_POINTER);
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
+			}
+			else
+			{
+				WIDGET *child = menu->child[hovered_item];
+
+				if (MouseButton (MOUSE_LFT))
+				{
+					child->handleEvent (child, WIDGET_EVENT_SELECT);
+					clicked_in = 0;
+
+					ClearMouseEvents ();
+				}
+				if (MouseButton (MOUSE_RGT))
+				{
+					clicked_in = 0;
+					ClearMouseEvents ();
+				}
 			}
 
 			if (hovered_item != menu->highlighted)
@@ -1768,9 +1801,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 				{
 				case WIDGET_TYPE_CHOICE:
 				case WIDGET_TYPE_SLIDER:
-					if (clicked_in)
-						child->handleEvent (child, WIDGET_EVENT_SELECT);
-					clicked_in ^= 1 << 0;
+					clicked_in = 1;
 				case WIDGET_TYPE_BUTTON:
 				case WIDGET_TYPE_TEXTENTRY:
 				default:
@@ -1805,10 +1836,10 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 	{
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			(MouseButton (MOUSE_RGT) && !clicked_in))
 	{
 		ClearMouseEvents ();
-		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_CANCEL);
 	}
 	if (PulsedInputState.menu[KEY_MENU_DELETE])
