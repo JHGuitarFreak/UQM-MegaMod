@@ -1714,32 +1714,71 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 			WIDGET *highlighted_widget = menu->child[menu->highlighted];
 			if (highlighted_widget)
 			{
-				switch (highlighted_widget->tag)
+				if (highlighted_widget->tag == WIDGET_TYPE_SLIDER ||
+					highlighted_widget->tag == WIDGET_TYPE_CHOICE)
 				{
-					case WIDGET_TYPE_SLIDER:
-						horizontal = TRUE;
-						break;
-					case WIDGET_TYPE_CHOICE:
-						horizontal = TRUE;
-						break;
-					case WIDGET_TYPE_TEXTENTRY:
-					case WIDGET_TYPE_CONTROLENTRY:
-						horizontal = FALSE;
-						ClearMouseEvents ();
-						break;
-					default:
-						horizontal = FALSE;
-						break;
+					horizontal = TRUE;
 				}
+				else
+					horizontal = FALSE;
 			}
 		}
 
-		if (MouseButton (MOUSE_LFT) && horizontal)
+		if (MouseInContext (ScreenContext))
 		{
-			clicked_in ^= 1 << 0;
-		}
+			int i;
+			POINT mouse_pos = ScreenToCanvas (ScreenContext);
+			BYTE hovered_item = menu->highlighted;
 
-		ClearMouseEvents ();
+			for (i = 0; i < menu->num_children; i++)
+			{
+				WIDGET *child = menu->child[i];
+
+				if (child->tag == WIDGET_TYPE_LABEL)
+					continue;
+
+				if (pointWithinRect (menu->widget_rects[i], mouse_pos))
+				{
+					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
+			}
+
+			if (hovered_item != menu->highlighted)
+			{
+				WIDGET *child = menu->child[hovered_item];
+
+				if (child->tag != WIDGET_TYPE_LABEL)
+				{
+					child->receiveFocus (child, WIDGET_EVENT_DOWN);
+					menu->highlighted = hovered_item;
+
+					PlayMenuSound (MENU_SOUND_MOVE);
+				}
+			}
+
+			if (MouseClicker (menu->widget_rects[hovered_item], ScreenContext))
+			{
+				WIDGET *child = menu->child[hovered_item];
+
+				switch (child->tag)
+				{
+				case WIDGET_TYPE_CHOICE:
+				case WIDGET_TYPE_SLIDER:
+					if (clicked_in)
+						child->handleEvent (child, WIDGET_EVENT_SELECT);
+					clicked_in ^= 1 << 0;
+				case WIDGET_TYPE_BUTTON:
+				case WIDGET_TYPE_TEXTENTRY:
+				default:
+					child->handleEvent (child, WIDGET_EVENT_SELECT);
+					break;
+				}
+			}
+		}
 	}
 
 	if (PulsedInputState.menu[KEY_MENU_UP]
@@ -1762,10 +1801,8 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 	{
 		Widget_Event (WIDGET_EVENT_RIGHT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| (MouseButton (MOUSE_LFT)))
+	if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
-		ClearMouseEvents ();
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
 	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
@@ -2315,6 +2352,7 @@ init_widgets (void)
 		menus[i].num_children = count_widgets (menu_defs[i].widgets);
 		menus[i].child = menu_defs[i].widgets;
 		menus[i].highlighted = 0;
+		menus[i].widget_rects = NULL;
 	}
 	if (menu_defs[i].widgets != NULL)
 	{
@@ -2785,6 +2823,15 @@ clean_up_widgets (void)
 		if (labels[i].lines)
 		{
 			HFree ((void *)labels[i].lines);
+		}
+	}
+
+	for (i = 0; i < MENU_COUNT; i++)
+	{
+		if (menus[i].widget_rects)
+		{
+			HFree (menus[i].widget_rects);
+			menus[i].widget_rects = NULL;
 		}
 	}
 
