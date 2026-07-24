@@ -1706,22 +1706,11 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 
 	if (current && current->tag == WIDGET_TYPE_MENU_SCREEN)
 	{
-		BOOLEAN horizontal = FALSE;
 		WIDGET_MENU_SCREEN *menu = (WIDGET_MENU_SCREEN *)current;
 		if (menu->highlighted >= 0
 				&& menu->highlighted < menu->num_children)
 		{
 			WIDGET *highlighted_widget = menu->child[menu->highlighted];
-			if (highlighted_widget)
-			{
-				if (highlighted_widget->tag == WIDGET_TYPE_SLIDER ||
-					highlighted_widget->tag == WIDGET_TYPE_CHOICE)
-				{
-					horizontal = TRUE;
-				}
-				else
-					horizontal = FALSE;
-			}
 		}
 
 		if (optMouseInput && clicked_in)
@@ -1801,7 +1790,10 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 				{
 				case WIDGET_TYPE_CHOICE:
 				case WIDGET_TYPE_SLIDER:
+				case WIDGET_TYPE_CONTROLENTRY:
+				case WIDGET_TYPE_MENUCONTROLENTRY:
 					clicked_in = 1;
+					break;
 				case WIDGET_TYPE_BUTTON:
 				case WIDGET_TYPE_TEXTENTRY:
 				default:

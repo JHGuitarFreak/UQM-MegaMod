@@ -902,6 +902,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	int col_size[2] = { 0 };
 	int num_pages = self->num_pages;
 	int offset = RES_SCALE (5);
+	RECT *hover = &self->hover_rect;
 
 	selected = WIDGET_ACTIVE_COLOR;
 
@@ -921,6 +922,8 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
 
 	font_DrawText (&t); // Control Name E.G. Up, Down, Weapon, Thrust
+
+	*hover = font_GetTextRect (&t);
 
 	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
@@ -950,6 +953,8 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		font_DrawText (&t);
 		col_size[i] = t.baseline.x;
 	}
+
+	hover->extent.width = (col_size[1] + RES_SCALE (38)) - hover->corner.x;
 
 	// Draw arrows
 	if (widget_focus == _self && num_pages > 1)
@@ -1050,6 +1055,7 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 	int col_size[2] = { 0 };
 	int num_pages = self->num_pages;
 	int offset = RES_SCALE (22);
+	RECT *hover = &self->hover_rect;
 
 	selected = WIDGET_ACTIVE_COLOR;
 
@@ -1068,6 +1074,8 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
 
 	font_DrawText (&t); // Menu Control Name E.G. Pause, Exit, Abort, etc.
+
+	*hover = font_GetTextRect (&t);
 
 	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
@@ -1100,6 +1108,8 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 		font_DrawText (&t);
 		col_size[i] = t.baseline.x;
 	}
+
+	hover->extent.width = (col_size[1] + RES_SCALE (38)) - hover->corner.x;
 
 	if (widget_focus == _self && num_pages > 1)
 	{
