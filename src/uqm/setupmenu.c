@@ -2848,7 +2848,7 @@ SetupMenu (void)
 	InSetupMenu = FALSE;
 
 	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
-						MENU_SOUND_SELECT);
+			MENU_SOUND_SELECT);
 }
 
 void

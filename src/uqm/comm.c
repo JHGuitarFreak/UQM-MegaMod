@@ -1536,7 +1536,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	else
 	{
 		response = pES->cur_response;
-		if (PulsedInputState.menu[KEY_MENU_LEFT] && (optSpeech || optSmoothScroll == OPT_3DO))
+		if (PulsedInputState.menu[KEY_MENU_LEFT] &&
+				(optSpeech || optSmoothScroll == OPT_3DO))
 		{
 			SelectReplay (pES);
 
@@ -1580,6 +1581,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 					}
 				}
 			}
+			ClearMouseEvents ();
 		}
 		else
 		{

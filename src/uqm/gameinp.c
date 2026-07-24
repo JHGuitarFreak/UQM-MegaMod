@@ -367,7 +367,7 @@ MenuKeysToSoundFlags (const CONTROLLER_INPUT_STATE *state)
 	MENU_SOUND_FLAGS soundFlags;
 
 	soundFlags = MENU_SOUND_NONE;
-	if (state->menu[KEY_MENU_UP])
+	if (state->menu[KEY_MENU_UP] || MouseWheelDelta != 0)
 		soundFlags |= MENU_SOUND_UP;
 	if (state->menu[KEY_MENU_DOWN])
 		soundFlags |= MENU_SOUND_DOWN;
@@ -375,11 +375,11 @@ MenuKeysToSoundFlags (const CONTROLLER_INPUT_STATE *state)
 		soundFlags |= MENU_SOUND_LEFT;
 	if (state->menu[KEY_MENU_RIGHT])
 		soundFlags |= MENU_SOUND_RIGHT;
-	if (state->menu[KEY_MENU_SELECT])
+	if (state->menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT))
 		soundFlags |= MENU_SOUND_SELECT;
-	if (state->menu[KEY_MENU_CANCEL])
+	if (state->menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 		soundFlags |= MENU_SOUND_CANCEL;
-	if (state->menu[KEY_MENU_SPECIAL])
+	if (state->menu[KEY_MENU_SPECIAL] || MouseButton (MOUSE_MID))
 		soundFlags |= MENU_SOUND_SPECIAL;
 	if (state->menu[KEY_MENU_PAGE_UP])
 		soundFlags |= MENU_SOUND_PAGEUP;

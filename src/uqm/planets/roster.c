@@ -289,8 +289,8 @@ DoModifyRoster (MENU_STATE *pMS)
 		{
 			drawModifiedSupportShip (rosterState);
 			flashSupportShipCrew ();
-			SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_PAGE, 
-				MENU_SOUND_ACTION);
+			SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_PAGE,
+					MENU_SOUND_ACTION);
 		}
 	}
 	else if (rosterState->modifyingCrew)

@@ -348,7 +348,7 @@ DoLoadTeam (MELEE_STATE *pMS)
 		return FALSE;
 
 	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_PAGE, 
-		MENU_SOUND_SELECT);
+			MENU_SOUND_SELECT);
 
 	if (!pMS->Initialized)
 	{
