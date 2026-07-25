@@ -2417,7 +2417,7 @@ DoPlanetSide (LanderInputState *pMS)
 	if (MouseInContext (ScanContext)
 		|| (is3DO (optSuperPC) && MouseInContext (PlanetContext)))
 	{
-		if (MouseButton (MOUSE_LFT))
+		if (CurrentInputState.menu[MOUSE_BTN_LEFT])
 		{
 			if (MouseInContext (ScanContext))
 				targetLanderLoc = GetMouseScanCoords ();
@@ -2784,8 +2784,10 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	int end;
 	int delta;
 	int index;
-	int max_offsets; 
-	int landingOfsHD[MAX_OFFSETS_HD]; 
+	int max_offsets;
+	int landingOfsHD[MAX_OFFSETS_HD];
+
+	KillAutopilot ();
 
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;

@@ -2106,9 +2106,11 @@ CheckShipLocation (SIZE *newRadius)
 				&& (ip_autopilot.x != ~0 || ip_autopilot.y != ~0))
 			KillAutopilot ();
 
-		if (MouseButton (MOUSE_RGT)
+		if (CurrentInputState.menu[MOUSE_BTN_RIGHT]
 				&& MouseInContext (SpaceContext))
 		{
+			FlushInput ();
+
 			if (ip_autopilot.x != ~0 || ip_autopilot.y != ~0)
 				KillAutopilot ();
 		}
@@ -2124,12 +2126,15 @@ CheckShipLocation (SIZE *newRadius)
 	{
 		if (MouseInContext (SpaceContext))
 		{
-			if (MouseButton (MOUSE_LFT) && !SISonScreen)
+			if (CurrentInputState.menu[MOUSE_BTN_LEFT] && !SISonScreen)
 			{
 				PLANET_DESC *clicked_body = GetWorldAtTarget ();
+
+				FlushInput ();
+
 				if (IsMouseOnShip ())
 					ExitImmediateArea ();
-				else if (GetWorldAtTarget ())
+				else if (clicked_body)
 					SetAutopilotToWorld (clicked_body);
 				else
 					SetIPAutopilot ();
@@ -3529,8 +3534,8 @@ SaveSolarSysLocation (void)
 static BOOLEAN
 DoSolarSysMenu (MENU_STATE *pMS)
 {
-	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT);
+	BOOLEAN select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			PulsedInputState.menu[MOUSE_BTN_LEFT];
 	BOOLEAN handled;
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
@@ -3629,8 +3634,8 @@ static BOOLEAN
 DoIpFlight (SOLARSYS_STATE *pSS)
 {
 	//static TimeCount NextTime; unused
-	BOOLEAN cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| MouseButton (MOUSE_MID);
+	BOOLEAN cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			PulsedInputState.menu[MOUSE_BTN_MIDDLE];
 
 	if (pSS->InOrbit)
 	{	// CheckShipLocation() or InitSolarSys() sent us to orbital

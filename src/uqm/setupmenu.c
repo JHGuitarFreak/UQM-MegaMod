@@ -1718,90 +1718,95 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 			WIDGET *highlighted_widget = menu->child[menu->highlighted];
 		}
 
-		if (optMouseInput && clicked_in)
+		if (optMouseInput)
 		{
-			RECT r = menu->widget_rects[menu->highlighted];
-
-			r.corner.x -= RES_SCALE (2);
-			r.corner.y -= RES_SCALE (1);
-			r.extent.width += RES_SCALE (4);
-			r.extent.height += RES_SCALE (2);
-
-			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
-			DrawRectangle (&r, IS_HD);
-		}
-
-		if (MouseInContext (ScreenContext))
-		{
-			int i;
-			POINT mouse_pos = ScreenToCanvas (ScreenContext);
-			BYTE hovered_item = menu->highlighted;
-
-			if (!clicked_in)
+			if (clicked_in)
 			{
-				for (i = 0; i < menu->num_children; i++)
+				RECT r = menu->widget_rects[menu->highlighted];
+
+				r.corner.x -= RES_SCALE (2);
+				r.corner.y -= RES_SCALE (1);
+				r.extent.width += RES_SCALE (4);
+				r.extent.height += RES_SCALE (2);
+
+				SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+				DrawRectangle (&r, IS_HD);
+			}
+
+			if (MouseInContext (ScreenContext))
+			{
+				int i;
+				POINT mouse_pos = ScreenToCanvas (ScreenContext);
+				BYTE hovered_item = menu->highlighted;
+
+				if (!clicked_in)
 				{
-					WIDGET *child = menu->child[i];
-
-					if (child->tag == WIDGET_TYPE_LABEL)
-						continue;
-
-					if (pointWithinRect (menu->widget_rects[i], mouse_pos))
+					for (i = 0; i < menu->num_children; i++)
 					{
-						hovered_item = i;
-						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						WIDGET *child = menu->child[i];
+
+						if (child->tag == WIDGET_TYPE_LABEL)
+							continue;
+
+						if (pointWithinRect (menu->widget_rects[i], mouse_pos))
+						{
+							hovered_item = i;
+							UQM_SetCursor (CURSOR_POINTER_HILITE);
+							break;
+						}
+						else
+							UQM_SetCursor (CURSOR_POINTER);
+					}
+
+					if (MouseButton (MOUSE_RGT))
+						Widget_Event (WIDGET_EVENT_CANCEL);
+				}
+				else
+				{
+					WIDGET *child = menu->child[hovered_item];
+
+					if (MouseButton (MOUSE_LFT))
+					{
+						FlushInput ();
+						child->handleEvent (child, WIDGET_EVENT_SELECT);
+						clicked_in = 0;
+					}
+					if (MouseButton (MOUSE_RGT))
+						clicked_in = 0;
+				}
+
+				if (hovered_item != menu->highlighted)
+				{
+					WIDGET *child = menu->child[hovered_item];
+
+					if (child->tag != WIDGET_TYPE_LABEL)
+					{
+						child->receiveFocus (child, WIDGET_EVENT_DOWN);
+						menu->highlighted = hovered_item;
+
+						PlayMenuSound (MENU_SOUND_MOVE);
+					}
+				}
+
+				if (MouseClicker (menu->widget_rects[hovered_item],
+						ScreenContext))
+				{
+					WIDGET *child = menu->child[hovered_item];
+
+					switch (child->tag)
+					{
+					case WIDGET_TYPE_CHOICE:
+					case WIDGET_TYPE_SLIDER:
+					case WIDGET_TYPE_CONTROLENTRY:
+					case WIDGET_TYPE_MENUCONTROLENTRY:
+						clicked_in = 1;
+						break;
+					case WIDGET_TYPE_BUTTON:
+					case WIDGET_TYPE_TEXTENTRY:
+					default:
+						child->handleEvent (child, WIDGET_EVENT_SELECT);
 						break;
 					}
-					else
-						UQM_SetCursor (CURSOR_POINTER);
-				}
-
-				if (MouseButton (MOUSE_RGT))
-					Widget_Event (WIDGET_EVENT_CANCEL);
-			}
-			else
-			{
-				WIDGET *child = menu->child[hovered_item];
-
-				if (MouseButton (MOUSE_LFT))
-				{
-					child->handleEvent (child, WIDGET_EVENT_SELECT);
-					clicked_in = 0;
-				}
-				if (MouseButton (MOUSE_RGT))
-					clicked_in = 0;
-			}
-
-			if (hovered_item != menu->highlighted)
-			{
-				WIDGET *child = menu->child[hovered_item];
-
-				if (child->tag != WIDGET_TYPE_LABEL)
-				{
-					child->receiveFocus (child, WIDGET_EVENT_DOWN);
-					menu->highlighted = hovered_item;
-
-					PlayMenuSound (MENU_SOUND_MOVE);
-				}
-			}
-
-			if (MouseClicker (menu->widget_rects[hovered_item], ScreenContext))
-			{
-				WIDGET *child = menu->child[hovered_item];
-
-				switch (child->tag)
-				{
-				case WIDGET_TYPE_CHOICE:
-				case WIDGET_TYPE_SLIDER:
-				case WIDGET_TYPE_CONTROLENTRY:
-				case WIDGET_TYPE_MENUCONTROLENTRY:
-					clicked_in = 1;
-					break;
-				case WIDGET_TYPE_BUTTON:
-				case WIDGET_TYPE_TEXTENTRY:
-				default:
-					child->handleEvent (child, WIDGET_EVENT_SELECT);
-					break;
 				}
 			}
 		}
@@ -1829,14 +1834,17 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 	}
 	if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
 	if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_CANCEL);
 	}
 	if (PulsedInputState.menu[KEY_MENU_DELETE])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
 

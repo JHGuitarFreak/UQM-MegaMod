@@ -927,9 +927,6 @@ DrawMouseCursor (CONTEXT context)
 	Color OldColor;
 	POINT pt;
 
-	if (!optMouseInput)
-		return;
-
 	pt = ScreenToCanvas (context);
 
 	BatchGraphics ();

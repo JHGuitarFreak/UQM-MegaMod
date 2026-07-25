@@ -71,8 +71,6 @@ enum ScanMenuItems
 
 // Begin mouse-centric code chunk
 
-static BOOLEAN ScanMouseDragging = FALSE;
-
 static POINT
 ScreenToScanCoords (void)
 {
@@ -125,9 +123,6 @@ ScanMouseInput (void)
 
 	if (!MouseInContext (ScanContext))
 	{
-		if (ScanMouseDragging)
-			ScanMouseDragging = FALSE;
-
 		UQM_SetCursor (CURSOR_POINTER);
 
 		return FALSE;
@@ -135,19 +130,7 @@ ScanMouseInput (void)
 	else
 		UQM_SetCursor (CURSOR_DISABLE);
 
-	if (!ScanMouseDragging)
-		cursorMoved = ScanCursorLocation ();
-
-	if (MouseBtnInCtx (MOUSE_LFT, ScanContext) && !ScanMouseDragging)
-	{
-		ScanMouseDragging = TRUE;
-		cursorMoved = ScanCursorLocation ();
-	}
-
-	if (ScanMouseDragging)
-		cursorMoved = ScanCursorLocation ();
-
-	return cursorMoved;
+	return ScanCursorLocation ();
 }
 
 // End mouse-centric code chunk

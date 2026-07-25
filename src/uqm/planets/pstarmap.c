@@ -178,7 +178,6 @@ static void DrawCursor (COORD curs_x, COORD curs_y);
 static void EraseCursor (COORD curs_x, COORD curs_y);
 static void ZoomStarMap (SIZE dir);
 
-static BOOLEAN MouseDragging = FALSE;
 static DWORD MouseDownTime = 0;
 
 static POINT
@@ -225,11 +224,6 @@ StarMapMouseInput (void)
 
 	if (!MouseInContext (SpaceContext))
 	{
-		if (MouseDragging)
-		{
-			MouseDragging = FALSE;
-			MouseDownTime = 0;
-		}
 		UQM_SetCursor (CURSOR_POINTER);
 		return FALSE;
 	}
@@ -254,12 +248,8 @@ StarMapMouseInput (void)
 
 	if (BestSDPtr)
 		newCursorLoc = BestSDPtr->star_pt;
-
-	if (!MouseDragging)
-		cursorMoved = CursorLocation (newCursorLoc);
-
-	if (MouseDragging)
-		cursorMoved = CursorLocation (newCursorLoc);
+	
+	cursorMoved = CursorLocation (newCursorLoc);
 
 	return cursorMoved;
 }
@@ -2629,12 +2619,6 @@ DoMoveCursor (MENU_STATE *pMS)
 		UpdateCursorInfo (last_buf);
 		UpdateFuelRequirement ();
 
-		if (optMouseInput)
-		{
-			MouseDragging = FALSE;
-			MouseDownTime = 0;
-		}
-
 		return TRUE;
 	}
 
@@ -2678,7 +2662,7 @@ DoMoveCursor (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| (MouseBtnInCtx (MOUSE_LFT, SpaceContext) && !MouseDragging))
+			|| (MouseBtnInCtx (MOUSE_LFT, SpaceContext)))
 	{
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/

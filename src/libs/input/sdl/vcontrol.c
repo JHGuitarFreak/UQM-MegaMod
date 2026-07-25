@@ -1329,7 +1329,14 @@ VControl_HandleEvent (const SDL_Event *e)
 			log_add (log_Info, "Controller mapping updated");
 			break;
 #endif /* HAVE_JOYSTICK */
+		default:
+			break;
+	}
 
+	if (optMouseInput)
+	{
+		switch (e->type)
+		{
 		case SDL_MOUSEBUTTONDOWN:
 			VControl_ProcessMouseButtonDown (e->button.button);
 			last_interesting = *e;
@@ -1362,6 +1369,7 @@ VControl_HandleEvent (const SDL_Event *e)
 			break;
 		default:
 			break;
+		}
 	}
 }
 
