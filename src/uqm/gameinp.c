@@ -358,7 +358,6 @@ FlushInput (void)
 {
 	TFB_ResetControls ();
 	_clear_menu_state ();
-	ClearMouseEvents ();
 }
 
 static MENU_SOUND_FLAGS
@@ -367,19 +366,29 @@ MenuKeysToSoundFlags (const CONTROLLER_INPUT_STATE *state)
 	MENU_SOUND_FLAGS soundFlags;
 
 	soundFlags = MENU_SOUND_NONE;
-	if (state->menu[KEY_MENU_UP] || MouseWheelDelta != 0)
+	if (state->menu[KEY_MENU_UP])
+		soundFlags |= MENU_SOUND_UP;
+	if (state->menu[MOUSE_WHEEL_UP])
 		soundFlags |= MENU_SOUND_UP;
 	if (state->menu[KEY_MENU_DOWN])
+		soundFlags |= MENU_SOUND_DOWN;
+	if (state->menu[MOUSE_WHEEL_DOWN])
 		soundFlags |= MENU_SOUND_DOWN;
 	if (state->menu[KEY_MENU_LEFT])
 		soundFlags |= MENU_SOUND_LEFT;
 	if (state->menu[KEY_MENU_RIGHT])
 		soundFlags |= MENU_SOUND_RIGHT;
-	if (state->menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT))
+	if (state->menu[KEY_MENU_SELECT])
 		soundFlags |= MENU_SOUND_SELECT;
-	if (state->menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+	if (state->menu[MOUSE_BTN_LEFT])
+		soundFlags |= MENU_SOUND_SELECT;
+	if (state->menu[KEY_MENU_CANCEL])
 		soundFlags |= MENU_SOUND_CANCEL;
-	if (state->menu[KEY_MENU_SPECIAL] || MouseButton (MOUSE_MID))
+	if (state->menu[MOUSE_BTN_RIGHT])
+		soundFlags |= MENU_SOUND_CANCEL;
+	if (state->menu[KEY_MENU_SPECIAL])
+		soundFlags |= MENU_SOUND_SPECIAL;
+	if (state->menu[MOUSE_BTN_MIDDLE])
 		soundFlags |= MENU_SOUND_SPECIAL;
 	if (state->menu[KEY_MENU_PAGE_UP])
 		soundFlags |= MENU_SOUND_PAGEUP;
@@ -522,18 +531,15 @@ DirKeysPress (void)
 		CurrentInputState.menu[KEY_MENU_LEFT] ||
 		CurrentInputState.menu[KEY_MENU_RIGHT] ||
 		CurrentInputState.menu[KEY_MENU_UP] ||
-		CurrentInputState.menu[KEY_MENU_DOWN]
+		CurrentInputState.menu[KEY_MENU_DOWN] ||
+		CurrentInputState.menu[MOUSE_WHEEL_UP] ||
+		CurrentInputState.menu[MOUSE_WHEEL_DOWN]
 	);
 }
 
 BOOLEAN
 ActKeysPress (void)
 {
-	BOOLEAN MouseButtonsPressed = MouseButton (MOUSE_LFT)
-			|| MouseButton (MOUSE_RGT) || MouseButton (MOUSE_MID);
-
-	ClearMouseEvents ();
-
 	UpdateInputState ();
 
 	return (
@@ -542,7 +548,10 @@ ActKeysPress (void)
 		CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
 		CurrentInputState.menu[KEY_MENU_SELECT] ||
 		CurrentInputState.menu[KEY_MENU_CANCEL] ||
-		CurrentInputState.menu[KEY_MENU_SPECIAL] || MouseButtonsPressed
+		CurrentInputState.menu[KEY_MENU_SPECIAL] ||
+		CurrentInputState.menu[MOUSE_BTN_LEFT] ||
+		CurrentInputState.menu[MOUSE_BTN_RIGHT] ||
+		CurrentInputState.menu[MOUSE_BTN_MIDDLE]
 	);
 }
 

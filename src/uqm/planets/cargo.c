@@ -394,11 +394,11 @@ DoDiscardCargo (MENU_STATE *pMS)
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP]
-			|| PulsedInputState.menu[KEY_MENU_LEFT] || MouseWheelDelta > 0;
+			|| PulsedInputState.menu[KEY_MENU_LEFT]
+			|| PulsedInputState.menu[MOUSE_WHEEL_UP];
 	forward = PulsedInputState.menu[KEY_MENU_DOWN]
-			|| PulsedInputState.menu[KEY_MENU_RIGHT] || MouseWheelDelta < 0;
-
-	ClearMouseEvents ();
+			|| PulsedInputState.menu[KEY_MENU_RIGHT]
+			|| PulsedInputState.menu[MOUSE_WHEEL_DOWN];
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;

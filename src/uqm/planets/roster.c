@@ -271,8 +271,6 @@ DoModifyRoster (MENU_STATE *pMS)
 	pgup = PulsedInputState.menu[KEY_MENU_ZOOM_IN];
 	pgdn = PulsedInputState.menu[KEY_MENU_ZOOM_OUT];
 
-	ClearMouseEvents ();
-
 	if (cancel && !rosterState->modifyingCrew)
 	{
 		return FALSE;

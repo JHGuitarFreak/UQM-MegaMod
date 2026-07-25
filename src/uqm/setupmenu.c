@@ -490,6 +490,11 @@ static WIDGET *editmenukeys_widgets[] = {
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG2    ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG3    ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG4    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MOUSELEFT    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MOUSERIGHT    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MOUSEMIDDLE    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MWHEELUP  ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MWHEELDOWN]),
 
 	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
 	(WIDGET *)(&buttons[BTN_LOADDEFMENUBINDS]), // Load Defaults
@@ -1750,6 +1755,9 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 					else
 						UQM_SetCursor (CURSOR_POINTER);
 				}
+
+				if (MouseButton (MOUSE_RGT))
+					Widget_Event (WIDGET_EVENT_CANCEL);
 			}
 			else
 			{
@@ -1759,14 +1767,9 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 				{
 					child->handleEvent (child, WIDGET_EVENT_SELECT);
 					clicked_in = 0;
-
-					ClearMouseEvents ();
 				}
 				if (MouseButton (MOUSE_RGT))
-				{
 					clicked_in = 0;
-					ClearMouseEvents ();
-				}
 			}
 
 			if (hovered_item != menu->highlighted)
@@ -1805,22 +1808,22 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 	}
 
 	if (PulsedInputState.menu[KEY_MENU_UP]
-			|| (!clicked_in && MouseWheelDelta > 0))
+			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
 	{
 		Widget_Event (WIDGET_EVENT_UP);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_DOWN]
-			|| (!clicked_in && MouseWheelDelta < 0))
+			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
 	{
 		Widget_Event (WIDGET_EVENT_DOWN);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_LEFT]
-			|| (clicked_in && MouseWheelDelta < 0))
+			|| (clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
 	{
 		Widget_Event (WIDGET_EVENT_LEFT);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_RIGHT]
-			|| (clicked_in && MouseWheelDelta > 0))
+			|| (clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
 	{
 		Widget_Event (WIDGET_EVENT_RIGHT);
 	}
@@ -1828,18 +1831,14 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 	{
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
-	if (PulsedInputState.menu[KEY_MENU_CANCEL] ||
-			(MouseButton (MOUSE_RGT) && !clicked_in))
+	if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
-		ClearMouseEvents ();
 		Widget_Event (WIDGET_EVENT_CANCEL);
 	}
 	if (PulsedInputState.menu[KEY_MENU_DELETE])
 	{
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
-
-	ClearMouseEvents ();
 
 	SleepThreadUntil (pInputState->NextTime + MENU_FRAME_RATE);
 	pInputState->NextTime = GetTimeCounter ();

@@ -255,7 +255,6 @@ DoDiffChooser (MENU_STATE *pMS)
 				|| CurrentInputState.menu[KEY_EXIT]
 				|| MouseButton (MOUSE_RGT))
 		{
-			ClearMouseEvents ();
 			done = TRUE;
 			response = FALSE;
 
@@ -677,8 +676,6 @@ DoRestart (MENU_STATE *pMS)
 			UnbatchGraphics ();
 			pMS->CurState = NewState;
 		}
-
-		ClearMouseEvents ();
 
 		LastInputTime = GetTimeCounter ();
 	}

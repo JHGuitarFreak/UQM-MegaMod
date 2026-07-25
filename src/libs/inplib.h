@@ -37,8 +37,6 @@ extern BOOLEAN ActKeysPress (void);
 
 extern void TFB_ResetControls (void);
 
-extern volatile int MouseButtonDown;
-extern volatile int MouseWheelDelta;
 extern POINT CurrentMousePos;
 
 extern volatile int QuitPosted;
@@ -77,12 +75,11 @@ extern const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
 #define MOUSE_LFT 1
 #define MOUSE_MID 2
 #define MOUSE_RGT 3
+#define WHEEL_UP 1
+#define WHEEL_DOWN 2
 
-extern BOOLEAN ClearMouseEvents (void);
 extern BOOLEAN MouseButton (int button);
-extern BOOLEAN AnyMouseButton (void);
 extern BOOLEAN MouseBtnInCtx (int button, CONTEXT context);
-extern void DoMouseSounds (void);
 extern POINT ScaleCanvas (void);
 extern POINT ScreenToCanvas (CONTEXT context);
 extern BOOLEAN MouseInContext (CONTEXT context);

@@ -628,8 +628,6 @@ DoInstallModule (MENU_STATE *pMS)
 			PulsedInputState.menu[KEY_MENU_UP] ||
 			PulsedInputState.menu[KEY_MENU_DOWN];
 
-	ClearMouseEvents ();
-
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
 	FirstItem = 0;
@@ -749,8 +747,6 @@ DoInstallModule (MENU_STATE *pMS)
 
 		if (select)
 		{
-			ClearMouseEvents ();
-
 			if (new_slot_piece >= EMPTY_SLOT
 					&& old_slot_piece >= EMPTY_SLOT)
 			{
@@ -824,7 +820,6 @@ DoInstallModule (MENU_STATE *pMS)
 				pMS->CurState = EMPTY_SLOT + 2;
 			if (cancel)
 			{
-				ClearMouseEvents ();
 				new_slot_piece = pMS->CurState;
 			}
 			goto InitFlash;
@@ -1307,8 +1302,6 @@ DoOutfit (MENU_STATE *pMS)
 			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == OUTFIT_EXIT))
 	{
-		ClearMouseEvents ();
-
 		if (pMS->CurState == OUTFIT_DOFUEL)
 		{
 			pMS->CurState = OUTFIT_FUEL;
@@ -1339,8 +1332,6 @@ ExitOutfit:
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseButton (MOUSE_LFT))
 	{
-		ClearMouseEvents ();
-
 		switch (pMS->CurState)
 		{
 			case OUTFIT_FUEL:

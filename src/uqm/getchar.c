@@ -485,14 +485,12 @@ DoTextEntry (TEXTENTRY_STATE *pTES)
 	if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseButton (MOUSE_LFT))
 	{	// done entering
-		ClearMouseEvents ();
 		pTES->Success = TRUE;
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_EDIT_CANCEL]
 			|| MouseButton (MOUSE_RGT))
 	{	// canceled entering
-		ClearMouseEvents ();
 		pTES->Success = FALSE;
 		return FALSE;
 	}

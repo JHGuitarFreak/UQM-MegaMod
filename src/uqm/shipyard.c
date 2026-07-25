@@ -2365,9 +2365,6 @@ DoModifyShips (MENU_STATE *pMS)
 		SBYTE dx = 0;
 		SBYTE dy = 0;
 
-		if (select || cancel)
-			ClearMouseEvents ();
-
 		if (!(pMS->delta_item & MODIFY_CREW_FLAG))
 		{
 			// Navigating through the ship slots.
@@ -2406,12 +2403,8 @@ DoModifyShips (MENU_STATE *pMS)
 				if (PulsedInputState.menu[KEY_MENU_LEFT])      dy =  10;
 				if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])   dy = -50;
 				if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])  dy =  50;
-				if (MouseWheelDelta != 0)
-				{
-					if (MouseWheelDelta > 0) dy = -5;
-					if (MouseWheelDelta < 0) dy = 5;
-					ClearMouseEvents ();
-				}
+				if (PulsedInputState.menu[MOUSE_WHEEL_UP])     dy = -5;
+				if (PulsedInputState.menu[MOUSE_WHEEL_DOWN])   dy =  5;
 				special = false;
 				if (PulsedInputState.menu[KEY_MENU_NEXT])      special = true;
 
@@ -2532,9 +2525,6 @@ DoShipyard (MENU_STATE *pMS)
 
 	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
-
-	if (select || cancel)
-		ClearMouseEvents ();
 
 	OutfitOrShipyard = 3;
 

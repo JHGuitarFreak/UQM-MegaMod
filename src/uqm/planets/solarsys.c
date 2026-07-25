@@ -301,7 +301,7 @@ DrawIPAutopilotTarget (void)
 	if (true)
 	{
 		POINT shipLoc = GLOBAL (ShipStamp.origin);
-		POINT pt = shipLoc;
+		//POINT pt = shipLoc;
 		SIZE dx = target.x - shipLoc.x;
 		SIZE dy = target.y - shipLoc.y;
 		SIZE ship_perimeter;
@@ -2111,8 +2111,6 @@ CheckShipLocation (SIZE *newRadius)
 		{
 			if (ip_autopilot.x != ~0 || ip_autopilot.y != ~0)
 				KillAutopilot ();
-
-			ClearMouseEvents ();
 		}
 	}
 
@@ -2135,8 +2133,6 @@ CheckShipLocation (SIZE *newRadius)
 					SetAutopilotToWorld (clicked_body);
 				else
 					SetIPAutopilot ();
-
-				ClearMouseEvents ();
 			}
 
 			if (last_radius != radius && ip_autopilot.x != ~0)
@@ -3551,8 +3547,6 @@ DoSolarSysMenu (MENU_STATE *pMS)
 	if (!select)
 		return TRUE;
 
-	ClearMouseEvents ();
-
 	SetFlashRect (NULL, FALSE);
 
 	switch (pMS->CurState)
@@ -3647,7 +3641,6 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	}
 	else if (!NewGameInit && (cancel || LastActivity == CHECK_LOAD))
 	{
-		ClearMouseEvents ();
 		DirJoyActive = FALSE;
 		SolarSysMenu ();
 		SetMenuSounds (MENU_SOUND_NONE, MENU_SOUND_NONE);

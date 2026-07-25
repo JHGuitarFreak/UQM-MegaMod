@@ -404,7 +404,6 @@ sis_hyper_postprocess (ELEMENT *ElementPtr)
 			&& StarShipPtr->special_counter == 0)
 	{
 #define MENU_DELAY 10
-		ClearMouseEvents ();
 		HyperspaceMenu ();
 		StarShipPtr->cur_status_flags &= ~SHIP_AT_MAX_SPEED;
 		StarShipPtr->special_counter = MENU_DELAY;

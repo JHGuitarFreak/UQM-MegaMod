@@ -104,8 +104,6 @@ DoPickBattleShip (MENU_STATE *pMS)
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseButton (MOUSE_LFT))
 	{
-		ClearMouseEvents ();
-
 		if ((HSTARSHIP)pMS->CurFrame)
 		{
 			PlayMenuSound (MENU_SOUND_SUCCESS);

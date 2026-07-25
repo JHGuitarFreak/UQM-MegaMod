@@ -936,8 +936,6 @@ DoTalkSegue (TALKING_STATE *pTS)
 		if (PulsedInputState.menu[KEY_MENU_CANCEL]
 				|| MouseButton (MOUSE_RGT))
 		{
-			ClearMouseEvents ();
-
 			JumpTrack ();
 			pTS->ended = true;
 			return FALSE;
@@ -945,13 +943,17 @@ DoTalkSegue (TALKING_STATE *pTS)
 
 		if (optSmoothScroll == OPT_PC || !optSpeech)
 		{
-			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0;
-			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0;
+			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_DOWN] != 0;
+			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_UP] != 0;
 		}
 		else if (optSmoothScroll == OPT_3DO)
 		{
-			left = CurrentInputState.menu[KEY_MENU_LEFT] != 0;
-			right = CurrentInputState.menu[KEY_MENU_RIGHT] != 0;
+			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_DOWN] != 0;
+			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_UP] != 0;
 		}
 
 #if DEMO_MODE || CREATE_JOURNAL
@@ -960,10 +962,8 @@ DoTalkSegue (TALKING_STATE *pTS)
 #endif
 		curTrack = PlayingTrack();
 
-		if (right || MouseWheelDelta > 0)
+		if (right)
 		{
-			ClearMouseEvents ();
-
 			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 3));
 			if (optSmoothScroll == OPT_PC || !optSpeech)
 				FastForward_Page ();
@@ -971,10 +971,8 @@ DoTalkSegue (TALKING_STATE *pTS)
 				FastForward_Smooth ();
 			pTS->seeking = true;
 		}
-		else if (left || pTS->rewind || MouseWheelDelta < 0)
+		else if (left || pTS->rewind)
 		{
-			ClearMouseEvents ();
-
 			pTS->rewind = false;
 			SetSliderImage (SetAbsFrameIndex (ActivityFrame, 4));
 			if (optSmoothScroll == OPT_PC || !optSpeech)
@@ -1293,8 +1291,6 @@ DoConvSummary (SUMMARY_STATE *pSS)
 			|| PulsedInputState.menu[KEY_MENU_RIGHT]
 			|| MouseButton (MOUSE_LFT))
 	{
-		ClearMouseEvents ();
-
 		if (pSS->NextSub)
 		{	// we want the next page
 			pSS->PrintNext = TRUE;
@@ -1520,8 +1516,6 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| MouseClicker (ResponseRects[pES->cur_response], SpaceContext))
 	{
-		ClearMouseEvents ();
-
 		SelectResponse (pES);
 	}
 	else if ((PulsedInputState.menu[KEY_MENU_CANCEL]
@@ -1529,8 +1523,6 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE &&
 			!IsDarkMode)
 	{
-		ClearMouseEvents ();
-
 		SelectConversationSummary (pES);
 	}
 	else
@@ -1556,34 +1548,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		{
 			response = (BYTE)((BYTE)(response + 1) % pES->num_responses);
 		}
-		else if (optMouseInput && MouseWheelDelta != 0)
-		{
-			BYTE i;
-			if (ArrowRect.extent.width > 0)
-			{
-				if (pES->top_response && MouseWheelDelta > 0)
-				{
-					ClearMouseEvents ();
-					response = 0;
-				}
-				else if (MouseWheelDelta < 0)
-				{
-					ClearMouseEvents ();
-					for (i = 0; i < pES->num_responses; i++)
-					{
-						if (ResponseRects[i].corner.y +
-							ResponseRects[i].extent.height >
-							SIS_SCREEN_HEIGHT)
-						{
-							response = i;
-							break;
-						}
-					}
-				}
-			}
-			ClearMouseEvents ();
-		}
-		else
+		else if (optMouseInput)
 		{
 			if (MouseInContext (SpaceContext) && pES->num_responses > 0)
 			{
@@ -1611,16 +1576,18 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 				}
 
 				if (hovered_item != pES->cur_response)
+				{
+					PlayMenuSound (MENU_SOUND_MOVE);
 					response = hovered_item;
+				}
 
 				if (ArrowRect.extent.width > 0 &&
-						pointWithinRect (ArrowRect, mouse_pos))
+					pointWithinRect (ArrowRect, mouse_pos))
 				{
 					UQM_SetCursor (CURSOR_POINTER_HILITE);
 
 					if (MouseButton (MOUSE_LFT))
 					{
-						ClearMouseEvents ();
 						UQM_SetCursor (CURSOR_POINTER);
 
 						if (pES->top_response)
@@ -1632,8 +1599,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 							for (i = 0; i < pES->num_responses; i++)
 							{
 								if (ResponseRects[i].corner.y +
-										ResponseRects[i].extent.height >
-										SIS_SCREEN_HEIGHT)
+									ResponseRects[i].extent.height >
+									SIS_SCREEN_HEIGHT)
 								{
 									response = i;
 									break;
@@ -1645,6 +1612,30 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			}
 			else
 				UQM_SetCursor (CURSOR_POINTER);
+
+			if (ArrowRect.extent.width > 0)
+			{
+				if (pES->top_response &&
+					PulsedInputState.menu[MOUSE_WHEEL_DOWN])
+				{
+					response = 0;
+				}
+				else if (PulsedInputState.menu[MOUSE_WHEEL_UP])
+				{
+					BYTE i;
+
+					for (i = 0; i < pES->num_responses; i++)
+					{
+						if (ResponseRects[i].corner.y +
+							ResponseRects[i].extent.height >
+							SIS_SCREEN_HEIGHT)
+						{
+							response = i;
+							break;
+						}
+					}
+				}
+			}
 		}
 
 		if (response != pES->cur_response)

@@ -2095,8 +2095,6 @@ DoHyperspaceMenu (MENU_STATE *pMS)
 			|| MouseButton (MOUSE_LFT);
 	BOOLEAN handled;
 
-	ClearMouseEvents ();
-
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 			|| GLOBAL_SIS (CrewEnlisted) == (COUNT)~0)
 		return FALSE;

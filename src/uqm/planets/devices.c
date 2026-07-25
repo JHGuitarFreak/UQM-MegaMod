@@ -506,18 +506,18 @@ DoManipulateDevices (MENU_STATE *pMS)
 	BOOLEAN select, cancel, back, forward;
 	BOOLEAN pagefwd, pageback;
 	
-	select = PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT);
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| MouseButton (MOUSE_RGT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP] ||
-			PulsedInputState.menu[KEY_MENU_LEFT] || MouseWheelDelta > 0;
-	forward = PulsedInputState.menu[KEY_MENU_DOWN]
-			|| PulsedInputState.menu[KEY_MENU_RIGHT] || MouseWheelDelta < 0;
+			PulsedInputState.menu[KEY_MENU_LEFT] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP];
+	forward = PulsedInputState.menu[KEY_MENU_DOWN] ||
+			PulsedInputState.menu[KEY_MENU_RIGHT] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
 	pagefwd = PulsedInputState.menu[KEY_MENU_PAGE_DOWN];
 	pageback = PulsedInputState.menu[KEY_MENU_PAGE_UP];
-
-	ClearMouseEvents ();
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;

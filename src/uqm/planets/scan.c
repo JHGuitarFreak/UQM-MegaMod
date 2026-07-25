@@ -119,7 +119,6 @@ static BOOLEAN
 ScanMouseInput (void)
 {
 	BOOLEAN cursorMoved = FALSE;
-	POINT newCursorLoc;
 
 	if (!optMouseInput)
 		return FALSE;
@@ -143,10 +142,6 @@ ScanMouseInput (void)
 	{
 		ScanMouseDragging = TRUE;
 		cursorMoved = ScanCursorLocation ();
-	}
-	else if (!MouseButtonDown && ScanMouseDragging)
-	{
-		ScanMouseDragging = FALSE;
 	}
 
 	if (ScanMouseDragging)
@@ -882,8 +877,6 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
 			MouseBtnInCtx (MOUSE_LFT, ScanContext);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
-
-	ClearMouseEvents ();
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
@@ -1364,7 +1357,7 @@ ScanPlanet (COUNT scanType)
 				Now = GetTimeCounter ();
 				if (Now >= TimeOut)
 				{
-					if (AnyButtonPress (TRUE) || AnyMouseButton ())
+					if (AnyButtonPress (TRUE))
 						break;
 
 					TimeOut = Now + SCAN_LINE_WAIT;
@@ -1396,12 +1389,12 @@ ScanPlanet (COUNT scanType)
 			{	// delay between scans
 				TimeOut = GetTimeCounter () + ONE_SECOND;
 				while (GetTimeCounter () < TimeOut
-					&& (!AnyButtonPress (TRUE) || !AnyMouseButton ()))
+					&& (!AnyButtonPress (TRUE)))
 					RotatePlanetSphere (TRUE, NULL);
 			}
 			else
 			{	// endless state - mimics PC "Exit Scan"
-				while (!AnyButtonPress (TRUE) || !AnyMouseButton ())
+				while (!AnyButtonPress (TRUE))
 					RotatePlanetSphere (TRUE, NULL);
 			}
 		}
@@ -1450,12 +1443,10 @@ DoScan (MENU_STATE *pMS)
 
 	if (cancel || (select && pMS->CurState == EXIT_SCAN))
 	{
-		ClearMouseEvents ();
 		return FALSE;
 	}
 	else if (select)
 	{
-		ClearMouseEvents ();
 		if (pMS->CurState == DISPATCH_SHUTTLE)
 		{
 			COUNT fuel_required;

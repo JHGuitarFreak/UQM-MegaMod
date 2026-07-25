@@ -2649,7 +2649,6 @@ DoMoveCursor (MENU_STATE *pMS)
 	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
 		FlushInput ();
-		ClearMouseEvents ();
 
 		if ((optBubbleWarp && !optInfiniteFuel && !inQuasiSpace ())
 				&& GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0
@@ -2684,7 +2683,6 @@ DoMoveCursor (MENU_STATE *pMS)
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
 		FlushInput ();
-		ClearMouseEvents ();
 
 		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
 		{
@@ -2763,7 +2761,6 @@ DoMoveCursor (MENU_STATE *pMS)
 			|| MouseButton (MOUSE_MID))
 	{
 		FlushInput ();
-		ClearMouseEvents ();
 
 		if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
 		{
@@ -2801,12 +2798,12 @@ DoMoveCursor (MENU_STATE *pMS)
 		SIZE ZoomIn, ZoomOut;
 
 		ZoomIn = ZoomOut = 0;
-		if (PulsedInputState.menu[KEY_MENU_ZOOM_IN] || MouseWheelDelta > 0)
+		if (PulsedInputState.menu[KEY_MENU_ZOOM_IN] ||
+				PulsedInputState.menu[MOUSE_WHEEL_UP])
 			ZoomIn = 1;
-		else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT] || MouseWheelDelta < 0)
+		else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT] ||
+				PulsedInputState.menu[MOUSE_WHEEL_DOWN])
 			ZoomOut = 1;
-
-		ClearMouseEvents ();
 
 		ZoomStarMap (ZoomIn - ZoomOut);
 

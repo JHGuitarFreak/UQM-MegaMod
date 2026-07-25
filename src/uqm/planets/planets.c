@@ -656,8 +656,6 @@ DoPlanetOrbit (MENU_STATE *pMS)
 	if (!select)
 		return TRUE;
 
-	ClearMouseEvents ();
-
 	SetFlashRect (NULL, FALSE);
 
 	switch (pMS->CurState)

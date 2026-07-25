@@ -55,8 +55,6 @@ static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
 
-volatile int MouseButtonDown = 0;
-volatile int MouseWheelDelta = 0;
 POINT CurrentMousePos = { 0, 0 };
 
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
@@ -93,6 +91,11 @@ const char *menu_res_names[] = {
 	"debug_2",
 	"debug_3",
 	"debug_4",
+	"mouse_left",
+	"mouse_right",
+	"mouse_middle",
+	"mouse_wheel_up",
+	"mouse_wheel_down",
 	NULL
 };
 
@@ -396,83 +399,79 @@ GetLastCharacter (void)
 	return lastchar;
 }
 
-static void
-ProcessMouseEvent (const SDL_Event *e)
-{
-	if (!optMouseInput)
-		return;
-
-	switch (e->type)
-	{
-	case SDL_MOUSEBUTTONDOWN:
-		MouseButtonDown = e->button.button;
-		break;
-	case SDL_MOUSEBUTTONUP:
-		MouseButtonDown = 0;
-		break;
-	case SDL_MOUSEMOTION:
-		CurrentMousePos.x = e->motion.x;
-		CurrentMousePos.y = e->motion.y;
-		break;
-	case SDL_MOUSEWHEEL:
-	{
-		static TimeCount lastWheelTime = 0;
-		TimeCount currentTime = GetTimeCounter ();
-
-		if (currentTime - lastWheelTime > (ONE_SECOND / 16))
-		{
-			if (e->wheel.y != 0)
-			{
-				MouseWheelDelta = (e->wheel.y > 0) ? 1 : -1;
-				lastWheelTime = currentTime;
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
-}
-
-BOOLEAN
-ClearMouseEvents (void)
-{
-	BOOLEAN had_event = (MouseButtonDown != 0) || (MouseWheelDelta != 0);
-
-	if (MouseButtonDown != 0)
-		MouseButtonDown = 0;
-
-	if (MouseWheelDelta != 0)
-		MouseWheelDelta = 0;
-
-	return had_event;
-}
-
 BOOLEAN
 MouseButton (int button)
 {
-	return MouseButtonDown == button;
+	int temp = 0;
+
+	switch (button)
+	{
+	case MOUSE_LFT:
+		temp = MOUSE_BTN_LEFT;
+		break;
+	case MOUSE_RGT:
+		temp = MOUSE_BTN_RIGHT;
+		break;
+	case MOUSE_MID:
+		temp = MOUSE_BTN_MIDDLE;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return PulsedInputState.menu[temp];
 }
 
 BOOLEAN
-AnyMouseButton (void)
+MouseWheel (int direction)
 {
-	return MouseButtonDown;
+	int temp = 0;
+
+	switch (direction)
+	{
+	case WHEEL_UP:
+		temp = MOUSE_WHEEL_UP;
+		break;
+	case WHEEL_DOWN:
+		temp = MOUSE_WHEEL_DOWN;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return PulsedInputState.menu[temp];
 }
 
 BOOLEAN
 MouseBtnInCtx (int button, CONTEXT context)
 {
-	return MouseInContext (context) && MouseButtonDown == button;
-}
+	int temp = 0;
 
-void
-DoMouseSounds (void)
-{
-	if (MouseButtonDown)
-		PlayMenuSound (MENU_SOUND_SUCCESS);
-	if (MouseWheelDelta)
-		PlayMenuSound (MENU_SOUND_MOVE);
+	switch (button)
+	{
+	case MOUSE_LFT:
+		temp = MOUSE_BTN_LEFT;
+		break;
+	case MOUSE_RGT:
+		temp = MOUSE_BTN_RIGHT;
+		break;
+	case MOUSE_MID:
+		temp = MOUSE_BTN_MIDDLE;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return MouseInContext (context) && PulsedInputState.menu[temp];
 }
 
 static inline int
@@ -491,8 +490,6 @@ ProcessInputEvent (const SDL_Event *Event)
 {
 	if (!InputInitialized)
 		return;
-
-	ProcessMouseEvent (Event);
 
 	if (in_character_mode && !set_character_mode)
 	{
@@ -692,6 +689,15 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 					g->gesture.axis.index,
 					g->gesture.axis.polarity > 0 ? '+' : '-');
 		}
+		buffer[maxlen - 1] = 0;
+		break;
+	case VCONTROL_MOUSEBUTTON:
+		snprintf (buffer, maxlen, "Mouse B%d", g->gesture.mouse_button.button);
+		buffer[maxlen - 1] = 0;
+		break;
+	case VCONTROL_MOUSEWHEEL:
+		snprintf (buffer, maxlen, "Wheel %s",
+			g->gesture.mouse_wheel.direction > 0 ? "Up" : "Down");
 		buffer[maxlen - 1] = 0;
 		break;
 	default:
@@ -1001,7 +1007,6 @@ MouseClicker (RECT r, CONTEXT context)
 	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
 	{
 		UQM_SetCursor (CURSOR_POINTER);
-		ClearMouseEvents ();
 		return TRUE;
 	}
 	else

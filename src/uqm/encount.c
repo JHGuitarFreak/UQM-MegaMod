@@ -70,8 +70,6 @@ DoSelectAction (MENU_STATE *pMS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT))
 	{
-		ClearMouseEvents ();
-
 		switch (pMS->CurState)
 		{
 			case HAIL:

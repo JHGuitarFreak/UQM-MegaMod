@@ -498,23 +498,19 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 
 	if (PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_UP] ||
-			MouseWheelDelta > 0)
+			PulsedInputState.menu[MOUSE_WHEEL_UP])
 	{
-		ClearMouseEvents ();
 		NewState = PreviousMenuState (BaseState, NewState);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_RIGHT] ||
 			PulsedInputState.menu[KEY_MENU_DOWN] ||
-			MouseWheelDelta < 0)
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN])
 	{
-		ClearMouseEvents ();
 		NewState = NextMenuState (BaseState, NewState);
 	}
 	else if (useAltMenu && PulsedInputState.menu[KEY_MENU_SELECT]
 		|| MouseButton (MOUSE_LFT))
 	{
-		ClearMouseEvents ();
-
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 		if (NewState == ALT_MANIFEST)
 		{
@@ -540,8 +536,6 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 			|| MouseButton (MOUSE_RGT)) &&
 			(BaseState == PM_ALT_CARGO))
 	{
-		ClearMouseEvents ();
-
 		if (OrigBase == PM_SCAN)
 			DrawMenuStateStrings (PM_ALT_SCAN,
 					PM_ALT_MANIFEST - PM_ALT_SCAN);
