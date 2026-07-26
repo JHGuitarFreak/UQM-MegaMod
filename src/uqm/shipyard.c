@@ -2359,9 +2359,9 @@ DoModifyShips (MENU_STATE *pMS)
 	{
 		BOOLEAN special = (PulsedInputState.menu[KEY_MENU_SPECIAL] != 0);
 		BOOLEAN select = (PulsedInputState.menu[KEY_MENU_SELECT] != 0
-				|| MouseButton (MOUSE_LFT));
+				|| PulsedInputState.menu[MOUSE_BTN_LEFT] != 0);
 		BOOLEAN cancel = (PulsedInputState.menu[KEY_MENU_CANCEL] != 0
-				|| MouseButton (MOUSE_RGT));
+				|| PulsedInputState.menu[MOUSE_BTN_RIGHT] != 0);
 		SBYTE dx = 0;
 		SBYTE dy = 0;
 
@@ -2385,7 +2385,9 @@ DoModifyShips (MENU_STATE *pMS)
 				// Cursor is over an empty escort ship slot, while we're
 				// in 'add escort ship' mode.
 				if (PulsedInputState.menu[KEY_MENU_RIGHT])     dx =  1;
+				if (PulsedInputState.menu[MOUSE_WHEEL_UP])     dx =  1;
 				if (PulsedInputState.menu[KEY_MENU_LEFT])      dx = -1;
+				if (PulsedInputState.menu[MOUSE_WHEEL_DOWN])      dx = -1;
 				if (PulsedInputState.menu[KEY_MENU_UP])        dx = -1;
 				if (PulsedInputState.menu[KEY_MENU_DOWN])      dx =  1;
 				if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])   dx =  5;
@@ -2523,8 +2525,10 @@ DoShipyard (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		goto ExitShipyard;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT);
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			PulsedInputState.menu[MOUSE_BTN_LEFT];
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			PulsedInputState.menu[MOUSE_BTN_RIGHT] != 0;
 
 	OutfitOrShipyard = 3;
 

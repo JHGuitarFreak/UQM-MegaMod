@@ -37,8 +37,6 @@ extern BOOLEAN ActKeysPress (void);
 
 extern void TFB_ResetControls (void);
 
-extern POINT CurrentMousePos;
-
 extern volatile int QuitPosted;
 extern volatile int GameActive;
 
