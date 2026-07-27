@@ -665,6 +665,30 @@ InitOutfitRects (void)
 static int HoveredIndex = -1;
 
 static BOOLEAN
+IsBombSlots (int slot)
+{
+	int modules = NUM_DRIVE_SLOTS + NUM_JET_SLOTS - 1;
+	int bomb_slots = modules + NUM_BOMB_MODULES + 1;
+
+	if (GET_GAME_STATE (CHMMR_BOMB_STATE) != 3)
+		return FALSE;
+
+	return slot > modules && slot < bomb_slots;
+}
+
+static BOOLEAN
+IsLanderSlots (int slot)
+{
+	int modules = NUM_DRIVE_SLOTS + NUM_JET_SLOTS + NUM_MODULE_SLOTS - 1;
+	int lander_slots = modules + MAX_LANDERS + 1;
+
+	if (GET_GAME_STATE (CHMMR_BOMB_STATE) != 3)
+		return FALSE;
+
+	return slot > modules && slot < lander_slots;
+}
+
+static BOOLEAN
 HoveringOverRect (void)
 {
 	BYTE i;
@@ -674,10 +698,24 @@ HoveringOverRect (void)
 	{
 		if (pointWithinRect (OutfitRects[i], mouse_pos))
 		{
-			HoveredIndex = i;
-			return TRUE;
+			if (!IsBombSlots (i) && !IsLanderSlots (i))
+			{
+				HoveredIndex = i;
+				UQM_SetCursor (CURSOR_POINTER_HILITE);
+				return TRUE;
+			}
+			else
+			{
+				if (IsBombSlots (i))
+					UQM_SetCursor (CURSOR_INVALID);
+				else
+					UQM_SetCursor (CURSOR_POINTER);
+				return FALSE;
+			}
 		}
 	}
+
+	UQM_SetCursor (CURSOR_POINTER);
 
 	HoveredIndex = -1;
 	return FALSE;
