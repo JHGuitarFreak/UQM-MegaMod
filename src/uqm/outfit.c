@@ -606,12 +606,117 @@ DisplayLanders (MENU_STATE *pMS)
 	}
 }
 
+#define TOTAL_MODULE_SLOTS \
+		(NUM_DRIVE_SLOTS + NUM_JET_SLOTS + NUM_MODULE_SLOTS + MAX_LANDERS)
+
+static RECT OutfitRects[TOTAL_MODULE_SLOTS];
+
+static void
+InitOutfitRects (void)
+{
+	BYTE i, j = 0;
+
+	for (i = 0; i < NUM_DRIVE_SLOTS; i++, j++)
+	{
+		OutfitRects[j].corner.x = DRIVE_TOP_X - RES_SCALE (1) +
+				(i * SHIP_PIECE_OFFSET);
+		OutfitRects[j].corner.y = DRIVE_TOP_Y - RES_SCALE (1);
+		OutfitRects[j].extent.width = RES_SCALE (8);
+		OutfitRects[j].extent.height = RES_SCALE (6);
+	}
+
+	for (i = 0; i < NUM_JET_SLOTS; i++, j++)
+	{
+		OutfitRects[j].corner.x = JET_TOP_X - RES_SCALE (1) - IF_HD (6) +
+				(i * SHIP_PIECE_OFFSET);
+		OutfitRects[j].corner.y = JET_TOP_Y - RES_SCALE (1);
+		OutfitRects[j].extent.width = RES_SCALE (9);
+		OutfitRects[j].extent.height = RES_SCALE (10);
+	}
+
+	for (i = 0; i < NUM_MODULE_SLOTS; i++, j++)
+	{
+		OutfitRects[j].corner.x = MODULE_TOP_X - RES_SCALE (1) +
+				(i * SHIP_PIECE_OFFSET);
+		OutfitRects[j].corner.y = MODULE_TOP_Y - RES_SCALE (1);
+		OutfitRects[j].extent.width = SHIP_PIECE_OFFSET + RES_SCALE (2) +
+				RES_SCALE (optWhichMenu == OPT_PC);
+		OutfitRects[j].extent.height = RES_SCALE (34);
+	}
+
+	for (i = 0; i < MAX_LANDERS; i++, j++)
+	{
+		if (!IS_DOS)
+		{
+			OutfitRects[j].corner.x = LANDER_X + (i * LANDER_WIDTH) -
+					RES_SCALE (1);
+			OutfitRects[j].corner.y = LANDER_Y - RES_SCALE (1);
+		}
+		else
+		{
+			OutfitRects[j].corner.x = lander_pos[i].x - RES_SCALE (1);
+			OutfitRects[j].corner.y = lander_pos[i].y - RES_SCALE (1);
+		}
+		OutfitRects[j].extent.width = LANDER_WIDTH + RES_SCALE (2);
+		OutfitRects[j].extent.height = RES_SCALE (17) + RES_SCALE (2);
+	}
+}
+
+static int HoveredIndex = -1;
+
+static BOOLEAN
+HoveringOverRect (void)
+{
+	BYTE i;
+	POINT mouse_pos = ScreenToCanvas (SpaceContext);
+
+	for (i = 0; i < TOTAL_MODULE_SLOTS; i++)
+	{
+		if (pointWithinRect (OutfitRects[i], mouse_pos))
+		{
+			HoveredIndex = i;
+			return TRUE;
+		}
+	}
+
+	HoveredIndex = -1;
+	return FALSE;
+}
+
+static BYTE
+ItemFromIndex (void)
+{
+	if (HoveredIndex < NUM_DRIVE_SLOTS)
+		return HoveredIndex;
+	else if (HoveredIndex < NUM_DRIVE_SLOTS + NUM_JET_SLOTS)
+		return HoveredIndex - NUM_DRIVE_SLOTS;
+	else if (HoveredIndex < NUM_DRIVE_SLOTS + NUM_JET_SLOTS + NUM_MODULE_SLOTS)
+		return HoveredIndex - NUM_DRIVE_SLOTS - NUM_JET_SLOTS;
+	else
+		return HoveredIndex - NUM_DRIVE_SLOTS - NUM_JET_SLOTS -
+			NUM_MODULE_SLOTS;
+}
+
+static int
+TypeFromIndex (void)
+{
+	if (HoveredIndex < NUM_DRIVE_SLOTS)
+		return EMPTY_SLOT + 0;
+	else if (HoveredIndex < NUM_DRIVE_SLOTS + NUM_JET_SLOTS)
+		return EMPTY_SLOT + 1;
+	else if (HoveredIndex < NUM_DRIVE_SLOTS + NUM_JET_SLOTS + NUM_MODULE_SLOTS)
+		return EMPTY_SLOT + 2;
+	else
+		return EMPTY_SLOT + 3;
+}
+
 static BOOLEAN
 DoInstallModule (MENU_STATE *pMS)
 {
 	BYTE NewState, new_slot_piece, old_slot_piece;
 	SIZE FirstItem, LastItem;
 	BOOLEAN select, cancel, motion;
+	static BOOLEAN clicked_in = FALSE;
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 	{
@@ -619,14 +724,16 @@ DoInstallModule (MENU_STATE *pMS)
 		return (TRUE);
 	}
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT);
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| MouseButton (MOUSE_RGT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			PulsedInputState.menu[MOUSE_BTN_LEFT];
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			PulsedInputState.menu[MOUSE_BTN_RIGHT];
 	motion = PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_RIGHT] ||
 			PulsedInputState.menu[KEY_MENU_UP] ||
-			PulsedInputState.menu[KEY_MENU_DOWN];
+			PulsedInputState.menu[KEY_MENU_DOWN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
@@ -690,9 +797,14 @@ DoInstallModule (MENU_STATE *pMS)
 					PlayMenuSound (MENU_SOUND_FAILURE);
 					return (TRUE);
 				}
+				else
+					clicked_in = FALSE;
 			}
 			else if (new_slot_piece == EMPTY_SLOT + 2)
 			{
+				if (old_slot_piece == EMPTY_SLOT + 2)
+					clicked_in = TRUE;
+
 				if (old_slot_piece == CREW_POD)
 				{
 					if (GLOBAL_SIS (CrewEnlisted)
@@ -739,7 +851,15 @@ DoInstallModule (MENU_STATE *pMS)
 					}
 				}
 			}
+			else if (old_slot_piece == EMPTY_SLOT)
+					clicked_in = TRUE;
+			else if (old_slot_piece == EMPTY_SLOT + 1)
+					clicked_in = TRUE;
+			else if (old_slot_piece == EMPTY_SLOT + 3)
+					clicked_in = TRUE;
 		}
+		else
+			clicked_in = FALSE;
 
 		SetContext (SpaceContext);
 
@@ -844,7 +964,7 @@ DoInstallModule (MENU_STATE *pMS)
 			ClearSISRect (DRAW_SIS_DISPLAY);
 		}
 	}
-	else if (motion)
+	else if (motion || (!clicked_in && HoveringOverRect ()))
 	{
 		SIZE NewItem;
 
@@ -877,16 +997,24 @@ DoInstallModule (MENU_STATE *pMS)
 				pMS->delta_item = NewItem;
 			}
 			else if (PulsedInputState.menu[KEY_MENU_LEFT] ||
-					PulsedInputState.menu[KEY_MENU_UP])
+					PulsedInputState.menu[KEY_MENU_UP] ||
+					(clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
 			{
 				if (NewItem-- == FirstItem)
 					NewItem = LastItem;
 			}
 			else if (PulsedInputState.menu[KEY_MENU_RIGHT] ||
-					PulsedInputState.menu[KEY_MENU_DOWN])
+					PulsedInputState.menu[KEY_MENU_DOWN] ||
+					(clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
 			{
 				if (NewItem++ == LastItem)
 					NewItem = FirstItem;
+			}
+
+			if (!clicked_in && HoveredIndex != -1)
+			{
+				NewState = TypeFromIndex ();
+				NewItem = ItemFromIndex ();
 			}
 		} while (NewState < EMPTY_SLOT
 				&& (GLOBAL (ModuleCost[NewItem]) == 0
@@ -1187,6 +1315,8 @@ DoOutfit (MENU_STATE *pMS)
 		InitializeDOSLanderPos ();
 
 		SetNamingCallback (onNamingDone);
+
+		InitOutfitRects ();
 
 		{
 			COUNT num_frames;
