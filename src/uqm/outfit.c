@@ -755,6 +755,7 @@ DoInstallModule (MENU_STATE *pMS)
 	SIZE FirstItem, LastItem;
 	BOOLEAN select, cancel, motion;
 	static BOOLEAN clicked_in = FALSE;
+	BOOLEAN hovering, mbtn_left, hover_click;
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 	{
@@ -762,8 +763,7 @@ DoInstallModule (MENU_STATE *pMS)
 		return (TRUE);
 	}
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
-			PulsedInputState.menu[MOUSE_BTN_LEFT];
+	select = PulsedInputState.menu[KEY_MENU_SELECT];
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
 			PulsedInputState.menu[MOUSE_BTN_RIGHT];
 	motion = PulsedInputState.menu[KEY_MENU_LEFT] ||
@@ -774,6 +774,10 @@ DoInstallModule (MENU_STATE *pMS)
 			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+
+	hovering = HoveringOverRect ();
+	mbtn_left = PulsedInputState.menu[MOUSE_BTN_LEFT];
+	hover_click = hovering && mbtn_left;
 
 	FirstItem = 0;
 	NewState = pMS->CurState;
@@ -821,10 +825,21 @@ DoInstallModule (MENU_STATE *pMS)
 		SetFlashRect (NULL, FALSE);
 		goto InitFlash;
 	}
-	else if (select || cancel)
+	else if (select || cancel || mbtn_left)
 	{
+		if (mbtn_left && !select)
+		{
+			if (pMS->CurState < EMPTY_SLOT)
+				; // Click anywhere to install module
+			else if (!hovering)
+			{
+				PlayMenuSound (MENU_SOUND_FAILURE);
+				return (TRUE);
+			}
+		}
+
 		new_slot_piece = pMS->CurState;
-		if (select)
+		if (select || mbtn_left)
 		{
 			if (new_slot_piece < EMPTY_SLOT)
 			{
@@ -840,9 +855,6 @@ DoInstallModule (MENU_STATE *pMS)
 			}
 			else if (new_slot_piece == EMPTY_SLOT + 2)
 			{
-				if (old_slot_piece == EMPTY_SLOT + 2)
-					clicked_in = TRUE;
-
 				if (old_slot_piece == CREW_POD)
 				{
 					if (GLOBAL_SIS (CrewEnlisted)
@@ -888,13 +900,19 @@ DoInstallModule (MENU_STATE *pMS)
 						return (TRUE);
 					}
 				}
+				else if (!select && hover_click)
+					clicked_in = TRUE;
 			}
-			else if (old_slot_piece == EMPTY_SLOT)
+			else
+			{
+				if ((old_slot_piece == EMPTY_SLOT ||
+						old_slot_piece == EMPTY_SLOT + 1 ||
+						old_slot_piece == EMPTY_SLOT + 3)
+						&& hover_click)
+				{
 					clicked_in = TRUE;
-			else if (old_slot_piece == EMPTY_SLOT + 1)
-					clicked_in = TRUE;
-			else if (old_slot_piece == EMPTY_SLOT + 3)
-					clicked_in = TRUE;
+				}
+			}
 		}
 		else
 			clicked_in = FALSE;
@@ -903,7 +921,7 @@ DoInstallModule (MENU_STATE *pMS)
 
 		SetFlashRect (NULL, FALSE);
 
-		if (select)
+		if (select || mbtn_left)
 		{
 			if (new_slot_piece >= EMPTY_SLOT
 					&& old_slot_piece >= EMPTY_SLOT)
@@ -1002,7 +1020,7 @@ DoInstallModule (MENU_STATE *pMS)
 			ClearSISRect (DRAW_SIS_DISPLAY);
 		}
 	}
-	else if (motion || (!clicked_in && HoveringOverRect ()))
+	else if (motion || (!clicked_in && hovering))
 	{
 		SIZE NewItem;
 
