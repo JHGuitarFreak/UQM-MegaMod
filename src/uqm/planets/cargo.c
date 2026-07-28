@@ -46,6 +46,7 @@
 
 #define TEXT_BASELINE      RES_SCALE (6)
 
+static RECT CargoRects[NUM_ELEMENT_CATEGORIES];
 
 void
 ShowRemainingCapacity (void)
@@ -204,6 +205,9 @@ DrawCargoDisplay (void)
 		SetContextForeGroundColor (BLACK_COLOR);
 		r.corner.y = cy;
 		DrawFilledRectangle (&r);
+
+		CargoRects[i] = r;
+		CargoRects[i].extent.width = FIELD_WIDTH - ELEMENT_COL_0;
 
 		// draw an element icon
 		s.origin.y = r.corner.y + RES_RECENTER (r.extent.height);
@@ -389,20 +393,17 @@ DoDiscardCargo (MENU_STATE *pMS)
 	BYTE NewState;
 	BOOLEAN select, cancel, back, forward;
 	
-	select = PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseButton (MOUSE_LFT);
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			MouseClicker (CargoRects[pMS->CurState], StatusContext);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP]
-			|| PulsedInputState.menu[KEY_MENU_LEFT]
-			|| PulsedInputState.menu[MOUSE_WHEEL_UP];
+			|| PulsedInputState.menu[KEY_MENU_LEFT];
 	forward = PulsedInputState.menu[KEY_MENU_DOWN]
-			|| PulsedInputState.menu[KEY_MENU_RIGHT]
-			|| PulsedInputState.menu[MOUSE_WHEEL_DOWN];
+			|| PulsedInputState.menu[KEY_MENU_RIGHT];
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
-
 
 	if (cancel)
 	{
@@ -437,6 +438,33 @@ DoDiscardCargo (MENU_STATE *pMS)
 			++NewState;
 			if (NewState == NUM_ELEMENT_CATEGORIES)
 				NewState = 0;
+		}
+		else
+		{
+			if (MouseInContext (ScreenContext))
+			{
+				BYTE i;
+				POINT mouse_pos = ScreenToCanvas (StatusContext);
+				BYTE hovered_item = NewState;
+
+				for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
+				{
+					if (pointWithinRect (CargoRects[i], mouse_pos))
+					{
+						hovered_item = i;
+						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						break;
+					}
+					else
+						UQM_SetCursor (CURSOR_POINTER);
+				}
+
+				if (hovered_item != NewState)
+				{
+					NewState = hovered_item;
+					PlayMenuSound (MENU_SOUND_MOVE);
+				}
+			}
 		}
 
 		if (NewState != pMS->CurState)
