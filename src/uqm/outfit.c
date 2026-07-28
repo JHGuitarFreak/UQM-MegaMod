@@ -918,15 +918,18 @@ DoInstallModule (MENU_STATE *pMS)
 						return (TRUE);
 					}
 				}
-				else if (!select && hover_click)
+				else if (old_slot_piece == EMPTY_SLOT + 2
+					&& !select && hover_click)
+				{
 					clicked_in = TRUE;
+				}
 			}
 			else
 			{
 				if ((old_slot_piece == EMPTY_SLOT ||
 						old_slot_piece == EMPTY_SLOT + 1 ||
 						old_slot_piece == EMPTY_SLOT + 3)
-						&& hover_click)
+						&& !select && hover_click)
 				{
 					clicked_in = TRUE;
 				}
@@ -1315,9 +1318,11 @@ ChangeFuelQuantity (void)
 		incr = FUEL_TANK_SCALE;  // +1 Unit
 	else if (PulsedInputState.menu[KEY_MENU_DOWN])
 		incr = -FUEL_TANK_SCALE; // -1 Unit
-	else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+	else if (PulsedInputState.menu[KEY_MENU_RIGHT] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP])
 		incr = (FUEL_TANK_SCALE * 10); // +1 Bar
-	else if (PulsedInputState.menu[KEY_MENU_LEFT])
+	else if (PulsedInputState.menu[KEY_MENU_LEFT] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN])
 		incr = -(FUEL_TANK_SCALE * 10); // -1 Bar
 	else if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
 		incr = maxFit; // Fill to max
