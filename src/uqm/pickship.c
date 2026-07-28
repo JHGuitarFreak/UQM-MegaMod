@@ -46,6 +46,58 @@
 FRAME PickFrame;
 POINT frameOrigin;
 
+typedef struct
+{
+	POINT pt;
+	RECT r;
+} PICK_HOVER;
+
+static PICK_HOVER PickHover[14];
+
+static void
+InitPickShipRects (RECT pick_r)
+{
+	BYTE i;
+
+	for (i = 0; i < 14; i++)
+	{
+		if (i == 10)
+			continue;
+
+		if (i < 7)
+		{
+			PickHover[i].pt.x = i;
+			PickHover[i].pt.y = 0;
+		}
+		else
+		{
+			PickHover[i].pt.x = i - 7;
+			PickHover[i].pt.y = 1;
+		}
+
+		PickHover[i].r.corner.x = pick_r.corner.x + RES_SCALE (5) +
+				((ICON_WIDTH + RES_SCALE (4)) * (i % 7));
+		PickHover[i].r.corner.y = pick_r.corner.y + RES_SCALE (16) +
+				((ICON_HEIGHT + RES_SCALE (4)) * (i / 7));
+		PickHover[i].r.extent.width = RES_SCALE (16);
+		PickHover[i].r.extent.height = RES_SCALE (16);
+
+		if ((i % 7) >= (7 >> 1))
+			PickHover[i].r.corner.x += RES_SCALE (6);
+
+		if (i == 3)
+		{	// Flagship is special
+			PickHover[i].pt.x = 3;
+			PickHover[i].pt.y = 0;
+
+			PickHover[i].r.corner.x = pick_r.corner.x + FLAGSHIP_X_OFFS;
+			PickHover[i].r.corner.y = pick_r.corner.y + FLAGSHIP_Y_OFFS;
+			PickHover[i].r.extent.width = FLAGSHIP_WIDTH;
+			PickHover[i].r.extent.height = FLAGSHIP_HEIGHT;
+		}
+	}
+}
+
 void
 InitPickFrame (void)
 {
@@ -121,8 +173,32 @@ DoPickBattleShip (MENU_STATE *pMS)
 
 		new_col = pMS->first_item.x + dx;
 		new_row = pMS->first_item.y + dy;
-		if (new_row != pMS->first_item.y
-				|| new_col != pMS->first_item.x)
+
+		if (MouseInContext (ScreenContext))
+		{
+			BYTE i;
+			POINT mouse_pos = ScreenToCanvas (SpaceContext);
+			POINT hovered_item = pMS->first_item;
+
+			for (i = 0; i < 14; i++)
+			{
+				if (pointWithinRect (PickHover[i].r, mouse_pos))
+				{
+					hovered_item = PickHover[i].pt;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
+			}
+
+			if (!pointsEqual (hovered_item, pMS->first_item))
+			{
+				new_col = hovered_item.x;
+				new_row = hovered_item.y;
+			}
+		}
+
 		{
 			RECT r;
 			TEXT t;
@@ -568,6 +644,8 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 		hNextShip = _GetSuccLink (StarShipPtr);
 		UnlockStarShip (&race_q[0], hBattleShip);
 	}
+
+	InitPickShipRects (pick_r);
 
 	UnbatchGraphics ();
 
