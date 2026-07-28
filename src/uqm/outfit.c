@@ -609,7 +609,8 @@ DisplayLanders (MENU_STATE *pMS)
 #define TOTAL_MODULE_SLOTS \
 		(NUM_DRIVE_SLOTS + NUM_JET_SLOTS + NUM_MODULE_SLOTS + MAX_LANDERS)
 
-static RECT OutfitRects[TOTAL_MODULE_SLOTS];
+static RECT OutfitRectsTop[TOTAL_MODULE_SLOTS];
+static RECT OutfitRectsSide[TOTAL_MODULE_SLOTS];
 
 static void
 InitOutfitRects (void)
@@ -618,47 +619,63 @@ InitOutfitRects (void)
 
 	for (i = 0; i < NUM_DRIVE_SLOTS; i++, j++)
 	{
-		OutfitRects[j].corner.x = DRIVE_TOP_X - RES_SCALE (1) +
+		OutfitRectsTop[j].corner.x = DRIVE_TOP_X - RES_SCALE (1) +
 				(i * SHIP_PIECE_OFFSET);
-		OutfitRects[j].corner.y = DRIVE_TOP_Y - RES_SCALE (1);
-		OutfitRects[j].extent.width = RES_SCALE (8);
-		OutfitRects[j].extent.height = RES_SCALE (6);
+		OutfitRectsTop[j].corner.y = DRIVE_TOP_Y - RES_SCALE (1);
+		OutfitRectsTop[j].extent.width = RES_SCALE (8);
+		OutfitRectsTop[j].extent.height = RES_SCALE (6);
+
+		OutfitRectsSide[j].corner.x = DRIVE_SIDE_X + IF_HD (5)
+				+ (i * SHIP_PIECE_OFFSET);
+		OutfitRectsSide[j].corner.y = DRIVE_SIDE_Y - IF_HD (10);
+		OutfitRectsSide[j].extent.width = RES_SCALE (10) - IF_HD (10);
+		OutfitRectsSide[j].extent.height = RES_SCALE (5) + IF_HD (4);
 	}
 
 	for (i = 0; i < NUM_JET_SLOTS; i++, j++)
 	{
-		OutfitRects[j].corner.x = JET_TOP_X - RES_SCALE (1) - IF_HD (6) +
+		OutfitRectsTop[j].corner.x = JET_TOP_X - RES_SCALE (1) - IF_HD (6) +
 				(i * SHIP_PIECE_OFFSET);
-		OutfitRects[j].corner.y = JET_TOP_Y - RES_SCALE (1);
-		OutfitRects[j].extent.width = RES_SCALE (9);
-		OutfitRects[j].extent.height = RES_SCALE (10);
+		OutfitRectsTop[j].corner.y = JET_TOP_Y - RES_SCALE (1);
+		OutfitRectsTop[j].extent.width = RES_SCALE (9);
+		OutfitRectsTop[j].extent.height = RES_SCALE (10);
+
+		OutfitRectsSide[j].corner.x = JET_SIDE_X - RES_SCALE (1) - IF_HD (6) +
+				(i * SHIP_PIECE_OFFSET);
+		OutfitRectsSide[j].corner.y = JET_SIDE_Y - RES_SCALE (1) + IF_HD (4);
+		OutfitRectsSide[j].extent.width = RES_SCALE (7);
+		OutfitRectsSide[j].extent.height = RES_SCALE (4);
 	}
 
 	for (i = 0; i < NUM_MODULE_SLOTS; i++, j++)
 	{
-		OutfitRects[j].corner.x = MODULE_TOP_X - RES_SCALE (1) +
-				(i * SHIP_PIECE_OFFSET);
-		OutfitRects[j].corner.y = MODULE_TOP_Y - RES_SCALE (1);
-		OutfitRects[j].extent.width = SHIP_PIECE_OFFSET + RES_SCALE (2) +
-				RES_SCALE (optWhichMenu == OPT_PC);
-		OutfitRects[j].extent.height = RES_SCALE (34);
+		OutfitRectsTop[j].corner.x = MODULE_TOP_X + (i * SHIP_PIECE_OFFSET);
+		OutfitRectsTop[j].corner.y = MODULE_TOP_Y;
+		OutfitRectsTop[j].extent.width = SHIP_PIECE_OFFSET;
+		OutfitRectsTop[j].extent.height = RES_SCALE (32);
+
+		OutfitRectsSide[j].corner.x = MODULE_SIDE_X + (i * SHIP_PIECE_OFFSET);
+		OutfitRectsSide[j].corner.y = MODULE_SIDE_Y;
+		OutfitRectsSide[j].extent.width = SHIP_PIECE_OFFSET;
+		OutfitRectsSide[j].extent.height = RES_SCALE (23);
 	}
 
 	for (i = 0; i < MAX_LANDERS; i++, j++)
 	{
 		if (!IS_DOS)
 		{
-			OutfitRects[j].corner.x = LANDER_X + (i * LANDER_WIDTH) -
-					RES_SCALE (1);
-			OutfitRects[j].corner.y = LANDER_Y - RES_SCALE (1);
+			OutfitRectsTop[j].corner.x = LANDER_X + (i * LANDER_WIDTH);
+			OutfitRectsTop[j].corner.y = LANDER_Y;
 		}
 		else
 		{
-			OutfitRects[j].corner.x = lander_pos[i].x - RES_SCALE (1);
-			OutfitRects[j].corner.y = lander_pos[i].y - RES_SCALE (1);
+			OutfitRectsTop[j].corner.x = lander_pos[i].x;
+			OutfitRectsTop[j].corner.y = lander_pos[i].y;
 		}
-		OutfitRects[j].extent.width = LANDER_WIDTH + RES_SCALE (2);
-		OutfitRects[j].extent.height = RES_SCALE (17) + RES_SCALE (2);
+		OutfitRectsTop[j].extent.width = RES_SCALE (11);
+		OutfitRectsTop[j].extent.height = RES_SCALE (13);
+
+		OutfitRectsSide[j] = (RECT){ 0, 0, 0, 0 };
 	}
 }
 
@@ -696,7 +713,8 @@ HoveringOverRect (void)
 
 	for (i = 0; i < TOTAL_MODULE_SLOTS; i++)
 	{
-		if (pointWithinRect (OutfitRects[i], mouse_pos))
+		if (pointWithinRect (OutfitRectsTop[i], mouse_pos) ||
+			pointWithinRect (OutfitRectsSide[i], mouse_pos))
 		{
 			if (!IsBombSlots (i) && !IsLanderSlots (i))
 			{
