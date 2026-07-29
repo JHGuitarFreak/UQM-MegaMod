@@ -33,6 +33,7 @@
 #include "options.h"
 #include "libs/log.h"
 #include "libs/memlib.h"
+#include "libs/inplib.h"
 
 
 #define LOAD_TEAM_NAME_TEXT_COLOR \
@@ -336,10 +337,31 @@ flashSelectedTeam (MELEE_STATE *pMS)
 	}
 }
 
+static RECT LoadTeamRects[LOAD_TEAM_VIEW_SIZE];
+
+static void
+InitLoadTeamRects (void)
+{
+	COUNT i;
+
+	if (!optMouseInput)
+		return;
+
+	for (i = 0; i < LOAD_TEAM_VIEW_SIZE; i++)
+	{
+		LoadTeamRects[i].corner.x = FILE_STRING_ORIGIN_X;
+		LoadTeamRects[i].corner.y = (FILE_STRING_ORIGIN_Y -
+				TEAM_NAME_L_BOX_HEIGHT + RES_SCALE (3)) + i * ENTRY_HEIGHT;
+		LoadTeamRects[i].extent.width = TEAM_NAME_L_BOX_WIDTH;
+		LoadTeamRects[i].extent.height = ENTRY_HEIGHT - RES_SCALE (5);
+	}
+}
+
 BOOLEAN
 DoLoadTeam (MELEE_STATE *pMS)
 {
 	DWORD TimeIn = GetTimeCounter ();
+	BOOLEAN pgdn, pgup, select, cancel;
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
@@ -347,7 +369,16 @@ DoLoadTeam (MELEE_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
-	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_PAGE, 
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			CtxMouseClicker (LoadTeamRects[pMS->load.cur - pMS->load.top]);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			PulsedInputState.menu[MOUSE_BTN_RIGHT];
+	pgdn = PulsedInputState.menu[KEY_MENU_PAGE_DOWN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
+	pgup = PulsedInputState.menu[KEY_MENU_PAGE_UP] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP];
+
+	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_PAGE,
 			MENU_SOUND_SELECT);
 
 	if (!pMS->Initialized)
@@ -356,13 +387,15 @@ DoLoadTeam (MELEE_STATE *pMS)
 		SelectFileString (pMS, true);
 		pMS->Initialized = TRUE;
 		pMS->InputFunc = DoLoadTeam;
+
+		InitLoadTeamRects ();
+
 		return TRUE;
 	}
 
-	if (PulsedInputState.menu[KEY_MENU_SELECT] ||
-			PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (select || cancel)
 	{
-		if (PulsedInputState.menu[KEY_MENU_SELECT])
+		if (select)
 		{
 			// Copy the selected fleet to the player.
 			Melee_LocalChange_team (pMS, pMS->side,
@@ -404,14 +437,14 @@ DoLoadTeam (MELEE_STATE *pMS)
 					newTop = pMS->load.bot;
 			}
 		}
-		else if (PulsedInputState.menu[KEY_MENU_PAGE_UP])
+		else if (pgup)
 		{
 			newIndex = (newIndex < LOAD_TEAM_VIEW_SIZE) ?
 					0 : newIndex - LOAD_TEAM_VIEW_SIZE;
 			newTop = (newTop < LOAD_TEAM_VIEW_SIZE) ?
 					0 : newTop - LOAD_TEAM_VIEW_SIZE;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
+		else if (pgdn)
 		{
 			COUNT numEntries = pMS->load.numIndices + pMS->load.preBuiltCount;
 			if (newIndex + LOAD_TEAM_VIEW_SIZE < numEntries)
@@ -425,6 +458,32 @@ DoLoadTeam (MELEE_STATE *pMS)
 				if (newTop + LOAD_TEAM_VIEW_SIZE < numEntries &&
 						numEntries > LOAD_TEAM_VIEW_SIZE)
 					newTop = numEntries - LOAD_TEAM_VIEW_SIZE;
+			}
+		}
+
+		if (!(pgup || pgdn) && SetMouseContext (SpaceContext))
+		{
+			COUNT i;
+			COUNT num_entry = pMS->load.numIndices + pMS->load.preBuiltCount;
+			COUNT hovered_item = newIndex;
+
+			for (i = 0; i < LOAD_TEAM_VIEW_SIZE &&
+					(pMS->load.top + i) < num_entry; i++)
+			{
+				if (MouseInRect (LoadTeamRects[i]))
+				{
+					hovered_item = pMS->load.top + i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
+			}
+
+			if (hovered_item != pMS->load.cur)
+			{
+				newIndex = hovered_item;
+				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 		}
 
