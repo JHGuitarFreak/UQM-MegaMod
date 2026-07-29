@@ -167,7 +167,7 @@ DoConfirmExit (void)
 				response = TRUE;
 			}
 			else if (PulsedInputState.menu[KEY_MENU_SELECT] ||
-					MouseClicker (ConfirmRects[response], ScreenContext))
+					CtxMouseClicker (ConfirmRects[response]))
 			{
 				done = TRUE;
 				PlayMenuSound (MENU_SOUND_SUCCESS);
@@ -187,15 +187,14 @@ DoConfirmExit (void)
 			}
 			else
 			{
-				if (MouseInContext (ScreenContext))
+				if (SetMouseContext (ScreenContext))
 				{
 					BYTE i;
-					POINT mouse_pos = ScreenToCanvas (ScreenContext);
 					BYTE hovered_item = response;
 
 					for (i = 0; i < 2; i++)
 					{
-						if (pointWithinRect (ConfirmRects[i], mouse_pos))
+						if (MouseInRect (ConfirmRects[i]))
 						{
 							hovered_item = i;
 							UQM_SetCursor (CURSOR_POINTER_HILITE);

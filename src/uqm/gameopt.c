@@ -1663,7 +1663,7 @@ DoPickGame (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseClicker (SlotRects[pMS->CurState], SpaceContext))
+			|| CtxMouseClicker (SlotRects[pMS->CurState]))
 	{
 		pSD = &pickState->summary[pMS->CurState];
 		if (pickState->saving || pSD->year_index ||
@@ -1734,22 +1734,15 @@ DoPickGame (MENU_STATE *pMS)
 				NewState++;
 		}
 
-		if (NewState != pMS->CurState)
-		{
-			pMS->CurState = NewState;
-			SetContext (SpaceContext);
-			RedrawPickDisplay (pickState, pMS->CurState);
-		}
-		else if (MouseInContext (ScreenContext))
+		if (SetMouseContext (SpaceContext))
 		{
 			BYTE i;
-			POINT mouse_pos = ScreenToCanvas (SpaceContext);
 			COUNT total_slots = MAX_SAVED_GAMES + (pickState->saving ? 0 : 1);
-			BYTE hovered_item = pMS->CurState;
+			BYTE hovered_item = NewState;
 
 			for (i = 0; i < total_slots; i++)
 			{
-				if (pointWithinRect (SlotRects[i], mouse_pos))
+				if (MouseInRect (SlotRects[i]))
 				{
 					hovered_item = i;
 					UQM_SetCursor (CURSOR_POINTER_HILITE);
@@ -1759,14 +1752,18 @@ DoPickGame (MENU_STATE *pMS)
 					UQM_SetCursor (CURSOR_POINTER);
 			}
 
-			if (hovered_item != pMS->CurState)
+			if (hovered_item != NewState)
 			{
-				pMS->CurState = hovered_item;
-				SetContext (SpaceContext);
-				RedrawPickDisplay (pickState, hovered_item);
-
+				NewState = hovered_item;
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
+		}
+
+		if (NewState != pMS->CurState)
+		{
+			pMS->CurState = NewState;
+			SetContext (SpaceContext);
+			RedrawPickDisplay (pickState, pMS->CurState);
 		}
 
 		SleepThreadUntil (TimeIn + ONE_SECOND / 30);

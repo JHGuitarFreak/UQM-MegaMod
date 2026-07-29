@@ -547,12 +547,10 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	}
 	else
 	{
-		if (isPC (optWhichMenu) && MouseInContext (ScreenContext))
+		if (isPC (optWhichMenu) && SetMouseContext (StatusContext))
 		{
 			BYTE i, base_index, end_index, num_items;
-			POINT mouse_pos = ScreenToCanvas (StatusContext);
 			BYTE hovered_item = NewState;
-			BYTE cursor_hover = NewState;
 
 			base_index = BaseState;
 			if (BaseState == PM_STARMAP)
@@ -563,7 +561,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 
 			for (i = base_index; i <= end_index; i++)
 			{
-				if (pointWithinRect (MenuItemRects[i], mouse_pos))
+				if (MouseInRect (MenuItemRects[i]))
 				{
 					if (BaseState == PM_SOUND_ON)
 					{

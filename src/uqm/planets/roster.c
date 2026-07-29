@@ -269,7 +269,7 @@ DoModifyRoster (MENU_STATE *pMS)
 		return FALSE;
 
 	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
-			MouseClicker (RosterRects[pMS->CurState], StatusContext);
+			CtxMouseClicker (RosterRects[pMS->CurState]);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	up = PulsedInputState.menu[KEY_MENU_UP];
 	down = PulsedInputState.menu[KEY_MENU_DOWN];
@@ -386,10 +386,9 @@ DoModifyRoster (MENU_STATE *pMS)
 		}
 		else
 		{
-			if (rosterState->count > 1 && MouseInContext (ScreenContext))
+			if (rosterState->count > 1 && SetMouseContext (StatusContext))
 			{
 				BYTE i;
-				POINT mouse_pos = ScreenToCanvas (StatusContext);
 				BOOLEAN found_hover = FALSE;
 				BYTE hovered_item = NewState;
 
@@ -402,7 +401,7 @@ DoModifyRoster (MENU_STATE *pMS)
 					RosterRects[i].extent.width = RES_SCALE (16);
 					RosterRects[i].extent.height = RES_SCALE (16);
 
-					if (pointWithinRect (RosterRects[i], mouse_pos))
+					if (MouseInRect (RosterRects[i]))
 					{
 						hovered_item = i;
 						UQM_SetCursor (CURSOR_POINTER_HILITE);

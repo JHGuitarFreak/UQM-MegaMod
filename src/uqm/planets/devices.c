@@ -515,7 +515,7 @@ DoManipulateDevices (MENU_STATE *pMS)
 	BOOLEAN pagefwd, pageback;
 	
 	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
-			MouseClicker (DeviceRects[pMS->CurState], StatusContext);
+			CtxMouseClicker (DeviceRects[pMS->CurState]);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
 			MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP] ||
@@ -571,10 +571,9 @@ DoManipulateDevices (MENU_STATE *pMS)
 		if (NewState < NewTop || NewState >= NewTop + MAX_VIS_DEVICES)
 			NewTop = NewState - NewState % MAX_VIS_DEVICES;
 
-		if (!(pagefwd || pageback) && MouseInContext (ScreenContext))
+		if (!(pagefwd || pageback) && SetMouseContext (StatusContext))
 		{
 			BYTE i;
-			POINT mouse_pos = ScreenToCanvas (StatusContext);
 			BYTE hovered_item = NewState;
 
 			for (i = 0; i < devState->count; i++)
@@ -584,7 +583,7 @@ DoManipulateDevices (MENU_STATE *pMS)
 				if (devIndex >= devState->count)
 					break;
 
-				if (pointWithinRect (DeviceRects[devIndex], mouse_pos))
+				if (MouseInRect (DeviceRects[devIndex]))
 				{
 					hovered_item = devIndex;
 					UQM_SetCursor (CURSOR_POINTER_HILITE);

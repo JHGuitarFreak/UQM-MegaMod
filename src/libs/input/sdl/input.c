@@ -32,6 +32,7 @@
 #include "uqm/colors.h"
 #include "uqm/units.h"
 #include "uqm/sounds.h"
+#include "uqm/setup.h"
 
 #define KBDBUFSIZE (1 << 8)
 static int kbdhead=0, kbdtail=0;
@@ -56,6 +57,7 @@ static BOOLEAN InputInitialized = FALSE;
 static BOOLEAN in_character_mode = FALSE;
 
 POINT CurrentMousePos = { 0, 0 };
+POINT MouseContext = { 0, 0 };
 
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
@@ -920,8 +922,63 @@ MouseInContext (CONTEXT context)
 	return pointWithinRect (r, ScaleCanvas ());
 }
 
+BOOLEAN
+SetMouseContext (CONTEXT context)
+{
+	RECT r;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	GetContextClipDiRect (&r, context);
+
+	if (pointWithinRect (r, ScaleCanvas ()))
+	{
+		MouseContext = ScreenToCanvas (context);
+		return TRUE;
+	}
+	else
+		return FALSE;
+}
+
+BOOLEAN
+MouseInRect (RECT r)
+{
+	return pointWithinRect (r, MouseContext);
+}
+
+static void
+MouseThing (BYTE *NewState, CONTEXT context, RECT *rect, BYTE num_rects)
+{
+	BYTE i;
+	BYTE hovered_item;
+
+	if (!SetMouseContext (context))
+		return;
+
+	hovered_item = *NewState;
+
+	UQM_SetCursor (CURSOR_POINTER);
+
+	for (i = 0; i < num_rects; i++)
+	{
+		if (MouseInRect (rect[i]))
+		{
+			hovered_item = i;
+			UQM_SetCursor (CURSOR_POINTER_HILITE);
+			break;
+		}
+	}
+
+	if (hovered_item != *NewState)
+	{
+		*NewState = hovered_item;
+		PlayMenuSound (MENU_SOUND_MOVE);
+	}
+}
+
 void
-DrawMouseCursor (CONTEXT context)
+DebugMouseCursor (CONTEXT context)
 {
 	LINE line;
 	Color OldColor;
@@ -1001,11 +1058,27 @@ MouseClicker (RECT r, CONTEXT context)
 {
 	POINT mousePos = ScreenToCanvas (context);
 
-	if (pointWithinRect (r, mousePos) && MouseButton (MOUSE_LFT))
+	if (MouseButton (MOUSE_LFT))
 	{
-		UQM_SetCursor (CURSOR_POINTER);
-		return TRUE;
+		if (pointWithinRect (r, mousePos))
+		{
+			UQM_SetCursor (CURSOR_POINTER);
+			return TRUE;
+		}
 	}
-	else
-		return FALSE;
+	return FALSE;
+}
+
+BOOLEAN
+CtxMouseClicker (RECT r)
+{
+	if (MouseButton (MOUSE_LFT))
+	{
+		if (pointWithinRect (r, MouseContext))
+		{
+			UQM_SetCursor (CURSOR_POINTER);
+			return TRUE;
+		}
+	}
+	return FALSE;
 }

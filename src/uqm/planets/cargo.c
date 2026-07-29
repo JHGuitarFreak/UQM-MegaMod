@@ -394,7 +394,7 @@ DoDiscardCargo (MENU_STATE *pMS)
 	BOOLEAN select, cancel, back, forward;
 	
 	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
-			MouseClicker (CargoRects[pMS->CurState], StatusContext);
+			CtxMouseClicker (CargoRects[pMS->CurState]);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP]
@@ -439,31 +439,28 @@ DoDiscardCargo (MENU_STATE *pMS)
 			if (NewState == NUM_ELEMENT_CATEGORIES)
 				NewState = 0;
 		}
-		else
+
+		if (SetMouseContext (StatusContext))
 		{
-			if (MouseInContext (ScreenContext))
+			BYTE i;
+			BYTE hovered_item = NewState;
+
+			for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
 			{
-				BYTE i;
-				POINT mouse_pos = ScreenToCanvas (StatusContext);
-				BYTE hovered_item = NewState;
-
-				for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
+				if (MouseInRect (CargoRects[i]))
 				{
-					if (pointWithinRect (CargoRects[i], mouse_pos))
-					{
-						hovered_item = i;
-						UQM_SetCursor (CURSOR_POINTER_HILITE);
-						break;
-					}
-					else
-						UQM_SetCursor (CURSOR_POINTER);
+					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
 				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
+			}
 
-				if (hovered_item != NewState)
-				{
-					NewState = hovered_item;
-					PlayMenuSound (MENU_SOUND_MOVE);
-				}
+			if (hovered_item != NewState)
+			{
+				NewState = hovered_item;
+				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 		}
 

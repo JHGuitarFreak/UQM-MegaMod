@@ -1514,7 +1514,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	}
 
 	if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseClicker (ResponseRects[pES->cur_response], SpaceContext))
+			|| CtxMouseClicker (ResponseRects[pES->cur_response]))
 	{
 		SelectResponse (pES);
 	}
@@ -1550,10 +1550,9 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		}
 		else if (optMouseInput)
 		{
-			if (MouseInContext (SpaceContext) && pES->num_responses > 0)
+			if (SetMouseContext (SpaceContext) && pES->num_responses > 0)
 			{
 				BYTE i;
-				POINT mouse_pos = ScreenToCanvas (SpaceContext);
 				BYTE hovered_item = pES->cur_response;
 
 				for (i = pES->top_response; i < pES->num_responses; i++)
@@ -1565,7 +1564,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 					//	continue;
 					//}
 
-					if (pointWithinRect (ResponseRects[i], mouse_pos))
+					if (MouseInRect (ResponseRects[i]))
 					{
 						hovered_item = i;
 						UQM_SetCursor (CURSOR_POINTER_HILITE);
@@ -1581,8 +1580,7 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 					response = hovered_item;
 				}
 
-				if (ArrowRect.extent.width > 0 &&
-					pointWithinRect (ArrowRect, mouse_pos))
+				if (ArrowRect.extent.width > 0 && MouseInRect (ArrowRect))
 				{
 					UQM_SetCursor (CURSOR_POINTER_HILITE);
 
@@ -1610,8 +1608,6 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 					}
 				}
 			}
-			else
-				UQM_SetCursor (CURSOR_POINTER);
 
 			if (ArrowRect.extent.width > 0)
 			{

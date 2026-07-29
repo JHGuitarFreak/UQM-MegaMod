@@ -81,9 +81,12 @@ extern BOOLEAN MouseBtnInCtx (int button, CONTEXT context);
 extern POINT ScaleCanvas (void);
 extern POINT ScreenToCanvas (CONTEXT context);
 extern BOOLEAN MouseInContext (CONTEXT context);
-extern void DrawMouseCursor (CONTEXT context);
+extern BOOLEAN SetMouseContext (CONTEXT context);
+extern BOOLEAN MouseInRect (RECT r);
+extern void DebugMouseCursor (CONTEXT context);
 extern void DrawAutopilotTarget (POINT pt);
 extern BOOLEAN MouseClicker (RECT r, CONTEXT context);
+extern BOOLEAN CtxMouseClicker (RECT r);
 
 #if defined(__cplusplus)
 }

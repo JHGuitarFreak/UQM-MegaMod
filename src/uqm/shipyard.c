@@ -2295,15 +2295,14 @@ DMS_NavigateShipSlots (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 		DrawMenuStateStrings (PM_CREW, pMS->CurState);
 		DMS_SetMode (pMS, DMS_Mode_exit);
 	}
-	else if (MouseInContext (ScreenContext))
+	else if (SetMouseContext (SpaceContext))
 	{
 		BYTE i;
-		POINT mouse_pos = ScreenToCanvas (SpaceContext);
 		BYTE hovered_item = pMS->CurState;
 
 		for (i = 0; i <= MAX_BUILT_SHIPS; i++)
 		{
-			if (pointWithinRect (ShipSlotRects[i], mouse_pos))
+			if (MouseInRect (ShipSlotRects[i]))
 			{
 				if (i == MAX_BUILT_SHIPS)
 				{	// Flagship

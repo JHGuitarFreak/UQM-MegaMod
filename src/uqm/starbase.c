@@ -471,23 +471,14 @@ ExitStarBase:
 				NewState = TALK_COMMANDER;
 		}
 
-		BatchGraphics ();
-		SetContext (ScreenContext);
-
-		if (NewState != pMS->CurState)
-		{
-			DrawBaseStateStrings (pMS->CurState, NewState);
-			pMS->CurState = NewState;
-		}
-		else if (MouseInContext (ScreenContext))
+		if (SetMouseContext (ScreenContext))
 		{
 			BYTE i;
-			POINT mouse_pos = ScreenToCanvas (ScreenContext);
-			BYTE hovered_item = pMS->CurState;
+			BYTE hovered_item = NewState;
 
 			for (i = 0; i < NUM_STARBASE_STRINGS; i++)
 			{
-				if (pointWithinRect (BaseRects[i], mouse_pos))
+				if (MouseInRect (BaseRects[i]))
 				{
 					hovered_item = i;
 					UQM_SetCursor (CURSOR_POINTER_HILITE);
@@ -497,13 +488,20 @@ ExitStarBase:
 					UQM_SetCursor (CURSOR_POINTER);
 			}
 
-			if (hovered_item != pMS->CurState)
+			if (hovered_item != NewState)
 			{
-				DrawBaseStateStrings (pMS->CurState, hovered_item);
-				pMS->CurState = hovered_item;
-
+				NewState = hovered_item;
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
+		}
+
+		BatchGraphics ();
+		SetContext (ScreenContext);
+
+		if (NewState != pMS->CurState)
+		{
+			DrawBaseStateStrings (pMS->CurState, NewState);
+			pMS->CurState = NewState;
 		}
 
 		rotateStarbase (pMS, NULL);

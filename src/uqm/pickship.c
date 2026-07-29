@@ -159,6 +159,7 @@ DoPickBattleShip (MENU_STATE *pMS)
 		if ((HSTARSHIP)pMS->CurFrame)
 		{
 			PlayMenuSound (MENU_SOUND_SUCCESS);
+			UQM_SetCursor (CURSOR_DISABLE);
 			return (FALSE);
 		}
 	}
@@ -174,15 +175,14 @@ DoPickBattleShip (MENU_STATE *pMS)
 		new_col = pMS->first_item.x + dx;
 		new_row = pMS->first_item.y + dy;
 
-		if (MouseInContext (ScreenContext))
+		if (SetMouseContext (SpaceContext))
 		{
 			BYTE i;
-			POINT mouse_pos = ScreenToCanvas (SpaceContext);
 			POINT hovered_item = pMS->first_item;
 
 			for (i = 0; i < 14; i++)
 			{
-				if (pointWithinRect (PickHover[i].r, mouse_pos))
+				if (MouseInRect (PickHover[i].r))
 				{
 					hovered_item = PickHover[i].pt;
 					UQM_SetCursor (CURSOR_POINTER_HILITE);

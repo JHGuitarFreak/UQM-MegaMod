@@ -244,7 +244,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			return FALSE;
 		}
 		else if (PulsedInputState.menu[KEY_MENU_SELECT]
-				|| MouseClicker (DiffRects[a], ScreenContext))
+				|| CtxMouseClicker (DiffRects[a]))
 		{
 			done = TRUE;
 			response = TRUE;
@@ -299,15 +299,14 @@ DoDiffChooser (MENU_STATE *pMS)
 		}
 		else
 		{
-			if (MouseInContext (ScreenContext))
+			if (SetMouseContext (ScreenContext))
 			{
 				BYTE i;
-				POINT mouse_pos = ScreenToCanvas (ScreenContext);
 				BYTE hovered_item = a;
 
 				for (i = 0; i <= 2; i++)
 				{
-					if (pointWithinRect (DiffRects[i], mouse_pos))
+					if (MouseInRect (DiffRects[i]))
 					{
 						hovered_item = i;
 						UQM_SetCursor (CURSOR_POINTER_HILITE);
@@ -562,7 +561,7 @@ DoRestart (MENU_STATE *pMS)
 		return FALSE;
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
-			|| MouseClicker (MenuRects[pMS->CurState], ScreenContext))
+			|| CtxMouseClicker (MenuRects[pMS->CurState]))
 	{
 		switch (pMS->CurState)
 		{
@@ -686,15 +685,14 @@ DoRestart (MENU_STATE *pMS)
 	}
 	else
 	{
-		if (MouseInContext (ScreenContext))
+		if (SetMouseContext (ScreenContext))
 		{
 			BYTE i;
-			POINT mouse_pos = ScreenToCanvas (ScreenContext);
 			BYTE hovered_item = pMS->CurState;
 
 			for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
 			{
-				if (pointWithinRect (MenuRects[i], mouse_pos))
+				if (MouseInRect (MenuRects[i]))
 				{
 					hovered_item = i;
 					UQM_SetCursor (CURSOR_POINTER_HILITE);

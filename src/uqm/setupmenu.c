@@ -1733,10 +1733,9 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 				DrawRectangle (&r, IS_HD);
 			}
 
-			if (MouseInContext (ScreenContext))
+			if (SetMouseContext (ScreenContext))
 			{
 				int i;
-				POINT mouse_pos = ScreenToCanvas (ScreenContext);
 				BYTE hovered_item = menu->highlighted;
 
 				if (!clicked_in)
@@ -1748,7 +1747,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 						if (child->tag == WIDGET_TYPE_LABEL)
 							continue;
 
-						if (pointWithinRect (menu->widget_rects[i], mouse_pos))
+						if (MouseInRect (menu->widget_rects[i]))
 						{
 							hovered_item = i;
 							UQM_SetCursor (CURSOR_POINTER_HILITE);
@@ -1788,8 +1787,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 					}
 				}
 
-				if (MouseClicker (menu->widget_rects[hovered_item],
-						ScreenContext))
+				if (CtxMouseClicker (menu->widget_rects[hovered_item]))
 				{
 					WIDGET *child = menu->child[hovered_item];
 
