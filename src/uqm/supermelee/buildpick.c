@@ -24,8 +24,11 @@
 #include "../sounds.h"
 #include "libs/gfxlib.h"
 #include "../gamestr.h"
+#include "libs/inplib.h"
 
 static FRAME BuildPickFrame;
+
+static RECT BuildPickRects[NUM_MELEE_SHIPS];
 
 void
 BuildBuildPickFrame (void)
@@ -155,7 +158,7 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 	}
 }
 
-static void 
+static void
 DrawTooltipBox (void)
 {
 	STAMP s;
@@ -214,7 +217,7 @@ DrawTooltip (SHIP_INFO *SIPtr)
 	SetContextForeGroundColor (TOOLTIP_COLOR_DESC_FRONT);
 
 	utf8StringCopy (buf, sizeof buf,
-			GET_STRING (SIPtr->race_strings, 
+			GET_STRING (SIPtr->race_strings,
 				GetStringTableCount (SIPtr->race_strings) - 1));
 	ptr = strtok (buf, delim);
 
@@ -259,6 +262,20 @@ DrawPickFrame (MELEE_STATE *pMS)
 	DrawStamp (&s);
 	DrawMeleeShipStrings (pMS, pMS->currentShip);
 
+	if (optMouseInput)
+	{
+		BYTE i;
+		for (i = 0; i < NUM_PICK_COLS * NUM_PICK_ROWS; ++i)
+		{
+			BuildPickRects[i].corner.x = -r.corner.x + RES_SCALE (20) +
+					(i % NUM_PICK_COLS) * RES_SCALE (18);
+			BuildPickRects[i].corner.y = -r.corner.y + RES_SCALE (5) +
+					(i / NUM_PICK_COLS) * RES_SCALE (18);
+			BuildPickRects[i].extent.width = RES_SCALE (16);
+			BuildPickRects[i].extent.height = RES_SCALE (16);
+		}
+	}
+
 	if (isPC (optWhichMenu))
 	{	// if PC menu is selected - draw flash on the current ship as soon
 		// as we pop up otherwise for 1 frame it will look like nothing is
@@ -277,6 +294,7 @@ static BOOLEAN
 DoPickShip (MELEE_STATE *pMS)
 {
 	DWORD TimeIn = GetTimeCounter ();
+	BOOLEAN select, cancel, special;
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
@@ -287,18 +305,23 @@ DoPickShip (MELEE_STATE *pMS)
 		return FALSE;
 	}
 
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			CtxMouseClicker (BuildPickRects[pMS->currentShip]);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			PulsedInputState.menu[MOUSE_BTN_RIGHT];
+	special = PulsedInputState.menu[KEY_MENU_SPECIAL] ||
+			PulsedInputState.menu[MOUSE_BTN_MIDDLE];
+
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
-	if (PulsedInputState.menu[KEY_MENU_SELECT] ||
-			PulsedInputState.menu[KEY_MENU_CANCEL])
+	if (select || cancel)
 	{
 		// Confirm selection or cancel.
-		pMS->buildPickConfirmed = !PulsedInputState.menu[KEY_MENU_CANCEL];
+		pMS->buildPickConfirmed = !cancel;
 		return FALSE;
 	}
 	
-	if (PulsedInputState.menu[KEY_MENU_SPECIAL]
-			&& (pMS->currentShip != MELEE_NONE))
+	if (special && (pMS->currentShip != MELEE_NONE))
 	{
 		if (isPC (optWhichIntro))
 			PlayMenuSound (MENU_SOUND_SUCCESS);
@@ -339,6 +362,30 @@ DoPickShip (MELEE_STATE *pMS)
 				newSelectedShip += NUM_PICK_COLS;
 			else
 				newSelectedShip -= NUM_PICK_COLS * (NUM_PICK_ROWS - 1);
+		}
+
+		if (SetMouseContext (SpaceContext))
+		{
+			BYTE i;
+			BYTE hovered_item = newSelectedShip;
+
+			for (i = 0; i < NUM_MELEE_SHIPS; i++)
+			{
+				if (MouseInRect (BuildPickRects[i]))
+				{
+					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
+			}
+
+			if (hovered_item != newSelectedShip)
+			{
+				newSelectedShip = hovered_item;
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
 		}
 
 		if (newSelectedShip != pMS->currentShip)
