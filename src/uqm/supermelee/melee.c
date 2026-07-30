@@ -59,6 +59,7 @@
 #include "libs/reslib.h"
 #include "libs/log.h"
 #include "libs/uio.h"
+#include "libs/inplib.h"
 
 
 #include <assert.h>
@@ -232,6 +233,15 @@ MELEE_STATE *pMeleeState;
 FONT MicroThinFont;
 FONT ButtonFont;
 
+static RECT MeleeOptionRects[9];
+
+typedef struct
+{
+	COUNT row, col, side;
+	RECT r;
+} FLEET_EDIT;
+static FLEET_EDIT FleetEdit[15 * 2];
+
 BOOLEAN DoMelee (MELEE_STATE *pMS);
 static BOOLEAN DoEdit (MELEE_STATE *pMS);
 static BOOLEAN DoConfirmSettings (MELEE_STATE *pMS);
@@ -249,6 +259,122 @@ static void Melee_UpdateView_fleetValue (MELEE_STATE *pMS, COUNT side);
 static void Melee_UpdateView_ship (MELEE_STATE *pMS, COUNT side,
 		FleetShipIndex index);
 static void Melee_UpdateView_teamName (MELEE_STATE *pMS, COUNT side);
+
+static BYTE GetShipRow (FleetShipIndex index);
+static BYTE GetShipColumn (int index);
+static void GetFullStringRect (COUNT side, RECT *r);
+
+static void
+InitMeleeRects (void)
+{
+	COUNT side;
+	BYTE i;
+	RECT r;
+
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, NET_BUTTON_TOP), &r);
+	MeleeOptionRects[0] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, HUMAN_CON_TOP), &r);
+	MeleeOptionRects[1] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, SAVE_BUTTON_TOP), &r);
+	MeleeOptionRects[2] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, LOAD_BUTTON_TOP), &r);
+	MeleeOptionRects[3] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, BATTLE_BUTTON), &r);
+	MeleeOptionRects[4] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, LOAD_BUTTON_BOTT), &r);
+	MeleeOptionRects[5] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, SAVE_BUTTON_BOTT), &r);
+	MeleeOptionRects[6] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, HUMAN_CON_BOTT), &r);
+	MeleeOptionRects[7] = r;
+	GetFrameRect (SetAbsFrameIndex (MeleeFrame, QUIT_BUTTON), &r);
+	MeleeOptionRects[8] = r;
+
+	for (i = 0, side = 0; side < NUM_SIDES; side++, i++)
+	{
+		FleetShipIndex index;
+
+		for (index = 0; index < MELEE_FLEET_SIZE; index++, i++)
+		{
+			BYTE row = GetShipRow (index);
+			BYTE col = GetShipColumn (index);
+
+			if (index == TRUE_MELEE_FLEET_SIZE)
+				break;
+
+			GetShipBox (&r, side, row, col);
+
+			//printf ("side %d, row %d, col %d\n", side, row, col);
+
+			FleetEdit[i].r = r;
+			FleetEdit[i].col = col;
+			FleetEdit[i].row = row;
+			FleetEdit[i].side = side;
+		}
+
+		GetFullStringRect (side, &r);
+
+		FleetEdit[i].r = r;
+		FleetEdit[i].col = 0;
+		FleetEdit[i].row = 2;
+		FleetEdit[i].side = side;
+	}
+}
+
+static BOOLEAN
+HoveringOverOption (BYTE *item)
+{
+	BYTE i;
+
+	for (i = 0; i < 9; i++)
+	{
+		if (MouseInRect (MeleeOptionRects[i]))
+		{
+			*item = i;
+			UQM_SetCursor (CURSOR_POINTER_HILITE);
+			return TRUE;
+		}
+		else
+			UQM_SetCursor (CURSOR_POINTER);
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+HoveringOverEdit (FLEET_EDIT *item)
+{
+	BYTE i;
+
+	for (i = 0; i < 30; i++)
+	{
+		if (MouseInRect (FleetEdit[i].r))
+		{
+			*item = FleetEdit[i];
+			UQM_SetCursor (CURSOR_POINTER_HILITE);
+			return TRUE;
+		}
+		else
+			UQM_SetCursor (CURSOR_POINTER);
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+CtxClickerHelper (MELEE_STATE *pMS)
+{
+	FLEET_EDIT item;
+
+	if (HoveringOverEdit (&item))
+	{
+		return (item.col == pMS->col && item.row == pMS->row &&
+				item.side == pMS->side &&
+				PulsedInputState.menu[MOUSE_BTN_LEFT]);
+	}
+
+	return FALSE;
+}
 
 static int
 ButtonText (COUNT which_icon)
@@ -1733,6 +1859,7 @@ static BOOLEAN
 DoEdit (MELEE_STATE *pMS)
 {
 	DWORD TimeIn = GetTimeCounter ();
+	MELEE_OPTIONS option_item = START_MELEE;
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
@@ -1756,17 +1883,19 @@ DoEdit (MELEE_STATE *pMS)
 			&& (PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| (PulsedInputState.menu[KEY_MENU_RIGHT]
 			&& (pMS->col == NUM_MELEE_COLUMNS - 1
-			|| pMS->row == NUM_MELEE_ROWS))))
+			|| pMS->row == NUM_MELEE_ROWS))) ||
+			HoveringOverOption (&option_item))
 	{
 		// Done editing the teams.
 		Deselect (EDIT_MELEE);
 		pMS->currentShip = MELEE_NONE;
-		pMS->MeleeOption = START_MELEE;
+		pMS->MeleeOption = option_item;
 		pMS->InputFunc = DoMelee;
 		pMS->LastInputTime = GetTimeCounter ();
 	}
 	else if (pMS->row < NUM_MELEE_ROWS
-			&& PulsedInputState.menu[KEY_MENU_SELECT])
+			&& (PulsedInputState.menu[KEY_MENU_SELECT]
+				|| CtxClickerHelper (pMS)))
 	{
 		// Show a popup to add a new ship to the current team.
 		Select (EDIT_MELEE);
@@ -1797,10 +1926,13 @@ DoEdit (MELEE_STATE *pMS)
 		COUNT row = pMS->row;
 		COUNT col = pMS->col;
 
+		//printf ("side %d, row %d, col %d\n", side, row, col);
+
 		if (row == NUM_MELEE_ROWS)
 		{
 			// Edit the name of the current team.
-			if (PulsedInputState.menu[KEY_MENU_SELECT])
+			if (PulsedInputState.menu[KEY_MENU_SELECT] ||
+				CtxClickerHelper (pMS))
 			{
 				TEXTENTRY_STATE tes;
 				char buf[MAX_TEAM_CHARS + 1];
@@ -1873,6 +2005,28 @@ DoEdit (MELEE_STATE *pMS)
 						side = !side;
 					}
 				}
+			}
+		}
+
+		if (SetMouseContext (ScreenContext))
+		{
+			BYTE i;
+			FLEET_EDIT hovered_item;
+
+			hovered_item.col = col;
+			hovered_item.row = row;
+			hovered_item.side = side;
+
+			HoveringOverEdit (&hovered_item);
+
+			if (col != hovered_item.col ||
+				row != hovered_item.row ||
+				side != hovered_item.side)
+			{
+				col = hovered_item.col;
+				row = hovered_item.row;
+				side = hovered_item.side;
+				//PlayMenuSound (MENU_SOUND_MOVE);
 			}
 		}
 
@@ -2076,6 +2230,8 @@ LoadMeleeInfo (MELEE_STATE *pMS)
 	InitSpace ();
 
 	LoadTeamList (pMS);
+
+	InitMeleeRects ();
 }
 
 static void
@@ -2516,6 +2672,7 @@ MeleeOptionSelect (MELEE_STATE *pMS)
 BOOLEAN
 DoMelee (MELEE_STATE *pMS)
 {
+	FLEET_EDIT item;
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN force_select = FALSE;
 
@@ -2556,9 +2713,14 @@ DoMelee (MELEE_STATE *pMS)
 #ifdef NETPLAY
 	netInput ();
 #endif
+
+	item.side = 0;
+	item.row = NUM_MELEE_ROWS - 1;
+	item.col = NUM_MELEE_COLUMNS - 1;
 	
 	if (PulsedInputState.menu[KEY_MENU_CANCEL] ||
-			PulsedInputState.menu[KEY_MENU_LEFT])
+			PulsedInputState.menu[KEY_MENU_LEFT] ||
+			HoveringOverEdit (&item))
 	{
 		// Start editing the teams.
 		pMS->LastInputTime = GetTimeCounter ();
@@ -2573,9 +2735,9 @@ DoMelee (MELEE_STATE *pMS)
 		}
 		else
 		{
-			pMS->side = 0;
-			pMS->row = NUM_MELEE_ROWS - 1;
-			pMS->col = NUM_MELEE_COLUMNS - 1;
+			pMS->side = item.side;
+			pMS->row = item.row;
+			pMS->col = item.col;
 		}
 		DoEdit (pMS);
 	}
@@ -2602,6 +2764,30 @@ DoMelee (MELEE_STATE *pMS)
 			NewMeleeOption = START_MELEE;
 		}
 
+		if (SetMouseContext (ScreenContext))
+		{
+			BYTE i;
+			BYTE hovered_item = NewMeleeOption;
+
+			for (i = 0; i < 9; i++)
+			{
+				if (MouseInRect (MeleeOptionRects[i]))
+				{
+					hovered_item = i;
+					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					break;
+				}
+				else
+					UQM_SetCursor (CURSOR_POINTER);
+			}
+
+			if (hovered_item != NewMeleeOption)
+			{
+				NewMeleeOption = hovered_item;
+				//PlayMenuSound (MENU_SOUND_MOVE);
+			}
+		}
+
 		if (NewMeleeOption != pMS->MeleeOption)
 		{
 #ifdef NETPLAY
@@ -2625,7 +2811,8 @@ DoMelee (MELEE_STATE *pMS)
 #endif
 		}
 
-		if (PulsedInputState.menu[KEY_MENU_SELECT] || force_select)
+		if (PulsedInputState.menu[KEY_MENU_SELECT] || force_select ||
+				CtxMouseClicker (MeleeOptionRects[NewMeleeOption]))
 		{
 			MeleeOptionSelect (pMS);
 			if (GLOBAL (CurrentActivity) & CHECK_ABORT)
