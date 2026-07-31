@@ -28,11 +28,16 @@
 #include "nameref.h"
 #include "libs/graphics/widgets.h"
 #include "supermelee/netplay/netoptions.h"
+#include "uqm/util.h"
+#include "colors.h"
 
-#define MCD_WIDTH RES_SCALE (260) 
-#define MCD_HEIGHT RES_SCALE (110) 
+#define MCD_WIDTH RES_SCALE (260)
+#define MCD_HEIGHT RES_SCALE (110)
 
-#define MENU_FRAME_RATE (ONE_SECOND / 20)
+#define MENU_FRAME_RATE (ONE_SECOND / 30)
+
+#define SCREEN_CENTER RES_SCALE (RES_DESCALE (SCREEN_WIDTH) / 2)
+#define TEXT_STEP RES_SCALE (7)
 
 typedef struct connect_dialog_state
 {
@@ -85,7 +90,7 @@ MCD_DrawMenuScreen (WIDGET *_self, int x, int y)
 	{
 		WIDGET *c = self->child[widget_index];
 		(*c->draw)(c, x, widget_y);
-		widget_y += (*c->height)(c) + RES_SCALE (8); 
+		widget_y += (*c->height)(c) + RES_SCALE (6);
 	}
 }
 
@@ -95,14 +100,14 @@ MCD_DrawButton (WIDGET *_self, int x, int y)
 	WIDGET_BUTTON *self = (WIDGET_BUTTON *)_self;
 	Color oldtext;
 	Color inactive, selected;
-	FONT  oldfont = SetContextFont (StarConFont);
+	FONT  oldfont = SetContextFont (PlayerFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	
-	selected = MENU_HIGHLIGHT_COLOR;
-	inactive = MENU_TEXT_COLOR;
 
-	t.baseline.x = RES_SCALE (160);
+	selected = WIDGET_ACTIVE_COLOR;
+	inactive = WIDGET_INACTIVE_COLOR;
+
+	t.baseline.x = x;
 	t.baseline.y = y;
 	t.align = ALIGN_CENTER;
 	t.CharCount = ~0;
@@ -133,13 +138,14 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	TEXT t;
 	RECT r;
 	int tick = RES_SCALE (RES_DESCALE (MCD_WIDTH) / 8);
-	
-	default_color = MENU_TEXT_COLOR;
-	selected = MENU_HIGHLIGHT_COLOR;
+	int slider_width;
 
-	t.baseline.x = x;
+	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
+	selected = WIDGET_ACTIVE_COLOR;
+
+	t.baseline.x = x - TEXT_STEP;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
 	if (widget_focus == _self)
@@ -153,20 +159,23 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	font_DrawText (&t);
 
 	r.corner.x = t.baseline.x + 3 * tick;
+	// Slider Bar
+	r.corner.x = x + TEXT_STEP;
 	r.corner.y = t.baseline.y - RES_SCALE (4);
 	r.extent.height = RES_SCALE (2);
-	r.extent.width = 3 * tick;
+	r.extent.width = 2 * tick;
+	slider_width = r.corner.x + r.extent.width;
 	DrawFilledRectangle (&r);
 
+	// Slider Indicator
 	r.extent.width = RES_SCALE (3);
 	r.extent.height = RES_SCALE (8);
 	r.corner.y = t.baseline.y - RES_SCALE (7);
-	r.corner.x = t.baseline.x + 3 * tick + (3 * tick *
-			(self->value - self->min) / (self->max - self->min))
-			- RES_SCALE (1);
+	r.corner.x = x + TEXT_STEP + (2 * tick * (self->value - self->min) /
+			(self->max - self->min)) - (RES_SCALE (3) >> 1);
 	DrawFilledRectangle (&r);
 
-	(*self->draw_value)(self, t.baseline.x + 7 * tick, t.baseline.y);
+	(*self->draw_value)(self, slider_width, t.baseline.y);
 
 	SetContextFontEffect (oldFontEffect);
 	SetContextFont (oldfont);
@@ -178,20 +187,21 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 {
 	WIDGET_TEXTENTRY *self = (WIDGET_TEXTENTRY *)_self;
 	Color oldtext;
-	Color inactive, default_color, selected;
+	Color inactive, default_color, selected, editing;
 	FONT  oldfont = SetContextFont (PlayerFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
-	
-	default_color = MENU_TEXT_COLOR;
-	selected = MENU_HIGHLIGHT_COLOR;
-	inactive = MENU_TEXT_COLOR;
+
+	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
+	selected = WIDGET_ACTIVE_COLOR;
+	inactive = WIDGET_INACTIVE_COLOR;
+	editing = WIDGET_LABEL_COLOR;
 
 	BatchGraphics ();
 
-	t.baseline.x = x;
+	t.baseline.x = x - TEXT_STEP;
 	t.baseline.y = y;
-	t.align = ALIGN_LEFT;
+	t.align = ALIGN_RIGHT;
 	t.CharCount = ~0;
 	t.pStr = self->category;
 	if (widget_focus == _self)
@@ -205,17 +215,16 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 	font_DrawText (&t);
 
 	/* Force string termination */
-	self->value[WIDGET_TEXTENTRY_WIDTH-1] = 0;
+	self->value[WIDGET_TEXTENTRY_WIDTH - RES_SCALE (1)] = 0;
 
 	t.baseline.y = y;
 	t.CharCount = (COUNT)utf8StringCount (self->value);
 	t.pStr = self->value;
+	t.baseline.x = x + TEXT_STEP;
+	t.align = ALIGN_LEFT;
 
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
-		t.baseline.x = RES_SCALE (160); 
-		t.align = ALIGN_CENTER;
-
 		if (widget_focus == _self)
 		{
 			oldtext = SetContextForeGroundColor (selected);
@@ -234,9 +243,6 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		BYTE *pchar_deltas;
 		RECT r;
 		SIZE leading;
-
-		t.baseline.x = x + (RES_SCALE (90));
-		t.align = ALIGN_LEFT;
 
 		// calc background box dimensions
 		// XXX: this may need some tuning, especially if a
@@ -304,10 +310,10 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 		}
 		// position cursor within input field rect
 		r.corner.x += RES_SCALE (1);
-		SetContextForeGroundColor (MENU_CURSOR_COLOR);
+		SetContextForeGroundColor (WIDGET_CURSOR_COLOR);
 		DrawFilledRectangle (&r);
 
-		SetContextForeGroundColor (inactive);
+		SetContextForeGroundColor (editing);
 		font_DrawText (&t);
 	}
 	
@@ -537,26 +543,50 @@ static void
 DrawConnectDialog (void)
 {
 	RECT r;
+	Color bg_color = WIDGET_NET_MELEE_BACKGROUND;
+
+	BatchGraphics ();
 	
 	r.extent.width = MCD_WIDTH;
 	r.extent.height = MCD_HEIGHT;
-	r.corner.x = (SCREEN_WIDTH - r.extent.width) >> 1;
-	r.corner.y = (SCREEN_HEIGHT - r.extent.height) >> 1;
+	r.corner.x = ((SCREEN_WIDTH - r.extent.width) >> 1) - SAFE_X;
+	r.corner.y = ((SCREEN_HEIGHT - r.extent.height) >> 1) - SAFE_Y;
 
+	if (!IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+			SIS_BOTTOM_RIGHT_BORDER_COLOR, SIS_LEFT_BORDER_COLOR,
+			TRUE, MENU_FOREGROUND_COLOR, FALSE, NULL_COLOR);
+	}
+	else
+	{
+		DrawRenderedBox (&r, TRUE, MENU_FOREGROUND_COLOR,
+			THIN_OUTER_BEVEL, FALSE);
+	}
 
-	DrawShadowedBox (&r, SHADOWBOX_BACKGROUND_COLOR,
-			SHADOWBOX_DARK_COLOR, SHADOWBOX_MEDIUM_COLOR);
+	r.extent.width -= RES_SCALE (10);
+	r.extent.height -= RES_SCALE (10);
+	r.corner.x += RES_SCALE (5);
+	r.corner.y += RES_SCALE (5);
 
-	menu.draw ((WIDGET *)&menu,
-			r.corner.x + RES_SCALE (10), r.corner.y + RES_SCALE (10));
+	if (!IS_HD)
+	{
+		DrawStarConBox (&r, RES_SCALE (1),
+				SIS_LEFT_BORDER_COLOR, SIS_BOTTOM_RIGHT_BORDER_COLOR,
+				TRUE, bg_color, FALSE, NULL_COLOR);
+	}
+	else
+		DrawRenderedBox (&r, TRUE, bg_color, THIN_INNER_BEVEL, FALSE);
 
+	menu.draw ((WIDGET *)&menu, SCREEN_CENTER - SAFE_X,
+			r.corner.y + RES_SCALE (10));
+
+	UnbatchGraphics ();
 }
 
 static BOOLEAN
 DoMeleeConnectDialog (CONNECT_DIALOG_STATE *state)
 {
-	BOOLEAN changed;
-
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
@@ -567,10 +597,9 @@ DoMeleeConnectDialog (CONNECT_DIALOG_STATE *state)
 		state->NextTime = GetTimeCounter ();
 		/* Prepare widgets, draw stuff, etc. */
 		CreateWidgets ();
-		DrawConnectDialog ();
 	}
 
-	changed = TRUE;
+	DrawConnectDialog ();
 
 	if (PulsedInputState.menu[KEY_MENU_UP])
 	{
@@ -600,20 +629,10 @@ DoMeleeConnectDialog (CONNECT_DIALOG_STATE *state)
 	{
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
-	else
-	{
-		changed = FALSE;
-	}
-
-	if (changed)
-	{
-		DrawConnectDialog ();
-	}
 
 	SleepThreadUntil (state->NextTime + MENU_FRAME_RATE);
 	state->NextTime = GetTimeCounter ();
-	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || 
-		 done);
+	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || done);
 }
 
 BOOLEAN
