@@ -40,6 +40,7 @@
 #include "libs/async.h"
 #include "libs/log.h"
 #include "libs/mathlib.h"
+#include "libs/inplib.h"
 
 
 #define NUM_PICKMELEE_ROWS 2
@@ -63,9 +64,76 @@
 static void reportShipSelected (GETMELEE_STATE *gms, COUNT index);
 #endif
 
+typedef struct
+{
+	COUNT row;
+	COUNT col;
+	RECT r;
+} FLEET_RECTS;
+
+static FLEET_RECTS FleetRects[2][16];
+#define HUMAN_PLAYER ((PlayerControl[1] & COMPUTER_CONTROL) && \
+		(PlayerControl[0] & HUMAN_CONTROL))
+
+#define NUM_HOVER_COLUMS (NUM_PICKMELEE_COLUMNS + 1)
+
+static void
+InitFleetRects (STAMP s)
+{
+	BYTE i;
+
+	if (!antiCheatAlt () || !optMouseInput)
+		return;
+
+	for (i = 0; i < 16; i++)
+	{
+		FleetRects[HUMAN_PLAYER][i].col = (i % NUM_HOVER_COLUMS);
+		FleetRects[HUMAN_PLAYER][i].row = (i / NUM_HOVER_COLUMS);
+
+		FleetRects[HUMAN_PLAYER][i].r.corner.x = s.origin.x + RES_SCALE (4) +
+				(i % NUM_HOVER_COLUMS) * (ICON_WIDTH + RES_SCALE (2));
+		FleetRects[HUMAN_PLAYER][i].r.corner.y = s.origin.y + RES_SCALE (10) +
+				(i / NUM_HOVER_COLUMS) * (ICON_HEIGHT + RES_SCALE (2)) +
+				(HUMAN_PLAYER * PICK_SIDE_OFFS);
+		FleetRects[HUMAN_PLAYER][i].r.extent.width = ICON_WIDTH;
+		FleetRects[HUMAN_PLAYER][i].r.extent.height = ICON_HEIGHT;
+	}
+}
+
+static BOOLEAN
+IsHovering (FLEET_RECTS *hov)
+{
+	BYTE i;
+
+	if (!antiCheatAlt () || !optMouseInput)
+		return FALSE;
+
+	for (i = 0; i < 16; i++)
+	{
+		if (MouseInRect (FleetRects[HUMAN_PLAYER][i].r))
+		{
+			*hov = FleetRects[HUMAN_PLAYER][i];
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+CtxMouseClickerHelper (RECT r)
+{
+	if (!antiCheatAlt () || !optMouseInput)
+		return FALSE;
+
+	if (!CtxMouseClicker (r))
+		return FALSE;
+
+	UQM_SetCursor (CURSOR_DISABLE);
+	return TRUE;
+}
 
 FRAME PickMeleeFrame;
-
 
 static FleetShipIndex
 PickMelee_GetShipIndex (BYTE row, BYTE col)
@@ -201,7 +269,12 @@ static BOOLEAN
 SelectShip_processInput (GETMELEE_STATE *gms, COUNT playerI,
 		BATTLE_INPUT_STATE inputState)
 {
-	if (inputState & BATTLE_WEAPON)
+	BOOLEAN hovering;
+	FLEET_RECTS hov;
+
+	hovering = IsHovering (&hov);
+
+	if (inputState & BATTLE_WEAPON || CtxMouseClickerHelper (hov.r))
 	{
 		if (gms->player[playerI].col == NUM_PICKMELEE_COLUMNS &&
 				gms->player[playerI].row == 0)
@@ -252,6 +325,30 @@ SelectShip_processInput (GETMELEE_STATE *gms, COUNT playerI,
 		{
 			if (++new_row == NUM_PICKMELEE_ROWS)
 				new_row = 0;
+		}
+
+		if (antiCheatAlt () && SetMouseContext (ScreenContext))
+		{
+			int cursor = CURSOR_POINTER;
+			COUNT hov_row = new_row;
+			COUNT hov_col = new_col;
+
+			if (hovering)
+			{
+				hov_row = hov.row;
+				hov_col = hov.col;
+
+				cursor = CURSOR_POINTER_HILITE;
+			}
+
+			UQM_SetCursor (cursor);
+
+			if (new_row != hov_row || new_col != hov_col)
+			{
+				new_row = hov_row;
+				new_col = hov_col;
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
 		}
 		
 		if (new_row != gms->player[playerI].row ||
@@ -602,7 +699,7 @@ FillPickMeleeFrame (MeleeSetup *setup)
 				// Draw the icon.
 				row = PickMelee_GetShipRow (index);
 				col = PickMelee_GetShipColumn (index);
-				s.origin.x = RES_SCALE (4) + ((ICON_WIDTH + RES_SCALE (2)) * col); 
+				s.origin.x = RES_SCALE (4) + ((ICON_WIDTH + RES_SCALE (2)) * col);
 				s.origin.y = RES_SCALE (10) + ((ICON_HEIGHT + RES_SCALE (2)) * row);
 				s.frame = MasterPtr->ShipInfo.icons;
 				DrawStamp (&s);
@@ -645,11 +742,13 @@ DrawPickMeleeFrame (COUNT which_player)
 
 	oldContext = SetContext (SpaceContext);
 	s.frame = SetAbsFrameIndex (PickMeleeFrame, which_player);
-	s.origin.x = PICK_X_OFFS - RES_SCALE (3); 
+	s.origin.x = PICK_X_OFFS - RES_SCALE (3);
 	s.origin.y = PICK_Y_OFFS - RES_SCALE (9) + ((1 - which_player) * PICK_SIDE_OFFS);
 	DrawStamp (&s);
 			// Draw the selection box to screen.
 	
+	InitFleetRects (s);
+
 	SetContext (oldContext);
 }
 
