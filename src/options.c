@@ -878,18 +878,22 @@ setGammaCorrection (float gamma)
 	return set;
 }
 
+static int cursor_enabled = -1;
+
 static BOOLEAN
 UQM_IsCursorVisible (void)
 {
-	BOOLEAN old_state = SDL_ShowCursor (SDL_DISABLE);
+	BOOLEAN old_state;
+
+	if (cursor_enabled != -1)
+		return cursor_enabled;
+
+	old_state = SDL_ShowCursor (SDL_DISABLE);
 
 	if (old_state == SDL_ENABLE)
-	{
 		SDL_ShowCursor (SDL_ENABLE);
-		return TRUE;
-	}
-	else
-		return FALSE;
+
+	return cursor_enabled = (old_state == SDL_ENABLE);
 }
 
 BOOLEAN
@@ -900,8 +904,14 @@ UQM_SetCursor (int cursor)
 	if ((!optMouseInput && cursor_visible) || cursor == CURSOR_DISABLE)
 	{
 		SDL_ShowCursor (SDL_DISABLE);
+		cursor_enabled = FALSE;
 		return FALSE;
 	}
+
+	cursor_enabled = TRUE;
+
+	if (SDL_GetCursor () == UQM_Cursors[cursor] && cursor_visible)
+		return TRUE;
 
 	if (!cursor_visible)
 		SDL_ShowCursor (SDL_ENABLE);

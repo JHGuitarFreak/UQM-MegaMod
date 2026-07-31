@@ -688,6 +688,7 @@ DoRestart (MENU_STATE *pMS)
 		if (SetMouseContext (ScreenContext))
 		{
 			BYTE i;
+			BOOLEAN hovering = FALSE;
 			BYTE hovered_item = pMS->CurState;
 
 			for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
@@ -695,12 +696,12 @@ DoRestart (MENU_STATE *pMS)
 				if (MouseInRect (MenuRects[i]))
 				{
 					hovered_item = i;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					hovering = TRUE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (hovering ? CURSOR_POINTER_HILITE : CURSOR_POINTER);
 
 			if (hovered_item != pMS->CurState)
 			{
@@ -708,7 +709,6 @@ DoRestart (MENU_STATE *pMS)
 				DrawRestartMenu (pMS, hovered_item, NULL);
 				UnbatchGraphics ();
 				pMS->CurState = hovered_item;
-
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
 
