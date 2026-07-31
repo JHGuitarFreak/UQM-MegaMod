@@ -1737,6 +1737,7 @@ DoPickGame (MENU_STATE *pMS)
 		if (SetMouseContext (SpaceContext))
 		{
 			BYTE i;
+			int cursor = CURSOR_POINTER;
 			COUNT total_slots = MAX_SAVED_GAMES + (pickState->saving ? 0 : 1);
 			BYTE hovered_item = NewState;
 
@@ -1745,12 +1746,12 @@ DoPickGame (MENU_STATE *pMS)
 				if (MouseInRect (SlotRects[i]))
 				{
 					hovered_item = i;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != NewState)
 			{

@@ -464,6 +464,7 @@ DoLoadTeam (MELEE_STATE *pMS)
 		if (!(pgup || pgdn) && SetMouseContext (SpaceContext))
 		{
 			COUNT i;
+			int cursor = CURSOR_POINTER;
 			COUNT num_entry = pMS->load.numIndices + pMS->load.preBuiltCount;
 			COUNT hovered_item = newIndex;
 
@@ -473,12 +474,12 @@ DoLoadTeam (MELEE_STATE *pMS)
 				if (MouseInRect (LoadTeamRects[i]))
 				{
 					hovered_item = pMS->load.top + i;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != pMS->load.cur)
 			{

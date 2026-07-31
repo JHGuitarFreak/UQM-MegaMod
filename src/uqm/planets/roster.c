@@ -389,7 +389,7 @@ DoModifyRoster (MENU_STATE *pMS)
 			if (rosterState->count > 1 && SetMouseContext (StatusContext))
 			{
 				BYTE i;
-				BOOLEAN found_hover = FALSE;
+				int cursor = CURSOR_POINTER;
 				BYTE hovered_item = NewState;
 
 				for (i = 0; i < rosterState->count; i++)
@@ -404,13 +404,12 @@ DoModifyRoster (MENU_STATE *pMS)
 					if (MouseInRect (RosterRects[i]))
 					{
 						hovered_item = i;
-						UQM_SetCursor (CURSOR_POINTER_HILITE);
-						found_hover = TRUE;
+						cursor = CURSOR_POINTER_HILITE;
 						break;
 					}
-					else
-						UQM_SetCursor (CURSOR_POINTER);
 				}
+
+				UQM_SetCursor (cursor);
 
 				if (hovered_item != NewState)
 				{

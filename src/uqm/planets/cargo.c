@@ -443,6 +443,7 @@ DoDiscardCargo (MENU_STATE *pMS)
 		if (SetMouseContext (StatusContext))
 		{
 			BYTE i;
+			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = NewState;
 
 			for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
@@ -450,12 +451,12 @@ DoDiscardCargo (MENU_STATE *pMS)
 				if (MouseInRect (CargoRects[i]))
 				{
 					hovered_item = i;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != NewState)
 			{

@@ -26,7 +26,7 @@
 #include "../process.h"
 #include "../units.h"
 #include "../gamestr.h"
-#include "../nameref.h"
+#include "../nameref.h" 
 #include "../resinst.h"
 #include "../setup.h"
 #include "../setupmenu.h"
@@ -219,7 +219,6 @@ static void
 DrawPlanetAutopilotTarget (void)
 {
 	LINE line;
-	RECT diag;
 	POINT target;
 	SIZE ship_perimeter;
 
@@ -280,7 +279,6 @@ static void
 DrawScanAutopilotTarget (void)
 {
 	LINE line;
-	RECT diag;
 	POINT target;
 	SIZE perimeter;
 

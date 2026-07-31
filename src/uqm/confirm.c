@@ -190,6 +190,7 @@ DoConfirmExit (void)
 				if (SetMouseContext (ScreenContext))
 				{
 					BYTE i;
+					int cursor = CURSOR_POINTER;
 					BYTE hovered_item = response;
 
 					for (i = 0; i < 2; i++)
@@ -197,12 +198,12 @@ DoConfirmExit (void)
 						if (MouseInRect (ConfirmRects[i]))
 						{
 							hovered_item = i;
-							UQM_SetCursor (CURSOR_POINTER_HILITE);
+							cursor = CURSOR_POINTER_HILITE;
 							break;
 						}
-						else
-							UQM_SetCursor (CURSOR_POINTER);
 					}
+
+					UQM_SetCursor (cursor);
 
 					if (hovered_item != response)
 					{

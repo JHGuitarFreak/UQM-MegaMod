@@ -367,6 +367,7 @@ DoPickShip (MELEE_STATE *pMS)
 		if (SetMouseContext (SpaceContext))
 		{
 			BYTE i;
+			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = newSelectedShip;
 
 			for (i = 0; i < NUM_MELEE_SHIPS; i++)
@@ -374,12 +375,12 @@ DoPickShip (MELEE_STATE *pMS)
 				if (MouseInRect (BuildPickRects[i]))
 				{
 					hovered_item = i;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != newSelectedShip)
 			{

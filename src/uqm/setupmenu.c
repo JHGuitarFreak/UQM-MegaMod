@@ -1736,6 +1736,7 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 			if (SetMouseContext (ScreenContext))
 			{
 				int i;
+				int cursor = CURSOR_POINTER;
 				BYTE hovered_item = menu->highlighted;
 
 				if (!clicked_in)
@@ -1750,11 +1751,9 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 						if (MouseInRect (menu->widget_rects[i]))
 						{
 							hovered_item = i;
-							UQM_SetCursor (CURSOR_POINTER_HILITE);
+							cursor = CURSOR_POINTER_HILITE;
 							break;
 						}
-						else
-							UQM_SetCursor (CURSOR_POINTER);
 					}
 
 					if (MouseButton (MOUSE_RGT))
@@ -1806,6 +1805,8 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 						break;
 					}
 				}
+
+				UQM_SetCursor (cursor);
 			}
 		}
 	}

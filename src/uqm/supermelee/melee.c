@@ -331,11 +331,8 @@ HoveringOverOption (BYTE *item)
 		if (MouseInRect (MeleeOptionRects[i]))
 		{
 			*item = i;
-			UQM_SetCursor (CURSOR_POINTER_HILITE);
 			return TRUE;
 		}
-		else
-			UQM_SetCursor (CURSOR_POINTER);
 	}
 
 	return FALSE;
@@ -351,11 +348,8 @@ HoveringOverEdit (FLEET_EDIT *item)
 		if (MouseInRect (FleetEdit[i].r))
 		{
 			*item = FleetEdit[i];
-			UQM_SetCursor (CURSOR_POINTER_HILITE);
 			return TRUE;
 		}
-		else
-			UQM_SetCursor (CURSOR_POINTER);
 	}
 
 	return FALSE;
@@ -2011,12 +2005,16 @@ DoEdit (MELEE_STATE *pMS)
 		if (SetMouseContext (ScreenContext))
 		{
 			FLEET_EDIT hovered_item;
+			int cursor = CURSOR_POINTER;
 
 			hovered_item.col = col;
 			hovered_item.row = row;
 			hovered_item.side = side;
 
-			HoveringOverEdit (&hovered_item);
+			if (HoveringOverEdit (&hovered_item))
+				cursor = CURSOR_POINTER_HILITE;
+
+			UQM_SetCursor (cursor);
 
 			if (col != hovered_item.col ||
 				row != hovered_item.row ||
@@ -2766,6 +2764,7 @@ DoMelee (MELEE_STATE *pMS)
 		if (SetMouseContext (ScreenContext))
 		{
 			BYTE i;
+			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = NewMeleeOption;
 
 			for (i = 0; i < 9; i++)
@@ -2773,12 +2772,12 @@ DoMelee (MELEE_STATE *pMS)
 				if (MouseInRect (MeleeOptionRects[i]))
 				{
 					hovered_item = i;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != NewMeleeOption)
 			{

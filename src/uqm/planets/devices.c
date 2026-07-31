@@ -574,6 +574,7 @@ DoManipulateDevices (MENU_STATE *pMS)
 		if (!(pagefwd || pageback) && SetMouseContext (StatusContext))
 		{
 			BYTE i;
+			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = NewState;
 
 			for (i = 0; i < devState->count; i++)
@@ -586,12 +587,12 @@ DoManipulateDevices (MENU_STATE *pMS)
 				if (MouseInRect (DeviceRects[devIndex]))
 				{
 					hovered_item = devIndex;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != NewState)
 			{

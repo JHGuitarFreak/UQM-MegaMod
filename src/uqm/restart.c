@@ -302,6 +302,7 @@ DoDiffChooser (MENU_STATE *pMS)
 			if (SetMouseContext (ScreenContext))
 			{
 				BYTE i;
+				int cursor = CURSOR_POINTER;
 				BYTE hovered_item = a;
 
 				for (i = 0; i <= 2; i++)
@@ -309,12 +310,12 @@ DoDiffChooser (MENU_STATE *pMS)
 					if (MouseInRect (DiffRects[i]))
 					{
 						hovered_item = i;
-						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						cursor = CURSOR_POINTER_HILITE;
 						break;
 					}
-					else
-						UQM_SetCursor (CURSOR_POINTER);
 				}
+
+				UQM_SetCursor (cursor);
 
 				if (hovered_item != a)
 				{
@@ -688,7 +689,7 @@ DoRestart (MENU_STATE *pMS)
 		if (SetMouseContext (ScreenContext))
 		{
 			BYTE i;
-			BOOLEAN hovering = FALSE;
+			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = pMS->CurState;
 
 			for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
@@ -696,12 +697,12 @@ DoRestart (MENU_STATE *pMS)
 				if (MouseInRect (MenuRects[i]))
 				{
 					hovered_item = i;
-					hovering = TRUE;
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
 			}
 
-			UQM_SetCursor (hovering ? CURSOR_POINTER_HILITE : CURSOR_POINTER);
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != pMS->CurState)
 			{

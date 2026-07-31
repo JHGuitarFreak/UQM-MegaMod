@@ -1553,25 +1553,24 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			if (SetMouseContext (SpaceContext) && pES->num_responses > 0)
 			{
 				BYTE i;
+				int cursor = CURSOR_POINTER;
 				BYTE hovered_item = pES->cur_response;
 
 				for (i = pES->top_response; i < pES->num_responses; i++)
 				{
-					//if (ResponseRects[i].corner.y +
-					//		ResponseRects[i].extent.height >
-					//		SIS_SCREEN_HEIGHT)
-					//{
-					//	continue;
-					//}
+					if (ResponseRects[i].corner.y +
+							ResponseRects[i].extent.height >
+							SIS_SCREEN_HEIGHT)
+					{
+						continue;
+					}
 
 					if (MouseInRect (ResponseRects[i]))
 					{
 						hovered_item = i;
-						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						cursor = CURSOR_POINTER_HILITE;
 						break;
 					}
-					else
-						UQM_SetCursor (CURSOR_POINTER);
 				}
 
 				if (hovered_item != pES->cur_response)
@@ -1582,11 +1581,11 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 
 				if (ArrowRect.extent.width > 0 && MouseInRect (ArrowRect))
 				{
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 
 					if (MouseButton (MOUSE_LFT))
 					{
-						UQM_SetCursor (CURSOR_POINTER);
+						cursor = CURSOR_POINTER;
 
 						if (pES->top_response)
 						{
@@ -1607,6 +1606,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 						}
 					}
 				}
+
+				UQM_SetCursor (cursor);
 			}
 
 			if (ArrowRect.extent.width > 0)

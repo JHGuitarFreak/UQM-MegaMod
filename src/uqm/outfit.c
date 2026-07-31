@@ -709,7 +709,10 @@ static BOOLEAN
 HoveringOverRect (void)
 {
 	BYTE i;
+	int cursor = CURSOR_POINTER;
 	POINT mouse_pos = ScreenToCanvas (SpaceContext);
+
+	HoveredIndex = -1;
 
 	for (i = 0; i < TOTAL_MODULE_SLOTS; i++)
 	{
@@ -719,24 +722,22 @@ HoveringOverRect (void)
 			if (!IsBombSlots (i) && !IsLanderSlots (i))
 			{
 				HoveredIndex = i;
-				UQM_SetCursor (CURSOR_POINTER_HILITE);
-				return TRUE;
+				cursor = CURSOR_POINTER_HILITE;
+				break;
 			}
 			else
 			{
 				if (IsBombSlots (i))
-					UQM_SetCursor (CURSOR_INVALID);
-				else
-					UQM_SetCursor (CURSOR_POINTER);
-				return FALSE;
+					cursor = CURSOR_INVALID;
+
+				break;
 			}
 		}
 	}
 
-	UQM_SetCursor (CURSOR_POINTER);
+	UQM_SetCursor (cursor);
 
-	HoveredIndex = -1;
-	return FALSE;
+	return cursor;
 }
 
 static BYTE

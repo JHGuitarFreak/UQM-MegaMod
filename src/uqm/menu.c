@@ -550,6 +550,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 		if (isPC (optWhichMenu) && SetMouseContext (StatusContext))
 		{
 			BYTE i, base_index, end_index, num_items;
+			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = NewState;
 
 			base_index = BaseState;
@@ -596,12 +597,12 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 					else
 						hovered_item = i - base_index;
 
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (hovered_item != NewState && hovered_item <= num_items)
 			{

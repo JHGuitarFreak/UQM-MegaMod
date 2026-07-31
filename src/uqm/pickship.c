@@ -178,6 +178,7 @@ DoPickBattleShip (MENU_STATE *pMS)
 		if (SetMouseContext (SpaceContext))
 		{
 			BYTE i;
+			int cursor = CURSOR_POINTER;
 			POINT hovered_item = pMS->first_item;
 
 			for (i = 0; i < 14; i++)
@@ -185,12 +186,12 @@ DoPickBattleShip (MENU_STATE *pMS)
 				if (MouseInRect (PickHover[i].r))
 				{
 					hovered_item = PickHover[i].pt;
-					UQM_SetCursor (CURSOR_POINTER_HILITE);
+					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
-				else
-					UQM_SetCursor (CURSOR_POINTER);
 			}
+
+			UQM_SetCursor (cursor);
 
 			if (!pointsEqual (hovered_item, pMS->first_item))
 			{

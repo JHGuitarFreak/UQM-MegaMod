@@ -951,6 +951,7 @@ static void
 MouseThing (BYTE *NewState, CONTEXT context, RECT *rect, BYTE num_rects)
 {
 	BYTE i;
+	int cursor = CURSOR_POINTER;
 	BYTE hovered_item;
 
 	if (!SetMouseContext (context))
@@ -958,17 +959,17 @@ MouseThing (BYTE *NewState, CONTEXT context, RECT *rect, BYTE num_rects)
 
 	hovered_item = *NewState;
 
-	UQM_SetCursor (CURSOR_POINTER);
-
 	for (i = 0; i < num_rects; i++)
 	{
 		if (MouseInRect (rect[i]))
 		{
 			hovered_item = i;
-			UQM_SetCursor (CURSOR_POINTER_HILITE);
+			cursor = CURSOR_POINTER_HILITE;
 			break;
 		}
 	}
+
+	UQM_SetCursor (cursor);
 
 	if (hovered_item != *NewState)
 	{

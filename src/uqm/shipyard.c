@@ -2298,6 +2298,7 @@ DMS_NavigateShipSlots (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 	else if (SetMouseContext (SpaceContext))
 	{
 		BYTE i;
+		int cursor = CURSOR_POINTER;
 		BYTE hovered_item = pMS->CurState;
 
 		for (i = 0; i <= MAX_BUILT_SHIPS; i++)
@@ -2311,12 +2312,12 @@ DMS_NavigateShipSlots (MENU_STATE *pMS, BOOLEAN special, BOOLEAN select,
 				else
 					hovered_item = i;
 
-				UQM_SetCursor (CURSOR_POINTER_HILITE);
+				cursor = CURSOR_POINTER_HILITE;
 				break;
 			}
-			else
-				UQM_SetCursor (CURSOR_POINTER);
 		}
+
+		UQM_SetCursor (cursor);
 
 		if (hovered_item != pMS->CurState)
 		{

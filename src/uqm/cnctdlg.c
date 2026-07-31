@@ -665,6 +665,7 @@ DoMeleeConnectDialog (CONNECT_DIALOG_STATE *state)
 		if (SetMouseContext (ScreenContext))
 		{
 			int i;
+			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = menu.highlighted;
 
 			if (!clicked_in)
@@ -679,12 +680,12 @@ DoMeleeConnectDialog (CONNECT_DIALOG_STATE *state)
 					if (MouseInRect (menu.widget_rects[i]))
 					{
 						hovered_item = i;
-						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						cursor = CURSOR_POINTER_HILITE;
 						break;
 					}
-					else
-						UQM_SetCursor (CURSOR_POINTER);
 				}
+
+				UQM_SetCursor (cursor);
 
 				if (MouseButton (MOUSE_RGT))
 					Widget_Event (WIDGET_EVENT_CANCEL);
