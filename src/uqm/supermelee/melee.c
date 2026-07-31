@@ -2010,7 +2010,6 @@ DoEdit (MELEE_STATE *pMS)
 
 		if (SetMouseContext (ScreenContext))
 		{
-			BYTE i;
 			FLEET_EDIT hovered_item;
 
 			hovered_item.col = col;

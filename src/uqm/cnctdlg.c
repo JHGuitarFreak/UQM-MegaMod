@@ -30,6 +30,8 @@
 #include "supermelee/netplay/netoptions.h"
 #include "uqm/util.h"
 #include "colors.h"
+#include "sounds.h"
+#include "libs/inplib.h"
 
 #define MCD_WIDTH RES_SCALE (260)
 #define MCD_HEIGHT RES_SCALE (110)
@@ -84,11 +86,39 @@ MCD_DrawMenuScreen (WIDGET *_self, int x, int y)
 	int widget_index, widget_y;
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
+
+	if (self->widget_rects)
+	{
+		HFree (self->widget_rects);
+		self->widget_rects = NULL;
+	}
+	self->widget_rects = HCalloc (self->num_children * sizeof (RECT));
 	
-	widget_y = y + RES_SCALE (8); 
+	widget_y = y + RES_SCALE (8);
 	for (widget_index = 0; widget_index < self->num_children; widget_index++)
 	{
 		WIDGET *c = self->child[widget_index];
+
+		if (self->widget_rects)
+		{
+			RECT rect = { 0, 0, 0, 0 };
+			switch (c->tag)
+			{
+			case WIDGET_TYPE_BUTTON:
+				rect = ((WIDGET_BUTTON *)c)->hover_rect;
+				break;
+			case WIDGET_TYPE_SLIDER:
+				rect = ((WIDGET_SLIDER *)c)->hover_rect;
+				break;
+			case WIDGET_TYPE_TEXTENTRY:
+				rect = ((WIDGET_TEXTENTRY *)c)->hover_rect;
+				break;
+			default:
+				break;
+			}
+			self->widget_rects[widget_index] = rect;
+		}
+
 		(*c->draw)(c, x, widget_y);
 		widget_y += (*c->height)(c) + RES_SCALE (6);
 	}
@@ -125,6 +155,8 @@ MCD_DrawButton (WIDGET *_self, int x, int y)
 	SetContextFont (oldfont);
 	SetContextForeGroundColor (oldtext);
 	(void) x;
+
+	self->hover_rect = font_GetTextRect (&t);
 }
 
 static void
@@ -158,6 +190,8 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	}
 	font_DrawText (&t);
 
+	self->hover_rect = font_GetTextRect (&t);
+
 	// Slider Bar
 	r.corner.x = x + TEXT_STEP;
 	r.corner.y = t.baseline.y - RES_SCALE (4);
@@ -165,6 +199,8 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	r.extent.width = 2 * tick;
 	slider_width = r.corner.x + r.extent.width;
 	DrawFilledRectangle (&r);
+
+	self->hover_rect.extent.width = slider_width - self->hover_rect.corner.x;
 
 	// Slider Indicator
 	r.extent.width = RES_SCALE (3);
@@ -190,6 +226,7 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 	FONT  oldfont = SetContextFont (PlayerFont);
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
+	RECT hover_r;
 
 	default_color = WIDGET_INACTIVE_SELECTED_COLOR;
 	selected = WIDGET_ACTIVE_COLOR;
@@ -213,6 +250,8 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 	}
 	font_DrawText (&t);
 
+	self->hover_rect = font_GetTextRect (&t);
+
 	/* Force string termination */
 	self->value[WIDGET_TEXTENTRY_WIDTH - RES_SCALE (1)] = 0;
 
@@ -221,6 +260,11 @@ MCD_DrawTextEntry (WIDGET *_self, int x, int y)
 	t.pStr = self->value;
 	t.baseline.x = x + TEXT_STEP;
 	t.align = ALIGN_LEFT;
+
+	hover_r = font_GetTextRect (&t);
+
+	self->hover_rect.extent.width = hover_r.corner.x + hover_r.extent.width
+			- self->hover_rect.corner.x;
 
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
@@ -483,6 +527,7 @@ CreateWidgets (void)
 	menu.num_children = 6;
 	menu.child = menu_widgets;
 	menu.handleEvent = Widget_HandleEventMenuScreen;
+	menu.widget_rects = NULL;
 
 	slider.tag = WIDGET_TYPE_SLIDER;
 	slider.parent = NULL;
@@ -586,6 +631,8 @@ DrawConnectDialog (void)
 static BOOLEAN
 DoMeleeConnectDialog (CONNECT_DIALOG_STATE *state)
 {
+	static BOOLEAN clicked_in = FALSE;
+
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
@@ -600,32 +647,127 @@ DoMeleeConnectDialog (CONNECT_DIALOG_STATE *state)
 
 	DrawConnectDialog ();
 
-	if (PulsedInputState.menu[KEY_MENU_UP])
+	if (optMouseInput)
+	{
+		if (clicked_in)
+		{
+			RECT r = menu.widget_rects[menu.highlighted];
+
+			r.corner.x -= RES_SCALE (2);
+			r.corner.y -= RES_SCALE (1);
+			r.extent.width += RES_SCALE (4);
+			r.extent.height += RES_SCALE (2);
+
+			SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+			DrawRectangle (&r, IS_HD);
+		}
+
+		if (SetMouseContext (ScreenContext))
+		{
+			int i;
+			BYTE hovered_item = menu.highlighted;
+
+			if (!clicked_in)
+			{
+				for (i = 0; i < menu.num_children; i++)
+				{
+					WIDGET *child = menu.child[i];
+
+					if (child->tag == WIDGET_TYPE_LABEL)
+						continue;
+
+					if (MouseInRect (menu.widget_rects[i]))
+					{
+						hovered_item = i;
+						UQM_SetCursor (CURSOR_POINTER_HILITE);
+						break;
+					}
+					else
+						UQM_SetCursor (CURSOR_POINTER);
+				}
+
+				if (MouseButton (MOUSE_RGT))
+					Widget_Event (WIDGET_EVENT_CANCEL);
+			}
+			else
+			{
+				WIDGET *child = menu.child[hovered_item];
+
+				if (MouseButton (MOUSE_LFT))
+				{
+					FlushInput ();
+					child->handleEvent (child, WIDGET_EVENT_SELECT);
+					clicked_in = 0;
+				}
+				if (MouseButton (MOUSE_RGT))
+					clicked_in = 0;
+			}
+
+			if (hovered_item != menu.highlighted)
+			{
+				WIDGET *child = menu.child[hovered_item];
+
+				if (child->tag != WIDGET_TYPE_LABEL)
+				{
+					child->receiveFocus (child, WIDGET_EVENT_DOWN);
+					menu.highlighted = hovered_item;
+
+					PlayMenuSound (MENU_SOUND_MOVE);
+				}
+			}
+
+			if (CtxMouseClicker (menu.widget_rects[hovered_item]))
+			{
+				WIDGET *child = menu.child[hovered_item];
+
+				switch (child->tag)
+				{
+				case WIDGET_TYPE_SLIDER:
+					clicked_in = 1;
+					break;
+				case WIDGET_TYPE_BUTTON:
+				case WIDGET_TYPE_TEXTENTRY:
+				default:
+					child->handleEvent (child, WIDGET_EVENT_SELECT);
+					break;
+				}
+			}
+		}
+	}
+
+	if (PulsedInputState.menu[KEY_MENU_UP]
+			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
 	{
 		Widget_Event (WIDGET_EVENT_UP);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_DOWN])
+	else if (PulsedInputState.menu[KEY_MENU_DOWN]
+			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
 	{
 		Widget_Event (WIDGET_EVENT_DOWN);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_LEFT])
+	else if (PulsedInputState.menu[KEY_MENU_LEFT]
+			|| (clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
 	{
 		Widget_Event (WIDGET_EVENT_LEFT);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+	else if (PulsedInputState.menu[KEY_MENU_RIGHT]
+			|| (clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
 	{
 		Widget_Event (WIDGET_EVENT_RIGHT);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_CANCEL);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_DELETE])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
 
