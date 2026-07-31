@@ -158,7 +158,6 @@ MCD_DrawSlider (WIDGET *_self, int x, int y)
 	}
 	font_DrawText (&t);
 
-	r.corner.x = t.baseline.x + 3 * tick;
 	// Slider Bar
 	r.corner.x = x + TEXT_STEP;
 	r.corner.y = t.baseline.y - RES_SCALE (4);
