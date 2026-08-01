@@ -538,7 +538,7 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 	CONTEXT OldContext;
 
 	if (crew_delta > 0)
-	{// Filling up the crew bar when landing.
+	{	// Filling up the crew bar when landing.
 		crew_delta = crew_left;
 		crew_left += 1;
 
@@ -549,7 +549,11 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 		shieldHit = 0;
 
 		if (optGodModes >= OPTVAL_INF_HEALTH)
+		{
+			damage_index = DAMAGE_CYCLE;
+			shieldHit = which_disaster + 1;
 			return; // We're immortal
+		}
 
 		if (crew_left < 1)
 			return; // irrelevant -- all dead
@@ -558,7 +562,7 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 		
 		if (!(GET_GAME_STATE (LANDER_SHIELDS) &
 				(1 << which_disaster)) || TFB_Random () % 100 >= 95)
-		{// No shield, or it did not help
+		{	// No shield, or it did not help
 			--crew_left;
 			crew_delta = crew_left;
 
@@ -568,7 +572,7 @@ DeltaLanderCrew (SIZE crew_delta, COUNT which_disaster)
 					NotPositional (), NULL, GAME_SOUND_PRIORITY);
 		}
 		else
-		{// Shield absorbed damage
+		{	// Shield absorbed damage
 			shieldHit = which_disaster + 1;
 			return;
 		}
