@@ -210,9 +210,6 @@ EXTENT MapSurface;
 
 static POINT targetLanderLoc = { 0, 0 };
 static BOOLEAN hasMouseTarget = FALSE;
-static BOOLEAN autoThrust = FALSE;
-static BOOLEAN autoTurnLeft = FALSE;
-static BOOLEAN autoTurnRight = FALSE;
 CONTEXT ScanContext;
 
 static void
@@ -392,14 +389,11 @@ static void
 KillAutopilot (void)
 {
 	hasMouseTarget = FALSE;
-	autoThrust = FALSE;
-	autoTurnLeft = FALSE;
-	autoTurnRight = FALSE;
 	return;
 }
 
 static void
-CalculateAutopilot (void)
+CalculateAutopilot (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust)
 {
 	POINT ship_pos, target_pos;
 	SIZE dx, dy;
@@ -408,8 +402,9 @@ CalculateAutopilot (void)
 	int facing_diff;
 	RECT ship_rect;
 
-	if (!hasMouseTarget || !crew_left ||
+	if (!optMouseInput || !hasMouseTarget || !crew_left ||
 			CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL] ||
 			CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
 			CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
 			CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
@@ -419,16 +414,16 @@ CalculateAutopilot (void)
 		return;
 	}
 
-	target_pos = targetLanderLoc;
 	ship_pos = curLanderLoc;
-
-	dx = target_pos.x - ship_pos.x;
-	dy = target_pos.y - ship_pos.y;
+	target_pos = targetLanderLoc;
 
 	GetFrameRect (LanderFrame[0], &ship_rect);
 
 	ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
 			? ship_rect.extent.width : ship_rect.extent.height;
+
+	dx = target_pos.x - ship_pos.x;
+	dy = target_pos.y - ship_pos.y;
 
 	if (dx < -(SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
 		dx += SCALED_MAP_WIDTH << MAG_SHIFT;
@@ -449,18 +444,18 @@ CalculateAutopilot (void)
 
 	if (abs (facing_diff) <= 1)
 	{
-		autoTurnRight = FALSE;
-		autoTurnLeft = FALSE;
+		*turn_left = FALSE;
+		*turn_right = FALSE;
 	}
 	else if (facing_diff <= 8)
-		autoTurnRight = TRUE;
+		*turn_right = TRUE;
 	else
-		autoTurnLeft = TRUE;
+		*turn_left = TRUE;
 
-	if (abs (facing_diff) <= 4 || !(autoTurnLeft && autoTurnRight))
-		autoThrust = TRUE;
+	if (abs (facing_diff) <= 4 || !(turn_left || turn_right))
+		*thrust = TRUE;
 	else
-		autoThrust = FALSE;
+		*thrust = FALSE;
 }
 
 #define ON_THE_GROUND   0
@@ -2502,9 +2497,6 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			BATTLE_INPUT_STATE InputState = 0;
 			BOOLEAN turn_left, turn_right, thrust;
 
-			if (hasMouseTarget)
-				CalculateAutopilot ();
-
 			InputState = GetDirectionalJoystickInput (index, 0);
 
 			turn_left = CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
@@ -2515,16 +2507,18 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 					CurrentInputState.key[PlayerControls[0]][KEY_UP] ||
 					(InputState & BATTLE_THRUST);
 
+			CalculateAutopilot (&turn_left, &turn_right, &thrust);
+
 			if (turn_wait)
 				--turn_wait;
-			else if (turn_left || turn_right || autoTurnLeft || autoTurnRight)
+			else if (turn_left || turn_right)
 			{
 				COUNT landerSpeedNumer;
 				COUNT angle;
 
-				if (turn_left || autoTurnLeft)
+				if (turn_left)
 					--index;
-				else if (turn_right || autoTurnRight)
+				else if (turn_right)
 					++index;
 
 				index = NORMALIZE_FACING (index);
@@ -2548,7 +2542,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
 
-			if (!thrust && !autoThrust)
+			if (!thrust)
 			{
 				dx = 0;
 				dy = 0;
