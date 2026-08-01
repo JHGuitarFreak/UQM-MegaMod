@@ -467,6 +467,9 @@ SetAutopilotToWorld (PLANET_DESC *body)
 	ip_target_body = body;
 }
 
+static UWORD
+flagship_inertial_thrust (COUNT CurrentAngle);
+ 
 static POINT
 InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
 {
@@ -476,6 +479,7 @@ InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
 	COUNT desired_facing, current_facing;
 	int facing_diff;
 	RECT ship_rect;
+	COUNT target_angle;
 
 	ship_pos = GLOBAL (ShipStamp.origin);
 
@@ -512,19 +516,19 @@ InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
 	current_facing = GetFrameIndex (GLOBAL (ShipStamp.frame));
 	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
 
+	target_angle = FACING_TO_ANGLE (ANGLE_TO_FACING (ARCTAN (dx, dy)));
+
 	if (facing_diff == 0)
 		delta_x = 0;
 	else if (facing_diff <= 8)
-		delta_x = 1;
+		delta_x = TURN_LEFT;
 	else
-		delta_x = -1;
+		delta_x = TURN_RIGHT;
 
 	if (abs (facing_diff) <= 4 || delta_x == 0)
-		delta_y = SHIP_THRUST;
-	else
-		delta_y = 0;
+		flagship_inertial_thrust (target_angle);
 
-	return (POINT) { delta_x, delta_y };
+	return (POINT) { delta_x, 0 };
 }
 
 static void
