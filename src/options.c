@@ -913,9 +913,10 @@ UQM_SetCursor (int cursor)
 	if (SDL_GetCursor () == UQM_Cursors[cursor] && cursor_visible)
 		return TRUE;
 
+	SDL_SetCursor (UQM_Cursors[cursor]);
+
 	if (!cursor_visible)
 		SDL_ShowCursor (SDL_ENABLE);
 
-	SDL_SetCursor (UQM_Cursors[cursor]);
 	return TRUE;
 }

@@ -547,6 +547,9 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	}
 	else
 	{
+		if (is3DO (optWhichMenu) && SetMouseContext (ScreenContext))
+			UQM_SetCursor (CURSOR_POINTER);
+
 		if (isPC (optWhichMenu) && SetMouseContext (StatusContext))
 		{
 			BYTE i, base_index, end_index, num_items;
