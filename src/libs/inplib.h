@@ -87,6 +87,7 @@ extern void DebugMouseCursor (CONTEXT context);
 extern void DrawAutopilotTarget (POINT pt);
 extern BOOLEAN MouseClicker (RECT r, CONTEXT context);
 extern BOOLEAN CtxMouseClicker (RECT r);
+extern void PutMouse (CONTEXT context, POINT pt);
 
 #if defined(__cplusplus)
 }

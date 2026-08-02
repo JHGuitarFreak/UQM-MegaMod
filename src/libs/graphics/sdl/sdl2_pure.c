@@ -32,7 +32,7 @@ typedef struct tfb_sdl2_screeninfo_s {
 
 static TFB_SDL2_SCREENINFO SDL2_Screens[TFB_GFX_NUMSCREENS];
 
-static SDL_Window *window = NULL;
+SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static const char* rendererBackend = NULL;
 

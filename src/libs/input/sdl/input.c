@@ -887,8 +887,8 @@ ScaleCanvas (void)
 	POINT temp;
 	POINT pt = CurrentMousePos;
 
-	temp.x = (COORD)(pt.x * ((float)CanvasWidth / (float)WindowWidth));
-	temp.y = (COORD)(pt.y * ((float)CanvasHeight / (float)WindowHeight));
+	temp.x = pt.x * ((float)CanvasWidth / (float)WindowWidth);
+	temp.y = pt.y * ((float)CanvasHeight / (float)WindowHeight);
 
 	return temp;
 }
@@ -907,6 +907,24 @@ ScreenToCanvas (CONTEXT context)
 	ipPos.y = (COORD)inBounds (ipPos.y - r.corner.y, 0, r.extent.height);
 
 	return ipPos;
+}
+
+DPOINT
+CanvasToScreen (CONTEXT context, POINT canvasPos)
+{
+	RECT r;
+	POINT canvas_pos;
+	DPOINT screen_pos;
+
+	GetContextClipDiRect (&r, context);
+
+	canvas_pos.x = canvasPos.x + r.corner.x;
+	canvas_pos.y = canvasPos.y + r.corner.y;
+
+	screen_pos.x = canvas_pos.x * ((float)WindowWidth / (float)CanvasWidth);
+	screen_pos.y = canvas_pos.y * ((float)WindowHeight / (float)CanvasHeight);
+
+	return screen_pos;
 }
 
 BOOLEAN
@@ -1082,4 +1100,14 @@ CtxMouseClicker (RECT r)
 		}
 	}
 	return FALSE;
+}
+
+extern SDL_Window *window;
+
+void
+PutMouse (CONTEXT context, POINT pt)
+{
+	DPOINT temp = CanvasToScreen (context, pt);
+
+	SDL_WarpMouseInWindow (window, temp.x, temp.y);
 }
