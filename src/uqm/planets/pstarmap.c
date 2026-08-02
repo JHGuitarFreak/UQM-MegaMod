@@ -193,65 +193,34 @@ ScreenToStarMapCoords (void)
 	return pos;
 }
 
-static BOOLEAN
-CursorLocation (POINT pt)
+#define SNAP_AREA RES_SCALE (12 >> zoomLevel)
+
+static POINT
+SnapCursor (void)
 {
-	if (pointsEqual (pt, cursorLoc))
-		return FALSE;
-
-	EraseCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
-		UNIVERSE_TO_DISPY (cursorLoc.y));
-
-	cursorLoc = pt;
-
-	DrawCursor (UNIVERSE_TO_DISPX (cursorLoc.x),
-		UNIVERSE_TO_DISPY (cursorLoc.y));
-
-	return TRUE;
-}
-
-static BOOLEAN
-StarMapMouseInput (void)
-{
-	BOOLEAN cursorMoved = FALSE;
-	POINT newCursorLoc;
 	POINT pt;
 	STAR_DESC *SDPtr = NULL;
 	STAR_DESC *BestSDPtr = NULL;
-
-	if (!optMouseInput)
-		return FALSE;
-
-	if (!MouseInContext (SpaceContext))
-	{
-		UQM_SetCursor (CURSOR_POINTER);
-		return FALSE;
-	}
-	else
-		UQM_SetCursor (CURSOR_DISABLE);
-
-	newCursorLoc = ScreenToStarMapCoords ();
+	POINT newCursorLoc = ScreenToStarMapCoords ();
 
 	pt.x = UNIVERSE_TO_DISPX (newCursorLoc.x);
 	pt.y = UNIVERSE_TO_DISPY (newCursorLoc.y);
 
 	while ((SDPtr = FindStar (SDPtr, &newCursorLoc, 75, 75)))
 	{
-		if (UNIVERSE_TO_DISPX (SDPtr->star_pt.x) == pt.x &&
-				UNIVERSE_TO_DISPY (SDPtr->star_pt.y) == pt.y &&
-				(BestSDPtr == NULL ||
-				STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
-		{
+		if ((UNIVERSE_TO_DISPX (SDPtr->star_pt.x) >= pt.x - SNAP_AREA &&
+				UNIVERSE_TO_DISPX (SDPtr->star_pt.x) <= pt.x + SNAP_AREA) &&
+				(UNIVERSE_TO_DISPY (SDPtr->star_pt.y) >= pt.y - SNAP_AREA &&
+				UNIVERSE_TO_DISPY (SDPtr->star_pt.y) <= pt.y + SNAP_AREA)
+				&& (BestSDPtr == 0 ||
+					STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
 			BestSDPtr = SDPtr;
-		}
 	}
 
 	if (BestSDPtr)
 		newCursorLoc = BestSDPtr->star_pt;
-	
-	cursorMoved = CursorLocation (newCursorLoc);
 
-	return cursorMoved;
+	return newCursorLoc;
 }
 
 // End mouse-centric chunk of code
@@ -2621,14 +2590,6 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		return TRUE;
 	}
-
-	if (StarMapMouseInput ())
-	{
-		UpdateCursorInfo (last_buf);
-		UpdateFuelRequirement ();
-		flashCurrentLocation (NULL, TRUE);
-		isMove = TRUE;
-	}
 	
 	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
@@ -2819,6 +2780,20 @@ DoMoveCursor (MENU_STATE *pMS)
 		++moveRepeats;
 	else
 		moveRepeats = 0;
+
+	if (MouseInContext (SpaceContext))
+	{
+		POINT cursor_loc;
+
+		UQM_SetCursor (CURSOR_DISABLE);
+
+		cursor_loc = SnapCursor ();
+		UpdateCursorLocation (0, 0, &cursor_loc);
+		UpdateCursorInfo (last_buf);
+		UpdateFuelRequirement ();
+	}
+	else
+		UQM_SetCursor (CURSOR_POINTER);
 
 	flashCurrentLocation (NULL, FALSE);
 
