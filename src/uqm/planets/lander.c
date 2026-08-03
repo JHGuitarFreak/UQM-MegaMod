@@ -208,8 +208,11 @@ PLANETSIDE_DESC *planetSideDesc;
 
 EXTENT MapSurface;
 
-static POINT targetLanderLoc = { 0, 0 };
-static BOOLEAN hasMouseTarget = FALSE;
+static POINT lander_autopilot = { -1, -1 };
+static BOOLEAN mouse_target = FALSE;
+static HELEMENT target_node = NULL;
+static BYTE target_node_type = NUM_SCAN_TYPES;
+
 CONTEXT ScanContext;
 
 static void
@@ -222,12 +225,15 @@ DrawPlanetAutopilotTarget (void)
 	if (!optMouseInput)
 		return;
 
-	target.x = ((targetLanderLoc.x - curLanderLoc.x))
+	target.x = ((lander_autopilot.x - curLanderLoc.x))
 			+ (MapSurface.width >> 1);
-	target.y = ((targetLanderLoc.y - curLanderLoc.y))
+	target.y = ((lander_autopilot.y - curLanderLoc.y))
 			+ (MapSurface.height >> 1);
 
-	SetContextForeGroundColor (TEAL_COLOR);
+	if (target_node)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (TEAL_COLOR);
 
 	BatchGraphics ();
 
@@ -276,67 +282,102 @@ static void
 DrawScanAutopilotTarget (void)
 {
 	LINE line;
-	POINT target;
-	SIZE perimeter;
+	SIZE dx, dy;
+	POINT target, line_start, line_end, lander_pos;
+	float distance, unit_x, unit_y;
+	BOOLEAN wrapped = FALSE;
+	SIZE perimeter = RES_SCALE (5);
 
-	target.x = targetLanderLoc.x >> MAG_SHIFT;
-	target.y = targetLanderLoc.y >> MAG_SHIFT;
+	if (!optMouseInput)
+		return;
 
-	if (target.x < 0) target.x = 0;
-	else if (target.x >= SCALED_MAP_WIDTH)
-		target.x = SCALED_MAP_WIDTH - 1;
-	if (target.y < 0) target.y = 0;
-	else if (target.y >= MAP_HEIGHT)
-		target.y = MAP_HEIGHT - 1;
+	target.x = lander_autopilot.x >> MAG_SHIFT;
+	target.y = lander_autopilot.y >> MAG_SHIFT;
 
-	SetContextForeGroundColor (TEAL_COLOR);
+	if (target_node)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (TEAL_COLOR);
 
 	BatchGraphics ();
 
 	DrawAutopilotTarget (target);
 
-	if (true)
+	lander_pos.x = curLanderLoc.x >> MAG_SHIFT;
+	lander_pos.y = curLanderLoc.y >> MAG_SHIFT;
+
+	dx = target.x - lander_pos.x;
+	dy = target.y - lander_pos.y;
+
+	if (abs (dx) > (SCALED_MAP_WIDTH >> 1))
 	{
-		POINT shortened;
-		POINT line_end;
-		POINT shipLoc;
-		SIZE dx, dy;
-		float distance;
+		if (dx > 0)
+			dx -= SCALED_MAP_WIDTH;
+		else
+			dx += SCALED_MAP_WIDTH;
 
-		shipLoc.x = curLanderLoc.x >> MAG_SHIFT;
-		shipLoc.y = curLanderLoc.y >> MAG_SHIFT;
+		wrapped = TRUE;
+	}
 
-		dx = target.x - shipLoc.x;
-		dy = target.y - shipLoc.y;
+	distance = sqrt (dx * dx + dy * dy);
 
-		if (abs (dx) > (SCALED_MAP_WIDTH >> 1))
-		{
-			if (dx > 0)
-				dx -= SCALED_MAP_WIDTH;
-			else
-				dx += SCALED_MAP_WIDTH;
+	unit_x = dx / distance;
+	unit_y = dy / distance;
+
+	line_start.x = lander_pos.x + (unit_x * perimeter);
+	line_start.y = lander_pos.y + (unit_y * perimeter);
+
+	line_end.x = lander_pos.x + dx - (unit_x * perimeter);
+	line_end.y = lander_pos.y + dy - (unit_y * perimeter);
+
+	if (wrapped)
+	{
+		if (dx > 0)
+		{	// Lander wrapping to the right
+			line_end.x = SCALED_MAP_WIDTH;
+			line_end.y = line_start.y + (unit_y / unit_x) *
+					(line_end.x - line_start.x);
 		}
+		else
+		{	// Lander wrapping to the left
+			line_end.x = 0;
+			line_end.y = line_start.y + (unit_y / unit_x) * line_start.x;
+		}
+	}
+
+	line.first = line_start;
+	line.second = line_end;
+	DrawLine (&line, 1);
+
+	if (wrapped)
+	{
+		if (dx > 0)
+		{
+			// Start from left edge
+			line_start.x = 0;
+			line_start.y = line_end.y;
+		}
+		else
+		{
+			// Start from right edge
+			line_start.x = SCALED_MAP_WIDTH - 1;
+			line_start.y = line_end.y;
+		}
+
+		dx = target.x - line_start.x;
+		dy = target.y - line_start.y;
 
 		distance = sqrt (dx * dx + dy * dy);
 
-		perimeter = RES_SCALE (5);
+		unit_x = dx / distance;
+		unit_y = dy / distance;
 
-		if (distance > perimeter)
-		{
-			float unit_x = dx / distance;
-			float unit_y = dy / distance;
+		line_end.x = line_start.x + dx - (unit_x * perimeter);
+		line_end.y = line_start.y + dy - (unit_y * perimeter);
 
-			shortened.x = shipLoc.x + (unit_x * perimeter);
-			shortened.y = shipLoc.y + (unit_y * perimeter);
-
-			line_end.x = shipLoc.x + dx - (unit_x * perimeter);
-			line_end.y = shipLoc.y + dy - (unit_y * perimeter);
-
-			line.first = shortened;
-			line.second = line_end;
-
-			DrawLine (&line, 1);
-		}
+		line.first = line_start;
+		line.second = line_end;
+		DrawLine (&line, 1);
 	}
 
 	UnbatchGraphics ();
@@ -345,64 +386,47 @@ DrawScanAutopilotTarget (void)
 static POINT
 GetMouseScanCoords (void)
 {
-	POINT canvasPt = ScreenToCanvas (ScanContext);
-	POINT landerPt;
+	POINT canvas = ScreenToCanvas (ScanContext);
+	POINT lander;
 
-	landerPt.x = canvasPt.x << MAG_SHIFT;
-	landerPt.y = canvasPt.y << MAG_SHIFT;
+	lander.x = canvas.x << MAG_SHIFT;
+	lander.y = canvas.y << MAG_SHIFT;
 
-	if (landerPt.x < 0) landerPt.x = 0;
-	else if (landerPt.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
-		landerPt.x = (SCALED_MAP_WIDTH << MAG_SHIFT) - 1;
-	if (landerPt.y < 0) landerPt.y = 0;
-	else if (landerPt.y >= (MAP_HEIGHT << MAG_SHIFT))
-		landerPt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
-
-	return landerPt;
+	return lander;
 }
 
 static POINT
 GetMousePlanetCoords (void)
 {
-	POINT landerPt;
-	POINT canvasPt = ScreenToCanvas (PlanetContext);
+	POINT lander;
+	POINT canvas = ScreenToCanvas (PlanetContext);
 
-	landerPt.x = ((canvasPt.x - (MapSurface.width >> 1)))
-			+ curLanderLoc.x;
-	landerPt.y = ((canvasPt.y - (MapSurface.height >> 1)))
-			+ curLanderLoc.y;
+	lander.x = (canvas.x - (MapSurface.width >> 1)) + curLanderLoc.x;
+	lander.y = (canvas.y - (MapSurface.height >> 1)) + curLanderLoc.y;
 
-	if (landerPt.x < 0)
-		landerPt.x += SCALED_MAP_WIDTH << MAG_SHIFT;
-	else if (landerPt.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
-		landerPt.x -= SCALED_MAP_WIDTH << MAG_SHIFT;
-
-	if (landerPt.y < 0)
-		landerPt.y = 0;
-	else if (landerPt.y >= (MAP_HEIGHT << MAG_SHIFT))
-		landerPt.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
-
-	return landerPt;
+	return lander;
 }
 
 static void
 KillAutopilot (void)
 {
-	hasMouseTarget = FALSE;
-	return;
+	mouse_target = FALSE;
+	lander_autopilot = MAKE_POINT (-1, -1);
+	target_node = NULL;
+	target_node_type = NUM_SCAN_TYPES;
 }
 
 static void
 CalculateAutopilot (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust)
 {
-	POINT ship_pos, target_pos;
+	POINT lander_pos, target_pos;
 	SIZE dx, dy;
 	SIZE distance, ship_perimeter;
 	COUNT desired_facing, current_facing;
 	int facing_diff;
 	RECT ship_rect;
 
-	if (!optMouseInput || !hasMouseTarget || !crew_left ||
+	if (!optMouseInput || !mouse_target || !crew_left ||
 			CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
 			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL] ||
 			CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
@@ -414,16 +438,26 @@ CalculateAutopilot (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust)
 		return;
 	}
 
-	ship_pos = curLanderLoc;
-	target_pos = targetLanderLoc;
+	lander_pos = curLanderLoc;
+
+	if (target_node && target_node_type == BIOLOGICAL_SCAN)
+	{
+		ELEMENT *ElementPtr;
+		LockElement (target_node, &ElementPtr);
+
+		lander_autopilot = ElementPtr->next.location;
+		
+		UnlockElement (target_node);
+	}
+
+	target_pos = lander_autopilot;
 
 	GetFrameRect (LanderFrame[0], &ship_rect);
 
-	ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
-			? ship_rect.extent.width : ship_rect.extent.height;
+	ship_perimeter = (ship_rect.extent.width + ship_rect.extent.height) >> 1;
 
-	dx = target_pos.x - ship_pos.x;
-	dy = target_pos.y - ship_pos.y;
+	dx = target_pos.x - lander_pos.x;
+	dy = target_pos.y - lander_pos.y;
 
 	if (dx < -(SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
 		dx += SCALED_MAP_WIDTH << MAG_SHIFT;
@@ -432,7 +466,7 @@ CalculateAutopilot (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust)
 
 	distance = sqrt (dx * dx + dy * dy);
 
-	if (distance < (ship_perimeter - RES_SCALE (5)))
+	if (distance < (ship_perimeter - RES_SCALE (8)))
 	{
 		KillAutopilot ();
 		return;
@@ -456,6 +490,70 @@ CalculateAutopilot (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust)
 		*thrust = TRUE;
 	else
 		*thrust = FALSE;
+}
+
+static HELEMENT
+FindNearestNode (POINT pos)
+{
+	ELEMENT *ElementPtr;
+	HELEMENT hElement, hNextElement;
+	HELEMENT node = NULL;
+
+	for (hElement = GetHeadElement (); hElement; hElement = hNextElement)
+	{
+		BYTE scan;
+		POINT position;
+		SIZE dx, dy, dist, threshold;
+
+		LockElement (hElement, &ElementPtr);
+		hNextElement = GetSuccElement (ElementPtr);
+
+		scan = LOBYTE (ElementPtr->scan_node);
+
+		if (scan == BIOLOGICAL_SCAN)
+			threshold = RES_SCALE (10);
+		else
+			threshold = RES_SCALE (4);
+
+		position = ElementPtr->next.location;
+
+		dx = position.x - pos.x;
+		dy = position.y - pos.y;
+
+		dist = sqrt (dx * dx + dy * dy);
+
+		if (dist < threshold)
+			node = hElement;
+
+		UnlockElement (hElement);
+	}
+
+	return node;
+}
+
+static void SetAutoPilot (HELEMENT hNode, POINT pt)
+{
+	ELEMENT *ElementPtr;
+
+	KillAutopilot ();
+
+	if (!hNode)
+	{
+		lander_autopilot = pt;
+		mouse_target = TRUE;
+		return;
+	}
+
+	FlushInput ();
+
+	LockElement (hNode, &ElementPtr);
+
+	target_node = hNode;
+	lander_autopilot = ElementPtr->next.location;
+	mouse_target = TRUE;
+	target_node_type = LOBYTE (ElementPtr->scan_node);
+
+	UnlockElement (hNode);
 }
 
 #define ON_THE_GROUND   0
@@ -1859,30 +1957,16 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		RotatePlanetSphere (TRUE, NULL);
 	}
 
-	if (is3DO (optSuperPC) && hasMouseTarget)
+	if (is3DO (optSuperPC) && mouse_target)
 		DrawPlanetAutopilotTarget ();
 
-	if (isPC (optSuperPC) && hasMouseTarget)
+	if (isPC (optSuperPC) && mouse_target)
 	{
 		SetContext (ScanContext);
 		DrawScanAutopilotTarget ();
 	}
 
 	UnbatchGraphics ();
-
-	if (!planetSideDesc->InTransit)
-	{
-		if ((is3DO (optSuperPC)
-			&& MouseInContext (PlanetContext))
-			|| MouseInContext (ScanContext))
-		{
-			UQM_SetCursor (CURSOR_CROSSHAIR);
-		}
-		else
-			UQM_SetCursor (CURSOR_POINTER);
-	}
-	else
-		UQM_SetCursor (CURSOR_DISABLE);
 
 	SetContext (OldContext);
 }
@@ -2404,28 +2488,13 @@ LanderExplosion (void)
 static BOOLEAN
 DoPlanetSide (LanderInputState *pMS)
 {
+	int cursor =  CURSOR_DISABLE;
 	SIZE dx = 0;
 	SIZE dy = 0;
 
 #define SHUTTLE_TURN_WAIT (isPC (optSuperPC) ? 1 : 3)
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return (FALSE);
-
-	if (MouseInContext (ScanContext)
-		|| (is3DO (optSuperPC) && MouseInContext (PlanetContext)))
-	{
-		if (CurrentInputState.menu[MOUSE_BTN_LEFT])
-		{
-			if (MouseInContext (ScanContext))
-				targetLanderLoc = GetMouseScanCoords ();
-			else
-				targetLanderLoc = GetMousePlanetCoords ();
-
-			hasMouseTarget = TRUE;
-		}
-		else if (MouseButton (MOUSE_RGT))
-			KillAutopilot ();
-	}
 
 	if (!pMS->Initialized)
 	{
@@ -2584,6 +2653,52 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	SleepThreadUntil (pMS->NextTime);
 	// NOTE: The rate is not stabilized
 	pMS->NextTime = GetTimeCounter () + PLANET_SIDE_RATE;
+
+	if (!planetSideDesc->InTransit)
+	{
+		if ((is3DO (optSuperPC) && MouseInContext (PlanetContext))
+			|| MouseInContext (ScanContext))
+		{
+			cursor = CURSOR_CROSSHAIR;
+		}
+		else
+			cursor = CURSOR_POINTER;
+
+		if (is3DO (optSuperPC) && MouseInContext (PlanetContext))
+		{
+			POINT mouse_pos = GetMousePlanetCoords ();
+			HELEMENT found_node = FindNearestNode (mouse_pos);
+
+			if (found_node)
+				cursor = CURSOR_CROSSHAIR_HILITE;
+
+			if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+			{
+				SetAutoPilot (found_node, mouse_pos);
+			}
+		}
+		else if (MouseInContext (ScanContext))
+		{
+			POINT mouse_pos = GetMouseScanCoords ();
+			HELEMENT found_node = FindNearestNode (mouse_pos);
+
+			if (found_node)
+				cursor = CURSOR_CROSSHAIR_HILITE;
+
+			if (PulsedInputState.menu[MOUSE_BTN_LEFT])
+			{
+				SetAutoPilot (found_node, mouse_pos);
+			}
+		}
+
+		if (MouseButton (MOUSE_RGT))
+		{
+			FlushInput ();
+			KillAutopilot ();
+		}
+	}
+
+	UQM_SetCursor (cursor);
 
 	return TRUE;
 }
@@ -2894,7 +3009,7 @@ KillLanderCrewSeq (COUNT numKilled, BOOLEAN extraSFX)
 		if (!damage_ticks)
 			damage_index = 0;
 		else
-			damage_index = (TFB_Random () % 5) + 2;			
+			damage_index = (TFB_Random () % 5) + 2;
 
 		ScrollPlanetSide (0, 0, ON_THE_GROUND);
 		SleepThreadUntil (timeout);
