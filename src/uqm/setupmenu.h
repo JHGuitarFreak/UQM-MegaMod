@@ -490,13 +490,14 @@ typedef struct globalopts_struct {
 			noHQEncounters, deCleansing, meleeObstacles, showVisitedStars,
 			unscaledStarSystem, slaughterMode, advancedAutoPilot,
 			meleeToolTips, scatterElements, showUpgrades, fleetPointSys,
-			shipSeed, shipStore, captainNames, dosMenus, mouseInput;
+			shipSeed, shipStore, captainNames, dosMenus;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
-	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2];
+	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2],
+			mouseInput;
 } GLOBALOPTS;
 
 void SetupMenu (void);

@@ -145,7 +145,7 @@ OPT_ADD_REMOVE optUpgradeArray[13];
 int optHyperSpaceColor;
 int DeadZoneLeftStick[2];
 int DeadZoneRightStick[2];
-OPT_ENABLABLE optMouseInput;
+int optMouseInput;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

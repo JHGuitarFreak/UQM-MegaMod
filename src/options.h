@@ -130,7 +130,7 @@ extern OPT_ENABLABLE optDosMenus;
 extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 extern int optHyperSpaceColor;
-extern OPT_ENABLABLE optMouseInput;
+extern int optMouseInput;
 
 #define MAX_DEADZONE SINT16_MAX
 #define DEFAULT_DZONE 6881

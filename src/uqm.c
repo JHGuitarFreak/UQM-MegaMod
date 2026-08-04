@@ -215,7 +215,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   deadZoneLeftP2);
 	DECL_CONFIG_OPTION(int,   deadZoneRightP2);
 	DECL_CONFIG_OPTION(int,   dirJoyP2);
-	DECL_CONFIG_OPTION(bool,  mouseInput);
+	DECL_CONFIG_OPTION(int,   mouseInput);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -432,7 +432,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  deadZoneLeftP2,    DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  deadZoneRightP2,   DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
-		INIT_CONFIG_OPTION(  mouseInput,        false ),
+		INIT_CONFIG_OPTION(  mouseInput,        0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -1238,7 +1238,10 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->dosMenus, "mm.dosMenus");
 
-	getBoolConfigValue (&options->mouseInput, "mm.mouseInput");
+	if (res_IsInteger ("mm.mouseInput") && !options->mouseInput.set)
+	{
+		options->mouseInput.value = res_GetInteger ("mm.mouseInput");
+	}
 
 	getBoolConfigValueXlat (&options->hyperSpaceColor, "mm.hyperSpaceColor",
 			OPT_3DO, OPT_PC);
@@ -1468,7 +1471,7 @@ static struct option longOptions[] =
 	{"deadzonerightp1", 1, NULL, DZRP1_OPT},
 	{"deadzoneleftp2", 1, NULL, DZLP2_OPT},
 	{"deadzonerightp2", 1, NULL, DZRP2_OPT},
-	{"mouseinput", 0, NULL, MOUSE_OPT},
+	{"mouseinput", 1, NULL, MOUSE_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2365,8 +2368,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				optNoClassic = TRUE;
 				break;
 			case MOUSE_OPT:
-				optMouseInput = TRUE;
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Mouse Input") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nMouse INput has to be between 0-2\n");
+					badArg = true;
+				}
+				else
+				{
+					options->mouseInput.value = temp;
+					options->mouseInput.set = true;
+				}
 				break;
+			}
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -2757,7 +2777,8 @@ usage (FILE *out, const struct options_struct *defaults)
 			" or 3DO Flagship engine color (default: %s)",
 			choiceOptString (&defaults->hyperSpaceColor));
 	log_add (log_User, "  --mouseinput : Enable mouse pointer input "
-			"(default: %s)", boolOptString (&defaults->mouseInput));
+			"Mouse input types : 0: None | 1: Manual Control | 2: "
+			"Local Auto-Pilot (default: 0)");
 
 	log_setOutput (old);
 }

@@ -1651,11 +1651,11 @@ PropagateResults (void)
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
-	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
-	opts.shipStore = choices[CHOICE_SHIPSTORE].selected;
-	opts.captainNames = choices[CHOICE_CAPTNAMES].selected;
-	opts.dosMenus = choices[CHOICE_DOSMENUS].selected;
-	opts.mouseInput = choices[CHOICE_MOUSEINPUT].selected;
+	opts.shipSeed =     choices[CHOICE_SHIPSEED  ].selected;
+	opts.shipStore =    choices[CHOICE_SHIPSTORE ].selected;
+	opts.captainNames = choices[CHOICE_CAPTNAMES ].selected;
+	opts.dosMenus =     choices[CHOICE_DOSMENUS  ].selected;
+	opts.mouseInput =   choices[CHOICE_MOUSEINPUT].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -3432,9 +3432,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
 	res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 
+	PutIntOpt (&optMouseInput, (int*)&opts->mouseInput, "mm.mouseInput", FALSE);
+
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
 
-	PutBoolOpt (&optMouseInput, &opts->mouseInput, "mm.mouseInput", FALSE);
 
 /*
  *		Cheats
