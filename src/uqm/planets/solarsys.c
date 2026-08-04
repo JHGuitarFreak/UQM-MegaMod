@@ -298,6 +298,9 @@ DrawIPAutopilotTarget (void)
 		DrawAutopilotTarget (target);
 	}
 
+	UnbatchGraphics ();
+
+#ifdef NEVER
 	if (true)
 	{
 		POINT shipLoc = GLOBAL (ShipStamp.origin);
@@ -335,8 +338,7 @@ DrawIPAutopilotTarget (void)
 			DrawLine (&line, 1);
 		}
 	}
-
-	UnbatchGraphics ();
+#endif
 }
 
 static void
