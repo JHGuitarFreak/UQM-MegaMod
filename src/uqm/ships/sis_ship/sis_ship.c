@@ -225,6 +225,42 @@ SetCustomShipData (RACE_DESC *pRaceDesc, const CustomShipData_t *data)
 }
 
 static void
+FlagshipFaceCursor (STARSHIP *StarShipPtr)
+{
+	POINT ship_pos, mouse_pos;
+	SIZE dx = 0, dy = 0, udx = 0, udy = 0;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+	BOOLEAN left = FALSE;
+	BOOLEAN right = FALSE;
+	BOOLEAN thrust = FALSE;
+
+	ship_pos.x = SPACE_WIDTH >> 1;
+	ship_pos.y = SPACE_HEIGHT >> 1;
+
+	mouse_pos = ScreenToCanvas (SpaceContext);
+
+	dx = mouse_pos.x - ship_pos.x;
+	dy = mouse_pos.y - ship_pos.y;
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = StarShipPtr->ShipFacing;
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (facing_diff == 0)
+	{
+		StarShipPtr->cur_status_flags &= !(LEFT | RIGHT);
+	}
+	else if (facing_diff <= 8)
+		StarShipPtr->cur_status_flags |= RIGHT;
+	else
+		StarShipPtr->cur_status_flags |= LEFT;
+
+	if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+		StarShipPtr->cur_status_flags |= THRUST;
+}
+
+static void
 sis_hyper_preprocess (ELEMENT *ElementPtr)
 {
 	SDWORD udx = 0, udy = 0;
@@ -239,6 +275,23 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	++StarShipPtr->weapon_counter; /* no shooting in hyperspace! */
+
+	if (SetMouseContext (ScreenContext))
+	{
+		int cursor = CURSOR_POINTER;
+
+		if (MouseInContext (SpaceContext))
+		{
+			if ((GLOBAL (autopilot).x == ~0 || GLOBAL (autopilot).y == ~0) &&
+					!(StarShipPtr->cur_status_flags & (LEFT | RIGHT)))
+			{
+				FlagshipFaceCursor (StarShipPtr);
+			}
+			cursor = CURSOR_CROSSHAIR;
+		}
+
+		UQM_SetCursor (cursor);
+	}
 
 	if ((GLOBAL (autopilot)).x == ~0
 		|| (GLOBAL (autopilot)).y == ~0
