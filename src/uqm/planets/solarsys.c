@@ -560,7 +560,7 @@ FlagshipFaceCursor (SIZE delta_x, SIZE delta_y)
 		delta_x = TURN_RIGHT;
 
 	if (CurrentInputState.menu[MOUSE_BTN_LEFT])
-		delta_y = -1;
+		delta_y = SHIP_THRUST;
 	else
 		delta_y = 0;
 
@@ -1986,21 +1986,21 @@ ProcessShipControls (void)
 		delta_x = delta.x;
 		delta_y = delta.y;
 	}
-	else if (MouseInContext (SpaceContext))
+	else if (ip_autopilot.x != ~0 && ip_autopilot.y != ~0)
 	{
-		if (optMouseInput == 1)
+		delta_x = InterplanetaryAutoPilot (delta_x);
+	}
+	else
+	{
+		delta_y = 0;
+
+		if (optMouseInput == 1 && MouseInContext (SpaceContext))
 		{
 			POINT delta = FlagshipFaceCursor (delta_x, delta_y);
 			delta_x = delta.x;
 			delta_y = delta.y;
 		}
 	}
-	else if (ip_autopilot.x != ~0 && ip_autopilot.y != ~0)
-	{
-		delta_x = InterplanetaryAutoPilot (delta_x);
-	}
-	else
-		delta_y = 0;
 
 	index = GetFrameIndex (GLOBAL (ShipStamp.frame));
 	if (pSolarSysState->turn_counter)

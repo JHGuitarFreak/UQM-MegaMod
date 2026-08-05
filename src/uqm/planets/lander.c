@@ -239,46 +239,6 @@ DrawPlanetAutopilotTarget (void)
 		SetContextForeGroundColor (TEAL_COLOR);
 
 	DrawAutopilotTarget (target);
-
-#ifdef NEVER
-	if (true)
-	{
-		LINE line;
-		POINT shortened;
-		POINT line_end;
-		RECT ship_rect;
-		SIZE ship_perimeter;
-		POINT shipLoc = { MapSurface.width >> 1, MapSurface.height >> 1 };
-		SIZE dx = target.x - shipLoc.x;
-		SIZE dy = target.y - shipLoc.y;
-
-		float distance = sqrt (dx * dx + dy * dy);
-
-		GetFrameRect (LanderFrame[0], &ship_rect);
-
-		ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
-				? ship_rect.extent.width : ship_rect.extent.height;
-
-		ship_perimeter = (ship_perimeter >> 1) + RES_SCALE (2);
-
-		if (distance > ship_perimeter)
-		{
-			float unit_x = dx / distance;
-			float unit_y = dy / distance;
-
-			shortened.x = shipLoc.x + (unit_x * ship_perimeter);
-			shortened.y = shipLoc.y + (unit_y * ship_perimeter);
-
-			line_end.x = target.x - (unit_x * RES_SCALE (7));
-			line_end.y = target.y - (unit_y * RES_SCALE (7));
-
-			line.first = shortened;
-			line.second = line_end;
-
-			DrawLine (&line, 1);
-		}
-	}
-#endif
 }
 
 static void
@@ -298,93 +258,6 @@ DrawScanAutopilotTarget (void)
 		SetContextForeGroundColor (TEAL_COLOR);
 
 	DrawAutopilotTarget (target);
-
-#ifdef NEVER
-	{
-		LINE line;
-		SIZE dx, dy;
-		POINT line_start, line_end, lander_pos;
-		float distance, unit_x, unit_y;
-		BOOLEAN wrapped = FALSE;
-		SIZE perimeter = RES_SCALE (5);
-		lander_pos.x = curLanderLoc.x >> MAG_SHIFT;
-		lander_pos.y = curLanderLoc.y >> MAG_SHIFT;
-
-		dx = target.x - lander_pos.x;
-		dy = target.y - lander_pos.y;
-
-		if (abs (dx) > (SCALED_MAP_WIDTH >> 1))
-		{
-			if (dx > 0)
-				dx -= SCALED_MAP_WIDTH;
-			else
-				dx += SCALED_MAP_WIDTH;
-
-			wrapped = TRUE;
-		}
-
-		distance = sqrt (dx * dx + dy * dy);
-
-		unit_x = dx / distance;
-		unit_y = dy / distance;
-
-		line_start.x = lander_pos.x + (unit_x * perimeter);
-		line_start.y = lander_pos.y + (unit_y * perimeter);
-
-		line_end.x = lander_pos.x + dx - (unit_x * perimeter);
-		line_end.y = lander_pos.y + dy - (unit_y * perimeter);
-
-		if (wrapped)
-		{
-			if (dx > 0)
-			{	// Lander wrapping to the right
-				line_end.x = SCALED_MAP_WIDTH;
-				line_end.y = line_start.y + (unit_y / unit_x) *
-					(line_end.x - line_start.x);
-			}
-			else
-			{	// Lander wrapping to the left
-				line_end.x = 0;
-				line_end.y = line_start.y + (unit_y / unit_x) * (0 - line_start.x);
-			}
-		}
-
-		line.first = line_start;
-		line.second = line_end;
-		DrawLine (&line, 1);
-
-		if (wrapped)
-		{
-			if (dx > 0)
-			{
-				// Start from left edge
-				line_start.x = 0;
-				line_start.y = line_end.y;
-			}
-			else
-			{
-				// Start from right edge
-				line_start.x = SCALED_MAP_WIDTH - 1;
-				line_start.y = line_end.y;
-			}
-
-			dx = target.x - line_start.x;
-			dy = target.y - line_start.y;
-
-			distance = sqrt (dx * dx + dy * dy);
-
-			unit_x = dx / distance;
-			unit_y = dy / distance;
-
-			line_end.x = line_start.x + dx - (unit_x * perimeter);
-			line_end.y = line_start.y + dy - (unit_y * perimeter);
-
-			line.first = line_start;
-			line.second = line_end;
-			DrawLine (&line, 1);
-		}
-	}
-#endif
 }
 
 static POINT
@@ -494,6 +367,55 @@ CalculateAutopilot (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust)
 		*thrust = TRUE;
 	else
 		*thrust = FALSE;
+}
+
+static void
+LanderFaceCursor (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust,
+		BOOLEAN *weapon)
+{
+	POINT mouse_pos;
+	SIZE dx, dy;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+
+	if (!optMouseInput || !crew_left ||
+		CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_UP])
+	{
+		return;
+	}
+
+	mouse_pos = GetMousePlanetCoords ();
+
+	dx = mouse_pos.x - curLanderLoc.x;
+	dy = mouse_pos.y - curLanderLoc.y;
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = GetFrameIndex (LanderFrame[0]);
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (abs (facing_diff) <= 1)
+	{
+		*turn_left = FALSE;
+		*turn_right = FALSE;
+	}
+	else if (facing_diff <= 8)
+		*turn_right = TRUE;
+	else
+		*turn_left = TRUE;
+
+	if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+		*thrust = TRUE;
+	else
+		*thrust = FALSE;
+
+	if (CurrentInputState.menu[MOUSE_BTN_RIGHT])
+		*weapon = TRUE;
+	else
+		*weapon = FALSE;
 }
 
 static HELEMENT
@@ -2576,7 +2498,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
 			BATTLE_INPUT_STATE InputState = 0;
-			BOOLEAN turn_left, turn_right, thrust;
+			BOOLEAN turn_left, turn_right, thrust, weapon;
 
 			InputState = GetDirectionalJoystickInput (index, 0);
 
@@ -2587,8 +2509,12 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
 					CurrentInputState.key[PlayerControls[0]][KEY_UP] ||
 					(InputState & BATTLE_THRUST);
+			weapon = CurrentInputState.key[PlayerControls[0]][KEY_WEAPON];
 
-			CalculateAutopilot (&turn_left, &turn_right, &thrust);
+			if (optMouseInput == 1 && MouseInContext (PlanetContext))
+				LanderFaceCursor (&turn_left, &turn_right, &thrust, &weapon);
+			if (optMouseInput == 2)
+				CalculateAutopilot (&turn_left, &turn_right, &thrust);
 
 			if (turn_wait)
 				--turn_wait;
@@ -2633,7 +2559,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 			if (weapon_wait)
 				--weapon_wait;
-			else if (CurrentInputState.key[PlayerControls[0]][KEY_WEAPON])
+			else if (weapon)
 			{
 				LanderFire (index);
 
@@ -2672,33 +2598,36 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		else
 			cursor = CURSOR_POINTER;
 
-		if (is3DO (optSuperPC) && MouseInContext (PlanetContext))
+		if (optMouseInput == 2)
 		{
-			POINT mouse_pos = GetMousePlanetCoords ();
-			HELEMENT found_node = FindNearestNode (mouse_pos);
+			if (is3DO (optSuperPC) && MouseInContext (PlanetContext))
+			{
+				POINT mouse_pos = GetMousePlanetCoords ();
+				HELEMENT found_node = FindNearestNode (mouse_pos);
 
-			if (found_node)
-				cursor = CURSOR_CROSSHAIR_HILITE;
+				if (found_node)
+					cursor = CURSOR_CROSSHAIR_HILITE;
 
-			if (CurrentInputState.menu[MOUSE_BTN_LEFT])
-				SetAutoPilot (found_node, mouse_pos);
-		}
-		else if (MouseInContext (ScanContext))
-		{
-			POINT mouse_pos = GetMouseScanCoords ();
-			HELEMENT found_node = FindNearestNode (mouse_pos);
+				if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+					SetAutoPilot (found_node, mouse_pos);
+			}
+			else if (MouseInContext (ScanContext))
+			{
+				POINT mouse_pos = GetMouseScanCoords ();
+				HELEMENT found_node = FindNearestNode (mouse_pos);
 
-			if (found_node)
-				cursor = CURSOR_CROSSHAIR_HILITE;
+				if (found_node)
+					cursor = CURSOR_CROSSHAIR_HILITE;
 
-			if (PulsedInputState.menu[MOUSE_BTN_LEFT])
-				SetAutoPilot (found_node, mouse_pos);
-		}
+				if (PulsedInputState.menu[MOUSE_BTN_LEFT])
+					SetAutoPilot (found_node, mouse_pos);
+			}
 
-		if (MouseButton (MOUSE_RGT))
-		{
-			FlushInput ();
-			KillAutopilot ();
+			if (MouseButton (MOUSE_RGT))
+			{
+				FlushInput ();
+				KillAutopilot ();
+			}
 		}
 	}
 
