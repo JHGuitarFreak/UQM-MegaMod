@@ -472,8 +472,8 @@ SetAutopilotToWorld (PLANET_DESC *body)
 static UWORD
 flagship_inertial_thrust (COUNT CurrentAngle);
  
-static POINT
-InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
+static SIZE
+InterplanetaryAutoPilot (SIZE delta_x)
 {
 	POINT ship_pos, target_pos;
 	SIZE dx, dy, distance;
@@ -511,7 +511,7 @@ InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
 	if (distance < exit_threshold)
 	{
 		KillAutopilot ();
-		return (POINT) { 0, 0 };
+		return 0;
 	}
 
 	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
@@ -530,7 +530,41 @@ InterplanetaryAutoPilot (SIZE delta_x, SIZE delta_y)
 	if (abs (facing_diff) <= 4 || delta_x == 0)
 		flagship_inertial_thrust (target_angle);
 
-	return (POINT) { delta_x, 0 };
+	return delta_x;
+}
+
+static POINT
+FlagshipFaceCursor (SIZE delta_x, SIZE delta_y)
+{
+	POINT ship_pos, mouse_pos;
+	SIZE dx, dy;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+
+	ship_pos = GLOBAL (ShipStamp.origin);
+
+	mouse_pos = ScreenToCanvas (SpaceContext);
+
+	dx = mouse_pos.x - ship_pos.x;
+	dy = mouse_pos.y - ship_pos.y;
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = GetFrameIndex (GLOBAL (ShipStamp.frame));
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (facing_diff == 0)
+		delta_x = 0;
+	else if (facing_diff <= 8)
+		delta_x = TURN_LEFT;
+	else
+		delta_x = TURN_RIGHT;
+
+	if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+		delta_y = -1;
+	else
+		delta_y = 0;
+
+	return MAKE_POINT (delta_x, delta_y);
 }
 
 static void
@@ -1952,11 +1986,18 @@ ProcessShipControls (void)
 		delta_x = delta.x;
 		delta_y = delta.y;
 	}
+	else if (MouseInContext (SpaceContext))
+	{
+		if (optMouseInput == 1)
+		{
+			POINT delta = FlagshipFaceCursor (delta_x, delta_y);
+			delta_x = delta.x;
+			delta_y = delta.y;
+		}
+	}
 	else if (ip_autopilot.x != ~0 && ip_autopilot.y != ~0)
 	{
-		POINT delta = InterplanetaryAutoPilot (delta_x, delta_y);
-		delta_x = delta.x;
-		delta_y = delta.y;
+		delta_x = InterplanetaryAutoPilot (delta_x);
 	}
 	else
 		delta_y = 0;
@@ -2106,7 +2147,7 @@ CheckShipLocation (SIZE *newRadius)
 	radius = pSolarSysState->SunDesc[0].radius;
 	*newRadius = pSolarSysState->SunDesc[0].radius;
 
-	if (optMouseInput)
+	if (optMouseInput == 2)
 	{
 		if ((GLOBAL (autopilot.x) != ~0 && GLOBAL (autopilot.y) != ~0)
 				&& (ip_autopilot.x != ~0 || ip_autopilot.y != ~0))
@@ -2128,9 +2169,11 @@ CheckShipLocation (SIZE *newRadius)
 			|| GLOBAL (ShipStamp.origin.y) >= SIS_SCREEN_HEIGHT);
 
 
-	if (optMouseInput)
+	if (SetMouseContext (ScreenContext))
 	{
-		if (MouseInContext (SpaceContext))
+		int cursor = CURSOR_POINTER;
+
+		if (optMouseInput == 2 && MouseInContext (SpaceContext))
 		{
 			if (CurrentInputState.menu[MOUSE_BTN_LEFT] && !SISonScreen)
 			{
@@ -2159,12 +2202,17 @@ CheckShipLocation (SIZE *newRadius)
 			}
 
 			if (IsMouseOnShip () || GetWorldAtTarget () != NULL)
-				UQM_SetCursor (CURSOR_CROSSHAIR_HILITE);
+				cursor = CURSOR_CROSSHAIR_HILITE;
 			else
-				UQM_SetCursor (CURSOR_CROSSHAIR);
+				cursor = CURSOR_CROSSHAIR;
 		}
-		else
-			UQM_SetCursor (CURSOR_POINTER);
+
+		if (optMouseInput == 1 && MouseInContext (SpaceContext))
+		{
+			cursor = CURSOR_CROSSHAIR;
+		}
+
+		UQM_SetCursor (cursor);
 	}
 	
 	if (SISonScreen)
