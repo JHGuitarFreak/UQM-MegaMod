@@ -169,6 +169,7 @@ typedef UBYTE BATTLE_INPUT_STATE;
 BATTLE_INPUT_STATE CurrentInputToBattleInput (COUNT player, int direction);
 BATTLE_INPUT_STATE PulsedInputToBattleInput (COUNT player);
 BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
+BATTLE_INPUT_STATE BattleMouseHook (int player);
 
 extern CONTROLLER_INPUT_STATE CurrentInputState;
 extern CONTROLLER_INPUT_STATE PulsedInputState;

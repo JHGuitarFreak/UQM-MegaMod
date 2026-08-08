@@ -249,7 +249,7 @@ FlagshipFaceCursor (STARSHIP *StarShipPtr)
 
 	if (facing_diff == 0)
 	{
-		StarShipPtr->cur_status_flags &= !(LEFT | RIGHT);
+		// Do nothing
 	}
 	else if (facing_diff <= 8)
 		StarShipPtr->cur_status_flags |= RIGHT;
@@ -275,23 +275,6 @@ sis_hyper_preprocess (ELEMENT *ElementPtr)
 
 	GetElementStarShip (ElementPtr, &StarShipPtr);
 	++StarShipPtr->weapon_counter; /* no shooting in hyperspace! */
-
-	if (SetMouseContext (ScreenContext))
-	{
-		int cursor = CURSOR_POINTER;
-
-		if (MouseInContext (SpaceContext))
-		{
-			if ((GLOBAL (autopilot).x == ~0 || GLOBAL (autopilot).y == ~0) &&
-					!(StarShipPtr->cur_status_flags & (LEFT | RIGHT)))
-			{
-				FlagshipFaceCursor (StarShipPtr);
-			}
-			cursor = CURSOR_CROSSHAIR;
-		}
-
-		UQM_SetCursor (cursor);
-	}
 
 	if ((GLOBAL (autopilot)).x == ~0
 		|| (GLOBAL (autopilot)).y == ~0

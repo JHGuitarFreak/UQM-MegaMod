@@ -75,6 +75,8 @@ static FLEET_RECTS FleetRects[2][16];
 #define HUMAN_PLAYER ((PlayerControl[1] & COMPUTER_CONTROL) && \
 		(PlayerControl[0] & HUMAN_CONTROL))
 
+BOOLEAN PickingShip = FALSE;
+
 #define NUM_HOVER_COLUMS (NUM_PICKMELEE_COLUMNS + 1)
 
 static void
@@ -743,7 +745,8 @@ DrawPickMeleeFrame (COUNT which_player)
 	oldContext = SetContext (SpaceContext);
 	s.frame = SetAbsFrameIndex (PickMeleeFrame, which_player);
 	s.origin.x = PICK_X_OFFS - RES_SCALE (3);
-	s.origin.y = PICK_Y_OFFS - RES_SCALE (9) + ((1 - which_player) * PICK_SIDE_OFFS);
+	s.origin.y = PICK_Y_OFFS - RES_SCALE (9) +
+			((1 - which_player) * PICK_SIDE_OFFS);
 	DrawStamp (&s);
 			// Draw the selection box to screen.
 	
@@ -772,12 +775,16 @@ MeleeGameOver (void)
 	TimeOut = GetTimeCounter () + (ONE_SECOND * 4);
 
 	PressState = PulsedInputState.menu[KEY_MENU_SELECT] ||
-			PulsedInputState.menu[KEY_MENU_CANCEL];
+			PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			PulsedInputState.menu[MOUSE_BTN_LEFT] ||
+			PulsedInputState.menu[MOUSE_BTN_RIGHT];
 	do
 	{
 		UpdateInputState ();
 		ButtonState = PulsedInputState.menu[KEY_MENU_SELECT] ||
-				PulsedInputState.menu[KEY_MENU_CANCEL];
+				PulsedInputState.menu[KEY_MENU_CANCEL] ||
+				PulsedInputState.menu[MOUSE_BTN_LEFT] ||
+				PulsedInputState.menu[MOUSE_BTN_RIGHT];
 		if (PressState)
 		{
 			PressState = ButtonState;
@@ -903,10 +910,10 @@ GetMeleeStarShips (COUNT playerMask, HSTARSHIP *ships)
 	SetDefaultMenuRepeatDelay ();
 	
 	SetContext (OffScreenContext);
-
-
+	PickingShip = TRUE;
 	DoInput (&gmstate, FALSE);
 	WaitForSoundEnd (0);
+	PickingShip = FALSE;
 
 
 	for (playerI = 0; playerI < NUM_PLAYERS; playerI++)

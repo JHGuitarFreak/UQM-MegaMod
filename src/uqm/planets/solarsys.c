@@ -299,46 +299,6 @@ DrawIPAutopilotTarget (void)
 	}
 
 	UnbatchGraphics ();
-
-#ifdef NEVER
-	if (true)
-	{
-		POINT shipLoc = GLOBAL (ShipStamp.origin);
-		//POINT pt = shipLoc;
-		SIZE dx = target.x - shipLoc.x;
-		SIZE dy = target.y - shipLoc.y;
-		SIZE ship_perimeter;
-		RECT ship_rect;
-		POINT shortened;
-		POINT line_end;
-
-		float distance = sqrt (dx * dx + dy * dy);
-
-		GetFrameRect (GLOBAL (ShipStamp.frame), &ship_rect);
-
-		ship_perimeter = (ship_rect.extent.width > ship_rect.extent.height)
-			? ship_rect.extent.width : ship_rect.extent.height;
-
-		ship_perimeter = (ship_perimeter >> 1) + RES_SCALE (2);
-
-		if (distance > ship_perimeter)
-		{
-			float unit_x = dx / distance;
-			float unit_y = dy / distance;
-
-			shortened.x = shipLoc.x + (unit_x * ship_perimeter);
-			shortened.y = shipLoc.y + (unit_y * ship_perimeter);
-
-			line_end.x = target.x - (unit_x * RES_SCALE (5));
-			line_end.y = target.y - (unit_y * RES_SCALE (5));
-
-			line.first = shortened;
-			line.second = line_end;
-
-			DrawLine (&line, 1);
-		}
-	}
-#endif
 }
 
 static void
@@ -471,7 +431,7 @@ SetAutopilotToWorld (PLANET_DESC *body)
 
 static UWORD
 flagship_inertial_thrust (COUNT CurrentAngle);
- 
+
 static SIZE
 InterplanetaryAutoPilot (SIZE delta_x)
 {

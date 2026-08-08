@@ -28,6 +28,8 @@ typedef struct getmelee_struct GETMELEE_STATE;
 extern "C" {
 #endif
 
+extern BOOLEAN PickingShip;
+
 void MeleeShipDeath (STARSHIP *);
 void BuildPickMeleeFrame (void);
 void DestroyPickMeleeFrame (void);
