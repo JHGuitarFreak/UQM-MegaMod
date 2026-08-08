@@ -703,7 +703,7 @@ DoPlanetOrbit (MENU_STATE *pMS)
 
 			if (!AutoPilotSet)
 			{	// Redraw the orbital display
-				DrawOrbitalDisplay (DRAW_ORBITAL_FROM_STARMAP);//WAS FULL
+				DrawOrbitalDisplay (DRAW_ORBITAL_FROM_STARMAP); //WAS FULL
 				break;
 			}
 			FALLTHROUGH; // Fall through !!!

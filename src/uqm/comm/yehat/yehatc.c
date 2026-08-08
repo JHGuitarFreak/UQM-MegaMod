@@ -327,6 +327,8 @@ StartRevolt (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, shofixti_alive_2))
 		NPCPhrase (SEND_HIM_OVER_2);
 
+	SET_GAME_STATE (SHOW_YEHAT_SHOFIXTI, 1);
+
 	if (HaveEscortShip (SHOFIXTI_SHIP))
 		Response (ok_send, ExitConversation);
 	else
@@ -423,6 +425,7 @@ YehatSpace (RESPONSE_REF R)
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_SPACE_3);
+				SET_GAME_STATE (SHOW_YEHAT_SHOFIXTI, 1);
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_SPACE_4);

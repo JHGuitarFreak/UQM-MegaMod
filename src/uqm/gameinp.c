@@ -38,7 +38,11 @@
 #include "setupmenu.h"
 #include "libs/graphics/gfx_common.h"
 #include "gameopt.h"
+<<<<<<< HEAD
 #include "libs/log/uqmlog.h"
+=======
+#include "journal.h"
+>>>>>>> ReJournal
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
@@ -75,6 +79,7 @@ volatile CONTROLLER_INPUT_STATE ImmediateInputState;
 volatile BOOLEAN ExitRequested;
 volatile BOOLEAN GamePaused;
 volatile BOOLEAN OnScreenKeyboardLocked;
+volatile BOOLEAN JournalRequested;
 
 static InputFrameCallback *inputCallback;
 
@@ -253,6 +258,9 @@ UpdateInputState (void)
 	if (ExitRequested)
 		ConfirmExit ();
 
+	if (JournalRequested)
+		Journal ();
+
 	CurrentInputState = ImmediateInputState;
 	OldInputState = CachedInputState;
 	CachedInputState = ImmediateInputState;
@@ -303,8 +311,13 @@ UpdateInputState (void)
 			QuickSave ();
 	}
 
+<<<<<<< HEAD
 	if (optAutoButtons && !InSetupMenu)
 		ControllerTypeSwitcher ();
+=======
+	if (PulsedInputState.menu[KEY_JOURNAL])
+		JournalRequested = TRUE;
+>>>>>>> ReJournal
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	if (PulsedInputState.menu[KEY_DEBUG])

@@ -71,6 +71,7 @@ enum {
 	KEY_DEBUG_2,
 	KEY_DEBUG_3,
 	KEY_DEBUG_4,
+	KEY_JOURNAL,
 	KEY_MENU_ANY, /* abstract char key */
 	NUM_MENU_KEYS
 };
@@ -204,6 +205,7 @@ void DoInput (void *pInputState, BOOLEAN resetInput);
 
 extern volatile BOOLEAN GamePaused;
 extern volatile BOOLEAN ExitRequested;
+extern volatile BOOLEAN JournalRequested;
 
 typedef struct joy_char joy_char_t;
 

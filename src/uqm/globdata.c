@@ -667,6 +667,8 @@ InitGameStructures (void)
 		}
 	}
 
+	SET_GAME_STATE (JOURNAL_BIT, 1);
+
 	loadGameCheats ();
 
 	InitQueue (&GLOBAL (stowed_ship_q),
@@ -981,6 +983,12 @@ inFullGame (void)
 	return (act == IN_LAST_BATTLE || act == IN_ENCOUNTER ||
 			act == IN_HYPERSPACE || act == IN_INTERPLANETARY ||
 			act == WON_LAST_BATTLE);
+}
+
+BOOLEAN
+inEncounter (void)
+{
+	return (LOBYTE (GLOBAL (CurrentActivity)) == IN_ENCOUNTER);
 }
 
 BOOLEAN

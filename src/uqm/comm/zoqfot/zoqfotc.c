@@ -466,6 +466,8 @@ ZoqFotInfo (RESPONSE_REF R)
 		ZFPTalkSegue ((COUNT)~0);
 
 		DISABLE_PHRASE (what_about_others);
+
+		SET_GAME_STATE (INVESTIGATE_PROBES, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_zebranky))
 	{
@@ -606,6 +608,8 @@ ZoqFotHome (RESPONSE_REF R)
 				NPCPhrase_cb (GENERAL_INFO_411, &SelectAlienPIK);
 				ZFPTalkSegue ((COUNT)~0);
 				--NumVisits;
+
+				SET_GAME_STATE (INVESTIGATE_UMGAH_ZFP, 1);
 				break;
 		}
 		SET_GAME_STATE (ZOQFOT_INFO, NumVisits);
@@ -753,6 +757,9 @@ Intro (void)
 	BYTE NumVisits;
 
 	SetHomeworldKnown (ZOQFOTPIK_HOME);
+
+	if ((GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 7)) != 0)
+		SET_GAME_STATE (MET_ZFP_HOME, 1);
 
 	if (LOBYTE (GLOBAL (CurrentActivity)) == WON_LAST_BATTLE)
 	{

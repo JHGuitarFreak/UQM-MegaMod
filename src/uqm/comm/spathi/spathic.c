@@ -23,6 +23,8 @@
 #include "uqm/build.h"
 #include "uqm/lua/luacomm.h"
 
+#include "uqm/journal.h"
+
 
 static LOCDATA spathi_desc =
 {
@@ -404,6 +406,9 @@ SpathiOnPluto (RESPONSE_REF R)
 		Response (join_us, ExitConversation);
 	else
 		Response (join_us, SpathiOnPluto);
+
+	FwiffoCanJoin = PHRASE_ENABLED (join_us);
+
 	Response (changed_mind, ExitConversation);
 }
 
@@ -466,6 +471,8 @@ SpathiAllies (RESPONSE_REF R)
 	else if (PLAYER_SAID (R, whats_up_space_2))
 	{
 		NPCPhrase (GENERAL_INFO_SPACE_2);
+
+		BM_GAME_STATE (INVESTIGATE_PORTAL, 0);
 
 		DISABLE_PHRASE (whats_up_space_2);
 	}

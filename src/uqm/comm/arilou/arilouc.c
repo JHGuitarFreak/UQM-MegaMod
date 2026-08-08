@@ -347,6 +347,7 @@ ArilouHome (RESPONSE_REF R)
 
 		LastStack = 2;
 		SET_GAME_STATE (ARILOU_STACK_3, 2);
+		SET_GAME_STATE (INVESTIGATE_ORZ, 1);
 	}
 	else if (PLAYER_SAID (R, tell_more))
 	{
@@ -573,6 +574,7 @@ FriendlySpaceArilou (RESPONSE_REF R)
 				break;
 			case 3:
 				NPCPhrase (GENERAL_INFO_4);
+				BM_GAME_STATE (INVESTIGATE_PORTAL, 1);
 				--NumVisits;
 				break;
 		}

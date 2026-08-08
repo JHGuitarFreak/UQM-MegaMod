@@ -237,6 +237,8 @@ RebelInfo (RESPONSE_REF R)
 	{
 		NPCPhrase (ABOUT_VUX);
 
+		SET_GAME_STATE (HEARD_OF_ZEX, 1);
+
 		DISABLE_PHRASE (what_about_vux);
 	}
 	else if (PLAYER_SAID (R, what_about_clue))
@@ -339,6 +341,10 @@ Rebels (RESPONSE_REF R)
 			NPCPhrase (HATE_PKUNK_REBEL);
 
 		SET_GAME_STATE (YEHAT_REBEL_TOLD_PKUNK, 1);
+
+		// Reused here because YEHAT_REBEL_TOLD_PKUNK is reused when
+		// starting the Yehat revolution
+		SET_GAME_STATE (YEHAT_ROYALIST_TOLD_PKUNK, 1);
 	}
 	else if (PLAYER_SAID (R, enough_info))
 		NPCPhrase (OK_ENOUGH_INFO);
@@ -374,6 +380,8 @@ Intro (void)
 			NumVisits = DIF_CASE(8, 8, 4);
 		AddEscortShips (YEHAT_REBEL_SHIP, NumVisits - (NumVisits >> 1));
 		AddEscortShips (PKUNK_SHIP, NumVisits >> 1);
+
+		SET_GAME_STATE (PKUNK_LIVE, 1);
 	}
 	else
 	{

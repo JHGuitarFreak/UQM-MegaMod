@@ -139,7 +139,7 @@ ExitConversation (RESPONSE_REF R)
 		{
 			NPCPhrase (INIT_SHIP_GIFT);
 			AlienTalkSegue ((COUNT)~0);
-		    if (AddEscortShips (PKUNK_SHIP, DIF_CASE (4, 4, 2)))
+			if (AddEscortShips (PKUNK_SHIP, DIF_CASE (4, 4, 2)))
 				PrepareShip (PKUNK_SHIP);
 		}
 	}
@@ -147,6 +147,7 @@ ExitConversation (RESPONSE_REF R)
 	{
 		NPCPhrase (CANT_ASK_FOR_MORE);
 		NPCPhrase (VISIT_OUR_HOMEWORLD);
+		SetHomeworldKnown (PKUNK_HOME);
 
 		SET_GAME_STATE (PKUNK_MANNER, 3);
 		SET_GAME_STATE (PKUNK_VISITS, 0);
@@ -637,7 +638,14 @@ PkunkFriendlySpace (RESPONSE_REF R)
 					NPCPhrase (GENERAL_INFO_SPACE_1);
 					break;
 				case 1:
+				{
+					int channel_44 = GET_GAME_STATE (KNOW_CHANNEL_44);
+
 					NPCPhrase (GENERAL_INFO_SPACE_2);
+
+					channel_44 |= (1 << 1);
+					SET_GAME_STATE (KNOW_CHANNEL_44, channel_44);
+				}
 					break;
 				case 2:
 					NPCPhrase (GENERAL_INFO_SPACE_3);
@@ -928,7 +936,7 @@ Intro (void)
 				else
 				{
 					NPCPhrase (SHIP_GIFT);
-				    if (AddEscortShips (PKUNK_SHIP, DIF_CASE (4, 4, 2)))
+					if (AddEscortShips (PKUNK_SHIP, DIF_CASE (4, 4, 2)))
 						PrepareShip (PKUNK_SHIP);
 				}
 			}
@@ -962,6 +970,11 @@ Intro (void)
 			}
 		}
 		SET_GAME_STATE (PKUNK_HOME_VISITS, NumVisits);
+
+		SetHomeworldKnown (PKUNK_HOME);
+
+		if (!GET_GAME_STATE (MET_PKUNK))
+			SET_GAME_STATE (MET_PKUNK, 1);
 
 		PkunkHome ((RESPONSE_REF)0);
 	}

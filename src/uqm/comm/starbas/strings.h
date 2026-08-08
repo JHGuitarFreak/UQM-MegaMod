@@ -18,6 +18,21 @@
 #ifndef UQM_COMM_STARBAS_STRINGS_H
 #define UQM_COMM_STARBAS_STRINGS_H
 
+#define ALLIANCE_SHOFIXTI (1 << 0)
+#define ALLIANCE_YEHAT (1 << 1)
+#define ALLIANCE_ARILOU (1 << 2)
+#define ALLIANCE_CHENJESU (1 << 3)
+#define ALLIANCE_MMRNMHRM (1 << 4)
+#define ALLIANCE_SYREEN (1 << 5)
+
+#define HIERARCHY_MYCON (1 << 0)
+#define HIERARCHY_SPATHI (1 << 1)
+#define HIERARCHY_UMGAH (1 << 2)
+#define HIERARCHY_ANDROSYNTH (1 << 3)
+#define HIERARCHY_ILWRATH (1 << 4)
+#define HIERARCHY_VUX (1 << 5)
+#define HIERARCHY_URQUAN (1 << 6)
+
 enum
 {
 	NULL_PHRASE,

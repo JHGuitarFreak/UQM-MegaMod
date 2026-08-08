@@ -495,6 +495,12 @@ START_GAME_STATE
 	ADD_GAME_STATE (ARILOU_HOME_VISITS, 3)
 	ADD_GAME_STATE (KNOW_ARILOU_WANT_WRECK, 1)
 	ADD_GAME_STATE (ARILOU_CHECKED_UMGAH, 2)
+			/* 0 if the Arilou haven't checked the Umgah yet
+			 * 1 if the Arilou has sent scouts to check the Umgah
+			 * 2 if the Arilou have checked the Umgah
+			 * 3 if the Captain has asked the Arilou what to do about the
+			 *       Umgah and they have given their advice.
+			 */
 	ADD_GAME_STATE (PORTAL_SPAWNER, 1)
 	ADD_GAME_STATE (PORTAL_SPAWNER_ON_SHIP, 1)
 
@@ -657,7 +663,7 @@ START_GAME_STATE
 			 * 1 if the U&S are on their way towards the Kohr-Ah
 			 * 2 if the U&S are fighting the Kohr-Ah (first 80 days)
 			 * 3 does not occur
-             * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
+			 * 4 if the U&S are fighting the Kohr-Ah (second 80 days)
 			 * 5 if the U&S are returning home.
 			 * 6 if the U&S are back at their home world.
 			 */
@@ -973,7 +979,41 @@ START_GAME_STATE
 	ADD_GAME_STATE (UTWIG_SHIP_YEAR, 5)
 			/* The year that new ships are available from the Utwig
 			 * (stored as an offset from the year the game starts). */
-	ADD_GAME_STATE (REV_5_PAD, 33)
+
+	// Journal gamestates
+	ADD_GAME_STATE (JOURNAL_BIT, 1)
+	ADD_GAME_STATE (ALLIANCE_TRACKER, 26)
+	ADD_GAME_STATE (ALLIANCE_MASK, 6)
+	ADD_GAME_STATE (HIERARCHY_MASK, 7)
+	ADD_GAME_STATE (HEARD_PKUNK_ILWRATH, 1)
+	ADD_GAME_STATE (HAYES_OTHER_ALIENS, 1)
+	ADD_GAME_STATE (INVESTIGATE_THRADD, 1)
+	ADD_GAME_STATE (INVESTIGATE_UMGAH, 1)
+	ADD_GAME_STATE (INVESTIGATE_UMGAH_ZFP, 1)
+	ADD_GAME_STATE (INVESTIGATE_PROBES, 2)
+			/* 0 no info about slylandro probes.
+			 * 1 heard info about probes from the ZFP
+			 * 2 heard info about probes from the Thraddash
+			 * 3 unused
+			 */
+	ADD_GAME_STATE (INVESTIGATE_PORTAL, 3)
+			/* Bit-0 Heard of the portal from the Spathi
+			 * Bit-1 Heard of the portal from the Arilou
+			 * Bit-2 Traveled into QuasiSpace
+			 */
+	ADD_GAME_STATE (INVESTIGATE_ORZ, 1)
+	ADD_GAME_STATE (INVESTIGATE_ZFP, 1)
+	ADD_GAME_STATE (MET_ZFP_HOME, 1)
+	ADD_GAME_STATE (KNOW_CHANNEL_44, 3)
+	ADD_GAME_STATE (HEARD_OF_ZEX, 1)
+	ADD_GAME_STATE (PKUNK_WHY_MIGRATION, 2)
+	ADD_GAME_STATE (PKUNK_WHICH_MIGRATION, 2)
+	ADD_GAME_STATE (PKUNK_LIVE, 1)
+	ADD_GAME_STATE (MET_PKUNK, 1)
+	ADD_GAME_STATE (SHOW_YEHAT_SHOFIXTI, 1)
+	ADD_GAME_STATE (ILWRATH_AT_PROCYON, 2)
+	ADD_GAME_STATE (THRADDASH_INFO, 2)
+	ADD_GAME_STATE (SPATHI_CASTER, 2)
 
 	/* end rev 5, MegaMod v0.8.4 */
 
@@ -1109,6 +1149,16 @@ enum {
 #define D_GET_GAME_STATE(SName) \
 		getGameStateUint (SName)
 
+static inline void
+BitMaskGameState (const char *state_name, int bit_to_shift)
+{
+	BYTE gs = D_GET_GAME_STATE (state_name);
+	gs |= (1 << bit_to_shift);
+	D_SET_GAME_STATE (state_name, gs);
+}
+#define BM_GAME_STATE(SName, val) \
+		BitMaskGameState (#SName, (val))
+
 extern CONTEXT RadarContext;
 
 extern void FreeSC2Data (void);
@@ -1118,6 +1168,7 @@ extern void InitGlobData (void);
 extern BOOLEAN InitStarseed (BOOLEAN newgame);
 
 BOOLEAN inFullGame (void);
+BOOLEAN inEncounter (void);
 BOOLEAN inSuperMelee (void);
 BOOLEAN inSavablePos (void);
 //BOOLEAN inBattle (void);
@@ -1240,7 +1291,7 @@ IsHomeworldKnown (DWORD homeworld)
 	if (homeworld > 18)
 		return FALSE;
 
-	return GET_GAME_STATE (KNOW_HOMEWORLD) & (1 << homeworld);
+	return (GET_GAME_STATE (KNOW_HOMEWORLD) & (1 << homeworld)) != 0;
 }
 
 static inline void

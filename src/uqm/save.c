@@ -784,7 +784,53 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "UTWIG_SHIP_MONTH", 4 },
 	{ "UTWIG_SHIP_DAY", 5 },
 	{ "UTWIG_SHIP_YEAR", 5 },
-	{ "REV_5_PAD", 1 },
+
+	// Journal gamestates
+	{ "JOURNAL_BIT", 1 }, // Don't allow journal unless this bit is flipped
+	{ "ALLIANCE_TRACKER", 26 }, // Track alliances by RACE_ID
+	{ "ALLIANCE_MASK", 6 },
+	{ "HIERARCHY_MASK", 7 },
+	{ "HEARD_PKUNK_ILWRATH", 1 },
+	{ "HAYES_OTHER_ALIENS", 1 },
+	{ "INVESTIGATE_THRADD", 1 },
+	{ "INVESTIGATE_UMGAH", 1 },
+	{ "INVESTIGATE_UMGAH_ZFP", 1 },
+	{ "INVESTIGATE_PROBES", 2 },
+			/* 0 no info about slylandro probes.
+			 * 1 heard info about probes from the ZFP
+			 * 2 heard info about probes from the Thraddash
+			 * 3 unused
+			 */
+	{ "INVESTIGATE_PORTAL", 3 },
+			/* Bit-0 Heard of the portal from the Spathi
+			 * Bit-1 Heard of the portal from the Arilou
+			 * Bit-2 Traveled into QuasiSpace
+			 */
+	{ "INVESTIGATE_ORZ", 1 },
+	{ "INVESTIGATE_ZFP", 1 },
+	{ "MET_ZFP_HOME", 1 },
+	{ "KNOW_CHANNEL_44", 3 },
+	{ "HEARD_OF_ZEX", 1 },
+	{ "PKUNK_WHY", 2 },
+	{ "PKUNK_LIVE", 1 },
+	{ "SHOW_YEHAT_SHOFIXTI", 1 },
+	{ "ILWRATH_AT_PROCYON", 2 },
+			/* 0 Player hasn't encountered Ilwrath infinite fleet yet
+			 * 1 Player has encountered Ilwrath infinite fleet at Procyon
+			 * 2 Player has sent the Ilwrath away and has returned to Procyon
+			 * 3 unused
+			 */
+	{ "THRADDASH_INFO", 3 },
+			/* Bit-0 Heard of Episolon Draconis rainbow world
+			 * Bit-1 Heard of beast on Delta Lyncis
+			 * Bit-2 Found the stele
+			 */
+	{ "SPATHI_CASTER", 2 },
+			/* 0 Player hasn't picked up the Umgah caster
+			 * 1 Spathi were shielded when caster was picked up
+			 * 2 Spathi were wiped out when caster was picked up
+			 * 3 unused
+			 */
 
 	/* end rev 5, MegaMod v0.8.4 */
 	{ NULL, 0 },

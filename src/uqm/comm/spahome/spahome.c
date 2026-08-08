@@ -334,6 +334,8 @@ SpathiInfo (RESPONSE_REF R)
 		NPCPhrase (ABOUT_HIERARCHY);
 
 		DISABLE_PHRASE (what_about_hierarchy);
+
+		SET_GAME_STATE (INVESTIGATE_THRADD, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_history))
 	{
@@ -346,12 +348,16 @@ SpathiInfo (RESPONSE_REF R)
 		NPCPhrase (ABOUT_ALLIANCE);
 
 		DISABLE_PHRASE (what_about_alliance);
+
+		SET_GAME_STATE (INVESTIGATE_ZFP, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_other))
 	{
 		NPCPhrase (ABOUT_OTHER);
 
 		DISABLE_PHRASE (what_about_other);
+		
+		SET_GAME_STATE (INVESTIGATE_UMGAH, 1);
 	}
 	else if (PLAYER_SAID (R, what_about_precursors))
 	{
@@ -426,6 +432,7 @@ SpathiAllies (RESPONSE_REF R)
 				break;
 			case 1:
 				NPCPhrase (GENERAL_INFO_2);
+				SET_GAME_STATE (INVESTIGATE_ORZ, 1);
 				break;
 			case 2:
 				NPCPhrase (GENERAL_INFO_3);

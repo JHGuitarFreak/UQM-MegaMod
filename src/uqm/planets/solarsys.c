@@ -282,8 +282,11 @@ playerInPlanetOrbit (void)
 
 bool
 playerInInnerSystem (void)
-{
-	assert (playerInSolarSystem ());
+{	
+	if (!playerInSolarSystem ())
+		return false;
+
+	//assert (playerInSolarSystem ()); So let's crash the game... OKAY.
 	assert (pSolarSysState->pBaseDesc == pSolarSysState->PlanetDesc
 			|| pSolarSysState->pBaseDesc == pSolarSysState->MoonDesc);
 	return pSolarSysState->pBaseDesc != pSolarSysState->PlanetDesc;

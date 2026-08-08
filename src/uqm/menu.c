@@ -33,6 +33,7 @@
 #include "nameref.h"
 #include "ifontres.h"
 #include "libs/graphics/drawable.h"
+#include "gameopt.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -481,6 +482,7 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	BYTE NewState = pMS->CurState;
 	BYTE OrigBase = BaseState;
 	BOOLEAN useAltMenu = FALSE;
+
 	if (optWhichMenu == OPT_PC)
 		useAltMenu = GetAlternateMenu (&BaseState, &NewState);
 	if (PulsedInputState.menu[KEY_MENU_LEFT] ||

@@ -433,6 +433,7 @@ SetRaceAllied (RACE_ID race, BOOLEAN flag)
 {
 	HFLEETINFO hFleet;
 	FLEET_INFO *FleetPtr;
+	DWORD AllianceTracker = GET_GAME_STATE (ALLIANCE_TRACKER);
 
 	hFleet = GetStarShipFromIndex (&GLOBAL (avail_race_q), race);
 	if (!hFleet)
@@ -447,6 +448,12 @@ SetRaceAllied (RACE_ID race, BOOLEAN flag)
 	else
 	{
 		FleetPtr->allied_state = (flag ? GOOD_GUY : BAD_GUY);
+
+		if (flag == TRUE && (AllianceTracker & (1 << race)) == 0)
+		{
+			AllianceTracker |= 1 << race;
+			SET_GAME_STATE (ALLIANCE_TRACKER, AllianceTracker);
+		}
 	}
 
 	UnlockFleetInfo (&GLOBAL (avail_race_q), hFleet);
@@ -631,6 +638,12 @@ BOOLEAN
 RaceDead (RACE_ID race)
 {
 	return CheckAlliance (race) == DEAD_GUY;
+}
+
+BOOLEAN
+RaceAllied (RACE_ID race)
+{
+	return CheckAlliance (race) == GOOD_GUY;
 }
 
 /*

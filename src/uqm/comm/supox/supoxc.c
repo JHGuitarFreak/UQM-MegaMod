@@ -434,6 +434,8 @@ NeutralSupox (RESPONSE_REF R)
 		NPCPhrase (GOOD_HINTS);
 
 		DISABLE_PHRASE (give_info);
+
+		SET_GAME_STATE (SUPOX_STACK1, 6);
 	}
 
 	switch (GET_GAME_STATE (SUPOX_STACK2))

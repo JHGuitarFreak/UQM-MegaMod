@@ -66,8 +66,15 @@ extern BOOLEAN HaveEscortShip (RACE_ID race);
 extern COUNT EscortFeasibilityStudy (RACE_ID race);
 extern COUNT CheckAlliance (RACE_ID race);
 extern BOOLEAN RaceDead (RACE_ID race);
+extern BOOLEAN RaceAllied (RACE_ID race);
 extern COUNT RemoveSomeEscortShips (RACE_ID race, COUNT count);
 extern COUNT RemoveEscortShips (RACE_ID race);
+
+static inline BOOLEAN
+WasRaceAllied (RACE_ID race)
+{
+	return ((GET_GAME_STATE (ALLIANCE_TRACKER) & (1 << race)) != 0);
+}
 
 extern RACE_DESC *load_ship (SPECIES_ID SpeciesID, BOOLEAN LoadBattleData);
 extern void free_ship (RACE_DESC *RaceDescPtr, BOOLEAN FreeIconData,

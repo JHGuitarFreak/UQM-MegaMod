@@ -68,6 +68,8 @@ typedef struct
 	NODE_DATA NodeData;
 } PLANETSIDE_DESC;
 
+extern PLANETSIDE_DESC *planetSideDesc;
+
 extern MUSIC_REF LanderMusic;
 
 extern void PlanetSide (POINT planetLoc);
