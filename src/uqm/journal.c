@@ -392,7 +392,7 @@ WriteJournals (void)
 	check_spathi_soi = WasRaceAllied (SPATHI_SHIP)
 			&& !CheckSphereTracking (SPATHI_SHIP);
 
-	AddJournal (ALIENS_JOURNAL, 6,
+	AddJournal (ALIENS_JOURNAL, 4,
 			check_spathi_soi,         INVESTIGATE_SPATHI_SOI,
 			StarbaseBulletins (10),   INVESTIGATE_SPATHI_HAYES,
 			GGS (SPATHI_CASTER) == 1, SPATHI_HAVE_SHIELDED,
@@ -423,14 +423,14 @@ WriteJournals (void)
 	sb_chenjesu = AllianceInfo (ALLIANCE_CHENJESU);
 	met_chmmr = GS (CHMMR_HOME_VISITS);
 
-	AddJournal (ALIENS_JOURNAL, 2,
+	AddJournal (ALIENS_JOURNAL, 3,
 			sb_chenjesu, CONTACT_CHENJESU,
 			GSGE (MELNORME_ALIEN_INFO_STACK, 8), CONTACT_CHMMR,
 			met_chmmr,   CONTACT_CHENJESU);
 
 	sb_mmrnmhrm = AllianceInfo (ALLIANCE_MMRNMHRM);
 
-	AddJournal (ALIENS_JOURNAL, 2,
+	AddJournal (ALIENS_JOURNAL, 3,
 			sb_mmrnmhrm,                         CONTACT_MMRNMHRM,
 			GSGE (MELNORME_ALIEN_INFO_STACK, 8), NO_JOURNAL_ENTRY,
 			met_chmmr,                           CONTACT_MMRNMHRM);
