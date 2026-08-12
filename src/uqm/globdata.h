@@ -955,7 +955,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, 16)
 
 	/* end rev 4, MegaMod v0.8.3 */
-	/* begin rev 5, MegaMod v0.8.4 */
+	/* begin rev 5, MegaMod v0.8.4/v0.8.5 */
 
 	ADD_GAME_STATE (SEED_TYPE, 2)
 
@@ -972,10 +972,16 @@ START_GAME_STATE
 			/* The day of the month in that new ships are available. */
 	ADD_GAME_STATE (UTWIG_SHIP_YEAR, 5)
 			/* The year that new ships are available from the Utwig
-			 * (stored as an offset from the year the game starts). */
-	ADD_GAME_STATE (REV_5_PAD, 33)
+			/* (stored as an offset from the year the game starts). */
 
-	/* end rev 5, MegaMod v0.8.4 */
+	ADD_GAME_STATE (REV_5_PAD, 1)
+
+	/* end rev 5, MegaMod v0.8.4/v0.8.5 */
+	/* begin rev 6, MegaMod v0.8.6 */
+
+	ADD_GAME_STATE (PLACEHOLDER, 1)
+
+	/* end rev 6, MegaMod v0.8.6 */
 
 END_GAME_STATE
 
@@ -1108,6 +1114,22 @@ enum {
 		setGameStateUint (SName, (val))
 #define D_GET_GAME_STATE(SName) \
 		getGameStateUint (SName)
+
+// LEGACY SAVE FUNCTIONS
+
+extern BYTE getGameState (BYTE *state, int startBit, int endBit);
+extern void setGameState (BYTE *state, int startBit, int endBit, BYTE val
+#ifdef STATE_DEBUG
+	, const char *name
+#endif
+);
+extern void copyGameState (BYTE *dest, DWORD target, BYTE *src, DWORD begin, DWORD end);
+extern DWORD getGameState32 (BYTE *state, int startBit);
+extern void setGameState32 (BYTE *state, int startBit, DWORD val
+#ifdef STATE_DEBUG
+	, const char *name
+#endif
+);
 
 extern CONTEXT RadarContext;
 

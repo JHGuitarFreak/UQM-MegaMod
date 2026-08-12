@@ -775,7 +775,7 @@ const GameStateBitMap gameStateBitMap[] = {
 
 	/* end rev 4, MegaMod v0.8.3 */
 	{ NULL, 5 },
-	/* begin rev 5, MegaMod v0.8.4 */
+	/* begin rev 5, MegaMod v0.8.4/v0.8.5 */
 
 	{ "SEED_TYPE", 2 },
 	{ "SUPOX_SHIP_MONTH", 4 },
@@ -784,9 +784,16 @@ const GameStateBitMap gameStateBitMap[] = {
 	{ "UTWIG_SHIP_MONTH", 4 },
 	{ "UTWIG_SHIP_DAY", 5 },
 	{ "UTWIG_SHIP_YEAR", 5 },
+
 	{ "REV_5_PAD", 1 },
 
-	/* end rev 5, MegaMod v0.8.4 */
+	/* end rev 5, MegaMod v0.8.4/v0.8.5 */
+	{ NULL, 6 },
+	/* begin rev 6, MegaMod v0.8.6 */
+
+	{ "PLACEHOLDER", 1 },
+
+	/* end rev 6, MegaMod v0.8.6 */
 	{ NULL, 0 },
 };
 
@@ -798,7 +805,8 @@ const char* gameStateBitMapRevTag[] = {
 	"MegaMod v0.8.1",
 	"MegaMod v0.8.2",
 	"MegaMod v0.8.3",
-	"MegaMod v0.8.4"
+	"MegaMod v0.8.4/v0.8.5",
+	"MegaMod v0.8.6"
 };
 
 // XXX: these should handle endian conversions later
