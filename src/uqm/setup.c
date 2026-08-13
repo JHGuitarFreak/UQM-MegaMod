@@ -200,9 +200,6 @@ LoadKernel (int argc, char *argv[])
 	if (optWhichIntro == OPT_3DO)
 		loadAddon ("3dovideo");
 
-	loadAddon ("ProfanePkunk");
-	loadAddon ("GlaDOS");
-
 	if (!IS_HD)
 	{
 		// Localization addons
