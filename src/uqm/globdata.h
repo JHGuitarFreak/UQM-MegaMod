@@ -212,13 +212,6 @@ enum
 
 #define YEARS_TO_KOHRAH_VICTORY (optDeCleansing ? 100 : 4)
 
-// A structure describing how many bits are used for each game state value.
-typedef struct GameStateBitMap GameStateBitMap;
-struct GameStateBitMap {
-	const char *name;
-	BYTE numBits;
-};
-
 size_t totalBitsForGameState (const GameStateBitMap *bm, int rev);
 int getGameStateRevByBytes (const GameStateBitMap *bm, int bytes);
 BOOLEAN serialiseGameState (const GameStateBitMap *bm,
@@ -1114,22 +1107,6 @@ enum {
 		setGameStateUint (SName, (val))
 #define D_GET_GAME_STATE(SName) \
 		getGameStateUint (SName)
-
-// LEGACY SAVE FUNCTIONS
-
-extern BYTE getGameState (BYTE *state, int startBit, int endBit);
-extern void setGameState (BYTE *state, int startBit, int endBit, BYTE val
-#ifdef STATE_DEBUG
-	, const char *name
-#endif
-);
-extern void copyGameState (BYTE *dest, DWORD target, BYTE *src, DWORD begin, DWORD end);
-extern DWORD getGameState32 (BYTE *state, int startBit);
-extern void setGameState32 (BYTE *state, int startBit, DWORD val
-#ifdef STATE_DEBUG
-	, const char *name
-#endif
-);
 
 extern CONTEXT RadarContext;
 

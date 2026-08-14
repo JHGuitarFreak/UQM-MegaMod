@@ -24,17 +24,22 @@
 #include "libs/log.h"
 #include "libs/scriptlib.h"
 
-
 // We store the game state in the global Lua context, in the Lua registry.
 
 static void luaUqm_initStatePropertyTable(lua_State *luaState);
 static void luaUqm_initEventTable(lua_State *luaState);
 
 lua_State *luaUqm_globalState = NULL;
-static const char statePropRegistryKey[] =
-		"uqm_state_prop_registryKey";
-static const char eventRegistryKey[] =
-		"uqm_event_registryKey";
+static const char statePropRegistryKey[] = "uqm_state_prop_registryKey";
+static const char statePropBitWidthKey[] = "uqm_state_prop_bitwidthKey";
+static const char statePropRevisionKey[] = "uqm_state_prop_revisionKey";
+static const char statePropOrderKey[] =    "uqm_state_prop_orderKey";
+static const char eventRegistryKey[] =     "uqm_event_registryKey";
+
+// Caching the bitmap so it doesn't need to be reinitialized every save/load
+const GameStateBitMap *gameStateBitMap = NULL;
+size_t gameStateBitMapCount = 0;
+#define REV_STR "_REV_"
 
 DELTA_TYPES luaUqm_delta;
 
@@ -86,11 +91,23 @@ luaUqm_reinitState(void) {
 /////////////////////////////////////////////////////////////////////////////
 
 static void
-luaUqm_initStatePropertyTable(lua_State *luaState)
+luaUqm_initStatePropertyTable (lua_State *luaState)
 {
-	lua_pushstring(luaState, statePropRegistryKey);
-	lua_newtable(luaState);
-	lua_settable(luaState, LUA_REGISTRYINDEX);
+	lua_pushstring (luaState, statePropRegistryKey);
+	lua_newtable (luaState);
+	lua_settable (luaState, LUA_REGISTRYINDEX);
+
+	lua_pushstring (luaState, statePropBitWidthKey);
+	lua_newtable (luaState);
+	lua_settable (luaState, LUA_REGISTRYINDEX);
+
+	lua_pushstring (luaState, statePropRevisionKey);
+	lua_newtable (luaState);
+	lua_settable (luaState, LUA_REGISTRYINDEX);
+
+	lua_pushstring (luaState, statePropOrderKey);
+	lua_newtable (luaState);
+	lua_settable (luaState, LUA_REGISTRYINDEX);
 }
 
 // Check whether a lua value has a type acceptable as a property value.
@@ -196,6 +213,156 @@ getGameStateUint(const char *name)
 	result = (DWORD) lua_tointeger(luaUqm_globalState, -1);
 	lua_pop(luaUqm_globalState, 2);
 	return result;
+}
+
+void
+luaUqm_initProp (lua_State *luaState, const char *name, int value,
+	int bits)
+{
+	lua_pushstring (luaState, name);
+	lua_pushinteger (luaState, value);
+	luaUqm_setProp (luaState, -2, -1);
+	lua_pop (luaState, 2);
+
+	lua_getfield (luaState, LUA_REGISTRYINDEX, statePropBitWidthKey);
+	lua_pushstring (luaState, name);
+	lua_gettable (luaState, -2);
+	if (lua_isnil (luaState, -1))
+	{
+		lua_pop (luaState, 1);
+		lua_pushstring (luaState, name);
+		lua_pushinteger (luaState, bits);
+		lua_settable (luaState, -3);
+	}
+	else
+		lua_pop (luaState, 1);
+	lua_pop (luaState, 1);
+
+	lua_getfield (luaState, LUA_REGISTRYINDEX, statePropOrderKey);
+	lua_pushstring (luaState, name);
+	lua_gettable (luaState, -2);
+	if (lua_isnil (luaState, -1))
+	{
+		int counter;
+
+		lua_pop (luaState, 1);
+
+		counter = luaL_len (luaState, -1) + 1;
+		lua_pushinteger (luaState, counter);
+		lua_pushstring (luaState, name);
+		lua_settable (luaState, -3);
+	}
+	else
+		lua_pop (luaState, 1);
+	lua_pop (luaState, 1);
+}
+
+void
+luaUqm_setRevision (lua_State *luaState, int revision)
+{
+	int counter;
+	char rev_key[32];
+
+	lua_getfield (luaState, LUA_REGISTRYINDEX, statePropOrderKey);
+	counter = luaL_len (luaState, -1) + 1;
+
+	// This is necessary to differentiate revision entries
+	// from proper gamestates
+	snprintf (rev_key, sizeof (rev_key), "%s%d", REV_STR, revision);
+
+	lua_getfield (luaState, LUA_REGISTRYINDEX, statePropOrderKey);
+	lua_pushinteger (luaState, counter);
+	lua_pushstring (luaState, rev_key);
+	lua_settable (luaState, -3);
+	lua_pop (luaState, 1);
+}
+
+void
+luaUqm_buildGameStateBitMap (void)
+{
+	size_t num_entries, i;
+	GameStateBitMap *map = NULL;
+	lua_State *L = luaUqm_globalState;
+
+	if (!L || gameStateBitMap != NULL)
+		return;
+
+	// Order table
+	lua_getfield (L, LUA_REGISTRYINDEX, statePropOrderKey);
+	num_entries = luaL_len (L, -1);
+
+	map = HMalloc ((num_entries + 1) * sizeof (GameStateBitMap));
+	if (!map)
+	{
+		lua_pop (L, 1);
+		return;
+	}
+
+	for (i = 0; i < num_entries; i++) 
+	{
+		lua_pushinteger (L, i + 1);
+		lua_gettable (L, -2);
+		const char *value = lua_tostring (L, -1);
+
+		if (strncmp (value, REV_STR, 5) == 0)
+		{	// Revision entry
+			map[i].name = NULL;
+			map[i].numBits = atoi (value + 5);
+#ifdef STATE_DEBUG
+			printf ("[%d] Revision %d\n", i, map[i].numBits);
+#endif
+		}
+		else
+		{	// State name
+			size_t len = strlen (value) + 1;
+			map[i].name = (const char *)HMalloc (len);
+			if (map[i].name)
+				memcpy ((char *)map[i].name, value, len);
+#ifdef STATE_DEBUG
+			printf ("[%d] %s", i, map[i].name);
+#endif
+			// Bit width
+			lua_getfield (L, LUA_REGISTRYINDEX, statePropBitWidthKey);
+			lua_pushstring (L, value);
+			lua_gettable (L, -2);
+			map[i].numBits = lua_tointeger (L, -1);
+#ifdef STATE_DEBUG
+			printf (", %d\n", map[i].numBits);
+#endif
+			lua_pop (L, 2);
+		}
+		lua_pop (L, 1);
+	}
+	lua_pop (L, 1);
+
+	// End of array: { NULL, 0 }
+	map[num_entries].name = NULL;
+	map[num_entries].numBits = 0;
+
+#ifdef STATE_DEBUG
+	printf ("[%d] ARRAY END\n", i);
+#endif
+
+	gameStateBitMap = map;
+	gameStateBitMapCount = num_entries + 1;
+}
+
+void
+luaUqm_uninitGameStateBitMap (void)
+{
+	size_t i;
+
+	if (!gameStateBitMap)
+		return;
+
+	for (i = 0; i < gameStateBitMapCount; i++)
+	{
+		if (gameStateBitMap[i].name != NULL)
+			HFree ((void *)gameStateBitMap[i].name);
+	}
+
+	HFree ((void *)gameStateBitMap);
+	gameStateBitMap = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -51,6 +51,8 @@ static int luaUqm_state_sis_getShipName(lua_State *luaState);
 static int luaUqm_state_prop_get(lua_State *luaState);
 static int luaUqm_state_prop_set(lua_State *luaState);
 static int luaUqm_state_misc_alignText (lua_State *luaState);
+static int luaUqm_state_prop_init (lua_State *luaState);
+static int luaUqm_state_prop_setRevision (lua_State *luaState);
 
 static const luaL_Reg stateClockFuncs[] = {
 	{ "getDate",         luaUqm_state_clock_getDate },
@@ -69,6 +71,8 @@ static const luaL_Reg stateEscortFuncs[] = {
 static const luaL_Reg statePropFuncs[] = {
 	{ "get",             luaUqm_state_prop_get },
 	{ "set",             luaUqm_state_prop_set },
+	{ "init",            luaUqm_state_prop_init },
+	{ "setrev",          luaUqm_state_prop_setRevision },
 	{ NULL,              NULL },
 };
 
@@ -562,3 +566,25 @@ luaUqm_state_misc_alignText (lua_State *luaState)
 	return 1;
 }
 
+// [1] -> char *name
+// [2] -> int value
+// [3] -> int value
+static int
+luaUqm_state_prop_init (lua_State *luaState)
+{
+	const char *name = luaL_checkstring (luaState, 1);
+	int value = luaL_checkint (luaState, 2);
+	int bits = luaL_checkint (luaState, 3);
+
+	luaUqm_initProp (luaState, name, value, bits);
+	return 0;
+}
+
+// [1] -> int value
+static int
+luaUqm_state_prop_setRevision (lua_State *luaState)
+{
+	int revision = luaL_checkint (luaState, 1);
+	luaUqm_setRevision (luaState, revision);
+	return 0;
+}
