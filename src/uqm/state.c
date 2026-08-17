@@ -25,6 +25,7 @@
 #include <unistd.h>
 #endif
 #include <memory.h>
+#include "gamestr.h"
 
 // in-memory file i/o
 struct GAME_STATE_FILE
@@ -401,3 +402,29 @@ PutPlanetInfo (void)
 	}
 }
 
+
+void MinedStarSystems (GAME_STATE_FILE *fp)
+{
+	DWORD i, *data;
+
+	if (!fp || !fp->data || fp->used < STARINFO_TABLE_SIZE)
+		return;
+
+	data = (DWORD *)fp->data;
+
+	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+	{
+		if (data[i] != 0)
+		{
+#ifdef STATE_DEBUG
+			UNICODE buf[PATH_MAX];
+			POINT star = star_array[i].star_pt;
+			STAR_DESC *pSD = FindStar (NULL, &star, 0, 0);
+			GetClusterName (pSD, buf);
+			printf ("%s : 0x%04X\n", buf, data[i]);
+#endif
+			if (!isStarMarked (i, "VISITED"))
+				setStarMarked (i, "VISITED");
+		}
+	}
+}

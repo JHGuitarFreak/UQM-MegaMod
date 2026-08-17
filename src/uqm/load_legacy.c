@@ -1293,6 +1293,9 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 
 			flen -= num_bytes;
 		}
+
+		MinedStarSystems (fp);
+
 		CloseStateFile (fp);
 	}
 

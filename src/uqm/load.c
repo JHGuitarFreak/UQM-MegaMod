@@ -572,7 +572,7 @@ LoadStarDesc (STAR_DESC *SDPtr, void *fh)
 }
 
 static void
-LoadScanInfo (uio_Stream *fh, DWORD flen)
+LoadScanInfo (uio_Stream *fh, DWORD flen, BOOLEAN try_core)
 {
 	GAME_STATE_FILE *fp = OpenStateFile (STARINFO_FILE, "wb");
 	if (fp)
@@ -584,6 +584,10 @@ LoadScanInfo (uio_Stream *fh, DWORD flen)
 			swrite_32 (fp, val);
 			flen -= 4;
 		}
+
+		if (try_core)
+			MinedStarSystems (fp);
+
 		CloseStateFile (fp);
 	}
 }
@@ -932,7 +936,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 			LoadShipQueue (in_fp, &GLOBAL (stowed_ship_q), chunkSize);
 			break;
 		case SCAN_TAG:
-			LoadScanInfo (in_fp, chunkSize);
+			LoadScanInfo (in_fp, chunkSize, try_core);
 			break;
 		case GROUP_LIST_TAG:
 			if (first_group_spec)
