@@ -389,7 +389,8 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 
 		read_32 (fh, &magic);
 		rev = (try_core ? 0 : getGameStateRevByBytes (gameStateBitMap, magic));
-		gameStateByteCount = (totalBitsForGameState (gameStateBitMap, rev) + 7) >> 3;
+		gameStateByteCount =
+				(totalBitsForGameState (gameStateBitMap, rev) + 7) >> 3;
 
 		if (rev < 0 || magic < gameStateByteCount)
 		{
@@ -405,18 +406,17 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		if (buf == NULL)
 		{
 			log_add (log_Error, "Warning: Cannot allocate enough bytes for "
-					"the saved game state (%lu bytes).", (unsigned long)gameStateByteCount);
+					"the saved game state (%lu bytes).",
+					(unsigned long)gameStateByteCount);
 			return FALSE;
 		}
 
 		read_a8 (fh, buf, (COUNT)gameStateByteCount);
-		result = deserialiseGameState (gameStateBitMap, buf, gameStateByteCount, rev);
+		result = deserialiseGameState (gameStateBitMap, buf,
+				gameStateByteCount, rev);
 		HFree (buf);
 		if (result == FALSE)
-		{
-			// An error message is already printed.
-			return FALSE;
-		}
+			return FALSE; // An error message is already printed.
 
 		if (rev < 2)
 			GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
@@ -431,9 +431,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		}
 
 		if (magic > gameStateByteCount)
-		{
 			skip_8 (fh, (COUNT)(magic - gameStateByteCount));
-		}
 	}
 	return TRUE;
 }
@@ -586,7 +584,10 @@ LoadScanInfo (uio_Stream *fh, DWORD flen, BOOLEAN try_core)
 		}
 
 		if (try_core)
+		{
 			MinedStarSystems (fp);
+			ProcessVanillaStarInfo (fp);
+		}
 
 		CloseStateFile (fp);
 	}
