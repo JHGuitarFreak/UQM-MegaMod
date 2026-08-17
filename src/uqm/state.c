@@ -402,6 +402,8 @@ PutPlanetInfo (void)
 	}
 }
 
+#define STARINFO_TABLE_SIZE (NUM_SOLAR_SYSTEMS * sizeof(DWORD))
+#define SCAN_RECORD_DIFF (SCAN_RECORD_SIZE - CORE_SCAN_RECORD_SIZE)
 
 void MinedStarSystems (GAME_STATE_FILE *fp)
 {
