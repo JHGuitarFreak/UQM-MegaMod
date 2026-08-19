@@ -78,10 +78,6 @@ extern BOOLEAN LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN 
 extern void SaveProblem (void);
 extern BOOLEAN SaveGame (COUNT which_game, SUMMARY_DESC *summary_desc, const char *name);
 
-extern const GameStateBitMap gameStateBitMap[];
-
-extern const char* gameStateBitMapRevTag[];
-
 #if defined(__cplusplus)
 }
 #endif

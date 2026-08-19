@@ -40,6 +40,18 @@
 ACTIVITY NextActivity;
 BYTE IndependantResFactor;
 
+// This describes the release version corresponding to each game state
+// flag revision chunk.
+const char *gameStateBitMapRevTag[] = {
+	"Core UQM v0.8.0",
+	"MegaMod v0.8.0.85",
+	"MegaMod v0.8.1",
+	"MegaMod v0.8.2",
+	"MegaMod v0.8.3",
+	"MegaMod v0.8.4/v0.8.5",
+	"MegaMod v0.8.6"
+};
+
 static inline size_t
 read_8 (void *fp, BYTE *v)
 {
@@ -386,6 +398,9 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		BOOLEAN result;
 		int rev;
 		size_t gameStateByteCount;
+
+		if (!gameStateBitMap)
+			return FALSE;
 
 		read_32 (fh, &magic);
 		rev = (try_core ? 0 : getGameStateRevByBytes (gameStateBitMap, magic));
