@@ -56,11 +56,11 @@ typedef struct GameStateBitMap
 	BYTE numBits;
 } GameStateBitMap;
 
-const GameStateBitMap *gameStateBitMap;
-size_t gameStateBitMapCount;
+extern const GameStateBitMap *gameStateBitMap;
+extern size_t gameStateBitMapCount;
 
-void luaUqm_buildGameStateBitMap (void);
-void luaUqm_uninitGameStateBitMap (void);
+extern void luaUqm_buildGameStateBitMap (void);
+extern void luaUqm_uninitGameStateBitMap (void);
 void luaUqm_initProp (lua_State *luaState, const char *name, int value, int bits);
 void luaUqm_setRevision (lua_State *luaState, int revision);
 
