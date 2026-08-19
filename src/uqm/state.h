@@ -22,6 +22,7 @@
 #include "port.h"
 #include "libs/compiler.h"
 #include <assert.h>
+#include "starmap.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -78,6 +79,8 @@ DWORD LengthStateFile (GAME_STATE_FILE *fp);
 int ReadStateFile (void *lpBuf, COUNT size, COUNT count, GAME_STATE_FILE *fp);
 int WriteStateFile (const void *lpBuf, COUNT size, COUNT count, GAME_STATE_FILE *fp);
 int SeekStateFile (GAME_STATE_FILE *fp, long offset, int whence);
+void ProcessVanillaStarInfo (GAME_STATE_FILE *fp);
+void MinedStarSystems (GAME_STATE_FILE *fp);
 
 static inline COUNT
 sread_8 (GAME_STATE_FILE *fp, BYTE *v)
