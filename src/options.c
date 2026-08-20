@@ -60,6 +60,8 @@ unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
 
+SDL_Cursor *UQM_Cursors[NUM_CURSORS] = { NULL };
+
 // Added options
 BOOLEAN optRequiresReload;
 BOOLEAN optRequiresRestart;
@@ -144,6 +146,7 @@ OPT_ADD_REMOVE optUpgradeArray[13];
 int optHyperSpaceColor;
 int DeadZoneLeftStick[2];
 int DeadZoneRightStick[2];
+int optMouseInput;
 bool ShipGTFO = false;
 
 OPT_ENABLABLE opt3doMusic;
@@ -878,4 +881,47 @@ setGammaCorrection (float gamma)
 	else
 		log_add (log_Warning, "Unable to set gamma correction.");
 	return set;
+}
+
+static int cursor_enabled = -1;
+
+static BOOLEAN
+UQM_IsCursorVisible (void)
+{
+	BOOLEAN old_state;
+
+	if (cursor_enabled != -1)
+		return cursor_enabled;
+
+	old_state = SDL_ShowCursor (SDL_DISABLE);
+
+	if (old_state == SDL_ENABLE)
+		SDL_ShowCursor (SDL_ENABLE);
+
+	return cursor_enabled = (old_state == SDL_ENABLE);
+}
+
+BOOLEAN
+UQM_SetCursor (int cursor)
+{
+	BOOLEAN cursor_visible = UQM_IsCursorVisible ();
+
+	if ((!optMouseInput && cursor_visible) || cursor == CURSOR_DISABLE)
+	{
+		SDL_ShowCursor (SDL_DISABLE);
+		cursor_enabled = FALSE;
+		return FALSE;
+	}
+
+	cursor_enabled = TRUE;
+
+	if (SDL_GetCursor () == UQM_Cursors[cursor] && cursor_visible)
+		return TRUE;
+
+	SDL_SetCursor (UQM_Cursors[cursor]);
+
+	if (!cursor_visible)
+		SDL_ShowCursor (SDL_ENABLE);
+
+	return TRUE;
 }

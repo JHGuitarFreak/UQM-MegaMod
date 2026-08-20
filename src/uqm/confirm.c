@@ -29,6 +29,7 @@
 #include "libs/resource/stringbank.h"
 #include "battle.h"
 #include "comm.h"
+#include "libs/inplib.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -39,6 +40,8 @@
 
 BOOLEAN WarpFromMenu = FALSE;
 BOOLEAN InPopUp = FALSE;
+
+static RECT ConfirmRects[2];
 
 static void
 DrawConfirmationWindow (BOOLEAN answer, BOOLEAN confirm)
@@ -79,11 +82,14 @@ DrawConfirmationWindow (BOOLEAN answer, BOOLEAN confirm)
 			answer ? (confirm ? WHITE_COLOR : MENU_HIGHLIGHT_COLOR) :
 			BLACK_COLOR);
 	font_DrawText (&t);
+	ConfirmRects[1] = font_GetTextRect (&t);
+
 	t.baseline.x += (r.extent.width >> 1);
 	t.pStr = GAME_STRING (QUITMENU_STRING_BASE + 2); // "No"
 	SetContextForeGroundColor (
 			answer ? BLACK_COLOR : MENU_HIGHLIGHT_COLOR);
 	font_DrawText (&t);
+	ConfirmRects[0] = font_GetTextRect (&t);
 
 	UnbatchGraphics ();
 
@@ -160,12 +166,14 @@ DoConfirmExit (void)
 				done = TRUE;
 				response = TRUE;
 			}
-			else if (PulsedInputState.menu[KEY_MENU_SELECT])
+			else if (PulsedInputState.menu[KEY_MENU_SELECT] ||
+					CtxMouseClicker (ConfirmRects[response]))
 			{
 				done = TRUE;
 				PlayMenuSound (MENU_SOUND_SUCCESS);
 			}
-			else if (PulsedInputState.menu[KEY_MENU_CANCEL])
+			else if (PulsedInputState.menu[KEY_MENU_CANCEL] ||
+					PulsedInputState.menu[MOUSE_BTN_RIGHT])
 			{
 				done = TRUE;
 				response = FALSE;
@@ -176,6 +184,34 @@ DoConfirmExit (void)
 				response = !response;
 				DrawConfirmationWindow (response, FALSE);
 				PlayMenuSound (MENU_SOUND_MOVE);
+			}
+			else
+			{
+				if (SetMouseContext (ScreenContext))
+				{
+					BYTE i;
+					int cursor = CURSOR_POINTER;
+					BYTE hovered_item = response;
+
+					for (i = 0; i < 2; i++)
+					{
+						if (MouseInRect (ConfirmRects[i]))
+						{
+							hovered_item = i;
+							cursor = CURSOR_POINTER_HILITE;
+							break;
+						}
+					}
+
+					UQM_SetCursor (cursor);
+
+					if (hovered_item != response)
+					{
+						response = hovered_item;
+						DrawConfirmationWindow (response, FALSE);
+						PlayMenuSound (MENU_SOUND_MOVE);
+					}
+				}
 			}
 			SleepThread (ONE_SECOND / 30);
 		};

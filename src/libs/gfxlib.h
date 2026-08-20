@@ -620,6 +620,7 @@ extern BOOLEAN SetContextClipRect (RECT *pRect);
 // The returned rect is always filled in. If the context cliprect
 // is undefined, the returned rect has foreground frame dimensions.
 extern BOOLEAN GetContextClipRect (RECT *pRect);
+extern BOOLEAN GetContextClipDiRect (RECT *lpRect, CONTEXT context);
 // The actual origin will be orgOffset + context ClipRect.corner
 extern POINT SetContextOrigin (POINT orgOffset);
 extern DrawMode SetContextDrawMode (DrawMode);

@@ -36,6 +36,8 @@ typedef enum
 	VCONTROL_JOYAXIS,
 	VCONTROL_JOYBUTTON,
 	VCONTROL_JOYHAT,
+	VCONTROL_MOUSEBUTTON,
+	VCONTROL_MOUSEWHEEL,
 	NUM_VCONTROL_GESTURES
 } VCONTROL_GESTURE_TYPE;
 
@@ -46,6 +48,8 @@ typedef struct {
 		struct { int port, index, polarity; } axis;
 		struct { int port, index; } button;
 		struct { int port, index; Uint8 dir; } hat;
+		struct { int button; } mouse_button;
+		struct { int direction; } mouse_wheel;
 	} gesture;
 } VCONTROL_GESTURE;
 
@@ -77,6 +81,11 @@ int  VControl_SetJoyThreshold (int port, int threshold);
 int  VControl_AddJoyButtonBinding (int port, int button, int *target);
 void VControl_RemoveJoyButtonBinding (int port, int button, int *target);
 
+int  VControl_AddMouseButtonBinding (int button, int *target);
+void VControl_RemoveMouseButtonBinding (int button, int *target);
+int  VControl_AddMouseWheelBinding (int direction, int *target);
+void VControl_RemoveMouseWheelBinding (int direction, int *target);
+
 void VControl_RemoveAllBindings (void);
 
 /* Signal to VControl that a frame is about to begin. */
@@ -93,6 +102,10 @@ void VControl_ProcessJoyButtonUp (int port, int button);
 void VControl_ProcessJoyAxis (int port, int axis, int value);
 int VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis);
 SDL_JoystickID VControl_GetControllerAssignment (int player);
+
+void VControl_ProcessMouseButtonDown (int button);
+void VControl_ProcessMouseButtonUp (int button);
+void VControl_ProcessMouseWheel (int direction);
 
 /* Force the input into the blank state.  For preventing "sticky" keys. */
 void VControl_ResetInput (void);

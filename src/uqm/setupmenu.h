@@ -311,6 +311,7 @@ enum {
 	CHOICE_DOSMENUS,
 	CHOICE_HSCOLOR,
 	CHOICE_DIRJOYP2,
+	CHOICE_MOUSEINPUT,
 
 	CHOICE_COUNT
 };
@@ -442,6 +443,11 @@ enum
 	MENUCONTROL_DEBUG2,
 	MENUCONTROL_DEBUG3,
 	MENUCONTROL_DEBUG4,
+	MENUCONTROL_MOUSELEFT,
+	MENUCONTROL_MOUSERIGHT,
+	MENUCONTROL_MOUSEMIDDLE,
+	MENUCONTROL_MWHEELUP,
+	MENUCONTROL_MWHEELDOWN,
 
 	MENUCONTROL_COUNT
 };
@@ -491,7 +497,8 @@ typedef struct globalopts_struct {
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan, keepaspect;
-	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2];
+	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2],
+			mouseInput;
 } GLOBALOPTS;
 
 void SetupMenu (void);

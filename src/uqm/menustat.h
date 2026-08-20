@@ -126,7 +126,11 @@ enum
 	PM_ALT_ASCAN,
 	PM_ALT_DISPATCH,
 	PM_ALT_EXIT_SCAN,
+
+	NUM_PM_ENTRIES
 };
+
+extern RECT MenuItemRects[NUM_PM_ENTRIES];
 
 enum
 {

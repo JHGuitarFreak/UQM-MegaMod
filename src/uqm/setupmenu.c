@@ -310,6 +310,7 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_INPDEVICE ]), // Control Display
 	(WIDGET *)(&choices[CHOICE_DIRJOYP1  ]), // Directional Joystick P1
 	(WIDGET *)(&choices[CHOICE_DIRJOYP2  ]), // Directional Joystick P2
+	(WIDGET *)(&choices[CHOICE_MOUSEINPUT]), // Mouse Input
 
 	(WIDGET *)(&labels [LABEL_SPACER      ]), // Spacer
 	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP ]), // "To view or edit..."
@@ -317,7 +318,7 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&buttons[BTN_EDITMENUKEYS  ]), // Edit Menu Controls
 	(WIDGET *)(&buttons[BTN_EDIT_DEADZONES]), // Edit Axis Deadzones
 
-	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSUBMENU  ]), // Exit to Menu
 	NULL };
 
@@ -490,6 +491,11 @@ static WIDGET *editmenukeys_widgets[] = {
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG2    ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG3    ]),
 	(WIDGET *)(&menucontrols[MENUCONTROL_DEBUG4    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MOUSELEFT    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MOUSERIGHT    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MOUSEMIDDLE    ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MWHEELUP  ]),
+	(WIDGET *)(&menucontrols[MENUCONTROL_MWHEELDOWN]),
 
 	(WIDGET *)(&labels [LABEL_SPACER        ]), // Spacer
 	(WIDGET *)(&buttons[BTN_LOADDEFMENUBINDS]), // Load Defaults
@@ -1494,6 +1500,7 @@ SetDefaults (void)
 	choices[CHOICE_SHIPSTORE ].selected = opts.shipStore;
 	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
 	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
+	choices[CHOICE_MOUSEINPUT].selected = opts.mouseInput;
 
 	sliders[SLIDER_MUSVOLUME  ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME  ].value = opts.sfxvol;
@@ -1619,10 +1626,11 @@ PropagateResults (void)
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
-	opts.shipSeed = choices[CHOICE_SHIPSEED].selected;
-	opts.shipStore = choices[CHOICE_SHIPSTORE].selected;
-	opts.captainNames = choices[CHOICE_CAPTNAMES].selected;
-	opts.dosMenus = choices[CHOICE_DOSMENUS].selected;
+	opts.shipSeed =     choices[CHOICE_SHIPSEED  ].selected;
+	opts.shipStore =    choices[CHOICE_SHIPSTORE ].selected;
+	opts.captainNames = choices[CHOICE_CAPTNAMES ].selected;
+	opts.dosMenus =     choices[CHOICE_DOSMENUS  ].selected;
+	opts.mouseInput =   choices[CHOICE_MOUSEINPUT].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -1641,6 +1649,7 @@ PropagateResults (void)
 static BOOLEAN
 DoSetupMenu (SETUP_MENU_STATE *pInputState)
 {
+	static BOOLEAN clicked_in = FALSE;
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
@@ -1675,39 +1684,147 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 
 	UnbatchGraphics ();
 
-	if (PulsedInputState.menu[KEY_MENU_UP])
+	if (current && current->tag == WIDGET_TYPE_MENU_SCREEN)
+	{
+		WIDGET_MENU_SCREEN *menu = (WIDGET_MENU_SCREEN *)current;
+		if (menu->highlighted >= 0
+				&& menu->highlighted < menu->num_children)
+		{
+			WIDGET *highlighted_widget = menu->child[menu->highlighted];
+		}
+
+		if (optMouseInput)
+		{
+			if (clicked_in)
+			{
+				RECT r = menu->widget_rects[menu->highlighted];
+
+				r.corner.x -= RES_SCALE (2);
+				r.corner.y -= RES_SCALE (1);
+				r.extent.width += RES_SCALE (4);
+				r.extent.height += RES_SCALE (2);
+
+				SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+				DrawRectangle (&r, IS_HD);
+			}
+
+			if (SetMouseContext (ScreenContext))
+			{
+				int i;
+				int cursor = CURSOR_POINTER;
+				BYTE hovered_item = menu->highlighted;
+
+				if (!clicked_in)
+				{
+					for (i = 0; i < menu->num_children; i++)
+					{
+						WIDGET *child = menu->child[i];
+
+						if (child->tag == WIDGET_TYPE_LABEL)
+							continue;
+
+						if (MouseInRect (menu->widget_rects[i]))
+						{
+							hovered_item = i;
+							cursor = CURSOR_POINTER_HILITE;
+							break;
+						}
+					}
+
+					if (MouseButton (MOUSE_RGT))
+						Widget_Event (WIDGET_EVENT_CANCEL);
+				}
+				else
+				{
+					WIDGET *child = menu->child[hovered_item];
+
+					if (MouseButton (MOUSE_LFT))
+					{
+						FlushInput ();
+						child->handleEvent (child, WIDGET_EVENT_SELECT);
+						clicked_in = 0;
+					}
+					if (MouseButton (MOUSE_RGT))
+						clicked_in = 0;
+				}
+
+				if (hovered_item != menu->highlighted)
+				{
+					WIDGET *child = menu->child[hovered_item];
+
+					if (child->tag != WIDGET_TYPE_LABEL)
+					{
+						child->receiveFocus (child, WIDGET_EVENT_DOWN);
+						menu->highlighted = hovered_item;
+
+						PlayMenuSound (MENU_SOUND_MOVE);
+					}
+				}
+
+				if (CtxMouseClicker (menu->widget_rects[hovered_item]))
+				{
+					WIDGET *child = menu->child[hovered_item];
+
+					switch (child->tag)
+					{
+					case WIDGET_TYPE_CHOICE:
+					case WIDGET_TYPE_SLIDER:
+					case WIDGET_TYPE_CONTROLENTRY:
+					case WIDGET_TYPE_MENUCONTROLENTRY:
+						clicked_in = 1;
+						break;
+					case WIDGET_TYPE_BUTTON:
+					case WIDGET_TYPE_TEXTENTRY:
+					default:
+						child->handleEvent (child, WIDGET_EVENT_SELECT);
+						break;
+					}
+				}
+
+				UQM_SetCursor (cursor);
+			}
+		}
+	}
+
+	if (PulsedInputState.menu[KEY_MENU_UP]
+			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
 	{
 		Widget_Event (WIDGET_EVENT_UP);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_DOWN])
+	else if (PulsedInputState.menu[KEY_MENU_DOWN]
+			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
 	{
 		Widget_Event (WIDGET_EVENT_DOWN);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_LEFT])
+	else if (PulsedInputState.menu[KEY_MENU_LEFT]
+			|| (clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
 	{
 		Widget_Event (WIDGET_EVENT_LEFT);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_RIGHT])
+	else if (PulsedInputState.menu[KEY_MENU_RIGHT]
+			|| (clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
 	{
 		Widget_Event (WIDGET_EVENT_RIGHT);
 	}
 	if (PulsedInputState.menu[KEY_MENU_SELECT])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_SELECT);
 	}
 	if (PulsedInputState.menu[KEY_MENU_CANCEL])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_CANCEL);
 	}
 	if (PulsedInputState.menu[KEY_MENU_DELETE])
 	{
+		clicked_in = 0;
 		Widget_Event (WIDGET_EVENT_DELETE);
 	}
 
 	SleepThreadUntil (pInputState->NextTime + MENU_FRAME_RATE);
 	pInputState->NextTime = GetTimeCounter ();
-	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || 
-		 (next == NULL));
+	return !((GLOBAL (CurrentActivity) & CHECK_ABORT) || (next == NULL));
 }
 
 static void
@@ -2239,6 +2356,7 @@ init_widgets (void)
 		menus[i].num_children = count_widgets (menu_defs[i].widgets);
 		menus[i].child = menu_defs[i].widgets;
 		menus[i].highlighted = 0;
+		menus[i].widget_rects = NULL;
 	}
 	if (menu_defs[i].widgets != NULL)
 	{
@@ -2712,6 +2830,15 @@ clean_up_widgets (void)
 		}
 	}
 
+	for (i = 0; i < MENU_COUNT; i++)
+	{
+		if (menus[i].widget_rects)
+		{
+			HFree (menus[i].widget_rects);
+			menus[i].widget_rects = NULL;
+		}
+	}
+
 	/* Clear out the master tables */
 	
 	if (SetupTab)
@@ -2772,7 +2899,7 @@ SetupMenu (void)
 	InSetupMenu = FALSE;
 
 	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN,
-						MENU_SOUND_SELECT);
+			MENU_SOUND_SELECT);
 }
 
 void
@@ -2994,6 +3121,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
+	opts->mouseInput = optMouseInput;
 
 	// QoL
 	opts->scatterElements = optScatterElements;
@@ -3312,7 +3440,10 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
 	res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 
+	PutIntOpt (&optMouseInput, (int*)&opts->mouseInput, "mm.mouseInput", FALSE);
+
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
+
 
 /*
  *		Cheats

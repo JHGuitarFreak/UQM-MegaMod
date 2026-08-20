@@ -34,6 +34,9 @@
  * so we do not rely on being able to declare an array with one
  * entry per key. */
 #define KEYBOARD_INPUT_BUCKETS 512
+#define MOUSE_BUTTON_BUCKETS 4
+
+extern POINT CurrentMousePos;
 
 typedef struct vcontrol_keybinding {
 	int *target;
@@ -101,6 +104,8 @@ LAST_INPUT last_input[2] = { 0 };
 #endif /* HAVE_JOYSTICK */
 
 static keybinding *bindings[KEYBOARD_INPUT_BUCKETS];
+static keybinding *mouse_button_bindings[MOUSE_BUTTON_BUCKETS];
+static keybinding *mouse_wheel_bindings[2];
 
 static keypool *pool;
 
@@ -383,6 +388,11 @@ key_init (void)
 	for (i = 0; i < KEYBOARD_INPUT_BUCKETS; i++)
 		bindings[i] = NULL;
 
+	for (i = 0; i < MOUSE_BUTTON_BUCKETS; i++)
+		mouse_button_bindings[i] = NULL;
+	for (i = 0; i < 2; i++)
+		mouse_wheel_bindings[i] = NULL;
+
 #ifdef HAVE_JOYSTICK
 	for (i = 0; i < 2; i++)
 	{
@@ -617,6 +627,14 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 		g->gesture.button.index = e->cbutton.button;
 		break;
 #endif /* HAVE_JOYSTICK */
+	case SDL_MOUSEBUTTONDOWN:
+		g->type = VCONTROL_MOUSEBUTTON;
+		g->gesture.mouse_button.button = e->button.button;
+		break;
+	case SDL_MOUSEWHEEL:
+		g->type = VCONTROL_MOUSEWHEEL;
+		g->gesture.mouse_wheel.direction = (e->wheel.y > 0) ? 1 : -1;
+		break;
 	default:
 		g->type = VCONTROL_NONE;
 		break;
@@ -632,6 +650,13 @@ VControl_AddGestureBinding (VCONTROL_GESTURE *g, int *target)
 	{
 	case VCONTROL_KEY:
 		result = VControl_AddKeyBinding (g->gesture.key, target);
+		break;
+
+	case VCONTROL_MOUSEBUTTON:
+		result = VControl_AddMouseButtonBinding (g->gesture.mouse_button.button, target);
+		break;
+	case VCONTROL_MOUSEWHEEL:
+		result = VControl_AddMouseWheelBinding (g->gesture.mouse_wheel.direction, target);
 		break;
 
 #ifdef HAVE_JOYSTICK
@@ -692,6 +717,13 @@ VControl_RemoveGestureBinding (VCONTROL_GESTURE *g, int *target)
 	{
 	case VCONTROL_KEY:
 		VControl_RemoveKeyBinding (g->gesture.key, target);
+		break;
+
+	case VCONTROL_MOUSEBUTTON:
+		VControl_RemoveMouseButtonBinding (g->gesture.mouse_button.button, target);
+		break;
+	case VCONTROL_MOUSEWHEEL:
+		VControl_RemoveMouseWheelBinding (g->gesture.mouse_wheel.direction, target);
 		break;
 
 #ifdef HAVE_JOYSTICK
@@ -921,6 +953,43 @@ VControl_RemoveJoyButtonBinding (int port, int button, int *target)
 	}
 }
 
+int
+VControl_AddMouseButtonBinding (int button, int *target)
+{
+	if (button == 0)
+		return -1;
+
+	add_binding (&mouse_button_bindings[button], target, SDLK_UNKNOWN);
+	return 0;
+}
+
+void
+VControl_RemoveMouseButtonBinding (int button, int *target)
+{
+	if (button == 0)
+		return;
+
+	remove_binding (&mouse_button_bindings[button], target, SDLK_UNKNOWN);
+}
+
+int
+VControl_AddMouseWheelBinding (int direction, int *target)
+{
+	if (direction == 0)
+		return -1;
+
+	int index = (direction > 0) ? 0 : 1;
+	add_binding (&mouse_wheel_bindings[index], target, SDLK_UNKNOWN);
+	return 0;
+}
+
+void
+VControl_RemoveMouseWheelBinding (int direction, int *target)
+{
+	int index = (direction > 0) ? 0 : 1;
+	remove_binding (&mouse_wheel_bindings[index], target, SDLK_UNKNOWN);
+}
+
 void
 VControl_RemoveAllBindings (void)
 {
@@ -1081,6 +1150,31 @@ VControl_ProcessJoyAxis (int port, int axis, int value)
 }
 
 void
+VControl_ProcessMouseButtonDown (int button)
+{
+	activate (mouse_button_bindings[button], SDLK_UNKNOWN);
+}
+
+void
+VControl_ProcessMouseButtonUp (int button)
+{
+	deactivate (mouse_button_bindings[button], SDLK_UNKNOWN);
+}
+
+void
+VControl_ProcessMouseWheel (int direction)
+{
+	if (direction == 0)
+		return;
+
+	int index = (direction > 0) ? 0 : 1;
+	activate (mouse_wheel_bindings[index], SDLK_UNKNOWN);
+
+	// Deactivate immediately so it's a single pulse
+	deactivate (mouse_wheel_bindings[index], SDLK_UNKNOWN);
+}
+
+void
 VControl_ResetInput (void)
 {
 	/* Step through every valid entry in the binding pool and zero
@@ -1235,9 +1329,47 @@ VControl_HandleEvent (const SDL_Event *e)
 			log_add (log_Info, "Controller mapping updated");
 			break;
 #endif /* HAVE_JOYSTICK */
-
 		default:
 			break;
+	}
+
+	if (optMouseInput)
+	{
+		switch (e->type)
+		{
+		case SDL_MOUSEBUTTONDOWN:
+			VControl_ProcessMouseButtonDown (e->button.button);
+			last_interesting = *e;
+			event_ready = 1;
+			break;
+		case SDL_MOUSEBUTTONUP:
+			VControl_ProcessMouseButtonUp (e->button.button);
+			break;
+		case SDL_MOUSEWHEEL:
+		{
+			static TimeCount lastWheelTime = 0;
+			TimeCount currentTime = GetTimeCounter ();
+
+			if (currentTime - lastWheelTime > (ONE_SECOND / 16))
+			{
+				if (e->wheel.y != 0)
+				{
+					int direction = (e->wheel.y > 0) ? 1 : -1;
+					VControl_ProcessMouseWheel (direction);
+					lastWheelTime = currentTime;
+					last_interesting = *e;
+				}
+			}
+			event_ready = 1;
+			break;
+		}
+		case SDL_MOUSEMOTION:
+			CurrentMousePos.x = e->motion.x;
+			CurrentMousePos.y = e->motion.y;
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -1515,9 +1647,29 @@ parse_gesture (parse_state *state, VCONTROL_GESTURE *gesture)
 	{
 		parse_joybinding (state, gesture);
 	}
+	else if (!strcasecmp (state->token, "mousebutton"))
+	{
+		consume (state, "mousebutton");
+		int button = consume_num (state);
+		if (!state->error && button >= 1 && button <= 3)
+		{
+			gesture->type = VCONTROL_MOUSEBUTTON;
+			gesture->gesture.mouse_button.button = button;
+		}
+	}
+	else if (!strcasecmp (state->token, "mousewheel"))
+	{
+		consume (state, "mousewheel");
+		int direction = consume_num (state);
+		if (!state->error && (direction == 1 || direction == -1))
+		{
+			gesture->type = VCONTROL_MOUSEWHEEL;
+			gesture->gesture.mouse_wheel.direction = direction;
+		}
+	}
 	else
 	{
-		expected_error (state, "key' or 'joystick");
+		expected_error (state, "key', 'joystick', 'mousebutton', or 'mousewheel");
 	}
 }
 
@@ -1552,6 +1704,12 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 	case VCONTROL_JOYBUTTON:
 		return snprintf (buf, n, "joystick %d button %d",
 				g->gesture.button.port, g->gesture.button.index);
+	case VCONTROL_MOUSEBUTTON:
+		return snprintf (buf, n, "mousebutton %d",
+				g->gesture.mouse_button.button);
+	case VCONTROL_MOUSEWHEEL:
+		return snprintf (buf, n, "mousewheel %d",
+				g->gesture.mouse_wheel.direction);
 	default:
 		buf[0] = '\0';
 		return 0;

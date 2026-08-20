@@ -46,6 +46,7 @@
 #include "cons_res.h"
 #include "build.h"
 #include "master.h"
+#include "libs/gfxlib.h"
 #include "libs/graphics/widgets.h"
 
 #include "libs/resource/stringbank.h"
@@ -65,11 +66,19 @@ enum
 {
 	EASY_DIFF = 0,
 	ORIGINAL_DIFF,
-	HARD_DIFF
+	HARD_DIFF,
+	NUM_DIFF_ELEMENTS
 };
 
 #define CHOOSER_X (SCREEN_WIDTH >> 1)
 #define CHOOSER_Y ((SCREEN_HEIGHT >> 1) - RES_SCALE (12))
+
+#define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
+#define MAIN_TEXT_Y (RES_SCALE (42) - DOS_NUM_SCL (20))
+
+FRAME TextCache[NUM_MENU_ELEMENTS];
+RECT MenuRects[NUM_MENU_ELEMENTS];
+RECT DiffRects[NUM_DIFF_ELEMENTS];
 
 // Kruzen: Having this ref separated gains more control
 // We can load and free it whenever we want and not rely on menu volume
@@ -117,6 +126,7 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 	int line_count;
 	RECT r;
 	STAMP s;
+	Color oldColor;
 
 	SetContextFont (TinyFont);
 
@@ -126,27 +136,31 @@ DrawToolTips (MENU_STATE *pMS, int answer)
 	s.frame = SetRelFrameIndex (pMS->CurFrame, 3);
 	r.extent = GetFrameBounds (s.frame);
 	r.corner.x = RES_SCALE (
-		(RES_DESCALE (CanvasWidth) - RES_DESCALE (r.extent.width)) >> 1);
+			(RES_DESCALE (CanvasWidth) - RES_DESCALE (r.extent.width)) >> 1);
 	s.origin = r.corner;
 	DrawStamp (&s);
 
-	SetContextForeGroundColor (BLACK_COLOR);
+	oldColor = SetContextForeGroundColor (BLACK_COLOR);
+
+	t.CharCount = (COUNT)~0;
+	t.align = ALIGN_CENTER;
 
 	t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 66 + answer);
 	line_count = SplitString (t.pStr, '\n', 30, lines, bank);
 
 	t.baseline.x = r.corner.x
-		+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
+			+ RES_SCALE (RES_DESCALE (r.extent.width) >> 1);
 	t.baseline.y = r.corner.y + RES_SCALE (10)
 			+ RES_SCALE (line_count < 2 ? 8 : (line_count > 2 ? 0 : 3));
+
 	for (i = 0; i < line_count; i++)
 	{
 		t.pStr = lines[i];
-		t.align = ALIGN_CENTER;
-		t.CharCount = (COUNT)~0;
 		font_DrawText (&t);
 		t.baseline.y += RES_SCALE (8);
 	}
+
+	SetContextForeGroundColor (oldColor);
 
 	StringBank_Free (bank);
 }
@@ -158,6 +172,9 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 	FONT oldFont;
 	TEXT t;
 	COUNT i;
+	Color oldColor;
+	Color carray[3] =
+			{ MENU_BACKGROUND_COLOR, MENU_HIGHLIGHT_COLOR, BLACK_COLOR };
 
 	s.origin = MAKE_POINT (CHOOSER_X, CHOOSER_Y);
 	s.frame = SetRelFrameIndex (pMS->CurFrame, 2);
@@ -167,26 +184,31 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 
 	oldFont = SetContextFont (MicroFont);
 
+	oldColor = SetContextForeGroundColor (BLACK_COLOR);
+
 	t.align = ALIGN_CENTER;
 	t.baseline.x = s.origin.x;
 	t.baseline.y = s.origin.y - RES_SCALE (20);
+	t.CharCount = (COUNT)~0;
 
-	for (i = 0; i <= 2; i++)
+	for (i = EASY_DIFF; i < NUM_DIFF_ELEMENTS; i++)
 	{
-		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56
-				+ (!i ? 1 : (i > 1 ? 2 : 0)));
-		t.CharCount = (COUNT)utf8StringCount (t.pStr);
+		BYTE which_color;
+		BYTE which_diff = i == 0 ? 1 : (i > 1 ? 2 : 0);
 
-		SetContextForeGroundColor (
-				i == answer ?
-				(confirm ? MENU_BACKGROUND_COLOR
-				: MENU_HIGHLIGHT_COLOR) : BLACK_COLOR
-			);
+		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 56 + which_diff);
+
+		which_color = i == answer ? (confirm ? 0 : 1) : 2;
+		SetContextForeGroundColor (carray[which_color]);
+
 		font_DrawText (&t);
+
+		DiffRects[i] = font_GetTextRect (&t);
 
 		t.baseline.y += RES_SCALE (23);
 	}
 
+	SetContextForeGroundColor (oldColor);
 	SetContextFont (oldFont);
 }
 
@@ -222,7 +244,8 @@ DoDiffChooser (MENU_STATE *pMS)
 		{
 			return FALSE;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_SELECT])
+		else if (PulsedInputState.menu[KEY_MENU_SELECT]
+				|| CtxMouseClicker (DiffRects[a]))
 		{
 			done = TRUE;
 			response = TRUE;
@@ -230,10 +253,12 @@ DoDiffChooser (MENU_STATE *pMS)
 			PlayMenuSound (MENU_SOUND_SUCCESS);
 		}
 		else if (PulsedInputState.menu[KEY_MENU_CANCEL]
-				|| CurrentInputState.menu[KEY_EXIT])
+				|| CurrentInputState.menu[KEY_EXIT]
+				|| MouseButton (MOUSE_RGT))
 		{
 			done = TRUE;
 			response = FALSE;
+
 			DrawStamp (&s);
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP] ||
@@ -273,14 +298,47 @@ DoDiffChooser (MENU_STATE *pMS)
 			LastInputTime = GetTimeCounter ();
 
 		}
+		else
+		{
+			if (SetMouseContext (ScreenContext))
+			{
+				BYTE i;
+				int cursor = CURSOR_POINTER;
+				BYTE hovered_item = a;
+
+				for (i = 0; i <= 2; i++)
+				{
+					if (MouseInRect (DiffRects[i]))
+					{
+						hovered_item = i;
+						cursor = CURSOR_POINTER_HILITE;
+						break;
+					}
+				}
+
+				UQM_SetCursor (cursor);
+
+				if (hovered_item != a)
+				{
+					BatchGraphics ();
+					DrawDiffChooser (pMS, hovered_item, FALSE);
+					UnbatchGraphics ();
+					a = hovered_item;
+
+					PlayMenuSound (MENU_SOUND_MOVE);
+				}
+
+				LastInputTime = GetTimeCounter ();
+			}
 #ifndef DEBUG
-		else if (GetTimeCounter () - LastInputTime > InactTimeOut)
-		{	// timed out
-			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
-			done = TRUE;
-			response = FALSE;
-		}
+			else if (GetTimeCounter () - LastInputTime > InactTimeOut)
+			{	// timed out
+				GLOBAL (CurrentActivity) = (ACTIVITY)~0;
+				done = TRUE;
+				response = FALSE;
+			}
 #endif
+		}
 
 		SleepThread (ONE_SECOND / 30);
 	}
@@ -299,11 +357,6 @@ DoDiffChooser (MENU_STATE *pMS)
 
 	return response;
 }
-
-#define MAIN_TEXT_X (SCREEN_WIDTH >> 1)
-#define MAIN_TEXT_Y (RES_SCALE (42) - DOS_NUM_SCL (20))
-
-FRAME TextCache[5];
 
 static void
 InitPulseText (void)
@@ -331,7 +384,7 @@ InitPulseText (void)
 		t.pStr = GAME_STRING (MAINMENU_STRING_BASE + 69 + i);
 
 		frame = CaptureDrawable (CreateDrawable (WANT_PIXMAP, SCREEN_WIDTH,
-			SCREEN_HEIGHT, 1));
+				SCREEN_HEIGHT, 1));
 		SetFrameTransparentColor (frame, BLACK_COLOR);
 		OldFrame = SetContextFGFrame (frame);
 		ClearDrawable ();
@@ -342,6 +395,8 @@ InitPulseText (void)
 		SetContextFGFrame (OldFrame);
 
 		TextCache[i] = frame;
+
+		MenuRects[i] = font_GetTextRect (&t);
 
 		t.baseline.y += leading;
 	}
@@ -512,7 +567,8 @@ DoRestart (MENU_STATE *pMS)
 				FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| CtxMouseClicker (MenuRects[pMS->CurState]))
 	{
 		switch (pMS->CurState)
 		{
@@ -541,7 +597,8 @@ DoRestart (MENU_STATE *pMS)
 						 (3 * ONE_SECOND) / 16);
 					if (!DoDiffChooser (pMS))
 					{
-						LastInputTime = GetTimeCounter ();// if we timed out - don't start second credit roll
+						// if we timed out - don't start second credit roll
+						LastInputTime = GetTimeCounter ();
 						if (GLOBAL (CurrentActivity) != (ACTIVITY)~0)// just declined
 							Flash_continue (pMS->flashContext);
 						return TRUE;
@@ -633,35 +690,48 @@ DoRestart (MENU_STATE *pMS)
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
-	//else if (MouseButtonDown)
-	//{
-	//	Flash_pause (pMS->flashContext);
-	//	DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
-	//			// Mouse not supported message
-	//	SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);
-
-	//	SetTransitionSource (NULL);
-	//	BatchGraphics ();
-	//	DrawRestartMenuGraphic (pMS);
-	//	ScreenTransition (3, NULL);
-	//	DrawRestartMenu (pMS, pMS->CurState, NULL);
-	//	Flash_continue (pMS->flashContext);
-	//	UnbatchGraphics ();
-
-	//	LastInputTime = GetTimeCounter ();
-	//}
-#ifndef DEBUG
 	else
-	{	// No input received, check if timed out
-		if (GetTimeCounter () - LastInputTime > InactTimeOut)
+	{
+		if (SetMouseContext (ScreenContext))
 		{
-			GLOBAL (CurrentActivity) = (ACTIVITY)~0;
-			return FALSE;
-		}
-	}
-#endif
-#
+			BYTE i;
+			int cursor = CURSOR_POINTER;
+			BYTE hovered_item = pMS->CurState;
 
+			for (i = START_NEW_GAME; i < NUM_MENU_ELEMENTS; i++)
+			{
+				if (MouseInRect (MenuRects[i]))
+				{
+					hovered_item = i;
+					cursor = CURSOR_POINTER_HILITE;
+					break;
+				}
+			}
+
+			UQM_SetCursor (cursor);
+
+			if (hovered_item != pMS->CurState)
+			{
+				BatchGraphics ();
+				DrawRestartMenu (pMS, hovered_item, NULL);
+				UnbatchGraphics ();
+				pMS->CurState = hovered_item;
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
+
+			LastInputTime = GetTimeCounter ();
+		}
+#ifndef DEBUG
+		else
+		{	// No input received, check if timed out
+			if (GetTimeCounter () - LastInputTime > InactTimeOut)
+			{
+				GLOBAL (CurrentActivity) = (ACTIVITY)~0;
+				return FALSE;
+			}
+		}
+#endif
+	}
 	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
 
 	if (!MusicInitialized && optMainMenuMusic)
@@ -694,7 +764,7 @@ RestartMenu (MENU_STATE *pMS)
 			&& GET_GAME_STATE (UTWIG_BOMB_ON_SHIP)
 			&& !GET_GAME_STATE (UTWIG_BOMB)
 			&& DeathBySuicide)
-	{	// player blew himself up with Utwig bomb
+	{	// player blew themself up with Utwig bomb
 		SET_GAME_STATE (UTWIG_BOMB_ON_SHIP, 0);
 
 		SleepThreadUntil (FadeScreen (FadeAllToWhite, ONE_SECOND / 8)

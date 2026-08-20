@@ -104,15 +104,14 @@ antiCheat (ELEMENT *ElementPtr, BOOLEAN SwapBool, int GodModeType)
 }
 
 static inline BOOLEAN
-antiCheatAlt (int GodModeType)
+antiCheatAlt (void)
 {
 	return !(PlayerControl[0] & COMPUTER_CONTROL
 			&& PlayerControl[1] & COMPUTER_CONTROL)
-			&& (optGodModes == GodModeType
-			&& (((PlayerControl[0] & COMPUTER_CONTROL)
+			&& ((PlayerControl[0] & COMPUTER_CONTROL)
 				&& PlayerControl[1] & HUMAN_CONTROL)
 			|| ((PlayerControl[1] & COMPUTER_CONTROL)
-				&& PlayerControl[0] & HUMAN_CONTROL)));
+				&& PlayerControl[0] & HUMAN_CONTROL);
 }
 
 static inline BOOLEAN

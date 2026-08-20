@@ -26,7 +26,7 @@
 #include "../process.h"
 #include "../units.h"
 #include "../gamestr.h"
-#include "../nameref.h"
+#include "../nameref.h" 
 #include "../resinst.h"
 #include "../setup.h"
 #include "../setupmenu.h"
@@ -39,6 +39,9 @@
 #include "options.h"
 #include "uqm/menustat.h"
 #include "../util.h"
+#include "uqm/shipcont.h"
+#include "libs/inplib.h"
+#include "uqm/init.h"
 
 //define SPIN_ON_LAUNCH to let the planet spin while
 // the lander animation is playing
@@ -204,6 +207,280 @@ static BYTE crew_y_offs = 0;
 PLANETSIDE_DESC *planetSideDesc;
 
 EXTENT MapSurface;
+
+static POINT lander_autopilot = { -1, -1 };
+static BOOLEAN mouse_target = FALSE;
+static HELEMENT target_node = NULL;
+static BYTE target_node_type = NUM_SCAN_TYPES;
+
+CONTEXT ScanContext;
+
+static void
+DrawPlanetAutopilotTarget (void)
+{
+	POINT target;
+
+	if (!optMouseInput)
+		return;
+
+	target.x = ((lander_autopilot.x - curLanderLoc.x))
+			+ (MapSurface.width >> 1);
+	target.y = ((lander_autopilot.y - curLanderLoc.y))
+			+ (MapSurface.height >> 1);
+
+	if (target.x < 0)
+		target.x += SCALED_MAP_WIDTH << MAG_SHIFT;
+	else if (target.x >= SCALED_MAP_WIDTH << MAG_SHIFT)
+		target.x -= SCALED_MAP_WIDTH << MAG_SHIFT;
+
+	if (target_node)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (TEAL_COLOR);
+
+	DrawAutopilotTarget (target);
+}
+
+static void
+DrawScanAutopilotTarget (void)
+{
+	POINT target;
+
+	if (!optMouseInput)
+		return;
+
+	target.x = lander_autopilot.x >> MAG_SHIFT;
+	target.y = lander_autopilot.y >> MAG_SHIFT;
+
+	if (target_node)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (TEAL_COLOR);
+
+	DrawAutopilotTarget (target);
+}
+
+static POINT
+GetMouseScanCoords (void)
+{
+	POINT canvas = ScreenToCanvas (ScanContext);
+	POINT lander;
+
+	lander.x = canvas.x << MAG_SHIFT;
+	lander.y = canvas.y << MAG_SHIFT;
+
+	return lander;
+}
+
+static POINT
+GetMousePlanetCoords (void)
+{
+	POINT lander;
+	POINT canvas = ScreenToCanvas (PlanetContext);
+
+	lander.x = (canvas.x - (MapSurface.width >> 1)) + curLanderLoc.x;
+	lander.y = (canvas.y - (MapSurface.height >> 1)) + curLanderLoc.y;
+
+	return lander;
+}
+
+static void
+KillAutopilot (void)
+{
+	mouse_target = FALSE;
+	lander_autopilot = MAKE_POINT (-1, -1);
+	target_node = NULL;
+	target_node_type = NUM_SCAN_TYPES;
+}
+
+static void
+CalculateAutopilot (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust)
+{
+	POINT lander_pos, target_pos;
+	SIZE dx, dy;
+	SIZE distance, ship_perimeter;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+	RECT ship_rect;
+
+	if (!optMouseInput || !mouse_target || !crew_left ||
+			CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
+			CurrentInputState.key[PlayerControls[0]][KEY_UP])
+	{
+		KillAutopilot ();
+		return;
+	}
+
+	lander_pos = curLanderLoc;
+
+	if (target_node && target_node_type == BIOLOGICAL_SCAN)
+	{
+		ELEMENT *ElementPtr;
+		LockElement (target_node, &ElementPtr);
+
+		lander_autopilot = ElementPtr->next.location;
+		
+		UnlockElement (target_node);
+	}
+
+	target_pos = lander_autopilot;
+
+	GetFrameRect (LanderFrame[0], &ship_rect);
+
+	ship_perimeter = (ship_rect.extent.width + ship_rect.extent.height) >> 1;
+
+	dx = target_pos.x - lander_pos.x;
+	dy = target_pos.y - lander_pos.y;
+
+	if (dx < -(SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
+		dx += SCALED_MAP_WIDTH << MAG_SHIFT;
+	else if (dx > (SCALED_MAP_WIDTH << (MAG_SHIFT - 1)))
+		dx -= SCALED_MAP_WIDTH << MAG_SHIFT;
+
+	distance = sqrt (dx * dx + dy * dy);
+
+	if (distance < (ship_perimeter - RES_SCALE (8)))
+	{
+		KillAutopilot ();
+		return;
+	}
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = GetFrameIndex (LanderFrame[0]);
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (abs (facing_diff) <= 1)
+	{
+		*turn_left = FALSE;
+		*turn_right = FALSE;
+	}
+	else if (facing_diff <= 8)
+		*turn_right = TRUE;
+	else
+		*turn_left = TRUE;
+
+	if (abs (facing_diff) <= 4 || !(turn_left || turn_right))
+		*thrust = TRUE;
+	else
+		*thrust = FALSE;
+}
+
+static void
+LanderFaceCursor (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust,
+		BOOLEAN *weapon)
+{
+	POINT mouse_pos;
+	SIZE dx, dy;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+
+	if (!optMouseInput || !crew_left ||
+		CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_LEFT] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_RIGHT] ||
+		CurrentInputState.key[PlayerControls[0]][KEY_UP])
+	{
+		return;
+	}
+
+	mouse_pos = GetMousePlanetCoords ();
+
+	dx = mouse_pos.x - curLanderLoc.x;
+	dy = mouse_pos.y - curLanderLoc.y;
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = GetFrameIndex (LanderFrame[0]);
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (abs (facing_diff) <= 1)
+	{
+		*turn_left = FALSE;
+		*turn_right = FALSE;
+	}
+	else if (facing_diff <= 8)
+		*turn_right = TRUE;
+	else
+		*turn_left = TRUE;
+
+	if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+		*thrust = TRUE;
+	else
+		*thrust = FALSE;
+
+	if (CurrentInputState.menu[MOUSE_BTN_RIGHT])
+		*weapon = TRUE;
+	else
+		*weapon = FALSE;
+}
+
+static HELEMENT
+FindNearestNode (POINT pos)
+{
+	ELEMENT *ElementPtr;
+	HELEMENT hElement, hNextElement;
+	HELEMENT node = NULL;
+
+	for (hElement = GetHeadElement (); hElement; hElement = hNextElement)
+	{
+		BYTE scan;
+		POINT position;
+		SIZE dx, dy, dist, threshold;
+
+		LockElement (hElement, &ElementPtr);
+		hNextElement = GetSuccElement (ElementPtr);
+
+		scan = LOBYTE (ElementPtr->scan_node);
+
+		if (scan == BIOLOGICAL_SCAN)
+			threshold = RES_SCALE (10);
+		else
+			threshold = RES_SCALE (4);
+
+		position = ElementPtr->next.location;
+
+		dx = position.x - pos.x;
+		dy = position.y - pos.y;
+
+		dist = sqrt (dx * dx + dy * dy);
+
+		if (dist < threshold)
+			node = hElement;
+
+		UnlockElement (hElement);
+	}
+
+	return node;
+}
+
+static void SetAutoPilot (HELEMENT hNode, POINT pt)
+{
+	ELEMENT *ElementPtr;
+
+	KillAutopilot ();
+
+	if (!hNode)
+	{
+		lander_autopilot = pt;
+		mouse_target = TRUE;
+		return;
+	}
+
+	FlushInput ();
+
+	LockElement (hNode, &ElementPtr);
+
+	target_node = hNode;
+	lander_autopilot = ElementPtr->next.location;
+	mouse_target = TRUE;
+	target_node_type = LOBYTE (ElementPtr->scan_node);
+
+	UnlockElement (hNode);
+}
 
 #define ON_THE_GROUND   0
 
@@ -1046,6 +1323,7 @@ CheckObjectCollision (COUNT index)
 					{
 						// noop; handled by generation funcs, see below
 						DrawRadarArea ();
+						KillAutopilot ();
 					}
 					else if (scan == BIOLOGICAL_SCAN
 							&& ElementPtr->hit_points)
@@ -1605,7 +1883,18 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		RotatePlanetSphere (TRUE, NULL);
 	}
 
+	if (is3DO (optSuperPC) && mouse_target)
+	{
+		DrawPlanetAutopilotTarget ();
+		SetContext (ScanContext);
+		DrawScanAutopilotTarget ();
+	}
 
+	if (isPC (optSuperPC) && mouse_target)
+	{
+		SetContext (ScanContext);
+		DrawScanAutopilotTarget ();
+	}
 
 	UnbatchGraphics ();
 
@@ -1760,6 +2049,7 @@ AnimateLanderWarmup (void)
 static void
 InitPlanetSide (POINT pt)
 {
+	ScanContext = GetScanContext (NULL);
 	// Adjust landing location by a random jitter.
 #define RANDOM_MISS RES_SCALE (64)
 	// Jitter the X landing point.
@@ -2128,6 +2418,7 @@ LanderExplosion (void)
 static BOOLEAN
 DoPlanetSide (LanderInputState *pMS)
 {
+	int cursor =  CURSOR_DISABLE;
 	SIZE dx = 0;
 	SIZE dy = 0;
 
@@ -2162,8 +2453,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	}
 	else if (crew_left /* alive and taking off */
 			&& ((CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
-			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL])
-			|| planetSideDesc->InTransit))
+			CurrentInputState.key[PlayerControls[0]][KEY_SPECIAL]) ||
+			MouseButton (MOUSE_MID) || planetSideDesc->InTransit))
 	{
 		return FALSE;
 	}
@@ -2198,6 +2489,8 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 						" allocate explosion element!");
 			}
 		}
+
+		KillAutopilot ();
 	}
 	else
 	{
@@ -2205,7 +2498,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 		{
 			SIZE index = GetFrameIndex (LanderFrame[0]);
 			BATTLE_INPUT_STATE InputState = 0;
-			BOOLEAN turn_left, turn_right, thrust;
+			BOOLEAN turn_left, turn_right, thrust, weapon;
 
 			InputState = GetDirectionalJoystickInput (index, 0);
 
@@ -2216,6 +2509,12 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 			thrust = CurrentInputState.key[PlayerControls[0]][KEY_THRUST] ||
 					CurrentInputState.key[PlayerControls[0]][KEY_UP] ||
 					(InputState & BATTLE_THRUST);
+			weapon = CurrentInputState.key[PlayerControls[0]][KEY_WEAPON];
+
+			if (optMouseInput == 1 && MouseInContext (PlanetContext))
+				LanderFaceCursor (&turn_left, &turn_right, &thrust, &weapon);
+			if (optMouseInput == 2)
+				CalculateAutopilot (&turn_left, &turn_right, &thrust);
 
 			if (turn_wait)
 				--turn_wait;
@@ -2226,7 +2525,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 				if (turn_left)
 					--index;
-				else
+				else if (turn_right)
 					++index;
 
 				index = NORMALIZE_FACING (index);
@@ -2234,18 +2533,18 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 				angle = FACING_TO_ANGLE (index);
 				landerSpeedNumer = GET_GAME_STATE (IMPROVED_LANDER_SPEED) ?
-					WORLD_TO_VELOCITY (RES_SCALE (2 * 14)) :
-					WORLD_TO_VELOCITY (RES_SCALE (2 * 8));
+						WORLD_TO_VELOCITY (RES_SCALE (2 * 14)) :
+						WORLD_TO_VELOCITY (RES_SCALE (2 * 8));
 
 #ifdef FAST_FAST
-landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
+				landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 #endif
 
 				SetVelocityComponents (&GLOBAL (velocity),
 						COSINE (angle, landerSpeedNumer)
-							/ LANDER_SPEED_DENOM,
+						/ LANDER_SPEED_DENOM,
 						SINE (angle, landerSpeedNumer)
-							/ LANDER_SPEED_DENOM);
+						/ LANDER_SPEED_DENOM);
 
 				turn_wait = SHUTTLE_TURN_WAIT;
 			}
@@ -2260,7 +2559,7 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 
 			if (weapon_wait)
 				--weapon_wait;
-			else if (CurrentInputState.key[PlayerControls[0]][KEY_WEAPON])
+			else if (weapon)
 			{
 				LanderFire (index);
 
@@ -2288,6 +2587,51 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 	SleepThreadUntil (pMS->NextTime);
 	// NOTE: The rate is not stabilized
 	pMS->NextTime = GetTimeCounter () + PLANET_SIDE_RATE;
+
+	if (SetMouseContext (ScreenContext))
+	{
+		if ((is3DO (optSuperPC) && MouseInContext (PlanetContext))
+			|| MouseInContext (ScanContext))
+		{
+			cursor = CURSOR_CROSSHAIR;
+		}
+		else
+			cursor = CURSOR_POINTER;
+
+		if (optMouseInput == 2)
+		{
+			if (is3DO (optSuperPC) && MouseInContext (PlanetContext))
+			{
+				POINT mouse_pos = GetMousePlanetCoords ();
+				HELEMENT found_node = FindNearestNode (mouse_pos);
+
+				if (found_node)
+					cursor = CURSOR_CROSSHAIR_HILITE;
+
+				if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+					SetAutoPilot (found_node, mouse_pos);
+			}
+			else if (MouseInContext (ScanContext))
+			{
+				POINT mouse_pos = GetMouseScanCoords ();
+				HELEMENT found_node = FindNearestNode (mouse_pos);
+
+				if (found_node)
+					cursor = CURSOR_CROSSHAIR_HILITE;
+
+				if (PulsedInputState.menu[MOUSE_BTN_LEFT])
+					SetAutoPilot (found_node, mouse_pos);
+			}
+
+			if (MouseButton (MOUSE_RGT))
+			{
+				FlushInput ();
+				KillAutopilot ();
+			}
+		}
+	}
+
+	UQM_SetCursor (cursor);
 
 	return TRUE;
 }
@@ -2484,8 +2828,10 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	int end;
 	int delta;
 	int index;
-	int max_offsets; 
-	int landingOfsHD[MAX_OFFSETS_HD]; 
+	int max_offsets;
+	int landingOfsHD[MAX_OFFSETS_HD];
+
+	KillAutopilot ();
 
 	// Produce smooth acceleration deltas from a simple 1..x progression
 	delta = 0;
@@ -2596,7 +2942,7 @@ KillLanderCrewSeq (COUNT numKilled, BOOLEAN extraSFX)
 		if (!damage_ticks)
 			damage_index = 0;
 		else
-			damage_index = (TFB_Random () % 5) + 2;			
+			damage_index = (TFB_Random () % 5) + 2;
 
 		ScrollPlanetSide (0, 0, ON_THE_GROUND);
 		SleepThreadUntil (timeout);
@@ -2611,7 +2957,7 @@ KillLanderCrewSeq (COUNT numKilled, BOOLEAN extraSFX)
 	return crew_left > 0;
 }
 
-// Maps a temperature to a(0 - 7) hazard rating.
+// Maps a temperature to a (0-7) hazard rating.
 // Thermal hazards aren't exposed to the user as a hazard number,
 // but the code still works with them that way.
 unsigned

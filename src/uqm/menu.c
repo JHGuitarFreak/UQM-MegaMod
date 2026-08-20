@@ -33,6 +33,8 @@
 #include "nameref.h"
 #include "ifontres.h"
 #include "libs/graphics/drawable.h"
+#include "libs/inplib.h"
+#include "sounds.h"
 
 static BYTE GetEndMenuState (BYTE BaseState);
 static BYTE GetBeginMenuState (BYTE BaseState);
@@ -42,6 +44,8 @@ static BYTE PreviousMenuState (BYTE BaseState, BYTE CurState);
 static BOOLEAN GetAlternateMenu (BYTE *BaseState, BYTE *CurState);
 static BYTE ConvertAlternateMenu (BYTE BaseState, BYTE NewState);
 void FunkyMenu (BYTE m, STAMP stmp);
+
+RECT MenuItemRects[NUM_PM_ENTRIES];
 
 /* Draw the blue background for PC Menu Text, with a border around it.
  * The specified rectangle includes the border. */
@@ -127,6 +131,9 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 	t.CharCount = (COUNT)~0;
 	r->corner.x += RES_SCALE (1);
 	r->extent.width -= RES_SCALE (2);
+
+	memset (MenuItemRects, 0, sizeof (MenuItemRects));
+
 	for (i = beg_index; i <= end_index; i++)
 	{
 		// To compensate for the read speed menu entries
@@ -175,6 +182,10 @@ DrawPCMenu (BYTE beg_index, BYTE end_index, BYTE NewState, BYTE hilite, RECT *r)
 			SetContextForeGroundColor (PCMENU_TEXT_COLOR);
 			font_DrawText (&t);
 		}
+
+		MenuItemRects[i] = font_GetTextRect (&t);
+		MenuItemRects[i].extent.width = r->extent.width;
+
 		t.baseline.y += PC_MENU_HEIGHT;
 	}
 	SetContextFont (OldFont);
@@ -481,15 +492,24 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	BYTE NewState = pMS->CurState;
 	BYTE OrigBase = BaseState;
 	BOOLEAN useAltMenu = FALSE;
+
 	if (optWhichMenu == OPT_PC)
 		useAltMenu = GetAlternateMenu (&BaseState, &NewState);
+
 	if (PulsedInputState.menu[KEY_MENU_LEFT] ||
-			PulsedInputState.menu[KEY_MENU_UP])
+			PulsedInputState.menu[KEY_MENU_UP] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP])
+	{
 		NewState = PreviousMenuState (BaseState, NewState);
+	}
 	else if (PulsedInputState.menu[KEY_MENU_RIGHT] ||
-			PulsedInputState.menu[KEY_MENU_DOWN])
+			PulsedInputState.menu[KEY_MENU_DOWN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN])
+	{
 		NewState = NextMenuState (BaseState, NewState);
-	else if (useAltMenu && PulsedInputState.menu[KEY_MENU_SELECT])
+	}
+	else if (useAltMenu && PulsedInputState.menu[KEY_MENU_SELECT]
+		|| MouseButton (MOUSE_LFT))
 	{
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 		if (NewState == ALT_MANIFEST)
@@ -512,7 +532,8 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 		return FALSE;
 	}
 	else if ((optWhichMenu == OPT_PC) &&
-			PulsedInputState.menu[KEY_MENU_CANCEL] && 
+			(PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT)) &&
 			(BaseState == PM_ALT_CARGO))
 	{
 		if (OrigBase == PM_SCAN)
@@ -525,7 +546,80 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 		return TRUE;
 	}
 	else
+	{
+		if (is3DO (optWhichMenu) && SetMouseContext (ScreenContext))
+			UQM_SetCursor (CURSOR_POINTER);
+
+		if (isPC (optWhichMenu) && SetMouseContext (StatusContext))
+		{
+			BYTE i, base_index, end_index, num_items;
+			int cursor = CURSOR_POINTER;
+			BYTE hovered_item = NewState;
+
+			base_index = BaseState;
+			if (BaseState == PM_STARMAP)
+				base_index--;
+
+			end_index = GetEndMenuState (BaseState);
+			num_items = end_index - base_index;
+
+			for (i = base_index; i <= end_index; i++)
+			{
+				if (MouseInRect (MenuItemRects[i]))
+				{
+					if (BaseState == PM_SOUND_ON)
+					{
+						BYTE item;
+
+						switch (i - base_index)
+						{
+						case 0:
+							item = (GLOBAL (glob_flags) & SOUND_DISABLED) ?
+									PM_SOUND_OFF : PM_SOUND_ON;
+							break;
+						case 1:
+							item = (GLOBAL (glob_flags) & MUSIC_DISABLED) ?
+									PM_MUSIC_OFF : PM_MUSIC_ON;
+							break;
+						case 2:
+							item = PM_CYBORG_OFF +
+									((GLOBAL (glob_flags) & COMBAT_SPEED_MASK)
+										>> COMBAT_SPEED_SHIFT);
+							break;
+						case 3:
+							item = PM_READ_VERY_SLOW +
+									(GLOBAL (glob_flags) & READ_SPEED_MASK);
+							break;
+						case 4: item = PM_CHANGE_CAPTAIN; break;
+						case 5: item = PM_CHANGE_SHIP;    break;
+						case 6: item = PM_EXIT_SETTINGS;  break;
+						default: item = i;
+						}
+						hovered_item = item - base_index;
+					}
+					else
+						hovered_item = i - base_index;
+
+					cursor = CURSOR_POINTER_HILITE;
+					break;
+				}
+			}
+
+			UQM_SetCursor (cursor);
+
+			if (hovered_item != NewState && hovered_item <= num_items)
+			{
+				NewState = hovered_item;
+				DrawMenuStateStrings (BaseState, NewState);
+				if (useAltMenu)
+					NewState = ConvertAlternateMenu (BaseState, NewState);
+				pMS->CurState = NewState;
+				PlayMenuSound (MENU_SOUND_MOVE);
+				return TRUE;
+			}
+		}
 		return FALSE;
+	}
 
 	DrawMenuStateStrings (BaseState, NewState);
 	if (useAltMenu)
@@ -662,6 +756,9 @@ DrawMenuStateStrings (BYTE beg_index, SWORD NewState)
 	CONTEXT OldContext;
 	BYTE hilite = 1;
 	extern FRAME PlayFrame;
+
+	if (optWhichMenu != OPT_PC)
+		memset (MenuItemRects, 0, sizeof (MenuItemRects));
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return;

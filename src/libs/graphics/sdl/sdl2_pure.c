@@ -340,9 +340,11 @@ TFB_Pure_ConfigureVideo (int driver, int flags, int width, int height,
 		graphics_backend = &sdl2_unscaled_backend;
 	}
 
+	SDL_GetWindowSize (window, &WindowWidth, &WindowHeight);
+
 	/* We succeeded, so alter the screen size to our new sizes */
-	WindowWidth = width;
-	WindowHeight = height;
+	/*WindowWidth = width;
+	WindowHeight = height;*/
 
 	return 0;
 }

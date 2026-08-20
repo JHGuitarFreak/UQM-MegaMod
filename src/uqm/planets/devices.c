@@ -41,6 +41,7 @@
 #include "../../options.h"
 #include "libs/graphics/gfx_common.h"
                 // for scaling down devices in HD
+#include "libs/inplib.h"
 
 
 // If DEBUG_DEVICES is defined, the device list shown in the game will
@@ -67,6 +68,7 @@
 
 #define MAX_VIS_DEVICES    ((RES_SCALE (129) - DEVICE_ORG_Y) / DEVICE_SPACING_Y)
 
+static RECT DeviceRects[NUM_DEVICES];
 
 typedef enum
 {
@@ -147,6 +149,8 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 	COORD cy;
 	COUNT i;
 
+	memset (DeviceRects, 0, sizeof DeviceRects);
+
 	r.corner.x = RES_SCALE (2);
 	r.corner.y = RES_SCALE (20);
 	r.extent.width = FIELD_WIDTH + RES_SCALE (1);
@@ -188,6 +192,11 @@ DrawDevicesDisplay (DEVICES_STATE *devState)
 				77 + devState->list[devIndex]);
 		
 		DrawStamp (&s);
+
+		DeviceRects[devIndex].corner.x = DEVICE_COL_0;
+		DeviceRects[devIndex].corner.y = cy + RES_SCALE (2);
+		DeviceRects[devIndex].extent.width = FIELD_WIDTH - DEVICE_COL_0;
+		DeviceRects[devIndex].extent.height = TEXT_SPACING_Y * 2;
 
 		DrawDevice (devState->list[devIndex], i, false);
 	}
@@ -505,14 +514,18 @@ DoManipulateDevices (MENU_STATE *pMS)
 	BOOLEAN select, cancel, back, forward;
 	BOOLEAN pagefwd, pageback;
 	
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			CtxMouseClicker (DeviceRects[pMS->CurState]);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
+			MouseButton (MOUSE_RGT);
 	back = PulsedInputState.menu[KEY_MENU_UP] ||
 			PulsedInputState.menu[KEY_MENU_LEFT];
-	forward = PulsedInputState.menu[KEY_MENU_DOWN]
-			|| PulsedInputState.menu[KEY_MENU_RIGHT];
-	pagefwd = PulsedInputState.menu[KEY_MENU_PAGE_DOWN];
-	pageback = PulsedInputState.menu[KEY_MENU_PAGE_UP];
+	forward = PulsedInputState.menu[KEY_MENU_DOWN] ||
+			PulsedInputState.menu[KEY_MENU_RIGHT];
+	pagefwd = PulsedInputState.menu[KEY_MENU_PAGE_DOWN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
+	pageback = PulsedInputState.menu[KEY_MENU_PAGE_UP] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP];
 
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
@@ -557,6 +570,36 @@ DoManipulateDevices (MENU_STATE *pMS)
 
 		if (NewState < NewTop || NewState >= NewTop + MAX_VIS_DEVICES)
 			NewTop = NewState - NewState % MAX_VIS_DEVICES;
+
+		if (!(pagefwd || pageback) && SetMouseContext (StatusContext))
+		{
+			BYTE i;
+			int cursor = CURSOR_POINTER;
+			BYTE hovered_item = NewState;
+
+			for (i = 0; i < devState->count; i++)
+			{
+				COUNT devIndex = devState->topIndex + i;
+
+				if (devIndex >= devState->count)
+					break;
+
+				if (MouseInRect (DeviceRects[devIndex]))
+				{
+					hovered_item = devIndex;
+					cursor = CURSOR_POINTER_HILITE;
+					break;
+				}
+			}
+
+			UQM_SetCursor (cursor);
+
+			if (hovered_item != NewState)
+			{
+				NewState = hovered_item;
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
+		}
 
 		if (NewState != pMS->CurState)
 		{

@@ -28,7 +28,11 @@
 #include "libs/file.h"
 #include "libs/log.h"
 #include "libs/reslib.h"
-#include "options.h"
+#include "libs/graphics/gfx_common.h"
+#include "uqm/colors.h"
+#include "uqm/units.h"
+#include "uqm/sounds.h"
+#include "uqm/setup.h"
 
 #include "libs/imgui/uqm_imgui.h"
 
@@ -53,6 +57,9 @@ int num_flight;
 static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
+
+POINT CurrentMousePos = { 0, 0 };
+POINT MouseContext = { 0, 0 };
 
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
@@ -89,6 +96,11 @@ const char *menu_res_names[] = {
 	"debug_2",
 	"debug_3",
 	"debug_4",
+	"mouse_left",
+	"mouse_right",
+	"mouse_middle",
+	"mouse_wheel_up",
+	"mouse_wheel_down",
 	NULL
 };
 
@@ -487,6 +499,81 @@ GetLastCharacter (void)
 	return lastchar;
 }
 
+BOOLEAN
+MouseButton (int button)
+{
+	int temp = 0;
+
+	switch (button)
+	{
+	case MOUSE_LFT:
+		temp = MOUSE_BTN_LEFT;
+		break;
+	case MOUSE_RGT:
+		temp = MOUSE_BTN_RIGHT;
+		break;
+	case MOUSE_MID:
+		temp = MOUSE_BTN_MIDDLE;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return PulsedInputState.menu[temp];
+}
+
+BOOLEAN
+MouseWheel (int direction)
+{
+	int temp = 0;
+
+	switch (direction)
+	{
+	case WHEEL_UP:
+		temp = MOUSE_WHEEL_UP;
+		break;
+	case WHEEL_DOWN:
+		temp = MOUSE_WHEEL_DOWN;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return PulsedInputState.menu[temp];
+}
+
+BOOLEAN
+MouseBtnInCtx (int button, CONTEXT context)
+{
+	int temp = 0;
+
+	switch (button)
+	{
+	case MOUSE_LFT:
+		temp = MOUSE_BTN_LEFT;
+		break;
+	case MOUSE_RGT:
+		temp = MOUSE_BTN_RIGHT;
+		break;
+	case MOUSE_MID:
+		temp = MOUSE_BTN_MIDDLE;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return MouseInContext (context) && PulsedInputState.menu[temp];
+}
+
 static inline int
 is_numpad_char_event (const SDL_Event * Event)
 {
@@ -704,6 +791,15 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		}
 		buffer[maxlen - 1] = 0;
 		break;
+	case VCONTROL_MOUSEBUTTON:
+		snprintf (buffer, maxlen, "Mouse B%d", g->gesture.mouse_button.button);
+		buffer[maxlen - 1] = 0;
+		break;
+	case VCONTROL_MOUSEWHEEL:
+		snprintf (buffer, maxlen, "Wheel %s",
+			g->gesture.mouse_wheel.direction > 0 ? "Up" : "Down");
+		buffer[maxlen - 1] = 0;
+		break;
 	default:
 		/* Something we don't handle yet */
 		buffer[0] = 0;
@@ -881,4 +977,287 @@ int GetActionFromEvent (const SDL_Event *event, int player)
 	}
 
 	return -1;
+}
+
+RECT
+GetWindowScale (void)
+{
+	RECT r;
+	float window_aspect;
+	float target_aspect;
+
+	switch (optKeepAspectRatio)
+	{
+	case 0:
+		r.corner.x = 0;
+		r.corner.y = 0;
+		r.extent.width = WindowWidth;
+		r.extent.height = WindowHeight;
+		return r;
+	case 2:
+		target_aspect = 4.0f / 3.0f;
+		break;
+	case 1:
+	default:
+		target_aspect = (float)CanvasWidth / (float)CanvasHeight;
+		break;
+	}
+
+	window_aspect = (float)WindowWidth / (float)WindowHeight;
+
+	if (window_aspect > target_aspect)
+	{
+		r.extent.height = WindowHeight;
+		r.extent.width = (int)(WindowHeight * target_aspect);
+		r.corner.x = (WindowWidth - r.extent.width) / 2;
+		r.corner.y = 0;
+	}
+	else
+	{
+		r.extent.width = WindowWidth;
+		r.extent.height = (int)(WindowWidth / target_aspect);
+		r.corner.x = 0;
+		r.corner.y = (WindowHeight - r.extent.height) / 2;
+	}
+
+	return r;
+}
+
+POINT
+ScaleCanvas (void)
+{
+	POINT temp;
+	POINT pt = CurrentMousePos;
+	RECT r = GetWindowScale ();
+
+	if (!pointWithinRect (r, pt))
+	{
+		temp.x = -1;
+		temp.y = -1;
+		return temp;
+	}
+
+	temp.x = (pt.x - r.corner.x) * ((float)CanvasWidth / (float)r.extent.width);
+	temp.y = (pt.y - r.corner.y) * ((float)CanvasHeight / (float)r.extent.height);
+
+	return temp;
+}
+
+POINT
+ScreenToCanvas (CONTEXT context)
+{
+	POINT ipPos;
+	RECT r;
+
+	GetContextClipDiRect (&r, context);
+
+	ipPos = ScaleCanvas ();
+
+	ipPos.x = (COORD)inBounds (ipPos.x - r.corner.x, 0, r.extent.width);
+	ipPos.y = (COORD)inBounds (ipPos.y - r.corner.y, 0, r.extent.height);
+
+	return ipPos;
+}
+
+DPOINT
+CanvasToScreen (CONTEXT context, POINT canvasPos)
+{
+	RECT r;
+	POINT canvas_pos;
+	DPOINT screen_pos;
+
+	GetContextClipDiRect (&r, context);
+
+	canvas_pos.x = canvasPos.x + r.corner.x;
+	canvas_pos.y = canvasPos.y + r.corner.y;
+
+	screen_pos.x = canvas_pos.x * ((float)WindowWidth / (float)CanvasWidth);
+	screen_pos.y = canvas_pos.y * ((float)WindowHeight / (float)CanvasHeight);
+
+	return screen_pos;
+}
+
+BOOLEAN
+MouseInContext (CONTEXT context)
+{
+	RECT r;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	GetContextClipDiRect (&r, context);
+
+	return pointWithinRect (r, ScaleCanvas ());
+}
+
+BOOLEAN
+SetMouseContext (CONTEXT context)
+{
+	RECT r;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	GetContextClipDiRect (&r, context);
+
+	if (pointWithinRect (r, ScaleCanvas ()))
+	{
+		MouseContext = ScreenToCanvas (context);
+		return TRUE;
+	}
+	else
+		return FALSE;
+}
+
+BOOLEAN
+MouseInRect (RECT r)
+{
+	return pointWithinRect (r, MouseContext);
+}
+
+static void
+MouseThing (BYTE *NewState, CONTEXT context, RECT *rect, BYTE num_rects)
+{
+	BYTE i;
+	int cursor = CURSOR_POINTER;
+	BYTE hovered_item;
+
+	if (!SetMouseContext (context))
+		return;
+
+	hovered_item = *NewState;
+
+	for (i = 0; i < num_rects; i++)
+	{
+		if (MouseInRect (rect[i]))
+		{
+			hovered_item = i;
+			cursor = CURSOR_POINTER_HILITE;
+			break;
+		}
+	}
+
+	UQM_SetCursor (cursor);
+
+	if (hovered_item != *NewState)
+	{
+		*NewState = hovered_item;
+		PlayMenuSound (MENU_SOUND_MOVE);
+	}
+}
+
+void
+DebugMouseCursor (CONTEXT context)
+{
+	LINE line;
+	Color OldColor;
+	POINT pt;
+
+	pt = ScreenToCanvas (context);
+
+	BatchGraphics ();
+
+	OldColor = SetContextForeGroundColor (BRIGHT_PINK_COLOR);
+
+	line.first.x = pt.x - RES_SCALE (3);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (3);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+
+	SetContextForeGroundColor (OldColor);
+
+	UnbatchGraphics ();
+}
+
+void
+DrawAutopilotTarget (POINT pt)
+{
+	LINE line;
+	RECT diag;
+
+	BatchGraphics ();
+
+	line.first.x = pt.x - RES_SCALE (4);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (4);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+
+	diag.corner.x = pt.x - RES_SCALE (2);
+	diag.corner.y = pt.y - RES_SCALE (2);
+	diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
+	DrawFilledRectangle (&diag);
+	diag.corner.x += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.y += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.x -= RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+
+	UnbatchGraphics ();
+}
+
+// Makes it so the mouse has to be on the rectangle of an entry to be able to
+// click on it
+BOOLEAN
+MouseClicker (RECT r, CONTEXT context)
+{
+	POINT mousePos = ScreenToCanvas (context);
+
+	if (MouseButton (MOUSE_LFT))
+	{
+		if (pointWithinRect (r, mousePos))
+		{
+			UQM_SetCursor (CURSOR_POINTER);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+BOOLEAN
+CtxMouseClicker (RECT r)
+{
+	if (MouseButton (MOUSE_LFT))
+	{
+		if (pointWithinRect (r, MouseContext))
+		{
+			UQM_SetCursor (CURSOR_POINTER);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+extern SDL_Window *window;
+
+void
+PutMouse (CONTEXT context, POINT pt)
+{
+	DPOINT temp = CanvasToScreen (context, pt);
+
+	SDL_WarpMouseInWindow (window, temp.x, temp.y);
 }

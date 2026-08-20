@@ -87,6 +87,7 @@ static POINT mapOrigin;
 static int zoomLevel;
 static FRAME StarMapFrame;
 static CURRENT_STARMAP_SHOWN which_starmap;
+static BOOLEAN manual_input = TRUE;
 
 static inline long
 signedDivWithError (long val, long divisor)
@@ -171,6 +172,72 @@ universeToDispy2 (COORD uy)
 #define UNIVERSE_TO_DISPY2(uy) \
 		(IS_HD ? universeToDispy2(uy) : universeToDispy(uy))
 
+// Begin mouse-centric chunk of code
+
+static void DrawStarMap (COUNT race_update, RECT *pClipRect);
+static void DrawCursor (COORD curs_x, COORD curs_y);
+static void EraseCursor (COORD curs_x, COORD curs_y);
+static void ZoomStarMap (SIZE dir);
+
+static POINT
+ScreenToStarMapCoords (void)
+{
+	POINT pos;
+	POINT pt = ScaleCanvas ();
+	POINT max = { MAX_X_UNIVERSE, MAX_Y_UNIVERSE };
+
+	pos.x = inBounds (DISP_TO_UNIVERSEX (pt.x - SIS_ORG_X), 0, max.x);
+	pos.y = inBounds (DISP_TO_UNIVERSEY (pt.y - SIS_ORG_Y), 0, max.y);
+
+	return pos;
+}
+
+#define SNAP_AREA RES_SCALE (16 >> zoomLevel)
+
+static POINT
+SnapCursor (void)
+{
+	POINT pt;
+	STAR_DESC *SDPtr = NULL;
+	STAR_DESC *BestSDPtr = NULL;
+	POINT newCursorLoc = ScreenToStarMapCoords ();
+
+	pt.x = UNIVERSE_TO_DISPX (newCursorLoc.x);
+	pt.y = UNIVERSE_TO_DISPY (newCursorLoc.y);
+
+	while ((SDPtr = FindStar (SDPtr, &newCursorLoc, 75, 75)))
+	{
+		if ((UNIVERSE_TO_DISPX (SDPtr->star_pt.x) >= pt.x - SNAP_AREA &&
+				UNIVERSE_TO_DISPX (SDPtr->star_pt.x) <= pt.x + SNAP_AREA) &&
+				(UNIVERSE_TO_DISPY (SDPtr->star_pt.y) >= pt.y - SNAP_AREA &&
+				UNIVERSE_TO_DISPY (SDPtr->star_pt.y) <= pt.y + SNAP_AREA)
+				&& (BestSDPtr == 0 ||
+					STAR_TYPE (SDPtr->Type) >= STAR_TYPE (BestSDPtr->Type)))
+			BestSDPtr = SDPtr;
+	}
+
+	if (BestSDPtr)
+		newCursorLoc = BestSDPtr->star_pt;
+
+	return newCursorLoc;
+}
+
+static void
+MoveMouseCursor (POINT pt)
+{
+	POINT canvas_pos;
+
+	if (!MouseInContext (SpaceContext))
+		return;
+
+	canvas_pos.x = UNIVERSE_TO_DISPX (pt.x);
+	canvas_pos.y = UNIVERSE_TO_DISPY (pt.y);
+
+	PutMouse (SpaceContext, canvas_pos);
+}
+
+// End mouse-centric chunk of code
+
 static BOOLEAN transition_pending;
 
 static void
@@ -250,9 +317,9 @@ static void
 DrawAutoPilot (POINT *pDstPt)
 {
 	SIZE dx, dy,
-				xincr, yincr,
-				xerror, yerror,
-				cycle, delta;
+			xincr, yincr,
+			xerror, yerror,
+			cycle, delta;
 	POINT pt;
 	STAMP s;
 
@@ -1648,7 +1715,10 @@ ZoomStarMap (SIZE dir)
 		if (zoomLevel < MAX_ZOOM_SHIFT)
 		{
 			++zoomLevel;
+
 			mapOrigin = cursorLoc;
+
+			MoveMouseCursor (mapOrigin);
 
 			DrawStarMap (0, NULL);
 			SleepThread (ONE_SECOND / 8);
@@ -1659,13 +1729,17 @@ ZoomStarMap (SIZE dir)
 		if (zoomLevel > 0)
 		{
 			if (zoomLevel > 1)
+			{
 				mapOrigin = cursorLoc;
+			}
 			else
 			{
 				mapOrigin.x = MAX_X_UNIVERSE >> 1;
 				mapOrigin.y = MAX_Y_UNIVERSE >> 1;
 			}
 			--zoomLevel;
+
+			MoveMouseCursor (mapOrigin);
 
 			DrawStarMap (0, NULL);
 			SleepThread (ONE_SECOND / 8);
@@ -2288,6 +2362,7 @@ OnStarNameChange (TEXTENTRY_STATE *pTES)
 
 		// move the cursor to the found star
 		SDPtr = &star_array[pSS->SortedStars[pSS->CurIndex]];
+		MoveMouseCursor (SDPtr->star_pt);
 		UpdateCursorLocation (0, 0, &SDPtr->star_pt);
 
 		DrawMatchedStarName (pTES);
@@ -2317,6 +2392,7 @@ OnStarNameFrame (TEXTENTRY_STATE *pTES)
 
 		// move the cursor to the found star
 		SDPtr = &star_array[pSS->SortedStars[pSS->CurIndex]];
+		MoveMouseCursor (SDPtr->star_pt);
 		UpdateCursorLocation (0, 0, &SDPtr->star_pt);
 
 		DrawMatchedStarName (pTES);
@@ -2404,7 +2480,10 @@ DoStarSearch (MENU_STATE *pMS)
 			|| coord.x < 0 || coord.y < 0)
 			success = FALSE;
 		else
+		{
+			MoveMouseCursor (coord);
 			UpdateCursorLocation (0, 0, &coord);
+		}
 
 		success = TRUE;
 	}
@@ -2502,6 +2581,12 @@ DoMoveCursor (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	static COUNT moveRepeats;
 	BOOLEAN isMove = FALSE;
+	BOOLEAN zoom_in_key, zoom_out_key;
+
+	zoom_in_key = PulsedInputState.menu[KEY_MENU_ZOOM_IN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP];
+	zoom_out_key = PulsedInputState.menu[KEY_MENU_ZOOM_OUT] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
 
 	if (!pMS->Initialized)
 	{
@@ -2525,7 +2610,8 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		return TRUE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	
+	if (PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
 	{
 		FlushInput ();
 
@@ -2556,11 +2642,11 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| (MouseBtnInCtx (MOUSE_LFT, SpaceContext)))
 	{
 		/*printf ("Fuel Available: %d | Fuel Requirement: %d\n",
 				GLOBAL_SIS (FuelOnBoard), FuelRequired());*/
-
 		FlushInput ();
 
 		if (optBubbleWarp && (optInfiniteFuel || inQuasiSpace ()))
@@ -2591,7 +2677,9 @@ DoMoveCursor (MENU_STATE *pMS)
 
 			if (!DoStarSearch (pMS))
 			{	// search failed or canceled - return cursor
+				MoveMouseCursor (oldpt);
 				UpdateCursorLocation (0, 0, &oldpt);
+
 			}
 			FlushCursorRect ();
 			// make sure cmp fails
@@ -2636,7 +2724,8 @@ DoMoveCursor (MENU_STATE *pMS)
 			PlayMenuSound (MENU_SOUND_FAILURE);
 		}
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SPECIAL])
+	else if (PulsedInputState.menu[KEY_MENU_SPECIAL]
+			|| MouseButton (MOUSE_MID))
 	{
 		FlushInput ();
 
@@ -2676,9 +2765,9 @@ DoMoveCursor (MENU_STATE *pMS)
 		SIZE ZoomIn, ZoomOut;
 
 		ZoomIn = ZoomOut = 0;
-		if (PulsedInputState.menu[KEY_MENU_ZOOM_IN])
+		if (zoom_in_key)
 			ZoomIn = 1;
-		else if (PulsedInputState.menu[KEY_MENU_ZOOM_OUT])
+		else if (zoom_out_key)
 			ZoomOut = 1;
 
 		ZoomStarMap (ZoomIn - ZoomOut);
@@ -2698,6 +2787,8 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		if (sx != 0 || sy != 0)
 		{
+			manual_input = TRUE;
+
 			UpdateCursorLocation (sx, sy, NULL);
 			UpdateCursorInfo (last_buf);
 			UpdateFuelRequirement ();
@@ -2711,6 +2802,24 @@ DoMoveCursor (MENU_STATE *pMS)
 		++moveRepeats;
 	else
 		moveRepeats = 0;
+
+	if (MouseInContext (SpaceContext))
+	{
+		UQM_SetCursor (CURSOR_DISABLE);
+
+		manual_input = FALSE;
+
+		if (!(zoom_in_key || zoom_out_key))
+		{
+			POINT cursor_loc = SnapCursor ();
+
+			UpdateCursorLocation (0, 0, &cursor_loc);
+			UpdateCursorInfo (last_buf);
+			UpdateFuelRequirement ();
+		}
+	}
+	else
+		UQM_SetCursor (CURSOR_POINTER);
 
 	flashCurrentLocation (NULL, FALSE);
 

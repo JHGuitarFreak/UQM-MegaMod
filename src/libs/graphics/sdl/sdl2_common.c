@@ -94,14 +94,6 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height,
 	result = TFB_Pure_ConfigureVideo (TFB_GFXDRIVER_SDL_PURE, flags,
 			width, height, togglefullscreen, *resFactor, *windowType);
 
-	if (flags & TFB_GFXFLAGS_FULLSCREEN
-			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
-	{
-		SDL_ShowCursor (SDL_DISABLE);
-	}
-	else
-		SDL_ShowCursor (SDL_ENABLE);
-
 	return result;
 }
 

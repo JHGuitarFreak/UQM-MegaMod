@@ -236,6 +236,13 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
 
+	if (self->widget_rects)
+	{
+		HFree (self->widget_rects);
+		self->widget_rects = NULL;
+	}
+	self->widget_rects = HCalloc (self->num_children * sizeof (RECT));
+
 	if (!offset_b)
 		offset_b = ONSCREEN;
 
@@ -347,7 +354,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		}
 	}
 	// Determine how much widgets we're gonna draw
-	on_screen =  self->num_children;
+	on_screen = self->num_children;
 
 	if ((offset_b + 1) < self->num_children)
 		on_screen = offset_b + 1;
@@ -355,6 +362,36 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	for (widget_index = offset_t; widget_index < on_screen; widget_index++)
 	{
 		WIDGET *c = self->child[widget_index];
+
+		if (self->widget_rects)
+		{
+			RECT rect = { 0, 0, 0, 0 };
+			switch (c->tag)
+			{
+			case WIDGET_TYPE_CHOICE:
+				rect = ((WIDGET_CHOICE *)c)->hover_rect;
+				break;
+			case WIDGET_TYPE_BUTTON:
+				rect = ((WIDGET_BUTTON *)c)->hover_rect;
+				break;
+			case WIDGET_TYPE_SLIDER:
+				rect = ((WIDGET_SLIDER *)c)->hover_rect;
+				break;
+			case WIDGET_TYPE_TEXTENTRY:
+				rect = ((WIDGET_TEXTENTRY *)c)->hover_rect;
+				break;
+			case WIDGET_TYPE_CONTROLENTRY:
+				rect = ((WIDGET_CONTROLENTRY *)c)->hover_rect;
+				break;
+			case WIDGET_TYPE_MENUCONTROLENTRY:
+				rect = ((WIDGET_MENUCONTROLENTRY *)c)->hover_rect;
+				break;
+			default:
+				break;
+			}
+			self->widget_rects[widget_index] = rect;
+		}
+
 		(*c->draw)(c, 0, widget_y);
 		widget_y += (*c->height)(c) + RES_SCALE (5);
 	}
@@ -378,6 +415,7 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
 	int i;
+	RECT *hover = &self->hover_rect;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -401,9 +439,11 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 	{
 		oldtext = SetContextForeGroundColor (default_color);
 	}
-	font_DrawText (&t); // Choicer name
+	font_DrawText (&t); // Choice name
 
-	{	// Choicer options
+	*hover = font_GetTextRect (&t);
+
+	{	// Choice options
 		t.baseline.x = RSTEP;
 		t.align = ALIGN_LEFT;
 		for (i = 0; i < self->numopts; i++)
@@ -430,18 +470,16 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 
 				{	// Arrows around widget option
 					STAMP arr;
+					RECT a = font_GetTextRect (&t);
 					
-					arr.origin.x = font_GetTextRect (&t).corner.x
-							- RES_SCALE (10);
+					arr.origin.x = a.corner.x - RES_SCALE (10);
 					arr.origin.y = t.baseline.y;
 
 					// Left arrow
 					arr.frame = SetAbsFrameIndex (arrow_frame, 2);
 					DrawStamp (&arr);
 
-					arr.origin.x = font_GetTextRect (&t).corner.x
-							+ font_GetTextRect (&t).extent.width
-							+ RES_SCALE (10);
+					arr.origin.x = a.corner.x + a.extent.width + RES_SCALE (10);
 
 					// Right arrow
 					arr.frame = SetAbsFrameIndex (arrow_frame, 3);
@@ -473,6 +511,11 @@ Widget_DrawChoice (WIDGET *_self, int x, int y)
 			}
 		}
 	}
+
+	hover->extent.width = (font_GetTextRect (&t).corner.x
+		+ font_GetTextRect (&t).extent.width
+		+ RES_SCALE (10)) - hover->corner.x;
+
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)
 		SetContextFont (oldfont);
@@ -514,6 +557,8 @@ Widget_DrawButton (WIDGET *_self, int x, int y)
 		SetContextFont (oldfont);
 	SetContextForeGroundColor (oldtext);
 	(void) x;
+
+	self->hover_rect = font_GetTextRect (&t);
 }
 
 void
@@ -613,6 +658,8 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	}
 	font_DrawText (&t);
 
+	self->hover_rect = font_GetTextRect (&t);
+
 	// Slider Bar
 	r.corner.x = RSTEP;
 	r.corner.y = t.baseline.y - RES_SCALE (4);
@@ -620,6 +667,8 @@ Widget_DrawSlider(WIDGET *_self, int x, int y)
 	r.extent.width = 2 * tick;
 	slider_width = r.corner.x + r.extent.width;
 	DrawFilledRectangle (&r);
+
+	self->hover_rect.extent.width = slider_width - self->hover_rect.corner.x;
 
 	// Slider Indicator
 	r.extent.width = RES_SCALE (3);
@@ -664,6 +713,7 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	FONT  oldfont = 0;
 	FRAME oldFontEffect = SetContextFontEffect (NULL);
 	TEXT t;
+	RECT hover_r;
 
 	if (cur_font)
 		oldfont = SetContextFont (cur_font);
@@ -691,6 +741,8 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	}
 	font_DrawText (&t);
 
+	self->hover_rect = font_GetTextRect (&t);
+
 	t.baseline.x -= t.baseline.x;
 
 	/* Force string termination */
@@ -699,12 +751,16 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 	t.baseline.y = y;
 	t.CharCount = (COUNT)utf8StringCount (self->value);
 	t.pStr = self->value;
+	t.baseline.x = RSTEP;
+	t.align = ALIGN_LEFT;
+
+	hover_r = font_GetTextRect (&t);
+
+	self->hover_rect.extent.width = hover_r.corner.x + hover_r.extent.width
+			- self->hover_rect.corner.x;
 
 	if (!(self->state & WTE_EDITING))
 	{	// normal or selected state
-		t.baseline.x = RSTEP;
-		t.align = ALIGN_LEFT;
-
 		if (widget_focus == _self)
 		{
 			oldtext = SetContextForeGroundColor (selected);
@@ -723,9 +779,6 @@ Widget_DrawTextEntry (WIDGET *_self, int x, int y)
 		BYTE *pchar_deltas;
 		RECT r;
 		SIZE leading;
-
-		t.baseline.x = RSTEP;
-		t.align = ALIGN_LEFT;
 
 		// calc background box dimensions
 		// XXX: this may need some tuning, especially if a
@@ -820,6 +873,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	int col_size[2] = { 0 };
 	int num_pages = self->num_pages;
 	int offset = RES_SCALE (5);
+	RECT *hover = &self->hover_rect;
 
 	selected = WIDGET_ACTIVE_COLOR;
 
@@ -839,6 +893,8 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
 
 	font_DrawText (&t); // Control Name E.G. Up, Down, Weapon, Thrust
+
+	*hover = font_GetTextRect (&t);
 
 	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
@@ -868,6 +924,8 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 		font_DrawText (&t);
 		col_size[i] = t.baseline.x;
 	}
+
+	hover->extent.width = (col_size[1] + RES_SCALE (38)) - hover->corner.x;
 
 	// Draw arrows
 	if (widget_focus == _self && num_pages > 1)
@@ -968,6 +1026,7 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 	int col_size[2] = { 0 };
 	int num_pages = self->num_pages;
 	int offset = RES_SCALE (22);
+	RECT *hover = &self->hover_rect;
 
 	selected = WIDGET_ACTIVE_COLOR;
 
@@ -986,6 +1045,8 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 		SetContextForeGroundColor (WIDGET_DIALOG_COLOR);
 
 	font_DrawText (&t); // Menu Control Name E.G. Pause, Exit, Abort, etc.
+
+	*hover = font_GetTextRect (&t);
 
 	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
@@ -1018,6 +1079,8 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 		font_DrawText (&t);
 		col_size[i] = t.baseline.x;
 	}
+
+	hover->extent.width = (col_size[1] + RES_SCALE (38)) - hover->corner.x;
 
 	if (widget_focus == _self && num_pages > 1)
 	{

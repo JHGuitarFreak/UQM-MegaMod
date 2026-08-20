@@ -52,6 +52,8 @@
 #include <ctype.h>
 
 #define MAX_RESPONSES 8
+static RECT ResponseRects[MAX_RESPONSES];
+static RECT ArrowRect;
 
 // Oscilloscope frame rate
 // Should be <= COMM_ANIM_RATE
@@ -618,15 +620,16 @@ RefreshResponsesSpecial (ENCOUNTER_STATE *pES)
 static void
 RefreshResponses (ENCOUNTER_STATE *pES)
 {
-	COORD y;
+	COORD y, start_y, num_lines;
 	BYTE response;
 	SIZE leading;
 	STAMP s;
 
-
 	SetContext (SpaceContext);
 	GetContextFontLeading (&leading);
 	BatchGraphics ();
+
+	memset (&ArrowRect, 0, sizeof (RECT));
 
 	DrawSISComWindow ();
 	y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (is3DO (optWhichFonts));
@@ -638,21 +641,38 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 		pES->response_list[response].response_text.baseline.y =
 					y + leading;
 		pES->response_list[response].response_text.align = ALIGN_LEFT;
+
+		start_y = pES->response_list[response].response_text.baseline.y;
+
 		if (response == pES->cur_response)
 			y = add_text (-1, &pES->response_list[response].response_text);
 		else
 			y = add_text (-2, &pES->response_list[response].response_text);
+
+		num_lines = (y - start_y) / leading;
+
+		ResponseRects[response] = font_GetTextRect (
+				&pES->response_list[response].response_text);
+		ResponseRects[response].corner.x = 0;
+		ResponseRects[response].extent.width = SIS_SCREEN_WIDTH - RES_SCALE (8)
+				- (TEXT_X_OFFS << 2) + RES_SCALE (1);
+		if (num_lines > 0)
+			ResponseRects[response].extent.height += leading * num_lines;
 	}
 
 	if (pES->top_response)
 	{
 		s.origin.y = SLIDER_Y + SLIDER_HEIGHT + RES_SCALE (1);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 6);
+		GetFrameRect (s.frame, &ArrowRect);
+		ArrowRect.corner.y += s.origin.y;
 	}
 	else if (y > SIS_SCREEN_HEIGHT)
 	{
 		s.origin.y = SIS_SCREEN_HEIGHT - RES_SCALE (2);
 		s.frame = SetAbsFrameIndex (ActivityFrame, 7);
+		GetFrameRect (s.frame, &ArrowRect);
+		ArrowRect.corner.y += s.origin.y;
 	}
 	else
 		s.frame = 0;
@@ -662,6 +682,9 @@ RefreshResponses (ENCOUNTER_STATE *pES)
 
 		GetFrameRect (s.frame, &r);
 		s.origin.x = SIS_SCREEN_WIDTH - r.extent.width - RES_SCALE (1);
+
+		ArrowRect.corner.x = s.origin.x;
+
 		DrawStamp (&s);
 	}
 
@@ -907,9 +930,11 @@ DoTalkSegue (TALKING_STATE *pTS)
 		return FALSE;
 	}
 	
-	if (optSpeech || optSmoothScroll == OPT_3DO || (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
+	if (optSpeech || optSmoothScroll == OPT_3DO
+			|| (LOBYTE(GLOBAL(CurrentActivity)) == WON_LAST_BATTLE))
 	{
-		if (PulsedInputState.menu[KEY_MENU_CANCEL])
+		if (PulsedInputState.menu[KEY_MENU_CANCEL]
+				|| MouseButton (MOUSE_RGT))
 		{
 			JumpTrack ();
 			pTS->ended = true;
@@ -918,13 +943,17 @@ DoTalkSegue (TALKING_STATE *pTS)
 
 		if (optSmoothScroll == OPT_PC || !optSpeech)
 		{
-			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0;
-			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0;
+			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_DOWN] != 0;
+			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_UP] != 0;
 		}
 		else if (optSmoothScroll == OPT_3DO)
 		{
-			left = CurrentInputState.menu[KEY_MENU_LEFT] != 0;
-			right = CurrentInputState.menu[KEY_MENU_RIGHT] != 0;
+			left = PulsedInputState.menu[KEY_MENU_LEFT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_DOWN] != 0;
+			right = PulsedInputState.menu[KEY_MENU_RIGHT] != 0 ||
+					PulsedInputState.menu[MOUSE_WHEEL_UP] != 0;
 		}
 
 #if DEMO_MODE || CREATE_JOURNAL
@@ -1259,7 +1288,8 @@ DoConvSummary (SUMMARY_STATE *pSS)
 	}
 	else if (PulsedInputState.menu[KEY_MENU_SELECT]
 			|| PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| PulsedInputState.menu[KEY_MENU_RIGHT])
+			|| PulsedInputState.menu[KEY_MENU_RIGHT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		if (pSS->NextSub)
 		{	// we want the next page
@@ -1483,11 +1513,13 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 		RefreshResponses (pES);
 	}
 
-	if (PulsedInputState.menu[KEY_MENU_SELECT])
+	if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| CtxMouseClicker (ResponseRects[pES->cur_response]))
 	{
 		SelectResponse (pES);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_CANCEL] &&
+	else if ((PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT)) &&
 			LOBYTE (GLOBAL (CurrentActivity)) != WON_LAST_BATTLE &&
 			!IsDarkMode)
 	{
@@ -1496,7 +1528,8 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 	else
 	{
 		response = pES->cur_response;
-		if (PulsedInputState.menu[KEY_MENU_LEFT] && (optSpeech || optSmoothScroll == OPT_3DO))
+		if (PulsedInputState.menu[KEY_MENU_LEFT] &&
+				(optSpeech || optSmoothScroll == OPT_3DO))
 		{
 			SelectReplay (pES);
 
@@ -1507,10 +1540,100 @@ PlayerResponseInput (ENCOUNTER_STATE *pES)
 			}
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP])
+		{
 			response = (BYTE)((response + (BYTE)(pES->num_responses - 1))
-					% pES->num_responses);
+				% pES->num_responses);
+		}
 		else if (PulsedInputState.menu[KEY_MENU_DOWN])
+		{
 			response = (BYTE)((BYTE)(response + 1) % pES->num_responses);
+		}
+		else if (optMouseInput)
+		{
+			if (SetMouseContext (SpaceContext) && pES->num_responses > 0)
+			{
+				BYTE i;
+				int cursor = CURSOR_POINTER;
+				BYTE hovered_item = pES->cur_response;
+
+				for (i = pES->top_response; i < pES->num_responses; i++)
+				{
+					if (ResponseRects[i].corner.y +
+							ResponseRects[i].extent.height >
+							SIS_SCREEN_HEIGHT)
+					{
+						continue;
+					}
+
+					if (MouseInRect (ResponseRects[i]))
+					{
+						hovered_item = i;
+						cursor = CURSOR_POINTER_HILITE;
+						break;
+					}
+				}
+
+				if (hovered_item != pES->cur_response)
+				{
+					PlayMenuSound (MENU_SOUND_MOVE);
+					response = hovered_item;
+				}
+
+				if (ArrowRect.extent.width > 0 && MouseInRect (ArrowRect))
+				{
+					cursor = CURSOR_POINTER_HILITE;
+
+					if (MouseButton (MOUSE_LFT))
+					{
+						cursor = CURSOR_POINTER;
+
+						if (pES->top_response)
+						{
+							response = 0;
+						}
+						else
+						{
+							for (i = 0; i < pES->num_responses; i++)
+							{
+								if (ResponseRects[i].corner.y +
+									ResponseRects[i].extent.height >
+									SIS_SCREEN_HEIGHT)
+								{
+									response = i;
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				UQM_SetCursor (cursor);
+			}
+
+			if (ArrowRect.extent.width > 0)
+			{
+				if (pES->top_response &&
+					PulsedInputState.menu[MOUSE_WHEEL_DOWN])
+				{
+					response = 0;
+				}
+				else if (PulsedInputState.menu[MOUSE_WHEEL_UP])
+				{
+					BYTE i;
+
+					for (i = 0; i < pES->num_responses; i++)
+					{
+						if (ResponseRects[i].corner.y +
+							ResponseRects[i].extent.height >
+							SIS_SCREEN_HEIGHT)
+						{
+							response = i;
+							break;
+						}
+					}
+				}
+			}
+		}
 
 		if (response != pES->cur_response)
 		{

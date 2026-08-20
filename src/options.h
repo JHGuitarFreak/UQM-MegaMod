@@ -131,6 +131,7 @@ extern OPT_ENABLABLE optDosMenus;
 extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 extern int optHyperSpaceColor;
+extern int optMouseInput;
 extern bool ShipGTFO;
 
 #define MAX_DEADZONE SINT16_MAX
@@ -210,6 +211,23 @@ int loadIndices (uio_DirHandle *baseDir);
 BOOLEAN isAddonAvailable (const char *addon_name);
 
 bool setGammaCorrection (float gamma);
+
+enum
+{
+	CURSOR_POINTER,
+	CURSOR_POINTER_HILITE,
+	CURSOR_CROSSHAIR,
+	CURSOR_CROSSHAIR_HILITE,
+	CURSOR_INVALID,
+
+	CURSOR_DISABLE,
+
+	NUM_CURSORS = CURSOR_DISABLE
+};
+
+extern SDL_Cursor *UQM_Cursors[NUM_CURSORS];
+
+extern BOOLEAN UQM_SetCursor (int cursor);
 
 #if defined(__cplusplus)
 }
