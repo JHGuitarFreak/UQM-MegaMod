@@ -3,15 +3,19 @@
 This Python script converts font glyphs into individual PNG images, named by their Unicode values.
 
 ## Requirements
+- MSYS2/MinGW64
 - Python 3.x
 - FontForge Python bindings (`fontforge`)
 - Pillow library (`PIL`)
 
-Install dependencies with:
-`pip install fontforge pillow`
+Installing dependencies for MSYS2/MinGW64:
+`pacman -S mingw-w64-x86_64-python mingw-w64-x86_64-fontforge mingw-w64-x86_64-python-pillow`
 
-If you're using MSYS2/MinGW64:
-`pacman -S mingw-w64-x86_64-fontforge mingw-w64-x86_64-python-pillow`
+At the moment I can not figure out how to get this to work with just Python installed on Windows
+(without MSYS2) as Python doesn't have a FontForge package in pip and the Windows FontForge install
+doesn't have pip to install pillow.
+
+Nor have I tested the viability of this script in Linux so proceed with caution.
 
 ## Usage
 1. Place your font files (TTF/OTF/WOFF) in the same directory as the script

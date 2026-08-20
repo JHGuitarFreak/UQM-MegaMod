@@ -6,15 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ## [v0.8.6]
 
 ### Added
+- EXTENDED: New sounds when Fwiffo opens fire on lander
+- New floating message above lander in playable area if its cargo or data bank is full
+- Legacy and Vanilla save's scan records used to fill out visited stars
 - Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 
 ### Changed
-- Optimized lander interactions with hazards while God Mode enabled
 - Removed a lag spike when Fwiffo opens fire on lander
 - UQM now scales to the window instead of the window scaling to UQM
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
+- Fixed vanilla UQM save scan records on load
+
+### Dev
+- Slight optimixation in lander.c and more readable code
+- New function GetBatchCount() to check amount of GFX batches
+- Optimized lander interactions with hazards while God Mode enabled
+- Moved game state initialization fully into initprops.lua
 
 ## [v0.8.5]
 

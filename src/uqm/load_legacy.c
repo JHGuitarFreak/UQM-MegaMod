@@ -857,7 +857,9 @@ LoadClockState (CLOCK_STATE *ClockPtr, DECODE_REF fh)
 static BOOLEAN
 LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 {
-	BYTE dummy8;
+	BOOLEAN rev;
+	BYTE *buf, dummy8;
+	size_t num_bytes;
 
 	cread_8   (fh, &dummy8); /* obsolete */
 	cread_8   (fh, &GSPtr->glob_flags);
@@ -935,27 +937,18 @@ LoadGameState (GAME_STATE *GSPtr, DECODE_REF fh, BOOLEAN vanilla)
 
 	// JMS: Let's not read the 'autopilot ok' and QS portal
 	// coord bits for vanilla UQM saves.
-	{
-		int rev = (vanilla ? 0 : 1);
-		size_t numBytes = (totalBitsForGameState (
-				legacyGameStateBitMap, rev) + 7) >> 3;
-		BYTE *buf = HMalloc (numBytes);
-		if (buf != NULL)
-		{
-			cread_a8  (fh, buf, (COUNT)numBytes);
-			deserialiseGameState (
-					legacyGameStateBitMap,
-					buf,
-					numBytes,
-					rev);
-			HFree(buf);
-		}
-	}
+	rev = !vanilla;
+	num_bytes = (totalBitsForGameState (legacyGameStateBitMap, rev) + 7) >> 3;
+	buf = HMalloc (num_bytes);
+
+	if (!buf)
+		return FALSE;
+
+	cread_a8 (fh, buf, (COUNT)num_bytes);
+	deserialiseGameState (legacyGameStateBitMap, buf, num_bytes, rev);
+	HFree (buf);
 
 	GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
-	ZeroLastLoc ();
-	ZeroAdvancedAutoPilot ();
-	ZeroAdvancedQuasiPilot ();
 
 	cread_8  (fh, NULL); /* GAME_STATE alignment padding */
 	
@@ -1293,6 +1286,12 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 
 			flen -= num_bytes;
 		}
+
+		MinedStarSystems (fp);
+
+		if (try_vanilla)
+			ProcessVanillaStarInfo (fp);
+
 		CloseStateFile (fp);
 	}
 

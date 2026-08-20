@@ -75,7 +75,9 @@ enum
 	LANDER_FULL,
 	LANDER_DEPARTS,
 	LANDER_RETURNS,
-	LANDER_DESTROYED
+	LANDER_DESTROYED,
+	FWIFFO_FIRE,
+	LANDER_HULL_HIT
 };
 
 #define MAX_SCROUNGED (changeLanderCapacity ? optLanderHold : (isPC (optSuperPC) ? 64 : 50))
@@ -471,8 +473,6 @@ extern void PlanetOrbitMenu (void);
 extern void SaveSolarSysLocation (void);
 
 extern BYTE PickClosestHabitable (SOLARSYS_STATE *solarSys);
-
-extern void SetReportFunc (bool (*func)(SOLARSYS_STATE *));
 
 #if defined(__cplusplus)
 }
