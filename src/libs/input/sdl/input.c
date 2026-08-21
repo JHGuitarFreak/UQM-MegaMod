@@ -1046,17 +1046,17 @@ ScaleCanvas (void)
 POINT
 ScreenToCanvas (CONTEXT context)
 {
-	POINT ipPos;
+	POINT mpos;
 	RECT r;
 
 	GetContextClipDiRect (&r, context);
 
-	ipPos = ScaleCanvas ();
+	mpos = ScaleCanvas ();
 
-	ipPos.x = (COORD)inBounds (ipPos.x - r.corner.x, 0, r.extent.width);
-	ipPos.y = (COORD)inBounds (ipPos.y - r.corner.y, 0, r.extent.height);
+	mpos.x = (COORD)inBounds (mpos.x - r.corner.x, 0, r.extent.width);
+	mpos.y = (COORD)inBounds (mpos.y - r.corner.y, 0, r.extent.height);
 
-	return ipPos;
+	return mpos;
 }
 
 DPOINT
@@ -1065,14 +1065,17 @@ CanvasToScreen (CONTEXT context, POINT canvasPos)
 	RECT r;
 	POINT canvas_pos;
 	DPOINT screen_pos;
+	RECT w_scale = GetWindowScale ();
 
 	GetContextClipDiRect (&r, context);
 
 	canvas_pos.x = canvasPos.x + r.corner.x;
 	canvas_pos.y = canvasPos.y + r.corner.y;
 
-	screen_pos.x = canvas_pos.x * ((float)WindowWidth / (float)CanvasWidth);
-	screen_pos.y = canvas_pos.y * ((float)WindowHeight / (float)CanvasHeight);
+	screen_pos.x = (canvas_pos.x * (float)w_scale.extent.width /
+			(float)CanvasWidth) + w_scale.corner.x;
+	screen_pos.y = (canvas_pos.y * (float)w_scale.extent.height /
+			(float)CanvasHeight) + w_scale.corner.y;
 
 	return screen_pos;
 }
