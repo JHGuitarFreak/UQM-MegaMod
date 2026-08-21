@@ -106,6 +106,8 @@ draw_controls_menu (void)
 			"Right Stick Directional", "Left Stick Auto-Thrust",
 			"Right Stick Auto-Thrust"
 	};
+	const char *cmouse_input[] =
+			{ "Disabled", "Manual Control", "Local Auto-Pilot" };
 
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
@@ -152,6 +154,19 @@ draw_controls_menu (void)
 						(int *)&optDirJoy[1], dirJoyDisp, 5))
 				{
 					res_PutInteger ("mm.dirJoyP2", optDirJoy[1]);
+					mmcfg_changed = true;
+				}
+			}
+
+			Spacer ();
+
+			// Crappy Mouse Input
+			{
+				ImGui_Text ("Crappy Mouse Input:");
+				if (ImGui_ComboChar ("##CrappyMouseInput",
+					(int *)&optMouseInput, cmouse_input, 3))
+				{
+					res_PutInteger ("mm.mouseInput", optMouseInput);
 					mmcfg_changed = true;
 				}
 			}
