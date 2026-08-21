@@ -1652,9 +1652,17 @@ DoPickGame (MENU_STATE *pMS)
 	SUMMARY_DESC *pSD;
 	DWORD TimeIn = GetTimeCounter ();
 	COUNT maxSlots = MAX_SAVED_GAMES - (pickState->saving ? 1 : 0);
+	BOOLEAN pgup, pgdn;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
+
+	pgup = PulsedInputState.menu[KEY_MENU_LEFT] ||
+			PulsedInputState.menu[KEY_MENU_PAGE_UP] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP];
+	pgdn = PulsedInputState.menu[KEY_MENU_RIGHT]  ||
+			PulsedInputState.menu[KEY_MENU_PAGE_DOWN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
 
 	if (PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| MouseButton (MOUSE_RGT))
@@ -1696,9 +1704,7 @@ DoPickGame (MENU_STATE *pMS)
 	else
 	{
 		NewState = pMS->CurState;
-		if (PulsedInputState.menu[KEY_MENU_LEFT]
-			|| PulsedInputState.menu[KEY_MENU_PAGE_UP]
-			|| PulsedInputState.menu[MOUSE_WHEEL_UP])
+		if (pgup)
 		{
 			if (NewState == 0)
 				NewState = maxSlots;
@@ -1707,9 +1713,7 @@ DoPickGame (MENU_STATE *pMS)
 			else
 				NewState = 0;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_RIGHT]
-			|| PulsedInputState.menu[KEY_MENU_PAGE_DOWN]
-			|| PulsedInputState.menu[MOUSE_WHEEL_DOWN])
+		else if (pgdn)
 		{
 			if (NewState == maxSlots)
 				NewState = 0;
@@ -1734,7 +1738,7 @@ DoPickGame (MENU_STATE *pMS)
 				NewState++;
 		}
 
-		if (SetMouseContext (SpaceContext))
+		if (!(pgup || pgdn) && SetMouseContext (SpaceContext))
 		{
 			BYTE i;
 			int cursor = CURSOR_POINTER;
