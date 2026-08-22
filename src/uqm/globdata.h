@@ -212,13 +212,6 @@ enum
 
 #define YEARS_TO_KOHRAH_VICTORY (optDeCleansing ? 100 : 4)
 
-// A structure describing how many bits are used for each game state value.
-typedef struct GameStateBitMap GameStateBitMap;
-struct GameStateBitMap {
-	const char *name;
-	BYTE numBits;
-};
-
 size_t totalBitsForGameState (const GameStateBitMap *bm, int rev);
 int getGameStateRevByBytes (const GameStateBitMap *bm, int bytes);
 BOOLEAN serialiseGameState (const GameStateBitMap *bm,
@@ -961,7 +954,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (ADV_AUTOPILOT_QUASI_Y, 16)
 
 	/* end rev 4, MegaMod v0.8.3 */
-	/* begin rev 5, MegaMod v0.8.4 */
+	/* begin rev 5, MegaMod v0.8.4/v0.8.5 */
 
 	ADD_GAME_STATE (SEED_TYPE, 2)
 
@@ -978,7 +971,12 @@ START_GAME_STATE
 			/* The day of the month in that new ships are available. */
 	ADD_GAME_STATE (UTWIG_SHIP_YEAR, 5)
 			/* The year that new ships are available from the Utwig
-			 * (stored as an offset from the year the game starts). */
+			/* (stored as an offset from the year the game starts). */
+
+	ADD_GAME_STATE (REV_5_PAD, 1)
+
+	/* end rev 5, MegaMod v0.8.4/v0.8.5 */
+	/* begin rev 6, MegaMod v0.8.6 */
 
 	// Journal gamestates
 	ADD_GAME_STATE (JOURNAL_BIT, 1)
@@ -991,16 +989,16 @@ START_GAME_STATE
 	ADD_GAME_STATE (INVESTIGATE_UMGAH, 1)
 	ADD_GAME_STATE (INVESTIGATE_UMGAH_ZFP, 1)
 	ADD_GAME_STATE (INVESTIGATE_PROBES, 2)
-			/* 0 no info about slylandro probes.
-			 * 1 heard info about probes from the ZFP
-			 * 2 heard info about probes from the Thraddash
-			 * 3 unused
-			 */
+	/* 0 no info about slylandro probes.
+		* 1 heard info about probes from the ZFP
+		* 2 heard info about probes from the Thraddash
+		* 3 unused
+		*/
 	ADD_GAME_STATE (INVESTIGATE_PORTAL, 3)
-			/* Bit-0 Heard of the portal from the Spathi
-			 * Bit-1 Heard of the portal from the Arilou
-			 * Bit-2 Traveled into QuasiSpace
-			 */
+	/* Bit-0 Heard of the portal from the Spathi
+		* Bit-1 Heard of the portal from the Arilou
+		* Bit-2 Traveled into QuasiSpace
+		*/
 	ADD_GAME_STATE (INVESTIGATE_ORZ, 1)
 	ADD_GAME_STATE (INVESTIGATE_ZFP, 1)
 	ADD_GAME_STATE (MET_ZFP_HOME, 1)
@@ -1015,7 +1013,7 @@ START_GAME_STATE
 	ADD_GAME_STATE (THRADDASH_INFO, 2)
 	ADD_GAME_STATE (SPATHI_CASTER, 2)
 
-	/* end rev 5, MegaMod v0.8.4 */
+	/* end rev 6, MegaMod v0.8.6 */
 
 END_GAME_STATE
 

@@ -25,6 +25,7 @@
 #include <unistd.h>
 #endif
 #include <memory.h>
+#include "gamestr.h"
 
 // in-memory file i/o
 struct GAME_STATE_FILE
@@ -235,10 +236,9 @@ UninitPlanetInfo (void)
 	DeleteStateFile (STARINFO_FILE);
 }
 
-#define OFFSET_SIZE       (sizeof (DWORD))
-//#define SCAN_RECORD_SIZE  (sizeof (DWORD) * NUM_SCAN_TYPES)
-// JMS: Increased the size of scan record to house partially scavenged minerals.
-#define SCAN_RECORD_SIZE  ((sizeof (DWORD) * NUM_SCAN_TYPES) + (sizeof(BYTE) * NUM_SCAN_TYPES * 32))
+#define OFFSET_SIZE           (sizeof (DWORD))
+#define CORE_SCAN_RECORD_SIZE (sizeof (DWORD) * NUM_SCAN_TYPES)
+#define SCAN_RECORD_SIZE      (CORE_SCAN_RECORD_SIZE + (NUM_SCAN_TYPES * 32))
 
 void
 GetPlanetInfo (void)
@@ -401,3 +401,126 @@ PutPlanetInfo (void)
 	}
 }
 
+#define STARINFO_TABLE_SIZE (NUM_SOLAR_SYSTEMS * sizeof(DWORD))
+#define SCAN_RECORD_DIFF (SCAN_RECORD_SIZE - CORE_SCAN_RECORD_SIZE)
+
+void
+ProcessVanillaStarInfo (GAME_STATE_FILE *fp)
+{
+	BYTE *fp_data, *old_records, *new_records;
+	DWORD i, num_entries, *star_offs, *old_star_offs;
+	DWORD old_table_size, new_table_size;
+
+	if (!fp || !fp->data || fp->used == 0)
+		return;
+
+	old_table_size = fp->used - STARINFO_TABLE_SIZE;
+
+#ifdef STARINFO_DEBUG
+	printf ("fp->used %d, old_table_size %d\n", fp->used, old_table_size);
+#endif
+
+	if (old_table_size == 0 || old_table_size % SCAN_RECORD_SIZE == 0)
+		return; // Table either empty or already compliant
+
+	if (old_table_size % CORE_SCAN_RECORD_SIZE != 0)
+	{
+		log_add (log_Error, "STARINFO table is corrupt");
+		return;
+	}
+
+	num_entries = old_table_size / CORE_SCAN_RECORD_SIZE;
+	new_table_size = STARINFO_TABLE_SIZE + (num_entries * SCAN_RECORD_SIZE);
+
+#ifdef STARINFO_DEBUG
+	printf ("num_entries %d, new_table_size %d\n",
+			num_entries, new_table_size);
+#endif
+
+	fp_data = HMalloc (new_table_size);
+	if (!fp_data)
+		return;
+
+	// Copy the original table header to fp_data
+	memcpy (fp_data, fp->data, STARINFO_TABLE_SIZE);
+
+	star_offs = (DWORD *)fp_data;
+	old_star_offs = (DWORD *)fp->data;
+
+	// Skip past the table header to work directly with the record entries
+	old_records = fp->data + STARINFO_TABLE_SIZE;
+	new_records = fp_data + STARINFO_TABLE_SIZE;
+
+	for (i = 0; i < num_entries; i++)
+	{
+		// Zero out the entire record for this entry
+		memset (new_records, 0, SCAN_RECORD_SIZE);
+		// Copy the data from the old record to the new record
+		memcpy (new_records, old_records, CORE_SCAN_RECORD_SIZE);
+
+#ifdef STARINFO_DEBUG
+		printf ("[%03d]: ", i);
+		printf ("Min 0x%08X Ene 0x%08X Bio 0x%08X : ",
+				((DWORD *)old_records)[0], ((DWORD *)old_records)[1],
+				((DWORD *)old_records)[2]);
+		printf ("Min 0x%08X Ene 0x%08X Bio 0x%08X\n",
+				((DWORD *)new_records)[0], ((DWORD *)new_records)[1],
+				((DWORD *)new_records)[2]);
+#endif
+
+		old_records += CORE_SCAN_RECORD_SIZE;
+		new_records += SCAN_RECORD_SIZE;
+	}
+
+	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+	{
+		DWORD entry_num;
+
+		if (old_star_offs[i] == 0)
+			continue;
+
+		// This star's original table offset
+		entry_num = (old_star_offs[i] - STARINFO_TABLE_SIZE)
+				/ CORE_SCAN_RECORD_SIZE;
+
+		// Update it to point to the new offset
+		star_offs[i] = STARINFO_TABLE_SIZE + (entry_num * SCAN_RECORD_SIZE);
+
+#ifdef STARINFO_DEBUG
+		printf ("[%03d] 0x%04X : 0x%04X\n",
+				i, old_star_offs[i], star_offs[i]);
+#endif
+	}
+
+	HFree (fp->data);
+	fp->data = fp_data;
+	fp->size = new_table_size;
+	fp->used = new_table_size;
+	fp->ptr = 0;
+}
+
+void MinedStarSystems (GAME_STATE_FILE *fp)
+{
+	DWORD i, *data;
+
+	if (!fp || !fp->data || fp->used < STARINFO_TABLE_SIZE)
+		return;
+
+	data = (DWORD *)fp->data;
+
+	for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+	{
+		if (data[i] != 0)
+		{
+#ifdef STARINFO_DEBUG
+			UNICODE buf[PATH_MAX];
+			POINT star = star_array[i].star_pt;
+			STAR_DESC *pSD = FindStar (NULL, &star, 0, 0);
+			GetClusterName (pSD, buf);
+			printf ("%s : 0x%04X\n", buf, data[i]);
+#endif
+			if (!isStarMarked (i, "VISITED"))
+				setStarMarked (i, "VISITED");
+		}
+	}
+}

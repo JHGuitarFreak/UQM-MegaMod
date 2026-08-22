@@ -40,6 +40,18 @@
 ACTIVITY NextActivity;
 BYTE IndependantResFactor;
 
+// This describes the release version corresponding to each game state
+// flag revision chunk.
+const char *gameStateBitMapRevTag[] = {
+	"Core UQM v0.8.0",
+	"MegaMod v0.8.0.85",
+	"MegaMod v0.8.1",
+	"MegaMod v0.8.2",
+	"MegaMod v0.8.3",
+	"MegaMod v0.8.4/v0.8.5",
+	"MegaMod v0.8.6"
+};
+
 static inline size_t
 read_8 (void *fp, BYTE *v)
 {
@@ -387,9 +399,13 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		int rev;
 		size_t gameStateByteCount;
 
+		if (!gameStateBitMap)
+			return FALSE;
+
 		read_32 (fh, &magic);
 		rev = (try_core ? 0 : getGameStateRevByBytes (gameStateBitMap, magic));
-		gameStateByteCount = (totalBitsForGameState (gameStateBitMap, rev) + 7) >> 3;
+		gameStateByteCount =
+				(totalBitsForGameState (gameStateBitMap, rev) + 7) >> 3;
 
 		if (rev < 0 || magic < gameStateByteCount)
 		{
@@ -405,18 +421,17 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		if (buf == NULL)
 		{
 			log_add (log_Error, "Warning: Cannot allocate enough bytes for "
-					"the saved game state (%lu bytes).", (unsigned long)gameStateByteCount);
+					"the saved game state (%lu bytes).",
+					(unsigned long)gameStateByteCount);
 			return FALSE;
 		}
 
 		read_a8 (fh, buf, (COUNT)gameStateByteCount);
-		result = deserialiseGameState (gameStateBitMap, buf, gameStateByteCount, rev);
+		result = deserialiseGameState (gameStateBitMap, buf,
+				gameStateByteCount, rev);
 		HFree (buf);
 		if (result == FALSE)
-		{
-			// An error message is already printed.
-			return FALSE;
-		}
+			return FALSE; // An error message is already printed.
 
 		if (rev < 2)
 			GSPtr->glob_flags = NUM_READ_SPEEDS >> 1;
@@ -431,9 +446,7 @@ LoadGameState (GAME_STATE *GSPtr, void *fh, BOOLEAN try_core)
 		}
 
 		if (magic > gameStateByteCount)
-		{
 			skip_8 (fh, (COUNT)(magic - gameStateByteCount));
-		}
 	}
 	return TRUE;
 }
@@ -572,7 +585,7 @@ LoadStarDesc (STAR_DESC *SDPtr, void *fh)
 }
 
 static void
-LoadScanInfo (uio_Stream *fh, DWORD flen)
+LoadScanInfo (uio_Stream *fh, DWORD flen, BOOLEAN try_core)
 {
 	GAME_STATE_FILE *fp = OpenStateFile (STARINFO_FILE, "wb");
 	if (fp)
@@ -584,6 +597,13 @@ LoadScanInfo (uio_Stream *fh, DWORD flen)
 			swrite_32 (fp, val);
 			flen -= 4;
 		}
+
+		if (try_core)
+		{
+			MinedStarSystems (fp);
+			ProcessVanillaStarInfo (fp);
+		}
+
 		CloseStateFile (fp);
 	}
 }
@@ -932,7 +952,7 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 			LoadShipQueue (in_fp, &GLOBAL (stowed_ship_q), chunkSize);
 			break;
 		case SCAN_TAG:
-			LoadScanInfo (in_fp, chunkSize);
+			LoadScanInfo (in_fp, chunkSize, try_core);
 			break;
 		case GROUP_LIST_TAG:
 			if (first_group_spec)

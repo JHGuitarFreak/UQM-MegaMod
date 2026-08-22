@@ -263,6 +263,7 @@ while (--ac > 0)
 
 	GLOBAL (CurrentActivity) = 0;
 	luaUqm_initState ();
+	luaUqm_buildGameStateBitMap ();
 	// show logo then splash and init the kernel in the meantime
 	if(!optSkipIntro)
 		Logo ();
@@ -426,6 +427,7 @@ while (--ac > 0)
 	}
 //	CloseJournal ();
 	luaUqm_uninitState ();
+	luaUqm_uninitGameStateBitMap ();
 
 	UninitGameKernel ();
 	FreeMasterShipList ();
@@ -437,4 +439,3 @@ while (--ac > 0)
 	(void) threadArg;  /* Satisfying compiler (unused parameter) */
 	return 0;
 }
-

@@ -744,6 +744,9 @@ loadAddon (const char *addon)
 	uio_DirHandle *addonsDir, *addonDir;
 	int numLoaded;
 
+	if (!isAddonAvailable (addon))
+		return FALSE;
+
 	addonsDir = uio_openDirRelative (contentDir, "addons", 0);
 	if (addonsDir == NULL)
 	{

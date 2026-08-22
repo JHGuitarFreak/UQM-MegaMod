@@ -49,6 +49,21 @@ DWORD getGameStateUint (const char *name);
 
 void luaUqm_getEventTable (lua_State *luaState);
 
+// A structure describing how many bits are used for each game state value.
+typedef struct GameStateBitMap
+{
+	const char *name;
+	BYTE numBits;
+} GameStateBitMap;
+
+extern const GameStateBitMap *gameStateBitMap;
+extern size_t gameStateBitMapCount;
+
+extern void luaUqm_buildGameStateBitMap (void);
+extern void luaUqm_uninitGameStateBitMap (void);
+void luaUqm_initProp (lua_State *luaState, const char *name, int value, int bits);
+void luaUqm_setRevision (lua_State *luaState, int revision);
+
 #if defined(__cplusplus)
 }
 #endif
