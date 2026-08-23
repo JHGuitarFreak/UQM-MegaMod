@@ -813,6 +813,7 @@ int main(int argc, char** argv)
 	 *   tasks might still be using it */
 	if (MainExited)
 	{
+		FreeJournal ();
 		TFB_UninitInput ();
 		unInitAudio ();
 		uninit_communication ();

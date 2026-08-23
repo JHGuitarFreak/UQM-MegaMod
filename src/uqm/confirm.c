@@ -30,6 +30,7 @@
 #include "battle.h"
 #include "comm.h"
 #include "libs/inplib.h"
+#include "libs/imgui/uqm_imgui.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -233,7 +234,8 @@ DoConfirmExit (void)
 		{
 			result = TRUE;
 			GLOBAL (CurrentActivity) |= CHECK_ABORT;
-		}		
+			ResetJournal ();
+		}
 		else
 		{
 			result = FALSE;

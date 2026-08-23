@@ -34,6 +34,7 @@
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
 #include "types.h"
+#include "libs/imgui/uqm_imgui.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -906,7 +907,8 @@ UQM_SetCursor (int cursor)
 {
 	BOOLEAN cursor_visible = UQM_IsCursorVisible ();
 
-	if ((!optMouseInput && cursor_visible) || cursor == CURSOR_DISABLE)
+	if ((!optMouseInput && cursor_visible && !menu_visible) ||
+			cursor == CURSOR_DISABLE)
 	{
 		SDL_ShowCursor (SDL_DISABLE);
 		cursor_enabled = FALSE;

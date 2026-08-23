@@ -255,6 +255,7 @@ UQM_ImGui_Tabs (TabState *state)
 		subtab_names[0] = ImStrArr ("subtab_names.0");
 		subtab_names[1] = ImStrArr ("subtab_names.1");
 		subtab_names[2] = ImStrArr ("subtab_names.2");
+		subtab_names[3] = ImStrArr ("subtab_names.3");
 	}
 
 	int *active_subtab[] =
@@ -402,6 +403,24 @@ UQM_ImGui_Tabs (TabState *state)
 					case 2: draw_gamestates_menu (); break;
 					case 3: draw_events_menu (); break;
 					case 4: draw_stars_menu (); break;
+					default:
+						ImGui_Text ("Subtab %d not found.",
+							*active_subtab[active_tab]);
+						break;
+					}
+					break;
+				}
+			case 3:
+				if (IN_MAIN_MENU)
+				{
+					ImGui_Text ("Not available in the Main Menu...");
+					break;
+				}
+				else
+				{
+					switch (*active_subtab[active_tab])
+					{
+					case 0: draw_journal_menu (); break;
 					default:
 						ImGui_Text ("Subtab %d not found.",
 							*active_subtab[active_tab]);

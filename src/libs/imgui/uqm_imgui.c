@@ -51,6 +51,8 @@ static void ShowFullScreenMenu (TabState *state)
 	flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
+	UQM_SetCursor (CURSOR_POINTER);
+
 	if (!ImGui_Begin ("##FullScreenMenu", NULL, flags))
 	{
 		ImGui_End ();

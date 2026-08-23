@@ -74,6 +74,8 @@ void draw_cheats_menu (void);
 void draw_qol_menu (void);
 void draw_adv_menu (void);
 
+void draw_journal_menu (void);
+
 // ImGui main
 extern bool menu_visible;
 extern bool config_changed;
@@ -122,6 +124,16 @@ void ApplyGfxChanges (void);
 void FlagStatRefresh (void);
 
 extern SOUND PkunkSounds;
+
+// ImGui Journal
+extern char *jrnl_buf;
+extern char jrnl_name[15];
+extern BOOLEAN jrnl_dirty;
+#define FLOPPY_SIZE 1474560
+extern void SaveJournal (COUNT which_game);
+extern void LoadJournal (COUNT which_game);
+extern void ResetJournal (void);
+extern void FreeJournal (void);
 
 // ImGui Graphics
 extern int imgui_GfxFlags;

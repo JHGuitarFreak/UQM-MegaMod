@@ -34,6 +34,7 @@
 #include "libs/log.h"
 #include "libs/misc.h"
 #include "master.h"
+#include "libs/imgui/uqm_imgui.h"
 
 //#define DEBUG_LOAD
 
@@ -993,6 +994,8 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 	if (!(NextActivity & START_ENCOUNTER)
 			&& LOBYTE (NextActivity) == IN_INTERPLANETARY)
 		NextActivity |= START_INTERPLANETARY;
+
+	LoadJournal (which_game);
 
 	// Reset Debug Key
 	DebugKeyPressed = FALSE;

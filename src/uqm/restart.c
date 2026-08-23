@@ -605,6 +605,9 @@ DoRestart (MENU_STATE *pMS)
 					}
 					Flash_continue (pMS->flashContext);
 				}
+
+				ResetJournal ();
+
 				LastActivity = CHECK_LOAD | CHECK_RESTART;
 				GLOBAL (CurrentActivity) = IN_INTERPLANETARY;
 				break;
