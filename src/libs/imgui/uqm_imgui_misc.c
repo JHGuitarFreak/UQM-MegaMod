@@ -213,7 +213,8 @@ ResetJournal (void)
 	jrnl_name[0] = '\0';
 }
 
-void draw_journal_menu (void)
+void
+draw_journal_menu (float height)
 {
 	char buf[96];
 	ImVec2 iv2;
@@ -235,15 +236,16 @@ void draw_journal_menu (void)
 		ImGui_SeparatorText (buf);
 
 		iv2 = ImGui_GetContentRegionAvail ();
-		iv2.y = (float)WindowHeight;
+		iv2.y = (float)WindowHeight - ImGui_GetCursorPosY () - height
+				- (style->WindowPadding.y * 8); // I hate math this so much
 
 		if (ImGui_InputTextMultilineEx ("##JournalText", jrnl_buf, FLOPPY_SIZE,
-				iv2, ImGuiInputTextFlags_WordWrap, NULL, NULL))
+				iv2, ImGuiInputTextFlags_WordWrap |
+				ImGuiInputTextFlags_AllowTabInput, NULL, NULL))
 		{
 			jrnl_dirty = true;
 		}
-	}
-	ImGui_EndChild ();
+	} ImGui_EndChild ();
 }
 
 void

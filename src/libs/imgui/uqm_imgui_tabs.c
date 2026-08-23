@@ -420,7 +420,7 @@ UQM_ImGui_Tabs (TabState *state)
 				{
 					switch (*active_subtab[active_tab])
 					{
-					case 0: draw_journal_menu (); break;
+					case 0: draw_journal_menu (temp_height); break;
 					default:
 						ImGui_Text ("Subtab %d not found.",
 							*active_subtab[active_tab]);

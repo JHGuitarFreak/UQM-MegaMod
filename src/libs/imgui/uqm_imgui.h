@@ -74,7 +74,7 @@ void draw_cheats_menu (void);
 void draw_qol_menu (void);
 void draw_adv_menu (void);
 
-void draw_journal_menu (void);
+void draw_journal_menu (float height);
 
 // ImGui main
 extern bool menu_visible;

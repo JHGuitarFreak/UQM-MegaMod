@@ -873,7 +873,7 @@ SaveGame (COUNT which_game, SUMMARY_DESC *SummPtr, const char *name)
 		return FALSE;
 	}
 
-	SaveJournal ();
+	SaveJournal (which_game);
 
 	return TRUE;
 }
