@@ -1222,12 +1222,10 @@ void draw_stars_menu (void)
 
 		Spacer ();
 
-		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg,
-			MAKE_IV4 (0.19f, 0.19f, 0.2f, 0.8f));
-		if (ImGui_BeginTable ("##StarArrayTable", 7,
-				ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
-				ImGuiTableFlags_NoHostExtendX |
-				ImGuiTableFlags_SizingStretchSame))
+		if (ImGui_BeginTable ("##StarArrayTable", 8,
+			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
+			ImGuiTableFlags_NoHostExtendX |
+			ImGuiTableFlags_SizingStretchSame))
 		{
 			ImGui_TableSetupColumnEx ("Idx",
 					ImGuiTableColumnFlags_WidthFixed,
@@ -1253,11 +1251,17 @@ void draw_stars_menu (void)
 					ImGui_CalcTextSize (GAME_STRING (
 						STAR_STRING_BASE + longest_postfix)).x +
 						style->FramePadding.x, 2);
-
-			ImGui_TableSetupColumnEx ("Coordinates",
+			
+			ImGui_TableSetupColumnEx ("X",
 					ImGuiTableColumnFlags_WidthFixed,
-					ImGui_CalcTextSize ("999.9 : 999.9").x +
-						style->FramePadding.x, 3);
+					ImGui_CalcTextSize ("99999").x +
+						style->FramePadding.x * 2, 3);
+
+			ImGui_TableSetupColumnEx ("Y",
+					ImGuiTableColumnFlags_WidthFixed,
+					ImGui_CalcTextSize ("99999").x +
+						style->FramePadding.x * 2, 4);
+
 			ImGui_TableSetupColumn ("Type", 0);
 			ImGui_TableSetupColumn ("Colour", 0);
 			ImGui_TableSetupColumn ("Presence", 0);
@@ -1306,14 +1310,39 @@ void draw_stars_menu (void)
 				ImGui_AlignTextToFramePadding ();
 				ImGui_Text ("%s",
 						GAME_STRING (STAR_STRING_BASE +
-							star_array[i].Postfix));
+						star_array[i].Postfix));
 
 				ImGui_TableNextColumn ();
 
-				ImGui_AlignTextToFramePadding ();
-				ImGui_Text ("%05.1f : %05.1f",
-						(float)star_array[i].star_pt.x / 10.0f,
-						(float)star_array[i].star_pt.y / 10.0f);
+				{
+					char buf[40];
+					int star_ptx = star_array[i].star_pt.x;
+
+					snprintf (buf, sizeof buf, "##star_ptx%d", i);
+					ImGui_SetNextItemWidth (-1);
+					ImGui_InputIntEx (buf, &star_ptx, 0, 0, 0);
+					if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& star_ptx >= 0 && star_ptx <= 9999)
+					{
+						star_array[i].star_pt.x = star_ptx;
+					}
+				}
+
+				ImGui_TableNextColumn ();
+
+				{
+					char buf[40];
+					int star_pty = star_array[i].star_pt.y;
+
+					snprintf (buf, sizeof buf, "##star_pty%d", i);
+					ImGui_SetNextItemWidth (-1);
+					ImGui_InputIntEx (buf, &star_pty, 0, 0, 0);
+					if (ImGui_IsItemDeactivatedAfterEdit ()
+						&& star_pty >= 0 && star_pty <= 9999)
+					{
+						star_array[i].star_pt.y = star_pty;
+					}
+				}
 
 				ImGui_TableNextColumn ();
 
@@ -1371,6 +1400,5 @@ void draw_stars_menu (void)
 			}
 			ImGui_EndTable ();
 		}
-		ImGui_PopStyleColor ();
 	} ImGui_EndChild (); // ##StarTable
 }

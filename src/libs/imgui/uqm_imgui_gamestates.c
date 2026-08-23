@@ -627,7 +627,7 @@ GamestatesTab01 (void)
 			ImGui_Text ("SLYLANDRO_MULTIPLIER");
 			ImGui_InputIntEx ("##SLYLANDRO_MULTIPLIER", &sly_multiplier, 0, 0, 0);
 			if (ImGui_IsItemDeactivatedAfterEdit ()
-				&& sly_multiplier < (COUNT)~0 && sly_multiplier > 0)
+				&& sly_multiplier < (COUNT)~0 && sly_multiplier >= 0)
 			{
 				SET_CGAME_STATE (SLYLANDRO_MULTIPLIER, sly_multiplier);
 			}

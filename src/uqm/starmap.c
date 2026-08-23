@@ -48,9 +48,77 @@ PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES + 1] = {0};
 //PORTAL_LOCATION portal_map[NUM_HYPER_VORTICES+1] =
 //		{[0 ... (NUM_HYPER_VORTICES)] = {{0, 0}, {0, 0}, NULL}};
 
-
 STAR_DESC*
 FindStar (STAR_DESC *LastSDPtr, POINT *puniverse, SIZE xbounds,
+		SIZE ybounds)
+{
+	STAR_DESC *BaseSDPtr, *StarPtr;
+	POINT min, max;
+	SIZE lo, hi;
+
+	if (GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1)
+	{
+		BaseSDPtr = star_array;
+		hi = NUM_SOLAR_SYSTEMS - 1;
+	}
+	else
+	{
+		BaseSDPtr = &star_array[NUM_SOLAR_SYSTEMS + 1];
+		hi = (NUM_HYPER_VORTICES + 1) - 1;
+	}
+
+	if (LastSDPtr == NULL)
+		lo = 0;
+	else if ((lo = LastSDPtr - BaseSDPtr + 1) > hi)
+		return (0);
+
+	if (ybounds <= 0)
+		min.y = max.y = puniverse->y;
+	else
+	{
+		min.y = puniverse->y - ybounds;
+		max.y = puniverse->y + ybounds;
+	}
+
+	if (xbounds <= 0)
+		min.x = max.x = puniverse->x;
+	else
+	{
+		min.x = puniverse->x - xbounds;
+		max.x = puniverse->x + xbounds;
+	}
+
+	while (lo <= hi)
+	{
+		StarPtr = &BaseSDPtr[lo];
+
+		if (ybounds >= 0)
+		{
+			if (StarPtr->star_pt.y < min.y ||
+				StarPtr->star_pt.y > max.y)
+			{
+				lo++;
+				continue;
+			}
+		}
+
+		if (xbounds >= 0)
+		{
+			if (StarPtr->star_pt.x < min.x ||
+				StarPtr->star_pt.x > max.x)
+			{
+				lo++;
+				continue;
+			}
+		}
+		return (StarPtr);
+	}
+
+	return (0);
+}
+
+STAR_DESC*
+FindStarOld (STAR_DESC *LastSDPtr, POINT *puniverse, SIZE xbounds,
 		SIZE ybounds)
 {
 	COORD min_y, max_y;
