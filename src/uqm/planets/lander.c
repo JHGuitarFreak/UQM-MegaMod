@@ -388,7 +388,10 @@ LanderFaceCursor (BOOLEAN *turn_left, BOOLEAN *turn_right, BOOLEAN *thrust,
 		return;
 	}
 
-	mouse_pos = GetMousePlanetCoords ();
+	if (is3DO (optSuperPC))
+		mouse_pos = GetMousePlanetCoords ();
+	else
+		mouse_pos = GetMouseScanCoords ();
 
 	dx = mouse_pos.x - curLanderLoc.x;
 	dy = mouse_pos.y - curLanderLoc.y;
@@ -2511,8 +2514,12 @@ landerSpeedNumer = WORLD_TO_VELOCITY (RES_SCALE (48));
 					(InputState & BATTLE_THRUST);
 			weapon = CurrentInputState.key[PlayerControls[0]][KEY_WEAPON];
 
-			if (optMouseInput == 1 && MouseInContext (PlanetContext))
+			if (optMouseInput == 1 &&
+					((is3DO (optSuperPC) && MouseInContext (PlanetContext)) ||
+					(isPC (optSuperPC) && MouseInContext (ScanContext))))
+			{
 				LanderFaceCursor (&turn_left, &turn_right, &thrust, &weapon);
+			}
 			if (optMouseInput == 2)
 				CalculateAutopilot (&turn_left, &turn_right, &thrust);
 

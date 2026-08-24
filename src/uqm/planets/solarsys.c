@@ -2909,6 +2909,8 @@ UninitSolarSys (void)
 
 	UQM_SetCursor (CURSOR_POINTER);
 
+	KillAutopilot ();
+
 	if (GLOBAL (CurrentActivity) & END_INTERPLANETARY)
 	{
 		endInterPlanetary ();
