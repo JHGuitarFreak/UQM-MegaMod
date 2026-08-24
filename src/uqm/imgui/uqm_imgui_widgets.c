@@ -23,14 +23,30 @@ NumberOfColumns (void)
 	if (DISPLAY_SIZE.x <= 640.0f)
 		return 1;
 
-	if (FONT_SCALE <= 0.75f)
-		return 5;
-	else if (FONT_SCALE < 1.25f)
-		return 3;
-	else if (FONT_SCALE < 1.5f)
-		return 2;
+	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
+	{
+		if (FONT_SCALE <= 0.75f)
+			return 10;
+		else if (FONT_SCALE < 1.25f)
+			return 5;
+		else if (FONT_SCALE < 1.5f)
+			return 4;
+		else if (FONT_SCALE < 2.0f)
+			return 3;
+		else
+			return 2;
+	}
 	else
-		return 1;
+	{
+		if (FONT_SCALE <= 0.75f)
+			return 5;
+		else if (FONT_SCALE < 1.25f)
+			return 3;
+		else if (FONT_SCALE < 1.5f)
+			return 2;
+		else
+			return 1;
+	}
 }
 
 void
