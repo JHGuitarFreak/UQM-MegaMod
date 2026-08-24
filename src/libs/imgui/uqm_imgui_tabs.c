@@ -80,9 +80,8 @@ draw_settings_menu (void)
 			for (i = 0; i < num_fonts; i++)
 				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
-			ImGui_Text ("Font Selector");
-			if (ImGui_ComboChar ("##FontSelector", &font_selection, font_names,
-				num_fonts))
+			if (ImGui_SizedComboChar ("Font Selector: ", &font_selection,
+					font_names, num_fonts))
 			{
 				io->FontDefault = font_atlas->Fonts.Data[font_selection];
 
@@ -94,24 +93,34 @@ draw_settings_menu (void)
 
 		Spacer ();
 
-		ImGui_Text ("UI Scale");
-		if (ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
-			0.01f, 0.5f, 3.0f, "%.2f", 0))
-		{
-			easy_PutFloat ("ui_scale", style->FontScaleMain);
-
-			UQM_ScaleAllSizes ();
+		{	//UI Scale
+			ImGui_Text ("UI Scale");
+			if (ImGui_Button ("Reset##FontScaleMain")) // Reset
+			{
+				style->FontScaleMain = 1.0f;
+				easy_PutFloat ("ui_scale", style->FontScaleMain);
+				UQM_ScaleAllSizes ();
+			}
+			ImGui_SameLine ();
+			ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
+				(ImGui_GetItemRectSize ().x + style->ItemSpacing.x));
+			if (ImGui_DragFloatEx ("##UIScale", &style->FontScaleMain,
+				0.01f, 0.5f, 3.0f, "%.2f", ImGuiSliderFlags_ClampOnInput))
+			{
+				easy_PutFloat ("ui_scale", style->FontScaleMain);
+				UQM_ScaleAllSizes ();
+			}
 		}
 
 		Spacer ();
 
 		{	// Menu Controller Navigation
-			bool nav_gamepad = io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
+			bool nav_gamepad =
+					io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
 
 			if (ImGui_Checkbox (menu_cntrlr_nav, &nav_gamepad))
 			{
 				io->ConfigFlags ^= ImGuiConfigFlags_NavEnableGamepad;
-
 				ImPutBool (nav_gamepad);
 			}
 		}
@@ -148,8 +157,8 @@ draw_settings_menu (void)
 			char *insult[17] =
 			{
 				"- Sound Test -", "- Sound Test -", "Baby!", "Dodo!", "Dummy!",
-				"Fool!", "Idiot!", "Jerk!", "Loser!", "Moron!", "Stupid!", "Twit!",
-				"Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
+				"Fool!", "Idiot!", "Jerk!", "Loser!", "Moron!", "Stupid!",
+				"Twit!", "Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
 			};
 
 			if (Now >= NextTime && CurSound > 1)
@@ -172,7 +181,8 @@ draw_settings_menu (void)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();
-		ImGui_BeginStyledChild ("##Column2", content_col_size, CH_FLAT_NAV, 0, NULL);
+		ImGui_BeginStyledChild ("##Column2", content_col_size, CH_FLAT_NAV, 0,
+				NULL);
 	}
 
 	{

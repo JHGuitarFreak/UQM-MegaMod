@@ -17,6 +17,22 @@
 
 #include "uqm_imgui.h"
 
+int
+NumberOfColumns (void)
+{
+	if (DISPLAY_SIZE.x <= 640.0f)
+		return 1;
+
+	if (FONT_SCALE <= 0.75f)
+		return 5;
+	else if (FONT_SCALE < 1.25f)
+		return 3;
+	else if (FONT_SCALE < 1.5f)
+		return 2;
+	else
+		return 1;
+}
+
 void
 GetColumnSize (ImVec2 *var, int num_columns)
 {
@@ -67,15 +83,15 @@ ImGui_SizedComboChar (const char *label, int *curr_item,
 	bool temp = false;
 	char buf[100];
 	float column_width = ImGui_GetColumnWidth (ImGui_GetColumnIndex ());
-	float combo_width = column_width * 0.75f;
-	float center_offset = (column_width - combo_width) * 0.5f
-			- style->WindowPadding.x * 2;
+	float combo_width = column_width * 0.86f;
+	//float center_offset = (column_width - combo_width) * 0.5f
+	//		- style->WindowPadding.x * 2;
 
 	snprintf (buf, sizeof buf, "##%s", label);
 
 	ImGui_AlignTextToFramePadding ();
 	ImGui_TextUnformatted (label);
-	ImGui_SetCursorPosX (ImGui_GetCursorPosX () + center_offset);
+	//ImGui_SetCursorPosX (ImGui_GetCursorPosX ());
 	ImGui_SetNextItemWidth (combo_width);
 
 	ImGui_PushStyleVarImVec2 (ImGuiStyleVar_SelectableTextAlign, CENTER_IT);

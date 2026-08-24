@@ -191,8 +191,10 @@ extern ImGuiStyle *style;
 #define FONT_SCALE style->FontScaleMain
 #define SCALE_IT(a)((float)a * style->FontScaleMain)
 #define DISPLAY_SIZE io->DisplaySize
-#define NUM_COLUMNS ((DISPLAY_SIZE.x > 640.0f && FONT_SCALE <= 1.5) ? 3 : 1)
 #define IN_MAIN_MENU (!inFullGame ())
+
+int NumberOfColumns (void);
+#define NUM_COLUMNS (NumberOfColumns ())
 
 #define SCALE_20F SCALE_IT(20.0f)
 

@@ -135,7 +135,7 @@ GamestatesTab00 (void)
 		Spacer ();
 	}
 
-	if (NUM_COLUMNS != 1)
+	if (NUM_COLUMNS > 2)
 	{
 		ImGui_EndChild (); // ##Column1
 		ImGui_SameLine ();
@@ -600,7 +600,7 @@ GamestatesTab01 (void)
 		GS_CHECKBOX (DRUUGE_MANNER);
 	}
 
-	if (NUM_COLUMNS != 1)
+	if (NUM_COLUMNS > 2)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();

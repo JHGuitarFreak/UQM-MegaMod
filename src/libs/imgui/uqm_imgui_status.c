@@ -329,7 +329,7 @@ void draw_status_menu (void)
 		}
 	}
 
-	if (NUM_COLUMNS != 1)
+	if (NUM_COLUMNS > 2)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();
