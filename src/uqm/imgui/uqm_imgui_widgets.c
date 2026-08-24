@@ -507,6 +507,29 @@ UQM_DblColTableCheckBox (const char *gs_retrieved, const char *gs_on_ship)
 	ImGui_TableNextColumn ();
 }
 
+ImVec4
+UQM_ColorToImVec4 (Color color)
+{
+	ImVec4 temp;
+
+	temp.x = (float)color.r / 255.0f;
+	temp.y = (float)color.g / 255.0f;
+	temp.z = (float)color.b / 255.0f;
+	temp.w = (float)color.a / 255.0f;
+
+	return temp;
+}
+
+ImU32
+UQM_ColorToU32 (Color color)
+{
+	return (ImU32)(
+			(color.r << 24) |
+			(color.g << 16) |
+			(color.b << 8) |
+			color.a);
+}
+
 void
 UQM_ImGui_Style (void)
 {

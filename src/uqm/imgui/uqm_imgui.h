@@ -42,6 +42,7 @@
 #include "uqm/sounds.h"
 #include "uqm/nameref.h"
 #include "uqm/ships/pkunk/resinst.h"
+#include "uqm/colors.h"
 
 #include "libs/graphics/sdl/sdl_common.h"
 
@@ -222,6 +223,12 @@ void ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
 
 // Colors
 #define STYLE_COLOR(a) ImGui_GetColorU32 (a)
+
+ImVec4 UQM_ColorToImVec4 (Color color);
+#define ColorToIV4(a) (UQM_ColorToImVec4 (a))
+
+ImU32 UQM_ColorToU32 (Color color);
+#define ColorToU32(a) (UQM_ColorToU32 (a))
 
 #define IV4_RED_COLOR    ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
 #define IV4_YELLOW_COLOR ((ImVec4){ 1.0f, 1.0f, 0.0f, 1.0f })
