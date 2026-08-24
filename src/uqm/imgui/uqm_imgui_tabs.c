@@ -148,7 +148,26 @@ draw_settings_menu (void)
 
 		ImGui_NewLine ();
 
-		{
+		{	// Open Addons Folder...
+			if (ImGui_Button ("Open Addons Folder..."))
+			{
+				char buf[PATH_MAX];
+				snprintf (buf, sizeof buf, "file:///%s", baseContentPath);
+				SDL_OpenURL (buf);
+			}
+
+			// Open Config Folder...
+			if (ImGui_Button ("Open Config Folder..."))
+			{
+				char buf[PATH_MAX];
+				snprintf (buf, sizeof buf, "file:///%s", configDirPath);
+				SDL_OpenURL (buf);
+			}
+		}
+
+		ImGui_NewLine ();
+
+		{	// Sound Test
 			static TimeCount NextTime = 0;
 			TimeCount Now = GetTimeCounter ();
 

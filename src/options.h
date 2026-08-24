@@ -159,6 +159,7 @@ extern char baseContentPath[PATH_MAX];
 
 extern char *contentDirPath;
 extern char *addonDirPath;
+extern char *configDirPath;
 
 extern const char **optAddons;
 

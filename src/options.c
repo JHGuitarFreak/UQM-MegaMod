@@ -166,6 +166,7 @@ uio_MountHandle* contentMountHandle;
 
 char *contentDirPath;
 char *addonDirPath;
+char *configDirPath;
 
 char baseContentPath[PATH_MAX];
 
@@ -349,6 +350,9 @@ prepareConfigDir (const char *configDirName) {
 	configDirName = buf;
 
 	log_add (log_Debug, "Using config dir '%s'", configDirName);
+
+	if (!configDirPath)
+		configDirPath = strdup (configDirName);
 
 	// Set the environment variable UQM_CONFIG_DIR so UQM_MELEE_DIR
 	// and UQM_SAVE_DIR can refer to it.
