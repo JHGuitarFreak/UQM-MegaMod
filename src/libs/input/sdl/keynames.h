@@ -23,7 +23,7 @@ typedef struct vcontrol_keyname
 	int code;
 } keyname;
 
-keyname keynames[];
+extern keyname keynames[];
 
 const char *VControl_code2name (int code);
 int VControl_name2code (const char *code);

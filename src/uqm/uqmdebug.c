@@ -249,7 +249,7 @@ debugKeyPressedSynchronous (void)
 	{
 		printf("Debug Key Activated\n\n");
 		equipShip ();
-		showSpheres (FALSE);
+		//showSpheres (FALSE);
 		SET_GAME_STATE (KNOW_QS_PORTAL, ~0);
 		SET_GAME_STATE (KNOW_HOMEWORLD, ~0);
 	}

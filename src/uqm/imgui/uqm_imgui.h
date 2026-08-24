@@ -18,9 +18,9 @@
 #ifndef UQM_IMGUI_H
 #define UQM_IMGUI_H
 
-#include "dcimgui/dcimgui.h"
-#include "dcimgui/dcimgui_impl_sdl2.h"
-#include "dcimgui/dcimgui_impl_sdlrenderer2.h"
+#include "libs/imgui/dcimgui.h"
+#include "libs/imgui/dcimgui_impl_sdl2.h"
+#include "libs/imgui/dcimgui_impl_sdlrenderer2.h"
 #include "options.h"
 #include "types.h"
 #include "libs/graphics/gfx_common.h"

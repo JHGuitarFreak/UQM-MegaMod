@@ -39,7 +39,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "gameopt.h"
 #include "libs/log/uqmlog.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "imgui/uqm_imgui.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)

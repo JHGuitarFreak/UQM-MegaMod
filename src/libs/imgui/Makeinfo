@@ -1,7 +1,9 @@
-uqm_SUBDIRS="dcimgui"
-uqm_CFILES="uqm_imgui.c uqm_imgui_cheats.c uqm_imgui_engine.c
-		uqm_imgui_graphics.c uqm_imgui_misc.c uqm_imgui_status.c
-		uqm_imgui_tabs.c uqm_imgui_visuals.c uqm_imgui_audio.c
-		uqm_imgui_controls.c uqm_imgui_gamestates.c
-		uqm_imgui_widgets.c"
-uqm_HFILES="uqm_imgui.h"
+uqm_CFILES="imgui.cpp imgui_demo.cpp imgui_draw.cpp imgui_tables.cpp
+		imgui_widgets.cpp imgui_impl_sdl2.cpp imgui_impl_sdlrenderer2.cpp
+		dcimgui.cpp dcimgui_impl_sdl2.cpp dcimgui_impl_sdlrenderer2.cpp
+		dcimgui_internal.cpp"
+uqm_HFILES="imgui.h imgui_internal.h imstb_rectpack.h imstb_textedit.h
+		imstb_truetype.h imgui_impl_sdl2.h imgui_impl_sdlrenderer2.h
+		imconfig.h dcimgui.h dcimgui_internal.h dcimgui_impl_sdl2.h
+		dcimgui_impl_sdlrenderer2.h"
+

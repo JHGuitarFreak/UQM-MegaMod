@@ -30,7 +30,7 @@
 #include "battle.h"
 #include "comm.h"
 #include "libs/inplib.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "imgui/uqm_imgui.h"
 
 #include <ctype.h>
 #include <stdlib.h>

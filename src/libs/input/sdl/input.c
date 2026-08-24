@@ -34,7 +34,7 @@
 #include "uqm/sounds.h"
 #include "uqm/setup.h"
 
-#include "libs/imgui/uqm_imgui.h"
+#include "uqm/imgui/uqm_imgui.h"
 
 #define KBDBUFSIZE (1 << 8)
 static int kbdhead=0, kbdtail=0;

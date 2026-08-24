@@ -34,7 +34,7 @@
 #include "libs/log.h"
 #include "libs/misc.h"
 #include "master.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "imgui/uqm_imgui.h"
 
 //#define DEBUG_LOAD
 

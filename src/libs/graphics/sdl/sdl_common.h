@@ -25,7 +25,7 @@
 #include "../gfxintrn.h"
 #include "libs/graphics/tfb_draw.h"
 #include "libs/graphics/gfx_common.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "uqm/imgui/uqm_imgui.h"
 
 // The Graphics Backend vtable
 typedef struct _tfb_graphics_backend {

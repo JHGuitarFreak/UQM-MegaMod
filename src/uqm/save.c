@@ -42,7 +42,7 @@
 #include "libs/log.h"
 #include "libs/memlib.h"
 #include "colors.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "imgui/uqm_imgui.h"
 
 // Status boolean. If for some insane reason you need to
 // save games in different threads, you'll need to

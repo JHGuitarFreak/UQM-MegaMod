@@ -58,7 +58,7 @@
 #include <time.h>//required to use 'srand(time(NULL))'
 #include "sounds.h"
 #include "gameopt.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "imgui/uqm_imgui.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP

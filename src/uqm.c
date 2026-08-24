@@ -58,7 +58,7 @@
 #include "uqm/setup.h"
 #include "uqm/starcon.h"
 #include "libs/math/random.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "uqm/imgui/uqm_imgui.h"
 
 BOOLEAN restartGame;
 

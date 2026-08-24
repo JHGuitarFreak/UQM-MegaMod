@@ -34,7 +34,7 @@
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
 #include "types.h"
-#include "libs/imgui/uqm_imgui.h"
+#include "uqm/imgui/uqm_imgui.h"
 
 #include <stdlib.h>
 #include <stdio.h>
