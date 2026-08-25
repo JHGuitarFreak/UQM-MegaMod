@@ -245,9 +245,12 @@ static void
 DrawScanAutopilotTarget (void)
 {
 	POINT target;
+	CONTEXT old_context;
 
 	if (!optMouseInput)
 		return;
+
+	old_context = SetContext (ScanContext);
 
 	target.x = lander_autopilot.x >> MAG_SHIFT;
 	target.y = lander_autopilot.y >> MAG_SHIFT;
@@ -258,6 +261,8 @@ DrawScanAutopilotTarget (void)
 		SetContextForeGroundColor (TEAL_COLOR);
 
 	DrawAutopilotTarget (target);
+
+	SetContext (old_context);
 }
 
 static POINT
@@ -1886,16 +1891,11 @@ ScrollPlanetSide (SIZE dx, SIZE dy, int landingOffset)
 		RotatePlanetSphere (TRUE, NULL);
 	}
 
-	if (is3DO (optSuperPC) && mouse_target)
+	if (mouse_target)
 	{
-		DrawPlanetAutopilotTarget ();
-		SetContext (ScanContext);
-		DrawScanAutopilotTarget ();
-	}
+		if (is3DO (optSuperPC))
+			DrawPlanetAutopilotTarget ();
 
-	if (isPC (optSuperPC) && mouse_target)
-	{
-		SetContext (ScanContext);
 		DrawScanAutopilotTarget ();
 	}
 

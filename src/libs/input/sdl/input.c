@@ -1037,8 +1037,10 @@ ScaleCanvas (void)
 		return temp;
 	}
 
-	temp.x = (pt.x - r.corner.x) * ((float)CanvasWidth / (float)r.extent.width);
-	temp.y = (pt.y - r.corner.y) * ((float)CanvasHeight / (float)r.extent.height);
+	temp.x = (pt.x - r.corner.x) * ((float)CanvasWidth /
+			(float)r.extent.width);
+	temp.y = (pt.y - r.corner.y) * ((float)CanvasHeight /
+			(float)r.extent.height);
 
 	return temp;
 }
