@@ -169,7 +169,7 @@ void draw_visual_menu (void)
 				if (ImGui_ComboChar ("##PlanetMapTextures", (int *)&optPlanetTexture,
 					planet_textures, 2))
 				{
-					res_PutInteger ("mm.planetTexture", optPlanetTexture);
+					res_PutBoolean ("mm.planetTexture", optPlanetTexture);
 					mmcfg_changed = true;
 				}
 			}
