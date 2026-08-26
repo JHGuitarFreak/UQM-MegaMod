@@ -271,6 +271,9 @@ void easy_PutBool (const char *key, bool var);
 const char *UQM_GetStr (const char *key);
 #define ImStr(key) UQM_GetStr(key)
 
+void UQM_EasyGetStr (const char **str, const char *key);
+#define EZImStr(SKey) UQM_EasyGetStr(&SKey, #SKey)
+
 const char **UQM_GetStrArray (const char *key);
 #define ImStrArr(key) UQM_GetStrArray(key)
 
@@ -306,6 +309,9 @@ void UQM_CGameStateCheckBox (const char *gamestate, const char *label);
 void UQM_DblColTableCheckBox (const char *gs_retrieved, const char *gs_on_ship);
 #define DBL_COL_CHECKBOX(gs_retrieved, gs_on_ship) \
 	UQM_DblColTableCheckBox (#gs_retrieved, #gs_on_ship)
+
+const char *UQM_MakeIDFromStrings (const char *str1, const char *str2);
+#define ImMakeID(str1,str2) UQM_MakeIDFromStrings (str1, str2)
 
 void UQM_ImGui_Style (void);
 void UQM_ScaleAllSizes (void);

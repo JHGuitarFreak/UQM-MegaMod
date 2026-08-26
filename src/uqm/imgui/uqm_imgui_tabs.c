@@ -43,14 +43,24 @@ void
 draw_settings_menu (void)
 {
 	static const char *menu_settings_lbl, *menu_cntrlr_nav, *menu_bg_lbl;
-	static const char *bt_reset;
+	static const char *btn_reset_str, *font_selector, *ui_scale_str;
+	static const char *btn_addons_dir_str, *btn_config_dir_str;
+	static const char *separator_about_str, *btn_imgui_demo_str;
+	static const char **insult_factory_str = NULL;
 
 	if (!menu_settings_lbl)
 	{
 		menu_settings_lbl = ImStr ("menu_settings_lbl");
+		font_selector = ImStr ("font_selector");
 		menu_cntrlr_nav = ImStr ("menu_cntrlr_nav");
 		menu_bg_lbl = ImStr ("menu_bg_lbl");
-		bt_reset = ImStr ("bt_reset");
+		ui_scale_str = ImStr ("ui_scale_str");
+		btn_reset_str = ImStr ("btn_reset_str");
+		btn_addons_dir_str = ImStr ("btn_addons_dir_str");
+		btn_config_dir_str = ImStr ("btn_config_dir_str");
+		insult_factory_str = ImStrArr ("insult_factory_str");
+		separator_about_str = ImStr ("separator_about_str");
+		btn_imgui_demo_str = ImStr ("btn_imgui_demo_str");
 	}
 
 	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0, NULL);
@@ -80,7 +90,7 @@ draw_settings_menu (void)
 			for (i = 0; i < num_fonts; i++)
 				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
-			if (ImGui_SizedComboChar ("Font Selector: ", &font_selection,
+			if (ImGui_SizedComboChar (font_selector, &font_selection,
 					font_names, num_fonts))
 			{
 				io->FontDefault = font_atlas->Fonts.Data[font_selection];
@@ -94,8 +104,8 @@ draw_settings_menu (void)
 		Spacer ();
 
 		{	//UI Scale
-			ImGui_Text ("UI Scale");
-			if (ImGui_Button ("Reset##FontScaleMain")) // Reset
+			ImGui_Text (ui_scale_str);
+			if (ImGui_Button (ImMakeID (btn_reset_str, "FontScaleMain"))) // Reset
 			{
 				style->FontScaleMain = 1.0f;
 				easy_PutFloat ("ui_scale", style->FontScaleMain);
@@ -129,7 +139,7 @@ draw_settings_menu (void)
 
 		{	// Menu Background Opacity
 			ImGui_TextUnformatted (menu_bg_lbl);
-			if (ImGui_Button (bt_reset)) // Reset
+			if (ImGui_Button (ImMakeID (btn_reset_str, "BGOpacity"))) // Reset
 			{
 				style->Colors[ImGuiCol_ChildBg].w = 0.8f;
 				easy_PutFloat ("background_opacity",
@@ -149,7 +159,7 @@ draw_settings_menu (void)
 		ImGui_NewLine ();
 
 		{	// Open Addons Folder...
-			if (ImGui_Button ("Open Addons Folder..."))
+			if (ImGui_Button (btn_addons_dir_str))
 			{
 				char buf[PATH_MAX];
 				snprintf (buf, sizeof buf, "file:///%s", baseContentPath);
@@ -157,7 +167,7 @@ draw_settings_menu (void)
 			}
 
 			// Open Config Folder...
-			if (ImGui_Button ("Open Config Folder..."))
+			if (ImGui_Button (btn_config_dir_str))
 			{
 				char buf[PATH_MAX];
 				snprintf (buf, sizeof buf, "file:///%s", configDirPath);
@@ -170,26 +180,18 @@ draw_settings_menu (void)
 		{	// Sound Test
 			static TimeCount NextTime = 0;
 			TimeCount Now = GetTimeCounter ();
-
-
 			static COUNT CurSound = 0;
-			char *insult[17] =
-			{
-				"- Sound Test -", "- Sound Test -", "Baby!", "Dodo!", "Dummy!",
-				"Fool!", "Idiot!", "Jerk!", "Loser!", "Moron!", "Stupid!",
-				"Twit!", "Wimp!", "Worm!", "Dummy!", "Nerd!", "Nitwit!"
-			};
 
 			if (Now >= NextTime && CurSound > 1)
 				CurSound = 0;
 
-			if (ImGui_ButtonEx (insult[CurSound],
-				MAKE_IV2 (SCALE_IT (150.0f), 0.0f)))
+			if (ImGui_ButtonEx (insult_factory_str[CurSound],
+					MAKE_IV2 (SCALE_IT (150.0f), 0.0f)))
 			{
 				CurSound = 2 + ((COUNT)TFB_Random () % (
-					GetSoundCount (PkunkSounds) - 2));
+						GetSoundCount (PkunkSounds) - 2));
 				PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
-					NotPositional (), NULL, GAME_SOUND_PRIORITY);
+						NotPositional (), NULL, GAME_SOUND_PRIORITY);
 
 				NextTime = Now + (ONE_SECOND);
 			}
@@ -205,7 +207,7 @@ draw_settings_menu (void)
 	}
 
 	{
-		ImGui_SeparatorText ("About");
+		ImGui_SeparatorText (separator_about_str);
 
 		Spacer ();
 
@@ -257,7 +259,7 @@ draw_settings_menu (void)
 			ImGui_NewLine ();
 
 			{
-				if (ImGui_Button ("Show ImGui Demo Window"))
+				if (ImGui_Button (btn_imgui_demo_str))
 				{
 					show_demo = !show_demo;
 				}
@@ -274,6 +276,7 @@ UQM_ImGui_Tabs (TabState *state)
 	int active_tab;
 	static const char **subtab_names[NUM_TABS] = { NULL };
 	static const char **tab_names = NULL;
+	static const char *no_subtabs, *subtab_nfnd, *not_in_mainmenu;
 	static float temp_width = 0;
 	static float temp_height = 0;
 	float scale = SCALE_20F;
@@ -285,6 +288,9 @@ UQM_ImGui_Tabs (TabState *state)
 		subtab_names[1] = ImStrArr ("subtab_names.1");
 		subtab_names[2] = ImStrArr ("subtab_names.2");
 		subtab_names[3] = ImStrArr ("subtab_names.3");
+		no_subtabs = ImStr ("no_subtabs");
+		subtab_nfnd = ImStr ("subtab_nfnd");
+		not_in_mainmenu = ImStr ("not_in_mainmenu");
 	}
 
 	int *active_subtab[] =
@@ -334,7 +340,7 @@ UQM_ImGui_Tabs (TabState *state)
 
 	if (subtab_names[active_tab] == NULL)
 	{
-		ImGui_Text ("No subtabs found for this tab.");
+		ImGui_Text (no_subtabs);
 		ImGui_EndChild ();
 		return;
 	}
@@ -399,8 +405,7 @@ UQM_ImGui_Tabs (TabState *state)
 				case 4: draw_controls_menu (); break;
 				case 5: draw_adv_menu (); break;
 				default:
-					ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
+					ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
 					break;
 				}
 				break;
@@ -412,15 +417,14 @@ UQM_ImGui_Tabs (TabState *state)
 				case 2: ImGui_Text ("Difficulty"); break;
 				case 3: draw_cheats_menu (); break;
 				default:
-					ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
+					ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
 					break;
 				}
 				break;
 			case 2:
 				if (IN_MAIN_MENU)
 				{
-					ImGui_Text ("Not available in the Main Menu...");
+					ImGui_Text (not_in_mainmenu);
 					break;
 				}
 				else
@@ -429,8 +433,7 @@ UQM_ImGui_Tabs (TabState *state)
 					{
 					case 0: draw_journal_menu (temp_height); break;
 					default:
-						ImGui_Text ("Subtab %d not found.",
-								*active_subtab[active_tab]);
+						ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
 						break;
 					}
 					break;
@@ -438,7 +441,7 @@ UQM_ImGui_Tabs (TabState *state)
 			case 3:
 				if (IN_MAIN_MENU)
 				{
-					ImGui_Text ("Not available in the Main Menu...");
+					ImGui_Text (not_in_mainmenu);
 					break;
 				}
 				else
@@ -451,8 +454,7 @@ UQM_ImGui_Tabs (TabState *state)
 					case 3: draw_events_menu (); break;
 					case 4: draw_stars_menu (); break;
 					default:
-						ImGui_Text ("Subtab %d not found.",
-								*active_subtab[active_tab]);
+						ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
 						break;
 					}
 					break;
@@ -461,8 +463,7 @@ UQM_ImGui_Tabs (TabState *state)
 				switch (*active_subtab[active_tab])
 				{
 				default:
-					ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
+					ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
 					break;
 				}
 			}

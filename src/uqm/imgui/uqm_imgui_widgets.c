@@ -297,6 +297,12 @@ UQM_GetStr (const char *key)
 	return error_buf;
 }
 
+void
+UQM_EasyGetStr (const char **str, const char *key)
+{
+	*str = UQM_GetStr (key);
+}
+
 const char **
 UQM_GetStrArray (const char *key)
 {
@@ -514,6 +520,21 @@ UQM_ColorToU32 (Color color)
 			(color.g << 16) |
 			(color.b << 8) |
 			color.a);
+}
+
+const char *
+UQM_MakeIDFromStrings (const char *str1, const char *str2)
+{
+	static char buf[PATH_MAX];
+
+	if (!str1)
+		return "str1 Empty!";
+	if (!str2)
+		return "str2 Empty!";
+
+	snprintf (buf, sizeof buf, "%s##%s", str1, str2);
+
+	return buf;
 }
 
 void
