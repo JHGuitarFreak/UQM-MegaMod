@@ -17,36 +17,16 @@
 
 #include "uqm_imgui.h"
 
-int
-NumberOfColumns (void)
+#define DESIRED_COL_WIDTH 360.0f
+
+int NumberOfColumns (void)
 {
-	if (DISPLAY_SIZE.x <= 640.0f)
+	int columns = (int)((DISPLAY_SIZE.x / FONT_SCALE) / DESIRED_COL_WIDTH);
+
+	if (columns < 1)
 		return 1;
 
-	if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
-	{
-		if (FONT_SCALE <= 0.75f)
-			return 10;
-		else if (FONT_SCALE < 1.25f)
-			return 5;
-		else if (FONT_SCALE < 1.5f)
-			return 4;
-		else if (FONT_SCALE < 2.0f)
-			return 3;
-		else
-			return 2;
-	}
-	else
-	{
-		if (FONT_SCALE <= 0.75f)
-			return 5;
-		else if (FONT_SCALE < 1.25f)
-			return 3;
-		else if (FONT_SCALE < 1.5f)
-			return 2;
-		else
-			return 1;
-	}
+	return columns;
 }
 
 void
