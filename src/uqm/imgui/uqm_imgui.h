@@ -153,8 +153,9 @@ typedef struct
 	int active_tab;
 	int settings_tab;
 	int enhancements_tab;
-	int randomizer_tab;
+	int journal_tab;
 	int devtools_tab;
+	int console_tab;
 } TabState;
 
 extern ImVec2 content_col_size;

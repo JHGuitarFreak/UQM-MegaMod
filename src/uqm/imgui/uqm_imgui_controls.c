@@ -99,7 +99,8 @@ GetKeyNameButtonWidth (float *width)
 void
 draw_controls_menu (void)
 {
-	const char *control_display[] = { "Keyboard", "Xbox", "PlayStation", "Switch Pro" };
+	const char *control_display[] =
+			{ "Keyboard", "Xbox", "PlayStation", "Switch Pro" };
 	const char *dirJoyDisp[] =
 	{
 			"Normal Control", "Left Stick Directional",
@@ -115,18 +116,15 @@ draw_controls_menu (void)
 	ImGui_BeginStyledChild ("##ControlOptionsColumn", content_col_size,
 			CHILD_FLAGS, 0, NULL);
 	{
-		// Control Options
-		{
+		{	// Control Options
 			ImGui_SeparatorText ("Control Options");
 
 			ImGui_Checkbox ("Auto-Detect Icons", (bool *)&optAutoButtons);
 
 			Spacer ();
 
-			// Button Icons
-			{
-				ImGui_Text ("Button Icons:");
-				if (ImGui_ComboChar ("##ControlDisplay",
+			{	// Button Icons
+				if (ImGui_SizedComboChar ("Button Icons:",
 						(int *)&optControllerType, control_display, 4))
 				{
 					res_PutInteger ("mm.controllerType", optControllerType);
@@ -136,10 +134,8 @@ draw_controls_menu (void)
 
 			Spacer ();
 
-			// Directional Joystick P1
-			{
-				ImGui_Text ("Directional Joystick P1:");
-				if (ImGui_ComboChar ("##DirJoyP1",
+			{	// Directional Joystick P1
+				if (ImGui_SizedComboChar ("Directional Joystick P1:",
 						(int *)&optDirJoy[0], dirJoyDisp, 5))
 				{
 					res_PutInteger ("mm.dirJoyP1", optDirJoy[0]);
@@ -147,10 +143,8 @@ draw_controls_menu (void)
 				}
 			}
 
-			// Directional Joystick P2
-			{
-				ImGui_Text ("Directional Joystick P2:");
-				if (ImGui_ComboChar ("##DirJoyP2",
+			{	// Directional Joystick P2
+				if (ImGui_SizedComboChar ("Directional Joystick P2:",
 						(int *)&optDirJoy[1], dirJoyDisp, 5))
 				{
 					res_PutInteger ("mm.dirJoyP2", optDirJoy[1]);
@@ -160,10 +154,8 @@ draw_controls_menu (void)
 
 			Spacer ();
 
-			// Crappy Mouse Input
-			{
-				ImGui_Text ("Crappy Mouse Input:");
-				if (ImGui_ComboChar ("##CrappyMouseInput",
+			{	// Crappy Mouse Input
+				if (ImGui_SizedComboChar ("Crappy Mouse Input:",
 					(int *)&optMouseInput, cmouse_input, 3))
 				{
 					res_PutInteger ("mm.mouseInput", optMouseInput);
@@ -252,7 +244,8 @@ FlightControls (void)
 	ImGui_SetColumnWidth (0, SCALE_IT (300.0f));
 
 	ImGui_BeginDisabled (bindings_dirty.flight);
-	ImGui_ComboChar ("##PlayerControls", &template_id, control_template, 2);
+	ImGui_SizedComboChar ("##PlayerControls", &template_id,
+			control_template, 2);
 	ImGui_EndDisabled ();
 
 	ImGui_Columns ();

@@ -60,7 +60,7 @@ draw_settings_menu (void)
 
 		Spacer ();
 
-		{
+		{	// Font Selector
 			int i;
 			int font_selection;
 			const ImFontAtlas *font_atlas = io->Fonts;
@@ -291,7 +291,7 @@ UQM_ImGui_Tabs (TabState *state)
 	{
 		&state->settings_tab,
 		&state->enhancements_tab,
-		&state->randomizer_tab,
+		&state->journal_tab,
 		&state->devtools_tab
 	};
 
@@ -400,7 +400,7 @@ UQM_ImGui_Tabs (TabState *state)
 				case 5: draw_adv_menu (); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",
-						*active_subtab[active_tab]);
+							*active_subtab[active_tab]);
 					break;
 				}
 				break;
@@ -413,11 +413,29 @@ UQM_ImGui_Tabs (TabState *state)
 				case 3: draw_cheats_menu (); break;
 				default:
 					ImGui_Text ("Subtab %d not found.",
-						*active_subtab[active_tab]);
+							*active_subtab[active_tab]);
 					break;
 				}
 				break;
 			case 2:
+				if (IN_MAIN_MENU)
+				{
+					ImGui_Text ("Not available in the Main Menu...");
+					break;
+				}
+				else
+				{
+					switch (*active_subtab[active_tab])
+					{
+					case 0: draw_journal_menu (temp_height); break;
+					default:
+						ImGui_Text ("Subtab %d not found.",
+								*active_subtab[active_tab]);
+						break;
+					}
+					break;
+				}
+			case 3:
 				if (IN_MAIN_MENU)
 				{
 					ImGui_Text ("Not available in the Main Menu...");
@@ -434,25 +452,7 @@ UQM_ImGui_Tabs (TabState *state)
 					case 4: draw_stars_menu (); break;
 					default:
 						ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
-						break;
-					}
-					break;
-				}
-			case 3:
-				if (IN_MAIN_MENU)
-				{
-					ImGui_Text ("Not available in the Main Menu...");
-					break;
-				}
-				else
-				{
-					switch (*active_subtab[active_tab])
-					{
-					case 0: draw_journal_menu (temp_height); break;
-					default:
-						ImGui_Text ("Subtab %d not found.",
-							*active_subtab[active_tab]);
+								*active_subtab[active_tab]);
 						break;
 					}
 					break;
@@ -462,7 +462,7 @@ UQM_ImGui_Tabs (TabState *state)
 				{
 				default:
 					ImGui_Text ("Subtab %d not found.",
-						*active_subtab[active_tab]);
+							*active_subtab[active_tab]);
 					break;
 				}
 			}

@@ -22,7 +22,7 @@ char jrnl_name[15];
 BOOLEAN jrnl_dirty = FALSE;
 
 void draw_qol_menu (void)
-{
+{	// Quality of Life Options
 	ImGui_BeginStyledChild ("##QoLColumn", content_col_size,
 			CHILD_FLAGS, 0, NULL);
 	{
@@ -59,12 +59,11 @@ void draw_adv_menu (void)
 			ImGui_Text ("Let me modify risky options in-game:");
 			ImGui_Checkbox ("##RiskyOptions", &risky_options);
 			ImGui_TextWrappedColored (IV4_RED_COLOR,
-				"WARNING! Modifying risky options in-game have the "
-				"possibility of breaking the game or your game save!");
+					"WARNING! Modifying risky options in-game have the "
+					"possibility of breaking the game or your game save!");
 		}
 
-		// Advanced Options
-		{
+		{	// Advanced Options
 			ImGui_SeparatorText ("Advanced Options");
 
 			Spacer ();
@@ -77,15 +76,13 @@ void draw_adv_menu (void)
 			ImGui_NewLine ();
 		}
 
-		// Risky Options
-		{
+		{	// Risky Options
 			ImGui_SeparatorText ("Risky Options");
 
 			ImGui_BeginDisabled (!IN_MAIN_MENU && !risky_options);
 
-			{
-				ImGui_Text ("Difficulty:");
-				if (ImGui_ComboChar ("##Difficulty", &optDifficulty,
+			{	// Difficulty
+				if (ImGui_SizedComboChar ("Difficulty:", &optDifficulty,
 						difficulties, 3))
 				{
 					optDiffChooser = optDifficulty;
@@ -106,9 +103,9 @@ void draw_adv_menu (void)
 
 			Spacer ();
 
-			{
-				ImGui_Text ("Nomad Mode:");
-				if (ImGui_ComboChar ("##Nomad", &optNomad, nomad_modes, 3))
+			{	// Nomad Mode
+				if (ImGui_SizedComboChar ("Nomad Mode:", &optNomad,
+						nomad_modes, 3))
 				{
 					GLOBAL_SIS (Nomad) = optNomad;
 					res_PutInteger ("mm.nomad", optNomad);
@@ -118,9 +115,9 @@ void draw_adv_menu (void)
 
 			ImGui_NewLine ();
 
-			{
-				ImGui_Text ("Starmap Seeding:");
-				if (ImGui_ComboChar ("##Seeding", &optSeedType, seed_modes, 4))
+			{	// Starmap Seeding
+				if (ImGui_SizedComboChar ("Starmap Seeding:", &optSeedType,
+						seed_modes, 4))
 				{
 					SET_GAME_STATE (SEED_TYPE, optSeedType);
 					res_PutInteger ("mm.seedType", optSeedType);
@@ -129,13 +126,13 @@ void draw_adv_menu (void)
 				if (!IN_MAIN_MENU)
 				{
 					ImGui_TextWrappedColored (IV4_RED_COLOR,
-						"WARNING! When changing Seed Type in-game make "
-						"sure to do so while in HyperSpace!");
+							"WARNING! When changing Seed Type in-game make "
+							"sure to do so while in HyperSpace!");
 					ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-						"ADDENDUM: Switching to and from MRQ or StarSeed "
-						"only works when changing in the Main Menu and "
-						"starting a new game or if you change it then "
-						"save and reload the game.");
+							"ADDENDUM: Switching to and from MRQ or StarSeed "
+							"only works when changing in the Main Menu and "
+							"starting a new game or if you change it then "
+							"save and reload the game.");
 				}
 			}
 
@@ -150,9 +147,9 @@ void draw_adv_menu (void)
 			if (!IN_MAIN_MENU)
 			{
 				ImGui_TextWrappedColored (IV4_RED_COLOR,
-					"WARNING! Changing Ship Seed only works when changing "
-					"in the Main Menu and starting a new game or if you "
-					"change it then save and reload the game.");
+						"WARNING! Changing Ship Seed only works when changing "
+						"in the Main Menu and starting a new game or if you "
+						"change it then save and reload the game.");
 			}
 
 			Spacer ();

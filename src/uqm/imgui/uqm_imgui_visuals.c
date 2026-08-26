@@ -39,14 +39,12 @@ void draw_visual_menu (void)
 	
 	ImGui_BeginStyledChild ("##UI", content_col_size, CHILD_FLAGS, 0, NULL);
 	{
-		// User Interface
-		{
+		{	// User Interface
 			ImGui_SeparatorText ("User Interface");
 
-			{
-				ImGui_Text ("Date Format:");
-				if (ImGui_ComboChar ("##DateFormat", &optDateFormat,
-					date_formats, 4))
+			{	// Date Format
+				if (ImGui_SizedComboChar ("Date Format:", &optDateFormat,
+						date_formats, 4))
 				{
 					res_PutInteger ("mm.dateFormat", optDateFormat);
 					mmcfg_changed = true;
@@ -60,9 +58,9 @@ void draw_visual_menu (void)
 
 			Spacer ();
 
-			{
-				ImGui_Text ("Fuel Range Indicators");
-				if (ImGui_ComboChar ("##FuelRange", &optFuelRange, fuel_ranges, 4))
+			{	// Fuel Range Indicators
+				if (ImGui_SizedComboChar ("Fuel Range Indicators:", &optFuelRange,
+						fuel_ranges, 4))
 				{
 					res_PutInteger ("mm.fuelRange", optFuelRange);
 					mmcfg_changed = true;
@@ -73,7 +71,7 @@ void draw_visual_menu (void)
 
 			UQM_ImGui_CheckBox ("SOI Colors", (OPT_ENABLABLE *)&optSphereColors, "mm.sphereColors", false);
 
-			{
+			{	// HD Animations
 				ImGui_BeginDisabled (!IN_MAIN_MENU);
 
 				UQM_ImGui_CheckBox ("HD Animations", &optHyperStars, "mm.hyperStars", false);
@@ -95,8 +93,7 @@ void draw_visual_menu (void)
 			ImGui_NewLine ();
 		}
 
-		// Conversation Screen
-		{
+		{	// Conversation Screen
 			ImGui_SeparatorText ("Conversation Screen");
 
 			UQM_ImGui_CheckBox ("Alternate Orz Font", &optOrzCompFont, "mm.orzCompFont", false);
@@ -114,8 +111,7 @@ void draw_visual_menu (void)
 	}
 
 	{
-		// Star System View
-		{
+		{	// Star System View
 			ImGui_SeparatorText ("Star System View");
 
 			ImGui_Text ("Nebulae & Nebulae Brightness:");
@@ -137,7 +133,7 @@ void draw_visual_menu (void)
 				ImGui_BeginDisabled (!IN_MAIN_MENU);
 
 				UQM_ImGui_CheckBox ("Textured Planets", &optTexturedPlanets,
-					"mm.texturedPlanets", false);
+						"mm.texturedPlanets", false);
 
 				if (!IN_MAIN_MENU)
 				{
@@ -156,18 +152,16 @@ void draw_visual_menu (void)
 			ImGui_NewLine ();
 		}
 
-		// Orbit Screen
-		{
+		{	// Orbit Screen
 			ImGui_SeparatorText ("Orbit Screen");
 
 			UQM_ImGui_CheckBox ("Hazard Colors", &optHazardColors, "mm.hazardColors", false);
 
 			Spacer ();
 
-			{
-				ImGui_Text ("Planet Map Textures:");
-				if (ImGui_ComboChar ("##PlanetMapTextures", (int *)&optPlanetTexture,
-					planet_textures, 2))
+			{	// Planet Map Textures
+				if (ImGui_SizedComboChar ("Planet Map Textures:",
+						(int *)&optPlanetTexture, planet_textures, 2))
 				{
 					res_PutBoolean ("mm.planetTexture", optPlanetTexture);
 					mmcfg_changed = true;
@@ -180,6 +174,5 @@ void draw_visual_menu (void)
 
 			ImGui_NewLine ();
 		}
-	}	
-	ImGui_EndChild ();
+	} ImGui_EndChild ();
 }

@@ -26,7 +26,7 @@ void draw_cheats_menu (void)
 	const char *time_modes[] = { "Normal", "Slow (x6)", "Fast (x5)" };
 
 	ImGui_BeginStyledChild ("##CheatsColumn", content_col_size,
-		CHILD_FLAGS, 0, NULL);
+			CHILD_FLAGS, 0, NULL);
 	{
 		ImGui_SeparatorText ("Basic Cheats");
 
@@ -37,15 +37,13 @@ void draw_cheats_menu (void)
 
 		Spacer ();
 
-		ImGui_Text ("God Modes:");
-		if (ImGui_ComboChar ("##GodModes", &optGodModes, god_modes, 4))
+		if (ImGui_SizedComboChar ("God Modes:", &optGodModes, god_modes, 4))
 		{
 			res_PutInteger ("cheat.godModes", optGodModes);
 			cheat_changed = true;
 		}
 
-		ImGui_Text ("Time Dilation:");
-		if (ImGui_ComboChar ("##TimeDilation", &timeDilationScale,
+		if (ImGui_SizedComboChar ("Time Dilation:", &timeDilationScale,
 				time_modes, 3))
 		{
 			if (!IN_MAIN_MENU)

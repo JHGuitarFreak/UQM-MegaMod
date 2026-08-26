@@ -30,29 +30,18 @@ void draw_graphics_menu (void)
 {
 	const char *resolutions[] =
 	{
-		"Native",
-		"640x480",
-		"960x720",
-		"1280x960",
-		"1600x1200",
-		"1920x1440",
-		"Custom"
+		"Native", "640x480", "960x720", "1280x960", "1600x1200",
+		"1920x1440", "Custom"
 	};
 	const char *aspect_ratios[] = { "Fill Window", "Native", "Force 4:3" };
 	const char *display_modes[] =
 	{
-		"Windowed",
-		"Exclusive Fullscreen",
-		"Borderless Fullscreen"
+		"Windowed", "Exclusive Fullscreen", "Borderless Fullscreen"
 	};
 	const char *scalers[] =
 	{
-		"None",
-		"Bilinear",
-		"Adapt. Bilinear",
-		"Adv. Bilinear",
-		"Triscan (Scale2x)",
-		"HQ (2x)"
+		"None", "Bilinear", "Adapt. Bilinear", "Adv. Bilinear",
+		"Triscan (Scale2x)", "HQ (2x)"
 	};
 
 
@@ -61,7 +50,7 @@ void draw_graphics_menu (void)
 	{
 		ImGui_SeparatorText ("Graphics Options");
 
-		{
+		{	// HD Mode
 			bool res_factor = resolutionFactor > 0;
 
 			if (ImGui_Checkbox ("HD Mode", &res_factor))
@@ -90,9 +79,8 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		{
-			ImGui_Text ("Resolution:");
-			if (ImGui_ComboChar ("##Resolution",
+		{	// Resolution
+			if (ImGui_SizedComboChar ("Resolution:",
 				(int *)&loresBlowupScale, resolutions, 7))
 			{
 				if (loresBlowupScale < 6)
@@ -114,7 +102,7 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		{
+		{	// Custom Resolution
 			int cust_res[2] = { SavedWidth, SavedHeight };
 
 			ImGui_Text ("Custom Resolution:");
@@ -130,9 +118,8 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		{
-			ImGui_Text ("Aspect Ratio:");
-			if (ImGui_ComboChar ("##AspectRatio", (int *)&optKeepAspectRatio,
+		{	// Aspect Ratio
+			if (ImGui_SizedComboChar ("Aspect Ratio:", (int *)&optKeepAspectRatio,
 				aspect_ratios, 3))
 			{
 				imgui_SavedWidth = SavedWidth;
@@ -143,8 +130,7 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		// Display Mode
-		{
+		{	// Display Mode
 			int display_mode = 0;
 
 			if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
@@ -154,8 +140,7 @@ void draw_graphics_menu (void)
 			else
 				display_mode = 0;
 
-			ImGui_Text ("Display Mode:");
-			if (ImGui_ComboChar ("##DisplayMode", (int *)&display_mode,
+			if (ImGui_SizedComboChar ("Display Mode:", (int *)&display_mode,
 				display_modes, 3))
 			{
 				imgui_GfxFlags = GfxFlags;
@@ -170,9 +155,9 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		{
+		{	// Gamma
 			ImGui_Text ("Gamma:");
-			if (ImGui_Button ("Reset"))
+			if (ImGui_Button ("Reset##Gamma"))
 			{
 				optGamma = 1.0f;
 				setGammaCorrection (optGamma);
@@ -197,7 +182,7 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		{
+		{	// Scaler
 			int curr_scaler = 0;
 			switch (GfxFlags & 248) // 11111000 - only scaler flags
 			{
@@ -208,8 +193,7 @@ void draw_graphics_menu (void)
 			case TFB_GFXFLAGS_SCALE_HQXX:       curr_scaler = 5; break;
 			}
 
-			ImGui_Text ("Scaler:");
-			if (ImGui_ComboChar ("##Scaler", &curr_scaler,
+			if (ImGui_SizedComboChar ("Scaler:", &curr_scaler,
 				scalers, 6))
 			{
 				const int scaler_list[6] =
@@ -231,7 +215,7 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		{
+		{	// Scanlines
 			bool flags = GfxFlags & TFB_GFXFLAGS_SCANLINES;
 
 			if (ImGui_Checkbox ("Scanlines", &flags))
@@ -248,7 +232,7 @@ void draw_graphics_menu (void)
 
 		Spacer ();
 
-		{
+		{	// Show FPS
 			bool flags = GfxFlags & TFB_GFXFLAGS_SHOWFPS;
 
 			if (ImGui_Checkbox ("Show FPS", &flags))

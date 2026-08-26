@@ -28,13 +28,10 @@ void draw_audio_menu (void)
 	ImGui_BeginStyledChild ("##AudioChild", content_col_size,
 			CH_FLAT_NAV, 0, NULL);
 	{
-		// Sound Options
-		{
+		{	// Sound Options
 			ImGui_SeparatorText ("Sound Options");
 
-
-			// Music Volume
-			{
+			{	// Music Volume
 				int volume = musicVolumeScale * 100;
 
 				ImGui_Text ("Music Volume:");
@@ -48,8 +45,7 @@ void draw_audio_menu (void)
 				}
 			}
 
-			// SFX Volume
-			{
+			{	// SFX Volume
 				int volume = sfxVolumeScale * 100;
 
 				ImGui_Text ("SFX Volume:");
@@ -63,8 +59,7 @@ void draw_audio_menu (void)
 				}
 			}
 
-			// Speech Volume
-			{
+			{	// Speech Volume
 				int volume = speechVolumeScale * 100;
 
 				ImGui_Text ("Speech Volume:");
@@ -81,13 +76,13 @@ void draw_audio_menu (void)
 			Spacer ();
 
 			UQM_ImGui_CheckBox ("Positional Audio", &optStereoSFX,
-				"config.positionalsfx", true);
+					"config.positionalsfx", true);
 
 			Spacer ();
 
 			ImGui_BeginDisabled (true);
-			{
 
+			{	// Sound Driver
 				int driver;
 
 				switch (snddriver)
@@ -103,16 +98,14 @@ void draw_audio_menu (void)
 					driver = 0;
 				}
 
-				ImGui_Text ("Sound Driver:");
-				if (ImGui_ComboChar ("##SoundDriver", &driver,
-					sound_drivers, 3))
+				if (ImGui_SizedComboChar ("Sound Driver:", &driver,
+						sound_drivers, 3))
 				{
 					// Add switching code here
 				}
-
 			}
 
-			{
+			{	// Sound Quality
 				int quality;
 
 				if (soundflags & audio_QUALITY_HIGH)
@@ -122,35 +115,35 @@ void draw_audio_menu (void)
 				else
 					quality = OPTVAL_MEDIUM;
 
-				ImGui_Text ("Sound Quality:");
-				if (ImGui_ComboChar ("##SoundQuality", &quality,
+				if (ImGui_SizedComboChar ("Sound Quality:", &quality,
 					sound_qualities, 3))
 				{
 					// Add switching code here
 				}
 			}
+
 			ImGui_EndDisabled ();
 		}
 
 		ImGui_NewLine ();
 
-		// Music Options
-		{
+		{	// Music Options
 			ImGui_SeparatorText ("Music Options");
 
 			Spacer ();
 
-			UQM_ImGui_CheckBox ("3DO Remixes", &opt3doMusic, "config.3domusic", true);
-			UQM_ImGui_CheckBox ("Precursor's Remixes", &optRemixMusic, "config.remixmusic", true);
-			UQM_ImGui_CheckBox ("Volasaurus' Remixes", &optVolasMusic, "mm.volasMusic", true);
+			UQM_ImGui_CheckBox ("3DO Remixes", &opt3doMusic,
+					"config.3domusic", true);
+			UQM_ImGui_CheckBox ("Precursor's Remixes", &optRemixMusic,
+					"config.remixmusic", true);
+			UQM_ImGui_CheckBox ("Volasaurus' Remixes", &optVolasMusic,
+					"mm.volasMusic", true);
 
 			Spacer ();
 
-			// Alien Ambience
-			{
-				ImGui_Text ("Interplanetary Alien Ambience:");
-				if (ImGui_ComboChar ("##InterplanetaryAlienAmbience",
-					&optSpaceMusic, alien_ambience, 3))
+			{	// Alien Ambience
+				if (ImGui_SizedComboChar ("Interplanetary Alien Ambience:",
+						&optSpaceMusic, alien_ambience, 3))
 				{
 					if (IN_MAIN_MENU)
 						GLOBAL (CurrentActivity) = 0;
@@ -165,8 +158,8 @@ void draw_audio_menu (void)
 				if (ImGui_BeginItemTooltip ())
 				{
 					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-						"WARNING! This option will drop you\nback to the "
-						"main menu to reload.");
+							"WARNING! This option will drop you\nback to the "
+							"main menu to reload.");
 					ImGui_EndTooltip ();
 				}
 			}
@@ -178,11 +171,9 @@ void draw_audio_menu (void)
 
 			Spacer ();
 
-			// Music Resume
-			{
-				ImGui_Text ("Music Resume:");
-				if (ImGui_ComboChar ("##MusicResume", &optMusicResume,
-					music_resume, 3))
+			{	// Music Resume
+				if (ImGui_SizedComboChar ("Music Resume:", &optMusicResume,
+						music_resume, 3))
 				{
 					res_PutInteger ("mm.musicResume", optMusicResume);
 					mmcfg_changed = true;

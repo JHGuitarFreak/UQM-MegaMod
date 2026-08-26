@@ -66,26 +66,25 @@ void draw_status_menu (void)
 			0, NULL);
 	{
 
-		// Currency Status
-		{
+		{	// Currency Status
 			ImGui_SeparatorText ("Currency Status");
 
-			{
+			{	// Current R.U.
 				DWORD curr_ru = GLOBAL_SIS (ResUnits);
 
 				ImGui_Text ("Current R.U.:");
 				ImGui_InputScalar ("##CurrentRU", ImGuiDataType_U32, &curr_ru);
 				if (ImGui_IsItemDeactivatedAfterEdit ()
-					&& curr_ru > 0 && curr_ru < (DWORD)~0)
+						&& curr_ru > 0 && curr_ru < (DWORD)~0)
 				{
 					GLOBAL_SIS (ResUnits) = curr_ru;
 				}
 			}
 
-			{
+			{	// Current Credits
 				int Credits = MAKE_WORD (
-					GET_CGAME_STATE (MELNORME_CREDIT0),
-					GET_CGAME_STATE (MELNORME_CREDIT1));
+						GET_CGAME_STATE (MELNORME_CREDIT0),
+						GET_CGAME_STATE (MELNORME_CREDIT1));
 
 				ImGui_Text ("Current Credits:");
 				ImGui_InputIntEx ("##CurrentCredits", &Credits, 0, 0, 0);
@@ -100,8 +99,7 @@ void draw_status_menu (void)
 			ImGui_NewLine ();
 		}
 
-		// Lander Upgrade Status
-		{
+		{	// Lander Upgrade Status
 			BYTE ShieldFlags = GET_CGAME_STATE (LANDER_SHIELDS);
 			bool QuakeShield = ShieldFlags & (1 << EARTHQUAKE_DISASTER);
 			bool BioShield = ShieldFlags & (1 << BIOLOGICAL_DISASTER);
@@ -177,8 +175,7 @@ void draw_status_menu (void)
 			ImGui_NewLine ();
 		}
 
-		// Cargo Status
-		{
+		{	// Cargo Status
 			ImGui_SeparatorText ("Cargo Status");
 
 			if (ImGui_BeginTable ("##Cargo", 2, TABLE_FLAGS))
@@ -280,8 +277,7 @@ void draw_status_menu (void)
 				collapse_cargo = ImGuiTreeNodeFlags_DefaultOpen;
 		}
 
-		// Module Status
-		{
+		{	// Module Status
 			ImGui_SeparatorText ("Module Status");
 
 			if (ImGui_BeginTable ("##Modules", 2, TABLE_FLAGS))
@@ -337,9 +333,7 @@ void draw_status_menu (void)
 				0, NULL);
 	}
 	{
-
-		// Alien Status
-		{
+		{	// Alien Status
 			ImGui_SeparatorText ("Alien Status");
 
 			if (ImGui_BeginTable ("##Aliens", 2, TABLE_FLAGS))
@@ -399,8 +393,7 @@ void draw_status_menu (void)
 	}
 
 	{
-		// Flagship Status
-		{
+		{	// Flagship Status
 			static bool thrusters[11] = { false };
 			static bool jets[8] = { false };
 			int something = 0;
@@ -492,8 +485,7 @@ void draw_status_menu (void)
 				ImGui_EndDisabled ();
 			}
 
-			// Captain's Name
-			{
+			{	// Captain's Name
 				char CaptainsName[SIS_NAME_SIZE];
 
 				snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
@@ -513,8 +505,7 @@ void draw_status_menu (void)
 				}
 			}
 
-			// Ship Name
-			{
+			{	// Ship Name
 				char SISName[SIS_NAME_SIZE];
 
 				snprintf ((char *)&SISName, sizeof (SISName),
@@ -533,8 +524,7 @@ void draw_status_menu (void)
 				}
 			}
 
-			// Landers
-			{
+			{	// Landers
 				if (!landers_cached)
 				{
 					cached_landers = GLOBAL_SIS (NumLanders);
@@ -557,12 +547,12 @@ void draw_status_menu (void)
 				}
 			}
 
-			// Fuel
-			{
+			{	// Fuel
 				int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
 				int volume = GetFuelTankCapacity ();
 
-				ImGui_Text ("Current Fuel:");
+				ImGui_Text ("Current Fuel [Max %d]:", volume);
+
 				if (optInfiniteFuel)
 				{
 					char buf[40];
@@ -577,12 +567,30 @@ void draw_status_menu (void)
 				}
 				else
 					ImGui_InputIntEx ("##CurrentFuel", &CurrentFuel, 0, 0, 0);
+
 				if (ImGui_IsItemDeactivatedAfterEdit ())
 				{
 					if (CurrentFuel > volume)
 						CurrentFuel = volume;
 
 					GLOBAL_SIS (FuelOnBoard) = CurrentFuel;
+
+					scr_refresh = true;
+				}
+			}
+
+			{	// Crew
+				int CurrentCrew = GLOBAL_SIS (CrewEnlisted);
+				int volume = GetCrewPodCapacity ();
+
+				ImGui_Text ("Current Crew [Max %d]:", volume);
+				ImGui_InputIntEx ("##CurrentCrew", &CurrentCrew, 0, 0, 0);
+				if (ImGui_IsItemDeactivatedAfterEdit ())
+				{
+					if (CurrentCrew > volume)
+						CurrentCrew = volume;
+
+					GLOBAL_SIS (CrewEnlisted) = CurrentCrew;
 
 					scr_refresh = true;
 				}
@@ -694,26 +702,6 @@ void draw_status_menu (void)
 			}
 
 			style->ItemSpacing = og_spacing;
-
-			Spacer ();
-
-			// Crew
-			{
-				int CurrentCrew = GLOBAL_SIS (CrewEnlisted);
-				int volume = GetCrewPodCapacity ();
-
-				ImGui_Text ("Current Crew:");
-				ImGui_InputIntEx ("##CurrentCrew", &CurrentCrew, 0, 0, 0);
-				if (ImGui_IsItemDeactivatedAfterEdit ())
-				{
-					if (CurrentCrew > volume)
-						CurrentCrew = volume;
-
-					GLOBAL_SIS (CrewEnlisted) = CurrentCrew;
-
-					scr_refresh = true;
-				}
-			}
 
 			if (collapse_flagship == ImGuiTreeNodeFlags_None)
 				collapse_flagship = ImGuiTreeNodeFlags_DefaultOpen;
@@ -1155,8 +1143,8 @@ void draw_stars_menu (void)
 	static bool filter_colour_bool = false;
 	static int filter_type = 0;
 	static int filter_colour = 0;
-	static int min_x = 0, max_x = 9999;
-	static int min_y = 0, max_y = 9999;
+	static int min_x = 0, max_x = MAX_X_UNIVERSE;
+	static int min_y = 0, max_y = MAX_Y_UNIVERSE;
 	static int longest_postfix = -1;
 	static int longest_prefix = -1;
 	const char *star_type[NUM_STAR_TYPES] =

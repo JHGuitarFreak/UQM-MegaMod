@@ -103,11 +103,17 @@ ImGui_SizedComboChar (const char *label, int *curr_item,
 	//float center_offset = (column_width - combo_width) * 0.5f
 	//		- style->WindowPadding.x * 2;
 
-	snprintf (buf, sizeof buf, "##%s", label);
+	if (strncmp (label, "##", 2) != 0)
+	{
+		snprintf (buf, sizeof buf, "##%s", label);
 
-	ImGui_AlignTextToFramePadding ();
-	ImGui_TextUnformatted (label);
-	//ImGui_SetCursorPosX (ImGui_GetCursorPosX ());
+		ImGui_AlignTextToFramePadding ();
+		ImGui_TextUnformatted (label);
+		//ImGui_SetCursorPosX (ImGui_GetCursorPosX ());
+	}
+	else
+		snprintf (buf, sizeof buf, "%s", label);
+
 	ImGui_SetNextItemWidth (combo_width);
 
 	ImGui_PushStyleVarImVec2 (ImGuiStyleVar_SelectableTextAlign, CENTER_IT);
