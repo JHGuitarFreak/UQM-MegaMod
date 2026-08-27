@@ -304,22 +304,20 @@ UQM_EasyGetStr (const char **str, const char *key)
 }
 
 const char **
-UQM_GetStrArray (const char *key)
+UQM_GetStrArray (int index)
 {
 	char *copy, *token;
 	int count = 0;
 	char **array = NULL;
 	static char buf[PATH_MAX];
 
-	snprintf (buf, sizeof (buf), "imstr.%s", key);
+	copy = strdup (ImStr (index));
 
-	if (res_IsString (buf))
-		copy = strdup (res_GetString (buf));
-	else
+	if (!copy)
 	{
 		char error_msg[PATH_MAX];
 		snprintf (error_msg, sizeof (error_msg),
-				"ARRAY_NOT_FOUND: imstr.%s", key);
+			"String index %d either not found or empty", index);
 
 		array = HMalloc (2 * sizeof (char *));
 		array[0] = strdup (error_msg);
@@ -356,12 +354,12 @@ UQM_GetBinary (const char *key)
 {
 	static char buf[PATH_MAX];
 
-	snprintf (buf, sizeof (buf), "imstr.%s", key);
+	snprintf (buf, sizeof (buf), "%s", key);
 
 	if (res_IsBinary (buf))
 		return res_GetBinary (buf);
 
-	log_add (log_Error, "BINARY_NOT_FOUND: imstr.%s", key);
+	log_add (log_Error, "BINARY_NOT_FOUND: %s", key);
 	return NULL;
 }
 

@@ -30,6 +30,7 @@
 #include "libs/sndlib.h"
 #include "libs/vidlib.h"
 
+#include "imgui/uqm_imgui_strings.h"
 
 void
 FreeKernel (void)
@@ -67,6 +68,7 @@ UninitKernel (void)
 	DestroySound (ReleaseSound (MenuSounds));
 	DestroyFont (MicroFont);
 	DestroyStringTable (ReleaseStringTable (GameStrings));
+	DestroyStringTable (ReleaseStringTable (ImGuiStrings));
 	DestroyDrawable (ReleaseDrawable (BorderFrame));
 	DestroyDrawable (ReleaseDrawable (HDBorderFrame));
 	DestroyDrawable (ReleaseDrawable (CustBevelFrame));

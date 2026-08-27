@@ -2912,6 +2912,9 @@
     <ClInclude Include="..\..\src\uqm\imgui\uqm_imgui.h">
       <Filter>Source Files\uqm\imgui %28uqm%29</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\uqm\imgui\uqm_imgui_strings.h">
+      <Filter>Source Files\uqm\imgui %28uqm%29</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\res\UrQuanMasters.rc">

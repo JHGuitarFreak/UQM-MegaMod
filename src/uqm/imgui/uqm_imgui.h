@@ -21,6 +21,7 @@
 #include "libs/imgui/dcimgui.h"
 #include "libs/imgui/dcimgui_impl_sdl2.h"
 #include "libs/imgui/dcimgui_impl_sdlrenderer2.h"
+#include "uqm_imgui_strings.h"
 #include "options.h"
 #include "types.h"
 #include "libs/graphics/gfx_common.h"
@@ -268,14 +269,11 @@ void UQM_GetBool (const char *key, bool *var);
 void easy_PutBool (const char *key, bool var);
 #define ImPutBool(SKey) easy_PutBool(#SKey, SKey)
 
-const char *UQM_GetStr (const char *key);
-#define ImStr(key) UQM_GetStr(key)
-
 void UQM_EasyGetStr (const char **str, const char *key);
 #define EZImStr(SKey) UQM_EasyGetStr(&SKey, #SKey)
 
-const char **UQM_GetStrArray (const char *key);
-#define ImStrArr(key) UQM_GetStrArray(key)
+const char **UQM_GetStrArray (int index);
+#define ImStrArr(i) UQM_GetStrArray(i)
 
 BINARY_RES *UQM_GetBinary (const char *key);
 #define ImBinary(key) UQM_GetBinary(key)

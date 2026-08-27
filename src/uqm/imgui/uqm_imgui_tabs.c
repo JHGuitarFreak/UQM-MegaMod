@@ -42,31 +42,15 @@ ImVec2 content_col_size;
 void
 draw_settings_menu (void)
 {
-	static const char *menu_settings_lbl, *menu_cntrlr_nav, *menu_bg_lbl;
-	static const char *btn_reset_str, *font_selector, *ui_scale_str;
-	static const char *btn_addons_dir_str, *btn_config_dir_str;
-	static const char *separator_about_str, *btn_imgui_demo_str;
 	static const char **insult_factory_str = NULL;
 
-	if (!menu_settings_lbl)
-	{
-		menu_settings_lbl = ImStr ("menu_settings_lbl");
-		font_selector = ImStr ("font_selector");
-		menu_cntrlr_nav = ImStr ("menu_cntrlr_nav");
-		menu_bg_lbl = ImStr ("menu_bg_lbl");
-		ui_scale_str = ImStr ("ui_scale_str");
-		btn_reset_str = ImStr ("btn_reset_str");
-		btn_addons_dir_str = ImStr ("btn_addons_dir_str");
-		btn_config_dir_str = ImStr ("btn_config_dir_str");
-		insult_factory_str = ImStrArr ("insult_factory_str");
-		separator_about_str = ImStr ("separator_about_str");
-		btn_imgui_demo_str = ImStr ("btn_imgui_demo_str");
-	}
+	if (!insult_factory_str)
+		insult_factory_str = GEN_SETT_STR_BASEImStrArr (GEN_SETT_STR_BASE + 8);
 
 	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0, NULL);
 	{
 		// Menu Settings
-		ImGui_SeparatorText (menu_settings_lbl);
+		ImGui_SeparatorText (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE));
 
 		Spacer ();
 
@@ -90,8 +74,8 @@ draw_settings_menu (void)
 			for (i = 0; i < num_fonts; i++)
 				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
-			if (ImGui_SizedComboChar (font_selector, &font_selection,
-					font_names, num_fonts))
+			if (ImGui_SizedComboChar (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 1),
+					&font_selection, font_names, num_fonts))
 			{
 				io->FontDefault = font_atlas->Fonts.Data[font_selection];
 
@@ -103,9 +87,10 @@ draw_settings_menu (void)
 
 		Spacer ();
 
-		{	//UI Scale
-			ImGui_Text (ui_scale_str);
-			if (ImGui_Button (ImMakeID (btn_reset_str, "FontScaleMain"))) // Reset
+		{	// UI Scale
+			ImGui_Text (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 4));
+			if (ImGui_Button (GEN_SETT_STR_BASEImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
+					"FontScaleMain"))) // Reset
 			{
 				style->FontScaleMain = 1.0f;
 				easy_PutFloat ("ui_scale", style->FontScaleMain);
@@ -128,7 +113,8 @@ draw_settings_menu (void)
 			bool nav_gamepad =
 					io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
 
-			if (ImGui_Checkbox (menu_cntrlr_nav, &nav_gamepad))
+			if (ImGui_Checkbox (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 2),
+					&nav_gamepad))
 			{
 				io->ConfigFlags ^= ImGuiConfigFlags_NavEnableGamepad;
 				ImPutBool (nav_gamepad);
@@ -138,8 +124,9 @@ draw_settings_menu (void)
 		ImGui_NewLine ();
 
 		{	// Menu Background Opacity
-			ImGui_TextUnformatted (menu_bg_lbl);
-			if (ImGui_Button (ImMakeID (btn_reset_str, "BGOpacity"))) // Reset
+			ImGui_TextUnformatted (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 3));
+			if (ImGui_Button (GEN_SETT_STR_BASEImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
+					"BGOpacity"))) // Reset
 			{
 				style->Colors[ImGuiCol_ChildBg].w = 0.8f;
 				easy_PutFloat ("background_opacity",
@@ -159,7 +146,7 @@ draw_settings_menu (void)
 		ImGui_NewLine ();
 
 		{	// Open Addons Folder...
-			if (ImGui_Button (btn_addons_dir_str))
+			if (ImGui_Button (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 6)))
 			{
 				char buf[PATH_MAX];
 				snprintf (buf, sizeof buf, "file:///%s", baseContentPath);
@@ -167,7 +154,7 @@ draw_settings_menu (void)
 			}
 
 			// Open Config Folder...
-			if (ImGui_Button (btn_config_dir_str))
+			if (ImGui_Button (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 7)))
 			{
 				char buf[PATH_MAX];
 				snprintf (buf, sizeof buf, "file:///%s", configDirPath);
@@ -207,7 +194,7 @@ draw_settings_menu (void)
 	}
 
 	{
-		ImGui_SeparatorText (separator_about_str);
+		ImGui_SeparatorText (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 9)); // About
 
 		Spacer ();
 
@@ -259,7 +246,7 @@ draw_settings_menu (void)
 			ImGui_NewLine ();
 
 			{
-				if (ImGui_Button (btn_imgui_demo_str))
+				if (ImGui_Button (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 10)))
 				{
 					show_demo = !show_demo;
 				}
@@ -276,21 +263,17 @@ UQM_ImGui_Tabs (TabState *state)
 	int active_tab;
 	static const char **subtab_names[NUM_TABS] = { NULL };
 	static const char **tab_names = NULL;
-	static const char *no_subtabs, *subtab_nfnd, *not_in_mainmenu;
 	static float temp_width = 0;
 	static float temp_height = 0;
 	float scale = SCALE_20F;
 
 	if (!tab_names)
 	{
-		tab_names = ImStrArr ("tab_names");
-		subtab_names[0] = ImStrArr ("subtab_names.0");
-		subtab_names[1] = ImStrArr ("subtab_names.1");
-		subtab_names[2] = ImStrArr ("subtab_names.2");
-		subtab_names[3] = ImStrArr ("subtab_names.3");
-		no_subtabs = ImStr ("no_subtabs");
-		subtab_nfnd = ImStr ("subtab_nfnd");
-		not_in_mainmenu = ImStr ("not_in_mainmenu");
+		tab_names = ImStrArr (NAV_TAB_STR_BASE);
+		subtab_names[0] = ImStrArr (NAV_TAB_STR_BASE + 1);
+		subtab_names[1] = ImStrArr (NAV_TAB_STR_BASE + 2);
+		subtab_names[2] = ImStrArr (NAV_TAB_STR_BASE + 3);
+		subtab_names[3] = ImStrArr (NAV_TAB_STR_BASE + 4);
 	}
 
 	int *active_subtab[] =
@@ -340,7 +323,7 @@ UQM_ImGui_Tabs (TabState *state)
 
 	if (subtab_names[active_tab] == NULL)
 	{
-		ImGui_Text (no_subtabs);
+		ImGui_Text (ImStr (NAV_TAB_STR_BASE + 5));
 		ImGui_EndChild ();
 		return;
 	}
@@ -405,7 +388,9 @@ UQM_ImGui_Tabs (TabState *state)
 				case 4: draw_controls_menu (); break;
 				case 5: draw_adv_menu (); break;
 				default:
-					ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
+					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
+							*active_subtab[active_tab]);
+							// Subtab %d not found.
 					break;
 				}
 				break;
@@ -417,14 +402,16 @@ UQM_ImGui_Tabs (TabState *state)
 				case 2: ImGui_Text ("Difficulty"); break;
 				case 3: draw_cheats_menu (); break;
 				default:
-					ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
+					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
+							*active_subtab[active_tab]);
 					break;
 				}
 				break;
 			case 2:
 				if (IN_MAIN_MENU)
 				{
-					ImGui_Text (not_in_mainmenu);
+					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 7));
+							// Not available in the Main Menu...
 					break;
 				}
 				else
@@ -433,7 +420,8 @@ UQM_ImGui_Tabs (TabState *state)
 					{
 					case 0: draw_journal_menu (temp_height); break;
 					default:
-						ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
+						ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
+								*active_subtab[active_tab]);
 						break;
 					}
 					break;
@@ -441,7 +429,7 @@ UQM_ImGui_Tabs (TabState *state)
 			case 3:
 				if (IN_MAIN_MENU)
 				{
-					ImGui_Text (not_in_mainmenu);
+					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 7));
 					break;
 				}
 				else
@@ -454,7 +442,8 @@ UQM_ImGui_Tabs (TabState *state)
 					case 3: draw_events_menu (); break;
 					case 4: draw_stars_menu (); break;
 					default:
-						ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
+						ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
+								*active_subtab[active_tab]);
 						break;
 					}
 					break;
@@ -463,7 +452,8 @@ UQM_ImGui_Tabs (TabState *state)
 				switch (*active_subtab[active_tab])
 				{
 				default:
-					ImGui_Text (subtab_nfnd, *active_subtab[active_tab]);
+					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
+							*active_subtab[active_tab]);
 					break;
 				}
 			}

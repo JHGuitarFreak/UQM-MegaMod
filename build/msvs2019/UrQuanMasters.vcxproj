@@ -808,6 +808,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
     <ClInclude Include="..\..\src\uqm\comm\zoqfot\strings.h" />
     <ClInclude Include="..\..\src\uqm\comm\commall.h" />
     <ClInclude Include="..\..\src\uqm\imgui\uqm_imgui.h" />
+    <ClInclude Include="..\..\src\uqm\imgui\uqm_imgui_strings.h" />
     <ClInclude Include="..\..\src\uqm\lua\luafuncs\commfuncs.h" />
     <ClInclude Include="..\..\src\uqm\lua\luafuncs\customfuncs.h" />
     <ClInclude Include="..\..\src\uqm\lua\luafuncs\eventfuncs.h" />

@@ -71,6 +71,7 @@
 #define HYDROCARBON_COLOR_TAB "planet.hydrocarbon.colortable"
 #define HYDROCARBON_XLAT_TAB "planet.hydrocarbon.translatetable"
 #define HYPER_COLOR_TAB "colortable.hyperspace"
+#define IMGUI_STRINGS "text.imgui"
 #define INFRARED_COLOR_TAB "planet.infrared.colortable"
 #define INFRARED_XLAT_TAB "planet.infrared.translatetable"
 #define INTROPRES_STRTAB "slides.intro"
