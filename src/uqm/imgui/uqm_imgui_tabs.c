@@ -45,12 +45,12 @@ draw_settings_menu (void)
 	static const char **insult_factory_str = NULL;
 
 	if (!insult_factory_str)
-		insult_factory_str = GEN_SETT_STR_BASEImStrArr (GEN_SETT_STR_BASE + 8);
+		insult_factory_str = ImStrArr (GEN_SETT_STR_BASE + 8);
 
 	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0, NULL);
 	{
 		// Menu Settings
-		ImGui_SeparatorText (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE));
+		ImGui_SeparatorText (ImStr (GEN_SETT_STR_BASE));
 
 		Spacer ();
 
@@ -74,7 +74,7 @@ draw_settings_menu (void)
 			for (i = 0; i < num_fonts; i++)
 				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
-			if (ImGui_SizedComboChar (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 1),
+			if (ImGui_SizedComboChar (ImStr (GEN_SETT_STR_BASE + 1),
 					&font_selection, font_names, num_fonts))
 			{
 				io->FontDefault = font_atlas->Fonts.Data[font_selection];
@@ -88,8 +88,8 @@ draw_settings_menu (void)
 		Spacer ();
 
 		{	// UI Scale
-			ImGui_Text (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 4));
-			if (ImGui_Button (GEN_SETT_STR_BASEImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
+			ImGui_Text (ImStr (GEN_SETT_STR_BASE + 4));
+			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
 					"FontScaleMain"))) // Reset
 			{
 				style->FontScaleMain = 1.0f;
@@ -113,7 +113,7 @@ draw_settings_menu (void)
 			bool nav_gamepad =
 					io->ConfigFlags & ImGuiConfigFlags_NavEnableGamepad;
 
-			if (ImGui_Checkbox (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 2),
+			if (ImGui_Checkbox (ImStr (GEN_SETT_STR_BASE + 2),
 					&nav_gamepad))
 			{
 				io->ConfigFlags ^= ImGuiConfigFlags_NavEnableGamepad;
@@ -124,8 +124,8 @@ draw_settings_menu (void)
 		ImGui_NewLine ();
 
 		{	// Menu Background Opacity
-			ImGui_TextUnformatted (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 3));
-			if (ImGui_Button (GEN_SETT_STR_BASEImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
+			ImGui_TextUnformatted (ImStr (GEN_SETT_STR_BASE + 3));
+			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
 					"BGOpacity"))) // Reset
 			{
 				style->Colors[ImGuiCol_ChildBg].w = 0.8f;
@@ -146,7 +146,7 @@ draw_settings_menu (void)
 		ImGui_NewLine ();
 
 		{	// Open Addons Folder...
-			if (ImGui_Button (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 6)))
+			if (ImGui_Button (ImStr (GEN_SETT_STR_BASE + 6)))
 			{
 				char buf[PATH_MAX];
 				snprintf (buf, sizeof buf, "file:///%s", baseContentPath);
@@ -154,7 +154,7 @@ draw_settings_menu (void)
 			}
 
 			// Open Config Folder...
-			if (ImGui_Button (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 7)))
+			if (ImGui_Button (ImStr (GEN_SETT_STR_BASE + 7)))
 			{
 				char buf[PATH_MAX];
 				snprintf (buf, sizeof buf, "file:///%s", configDirPath);
@@ -194,7 +194,7 @@ draw_settings_menu (void)
 	}
 
 	{
-		ImGui_SeparatorText (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 9)); // About
+		ImGui_SeparatorText (ImStr (GEN_SETT_STR_BASE + 9)); // About
 
 		Spacer ();
 
@@ -246,7 +246,7 @@ draw_settings_menu (void)
 			ImGui_NewLine ();
 
 			{
-				if (ImGui_Button (GEN_SETT_STR_BASEImStr (GEN_SETT_STR_BASE + 10)))
+				if (ImGui_Button (ImStr (GEN_SETT_STR_BASE + 10)))
 				{
 					show_demo = !show_demo;
 				}
