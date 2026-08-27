@@ -306,20 +306,49 @@ UQM_EasyGetStr (const char **str, const char *key)
 const char **
 UQM_GetStrArray (const char *key)
 {
+	char *copy, *token;
+	int count = 0;
+	char **array = NULL;
 	static char buf[PATH_MAX];
-	static char error_buf[PATH_MAX];
-	static const char *error_array[] = { NULL, NULL };
 
 	snprintf (buf, sizeof (buf), "imstr.%s", key);
 
-	if (res_IsStringArray (buf))
-		return res_GetStringArray (buf);
+	if (res_IsString (buf))
+		copy = strdup (res_GetString (buf));
+	else
+	{
+		char error_msg[PATH_MAX];
+		snprintf (error_msg, sizeof (error_msg),
+				"ARRAY_NOT_FOUND: imstr.%s", key);
 
-	snprintf (error_buf, sizeof (error_buf), "ARRAY_NOT_FOUND: imstr.%s", key);
+		array = HMalloc (2 * sizeof (char *));
+		array[0] = strdup (error_msg);
+		array[1] = NULL;
+		return (const char **)array;
+	}
 
-	error_array[0] = error_buf;
-	return error_array;
+	token = strtok (copy, ",");
 
+	while (token)
+	{
+		while (*token == ' ')
+			token++;
+
+		array = HRealloc (array, (count + 2) * sizeof (char *));
+		array[count++] = strdup (token);
+		token = strtok (NULL, ",");
+	}
+	free (copy);
+
+	if (array == NULL)
+	{
+		array = HMalloc (sizeof (char *));
+		count = 0;
+	}
+
+	array[count] = NULL;
+
+	return (const char **)array;
 }
 
 BINARY_RES *
