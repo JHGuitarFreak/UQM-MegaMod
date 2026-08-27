@@ -282,27 +282,6 @@ easy_PutBool (const char *key, bool var)
 	imcfg_changed = true;
 }
 
-const char *
-UQM_GetStr (const char *key)
-{
-	static char buf[PATH_MAX];
-	static char error_buf[PATH_MAX];
-
-	snprintf (buf, sizeof (buf), "imstr.%s", key);
-
-	if (res_IsString (buf))
-		return res_GetString (buf);
-
-	snprintf (error_buf, sizeof (error_buf), "STRING_NOT_FOUND: imstr.%s", key);
-	return error_buf;
-}
-
-void
-UQM_EasyGetStr (const char **str, const char *key)
-{
-	*str = UQM_GetStr (key);
-}
-
 const char **
 UQM_GetStrArray (int index)
 {

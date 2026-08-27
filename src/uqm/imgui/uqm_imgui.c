@@ -131,7 +131,7 @@ UQM_ImGui_Init (void)
 			io->FontDefault = io->Fonts->Fonts.Data[font_selection];
 
 		ImGetFlt (ui_scale);
-		if (ui_scale > 0.50f && ui_scale < 3.0f)
+		if (ui_scale >= 0.50f && ui_scale <= 3.0f)
 		{
 			style->FontScaleMain = ui_scale;
 			UQM_ScaleAllSizes ();

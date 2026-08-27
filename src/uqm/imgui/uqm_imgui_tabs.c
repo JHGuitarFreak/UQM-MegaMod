@@ -74,7 +74,7 @@ draw_settings_menu (void)
 			for (i = 0; i < num_fonts; i++)
 				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
 
-			if (ImGui_SizedComboChar (ImStr (GEN_SETT_STR_BASE + 1),
+			if (ImGui_SizedComboChar (ImStr (GEN_SETT_STR_BASE + 1), // Font Selector
 					&font_selection, font_names, num_fonts))
 			{
 				io->FontDefault = font_atlas->Fonts.Data[font_selection];
@@ -89,8 +89,8 @@ draw_settings_menu (void)
 
 		{	// UI Scale
 			ImGui_Text (ImStr (GEN_SETT_STR_BASE + 4));
-			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
-					"FontScaleMain"))) // Reset
+			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // RESET
+					"FontScaleMain")))
 			{
 				style->FontScaleMain = 1.0f;
 				easy_PutFloat ("ui_scale", style->FontScaleMain);
@@ -125,8 +125,8 @@ draw_settings_menu (void)
 
 		{	// Menu Background Opacity
 			ImGui_TextUnformatted (ImStr (GEN_SETT_STR_BASE + 3));
-			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5),
-					"BGOpacity"))) // Reset
+			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // RESET
+					"BGOpacity")))
 			{
 				style->Colors[ImGuiCol_ChildBg].w = 0.8f;
 				easy_PutFloat ("background_opacity",
@@ -164,7 +164,7 @@ draw_settings_menu (void)
 
 		ImGui_NewLine ();
 
-		{	// Sound Test
+		{	// - Sound Test -
 			static TimeCount NextTime = 0;
 			TimeCount Now = GetTimeCounter ();
 			static COUNT CurSound = 0;
@@ -245,11 +245,9 @@ draw_settings_menu (void)
 
 			ImGui_NewLine ();
 
-			{
-				if (ImGui_Button (ImStr (GEN_SETT_STR_BASE + 10)))
-				{
-					show_demo = !show_demo;
-				}
+			if (ImGui_Button (ImStr (GEN_SETT_STR_BASE + 10)))
+			{						// Show ImGui Demo Window
+				show_demo = !show_demo;
 			}
 #endif // DEBUG
 		}
@@ -374,6 +372,9 @@ UQM_ImGui_Tabs (TabState *state)
 	{
 		ImGui_BeginStyledChild ("##PagePadding", ZERO_F, CH_FLAT_NAV, 0, NULL);
 		{
+			const char *subtab_not = ImStr (NAV_TAB_STR_BASE + 6); // Subtab %d not found.
+			const char *no_main_menu = ImStr (NAV_TAB_STR_BASE + 7); // Not available in the Main Menu...
+
 			GetColumnSize (&content_col_size, NUM_COLUMNS);
 
 			switch (active_tab)
@@ -388,9 +389,7 @@ UQM_ImGui_Tabs (TabState *state)
 				case 4: draw_controls_menu (); break;
 				case 5: draw_adv_menu (); break;
 				default:
-					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
-							*active_subtab[active_tab]);
-							// Subtab %d not found.
+					ImGui_Text (subtab_not, *active_subtab[active_tab]);
 					break;
 				}
 				break;
@@ -402,16 +401,14 @@ UQM_ImGui_Tabs (TabState *state)
 				case 2: ImGui_Text ("Difficulty"); break;
 				case 3: draw_cheats_menu (); break;
 				default:
-					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
-							*active_subtab[active_tab]);
+					ImGui_Text (subtab_not, *active_subtab[active_tab]);
 					break;
 				}
 				break;
 			case 2:
 				if (IN_MAIN_MENU)
 				{
-					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 7));
-							// Not available in the Main Menu...
+					ImGui_Text (no_main_menu);
 					break;
 				}
 				else
@@ -420,8 +417,7 @@ UQM_ImGui_Tabs (TabState *state)
 					{
 					case 0: draw_journal_menu (temp_height); break;
 					default:
-						ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
-								*active_subtab[active_tab]);
+						ImGui_Text (subtab_not, *active_subtab[active_tab]);
 						break;
 					}
 					break;
@@ -429,7 +425,7 @@ UQM_ImGui_Tabs (TabState *state)
 			case 3:
 				if (IN_MAIN_MENU)
 				{
-					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 7));
+					ImGui_Text (no_main_menu);
 					break;
 				}
 				else
@@ -442,8 +438,7 @@ UQM_ImGui_Tabs (TabState *state)
 					case 3: draw_events_menu (); break;
 					case 4: draw_stars_menu (); break;
 					default:
-						ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
-								*active_subtab[active_tab]);
+						ImGui_Text (subtab_not, *active_subtab[active_tab]);
 						break;
 					}
 					break;
@@ -452,8 +447,7 @@ UQM_ImGui_Tabs (TabState *state)
 				switch (*active_subtab[active_tab])
 				{
 				default:
-					ImGui_Text (ImStr (NAV_TAB_STR_BASE + 6),
-							*active_subtab[active_tab]);
+					ImGui_Text (subtab_not, *active_subtab[active_tab]);
 					break;
 				}
 			}
