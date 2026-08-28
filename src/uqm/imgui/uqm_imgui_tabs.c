@@ -321,6 +321,7 @@ UQM_ImGui_Tabs (TabState *state)
 				active_tab = i;
 				state->active_tab = i;
 			}
+#ifndef DEBUG
 			if (i == DEBUG_MENU &&
 					ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
@@ -329,6 +330,7 @@ UQM_ImGui_Tabs (TabState *state)
 						ImStr (NAV_TAB_STR_BASE + 8)); // Debug Warning
 				ImGui_EndTooltip ();
 			}
+#endif
 		}
 
 		temp_height = ImGui_GetItemRectMax ().y - 1;
