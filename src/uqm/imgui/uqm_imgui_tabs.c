@@ -18,7 +18,6 @@
 #include "uqm_imgui.h"
 
 #define IGCF_B ImGuiChildFlags_AlwaysUseWindowPadding
-#define NUM_TABS 4
 #define SUBTAB_SIZE 10
 
 #if defined(_WIN32)
@@ -102,7 +101,7 @@ draw_settings_menu (void)
 
 		{	// UI Scale
 			ImGui_Text (ImStr (GEN_SETT_STR_BASE + 4));
-			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // RESET
+			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // Reset
 					"FontScaleMain")))
 			{
 				style->FontScaleMain = 1.0f;
@@ -272,7 +271,7 @@ UQM_ImGui_Tabs (TabState *state)
 {
 	int i, j;
 	int active_tab;
-	static const char **subtab_names[NUM_TABS] = { NULL };
+	static const char **subtab_names[NUM_IMGUI_MENUS] = { NULL };
 	static const char **tab_names = NULL;
 	static float temp_width = 0;
 	static float temp_height = 0;
