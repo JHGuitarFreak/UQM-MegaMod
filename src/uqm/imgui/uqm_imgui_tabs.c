@@ -337,57 +337,59 @@ UQM_ImGui_Tabs (TabState *state)
 	DrawBorderAroundLastItem ();
 	// NavBar Ends
 
-	// Sidebar Begins
-	ImGui_BeginChild ("Sidebar", MAKE_IV2 (temp_width, 0.0f), IGCF_B, 0);
+	if (active_tab != JOURNAL_MENU)
+	{	// Sidebar Begins
+		ImGui_BeginChild ("Sidebar", MAKE_IV2 (temp_width, 0.0f), IGCF_B, 0);
 
-	if (subtab_names[active_tab] == NULL)
-	{
-		ImGui_Text (ImStr (NAV_TAB_STR_BASE + 5));
+		if (subtab_names[active_tab] == NULL)
+		{
+			ImGui_Text (ImStr (NAV_TAB_STR_BASE + 5));
+			ImGui_EndChild ();
+			return;
+		}
+
+		ImGui_BeginGroup ();
+
+		for (j = 0; subtab_names[active_tab][j] != NULL; j++)
+		{
+			ImVec2 text_size;
+			ImVec2 button_size;
+			float centering;
+			bool selected;
+
+			selected = (*active_subtab[active_tab] == j);
+
+			text_size = ImGui_CalcTextSize (subtab_names[active_tab][j]);
+			button_size = (ImVec2){ text_size.x + scale, scale };
+
+			centering = ((temp_width - button_size.x) / 2)
+					- style->WindowPadding.x * 2;
+
+			ImGui_Dummy (MAKE_IV2 (0, SCALE_IT (8.0f)));
+
+			if (centering > 0.0f)
+			{
+				ImGui_Dummy (MAKE_IV2 (centering, 0));
+				ImGui_SameLine ();
+			}
+
+			if (ImGui_SelectableEx (subtab_names[active_tab][j],
+					selected, 0, button_size))
+			{
+				*active_subtab[active_tab] = j;
+			}
+		}
+
+		ImGui_EndGroup ();
+
+		temp_width = ImGui_GetItemRectMax ().x + scale;
+
 		ImGui_EndChild ();
-		return;
-	}
+		DrawBorderAroundLastItem ();
 
-	ImGui_BeginGroup ();
+		ImGui_SameLine ();
+	} // Sidebar Ends
 
-	for (j = 0; subtab_names[active_tab][j] != NULL; j++)
-	{
-		ImVec2 text_size;
-		ImVec2 button_size;
-		float centering;
-		bool selected;
-
-		selected = (*active_subtab[active_tab] == j);
-
-		text_size = ImGui_CalcTextSize (subtab_names[active_tab][j]);
-		button_size = (ImVec2){ text_size.x + scale, scale };
-
-		centering = ((temp_width - button_size.x) / 2)
-				- style->WindowPadding.x * 2;
-
-		ImGui_Dummy (MAKE_IV2 (0, SCALE_IT (8.0f)));
-
-		if (centering > 0.0f)
-		{
-			ImGui_Dummy (MAKE_IV2 (centering, 0));
-			ImGui_SameLine ();
-		}
-
-		if (ImGui_SelectableEx (subtab_names[active_tab][j],
-				selected, 0, button_size))
-		{
-			*active_subtab[active_tab] = j;
-		}
-	}
-
-	ImGui_EndGroup ();
-
-	temp_width = ImGui_GetItemRectMax ().x + scale;
-
-	ImGui_EndChild ();
-	DrawBorderAroundLastItem ();
-	// Sidebar Ends
-
-	ImGui_SameLine ();
 	// Content Begins
 	ImGui_BeginChild ("Content", ZERO_F, IGCF_B, 0);
 	{
