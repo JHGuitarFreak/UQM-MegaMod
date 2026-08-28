@@ -39,6 +39,16 @@
 
 ImVec2 content_col_size;
 
+enum
+{
+	GENERAL_MENU,
+	ENHANCEMENTS_MENU,
+	JOURNAL_MENU,
+	DEBUG_MENU,
+
+	NUM_IMGUI_MENUS
+}; // Main ImGui Tabs
+
 void
 draw_settings_menu (void)
 {
@@ -47,7 +57,8 @@ draw_settings_menu (void)
 	if (!insult_factory_str)
 		insult_factory_str = ImStrArr (GEN_SETT_STR_BASE + 8);
 
-	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0, NULL);
+	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0,
+			NULL);
 	{
 		// Menu Settings
 		ImGui_SeparatorText (ImStr (GEN_SETT_STR_BASE));
@@ -59,7 +70,8 @@ draw_settings_menu (void)
 			int font_selection;
 			const ImFontAtlas *font_atlas = io->Fonts;
 			const int num_fonts = font_atlas->Fonts.Size;
-			const char **font_names = malloc (num_fonts * sizeof (const char *));
+			const char **font_names =
+					malloc (num_fonts * sizeof (const char *));
 
 			font_selection = 0;
 			for (i = 0; i < num_fonts; i++)
@@ -72,7 +84,8 @@ draw_settings_menu (void)
 			}
 
 			for (i = 0; i < num_fonts; i++)
-				font_names[i] = ImFont_GetDebugName (font_atlas->Fonts.Data[i]);
+				font_names[i] = ImFont_GetDebugName (
+						font_atlas->Fonts.Data[i]);
 
 			if (ImGui_SizedComboChar (ImStr (GEN_SETT_STR_BASE + 1), // Font Selector
 					&font_selection, font_names, num_fonts))
@@ -289,30 +302,38 @@ UQM_ImGui_Tabs (TabState *state)
 
 	// Begin NavBar
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, temp_height), IGCF_B, 0);
-
-	for (i = 0; tab_names[i] != NULL; i++)
 	{
-		ImVec2 text_size;
-		ImVec2 button_size;
-		bool selected = (active_tab == i);
-
-		ImGui_SameLine ();
-		ImGui_Dummy (MAKE_IV2 (SCALE_IT (4.0f), 0));
-		ImGui_SameLine ();
-
-		text_size = ImGui_CalcTextSize (tab_names[i]);
-		button_size = (ImVec2){ text_size.x + scale, scale };
-
-		if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
+		for (i = 0; i < NUM_IMGUI_MENUS; i++)
 		{
-			active_tab = i;
-			state->active_tab = i;
+			ImVec2 text_size;
+			ImVec2 button_size;
+			bool selected = (active_tab == i);
+
+			ImGui_SameLine ();
+			ImGui_Dummy (MAKE_IV2 (SCALE_IT (4.0f), 0));
+			ImGui_SameLine ();
+
+			text_size = ImGui_CalcTextSize (tab_names[i]);
+			button_size = (ImVec2){ text_size.x + scale, scale };
+
+			if (ImGui_SelectableEx (tab_names[i], selected, 0, button_size))
+			{
+				active_tab = i;
+				state->active_tab = i;
+			}
+			if (i == DEBUG_MENU &&
+					ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+			{
+				ImGui_BeginTooltip ();
+				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+						ImStr (NAV_TAB_STR_BASE + 8)); // Debug Warning
+				ImGui_EndTooltip ();
+			}
 		}
-	}
 
-	temp_height = ImGui_GetItemRectMax ().y - 1;
+		temp_height = ImGui_GetItemRectMax ().y - 1;
+	} ImGui_EndChild (); // NavBar
 
-	ImGui_EndChild ();
 	DrawBorderAroundLastItem ();
 	// NavBar Ends
 

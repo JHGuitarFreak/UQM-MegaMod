@@ -30,7 +30,7 @@ extern "C" {
 
 extern STRING ImGuiStrings;
 
-#define NAV_TAB_STR_COUNT   8
+#define NAV_TAB_STR_COUNT   9
 #define GEN_SETT_STR_COUNT 11
 
 enum

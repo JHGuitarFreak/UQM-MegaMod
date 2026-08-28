@@ -269,9 +269,6 @@ void UQM_GetBool (const char *key, bool *var);
 void easy_PutBool (const char *key, bool var);
 #define ImPutBool(SKey) easy_PutBool(#SKey, SKey)
 
-void UQM_EasyGetStr (const char **str, const char *key);
-#define EZImStr(SKey) UQM_EasyGetStr(&SKey, #SKey)
-
 const char **UQM_GetStrArray (int index);
 #define ImStrArr(i) UQM_GetStrArray(i)
 
