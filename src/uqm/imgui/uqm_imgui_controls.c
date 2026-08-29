@@ -58,21 +58,8 @@ static void RestoreFlightBindings (void);
 static const char *GetBindingDisplayText (VCONTROL_GESTURE *gesture);
 static void BackupCurrentBindings (void);
 
-static const char *pretty_menu_actions[] =
-{
-	"Pause", "Exit", "Abort", "Debug 1", "Fullscreen", "Up", "Down",
-	"Left", "Right", "Select", "Cancel", "Special", "Page-Up",
-	"Page-Down", "Home", "End", "Zoom-In", "Zoom-Out", "Delete",
-	"Backspace", "Cancel Edit", "Star Search", "Tab / Next",
-	"Toggle StarMaps", "Screenshot", "QuickSave", "QuickLoad", "ImGui Toggle",
-	"Debug 2", "Debug 3", "Debug 4", NULL
-};
-
-static const char *pretty_flight_actions[] =
-{
-	"Up", "Down", "Left", "Right", "Weapon", "Special", "Escape",
-	"Thrust", NULL
-};
+static const char **pretty_menu_actions = NULL;
+static const char **pretty_flight_actions = NULL;
 
 static void
 GetKeyNameButtonWidth (float *width)
@@ -99,16 +86,19 @@ GetKeyNameButtonWidth (float *width)
 void
 draw_controls_menu (void)
 {
-	const char *control_display[] =
-			{ "Keyboard", "Xbox", "PlayStation", "Switch Pro" };
-	const char *dirJoyDisp[] =
+	static const char **control_display = NULL;
+	static const char **dir_joy_disp = NULL;
+	static const char **cmouse_input = NULL;
+
+	if (!control_display)
 	{
-			"Normal Control", "Left Stick Directional",
-			"Right Stick Directional", "Left Stick Auto-Thrust",
-			"Right Stick Auto-Thrust"
-	};
-	const char *cmouse_input[] =
-			{ "Disabled", "Manual Control", "Local Auto-Pilot" };
+		control_display = ImStrArr (GEN_CON_STR_BASE);
+		dir_joy_disp    = ImStrArr (GEN_CON_STR_BASE + 1);
+		cmouse_input    = ImStrArr (GEN_CON_STR_BASE + 2);
+
+		pretty_flight_actions = ImStrArr (GEN_CON_STR_BASE + 4);
+		pretty_menu_actions   = ImStrArr (GEN_CON_STR_BASE + 5);
+	}
 
 	if (!binds_backed_up)
 		BackupCurrentBindings ();
@@ -117,14 +107,16 @@ draw_controls_menu (void)
 			CHILD_FLAGS, 0, NULL);
 	{
 		{	// Control Options
-			ImGui_SeparatorText ("Control Options");
+			ImGui_SeparatorText (ImStr (GEN_CON_STR_BASE + 6));
 
-			ImGui_Checkbox ("Auto-Detect Icons", (bool *)&optAutoButtons);
+			// Auto-Detect Icons
+			ImGui_Checkbox (ImStr (GEN_CON_STR_BASE + 7),
+					(bool *)&optAutoButtons);
 
 			Spacer ();
 
 			{	// Button Icons
-				if (ImGui_SizedComboChar ("Button Icons:",
+				if (ImGui_SizedComboChar (ImStr (GEN_CON_STR_BASE + 8),
 						(int *)&optControllerType, control_display, 4))
 				{
 					res_PutInteger ("mm.controllerType", optControllerType);
@@ -135,8 +127,9 @@ draw_controls_menu (void)
 			Spacer ();
 
 			{	// Directional Joystick P1
-				if (ImGui_SizedComboChar ("Directional Joystick P1:",
-						(int *)&optDirJoy[0], dirJoyDisp, 5))
+				ImGui_Text (ImStr (GEN_CON_STR_BASE + 9), 1);
+				if (ImGui_SizedComboChar ("##DirectionalJoystickP1",
+						(int *)&optDirJoy[0], dir_joy_disp, 5))
 				{
 					res_PutInteger ("mm.dirJoyP1", optDirJoy[0]);
 					mmcfg_changed = true;
@@ -144,8 +137,9 @@ draw_controls_menu (void)
 			}
 
 			{	// Directional Joystick P2
-				if (ImGui_SizedComboChar ("Directional Joystick P2:",
-						(int *)&optDirJoy[1], dirJoyDisp, 5))
+				ImGui_Text (ImStr (GEN_CON_STR_BASE + 9), 2);
+				if (ImGui_SizedComboChar ("##DirectionalJoystickP2",
+						(int *)&optDirJoy[1], dir_joy_disp, 5))
 				{
 					res_PutInteger ("mm.dirJoyP2", optDirJoy[1]);
 					mmcfg_changed = true;
@@ -155,8 +149,8 @@ draw_controls_menu (void)
 			Spacer ();
 
 			{	// Crappy Mouse Input
-				if (ImGui_SizedComboChar ("Crappy Mouse Input:",
-					(int *)&optMouseInput, cmouse_input, 3))
+				if (ImGui_SizedComboChar (ImStr (GEN_CON_STR_BASE + 10),
+						(int *)&optMouseInput, cmouse_input, 3))
 				{
 					res_PutInteger ("mm.mouseInput", optMouseInput);
 					mmcfg_changed = true;
@@ -175,8 +169,8 @@ Control_Tabs (void)
 {
 	ImGui_BeginStyledChild ("##EditControlsColumn", ZERO_F,
 		CHILD_FLAGS, 0, NULL);
-	{
-		ImGui_SeparatorText ("Edit Controls");
+	{	// Edit Controls
+		ImGui_SeparatorText (ImStr (GEN_CON_STR_BASE + 11));
 
 		if (ImGui_BeginTabBar ("ControlTabs", 0))
 		{
@@ -192,12 +186,12 @@ Control_Tabs (void)
 static void
 FlightControlsTab (void)
 {
-	if (!ImGui_BeginTabItem ("Flight", NULL, 0))
+	if (!ImGui_BeginTabItem (ImStr (GEN_CON_STR_BASE + 12), NULL, 0)) // Flight
 		return;
 
 	Spacer ();
 
-	if (ImGui_Button ("Load Defaults"))
+	if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 15))) // Load Defaults
 	{
 		LoadDefaultFlightKeys ();
 		bindings_dirty.flight = TRUE;
@@ -206,13 +200,13 @@ FlightControlsTab (void)
 	if (bindings_dirty.flight)
 	{
 		ImGui_SameLine ();
-		if (ImGui_Button ("Save Changes"))
+		if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 16))) // Save Changes
 		{
 			SaveKeyConfiguration (configDir, "flight.cfg");
 			bindings_dirty.flight = FALSE;
 		}
 		ImGui_SameLine ();
-		if (ImGui_Button ("Cancel"))
+		if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 17))) // Cancel
 		{
 			RestoreFlightBindings ();
 			bindings_dirty.flight = FALSE;
@@ -232,11 +226,14 @@ static void
 FlightControls (void)
 {
 	int i, j;
-	const char *control_template[2] = { "Player 1", "Player 2" };
 	char button_id[32];
 	VCONTROL_GESTURE *g;
 	float column_width, button_width;
 	char display_text[40];
+	static const char **control_template = NULL;
+
+	if (!control_template)
+		control_template = ImStrArr (GEN_CON_STR_BASE + 3);
 
 	GetKeyNameButtonWidth (&button_width);
 
@@ -256,11 +253,16 @@ FlightControls (void)
 	if (ImGui_BeginTable ("##FlightControlsTable", 5, ImGuiTableFlags_ScrollX |
 			ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
 	{
-		ImGui_TableSetupColumn ("Action", 0);
-		ImGui_TableSetupColumn ("Bind 1", 0);
-		ImGui_TableSetupColumn ("Bind 2", 0);
-		ImGui_TableSetupColumn ("Bind 3", 0);
-		ImGui_TableSetupColumn ("Bind 4", 0);
+		ImGui_TableSetupColumn (ImStr (GEN_CON_STR_BASE + 18), 0); // Action
+
+		for (i = 0; i < MAX_FLIGHT_ALTERNATES; i++)
+		{
+			char buf[32];
+
+			snprintf (buf, sizeof buf,
+					ImStr (GEN_CON_STR_BASE + 19) ,i + 1); // Bind #
+			ImGui_TableSetupColumn (buf, 0);
+		}
 		ImGui_TableHeadersRow ();
 
 		for (i = 0; i < NUM_KEYS; i++)
@@ -317,20 +319,21 @@ FlightControls (void)
 
 static void
 DeadzoneControlsTab (void)
-{
-	if (!ImGui_BeginTabItem ("Deadzones", NULL, 0))
+{	// Deadzones
+	if (!ImGui_BeginTabItem (ImStr (GEN_CON_STR_BASE + 14), NULL, 0))
 		return;
 
 	ImGui_NewLine ();
 
 	{
-		ImGui_Text ("- Player 1 -");
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 1); // - Player 1 -
 		Spacer ();
 		{
 			float value = (float)DeadZoneLeftStick[0] / MAX_DEADZONE * 100.0f;
 
-			ImGui_Text ("Left Stick:");
-			if (ImGui_Button ("Reset##LSP1"))
+			ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
+			if (ImGui_Button (ImMakeID (
+					ImStr (GEN_SETT_STR_BASE + 5), "LSP1"))) // Reset##LSP1
 			{
 				DeadZoneLeftStick[0] = DEFAULT_DZONE;
 				res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
@@ -349,8 +352,9 @@ DeadzoneControlsTab (void)
 		{
 			float value = (float)DeadZoneRightStick[0] / MAX_DEADZONE * 100.0f;
 
-			ImGui_Text ("Right Stick:");
-			if (ImGui_Button ("Reset##RSP1"))
+			ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
+			if (ImGui_Button (ImMakeID (
+					ImStr (GEN_SETT_STR_BASE + 5), "RSP1"))) // Reset##LSP2
 			{
 				DeadZoneRightStick[0] = DEFAULT_DZONE;
 				res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
@@ -368,13 +372,14 @@ DeadzoneControlsTab (void)
 
 		ImGui_NewLine ();
 
-		ImGui_Text ("- Player 2 -");
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 2); // - Player 2 -
 		Spacer ();
 		{
 			float value = (float)DeadZoneLeftStick[1] / MAX_DEADZONE * 100.0f;
 
-			ImGui_Text ("Left Stick:");
-			if (ImGui_Button ("Reset##LSP2"))
+			ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
+			if (ImGui_Button (ImMakeID (
+					ImStr (GEN_SETT_STR_BASE + 5), "LSP2"))) // Reset##LSP1
 			{
 				DeadZoneLeftStick[1] = DEFAULT_DZONE;
 				res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
@@ -393,8 +398,9 @@ DeadzoneControlsTab (void)
 		{
 			float value = (float)DeadZoneRightStick[1] / MAX_DEADZONE * 100.0f;
 
-			ImGui_Text ("Right Stick:");
-			if (ImGui_Button ("Reset##RSP2"))
+			ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
+			if (ImGui_Button (ImMakeID (
+					ImStr (GEN_SETT_STR_BASE + 5), "RSP2"))) // Reset##RSP2
 			{
 				DeadZoneRightStick[1] = DEFAULT_DZONE;
 				res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
@@ -438,9 +444,9 @@ ShowFlightRebindPopup (void)
 
 	if (RSPtr->template_id < 0 || RSPtr->template_id > 5)
 	{
-		ImGui_TextColored (IV4_RED_COLOR, "Error: Invalid template ID");
+		ImGui_TextColored (IV4_RED_COLOR, ImStr (GEN_CON_STR_BASE + 20));
 
-		if (ImGui_Button ("Cancel"))
+		if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 17))) // Cancel
 		{
 			RSPtr->active = FALSE;
 			RSPtr->new_g.type = VCONTROL_NONE;
@@ -453,8 +459,9 @@ ShowFlightRebindPopup (void)
 	}
 
 	snprintf (popup_title, sizeof (popup_title),
-			"Control: %s | Binding %d of 2",
-			pretty_flight_actions[RSPtr->action], RSPtr->binding + 1);
+			ImStr (GEN_CON_STR_BASE + 21), // Action: %s | Binding %d of %d
+			pretty_flight_actions[RSPtr->action], RSPtr->binding + 1,
+			MAX_FLIGHT_ALTERNATES);
 
 	ImGui_Text ("%s", popup_title);
 
@@ -466,7 +473,8 @@ ShowFlightRebindPopup (void)
 
 	if (RSPtr->has_error && RSPtr->error_message[0] != '\0')
 	{
-		ImGui_TextColored (DangerGradient (), "Illegal bind detected!");
+		ImGui_TextColored (DangerGradient (),
+				ImStr (GEN_CON_STR_BASE + 22)); // Illegal bind detected!
 		ImGui_NewLine ();
 
 		ImGui_TextColored (IV4_RED_COLOR, "%s", RSPtr->error_message);
@@ -475,14 +483,15 @@ ShowFlightRebindPopup (void)
 
 	if (RSPtr->new_g.type == VCONTROL_NONE && !RSPtr->has_error)
 	{
-		ImGui_TextColored (IV4_YELLOW_COLOR, "Waiting for input...");
-		ImGui_Text ("Press any key, button, or move an axis");
+		ImGui_TextColored (IV4_YELLOW_COLOR,
+				ImStr (GEN_CON_STR_BASE + 23)); // Waiting for input...
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 24));
+				// Press any key, button, or move an axis
 	}
 	else if (RSPtr->has_error)
 	{
-		ImGui_TextColored (IV4_YELLOW_COLOR,
-				"Please choose a different key, button, or axis...");
-	}
+		ImGui_TextColored (IV4_YELLOW_COLOR, ImStr (GEN_CON_STR_BASE + 25));
+	}					// Please choose a different key, button, or axis...
 
 	Spacer ();
 
@@ -490,7 +499,7 @@ ShowFlightRebindPopup (void)
 
 	Spacer ();
 
-	if (ImGui_Button ("Clear"))
+	if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 26))) // Clear
 	{
 		curr_fl_bindings[RSPtr->template_id][RSPtr->action].
 				binding[RSPtr->binding].type = VCONTROL_NONE;
@@ -519,7 +528,7 @@ ShowFlightRebindPopup (void)
 
 	ImGui_SameLine ();
 
-	if (ImGui_Button ("Cancel"))
+	if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 17))) // Cancel
 	{
 		if (RSPtr->old_g.type != VCONTROL_NONE)
 		{
@@ -579,13 +588,13 @@ ShowFlightRebindPopup (void)
 
 static void
 MenuControlsTab (void)
-{
-	if (!ImGui_BeginTabItem ("Menu", NULL, 0))
+{							// Menu
+	if (!ImGui_BeginTabItem (ImStr (GEN_CON_STR_BASE + 13), NULL, 0))
 		return;
 
 	Spacer ();
 
-	if (ImGui_Button ("Load Defaults"))
+	if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 15))) // Load Defaults
 	{
 		LoadDefaultMenuKeys ();
 		bindings_dirty.menu = TRUE;
@@ -594,12 +603,12 @@ MenuControlsTab (void)
 	if (bindings_dirty.menu)
 	{
 		ImGui_SameLine ();
-		if (ImGui_Button ("Save Changes"))
+		if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 16))) // Save Changes
 		{
 			SaveMenuBindings ();
 		}
 		ImGui_SameLine ();
-		if (ImGui_Button ("Cancel"))
+		if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 17))) // Cancel
 		{
 			RestoreMenuBindings ();
 			bindings_dirty.menu = FALSE;
@@ -628,16 +637,21 @@ MenuControls (void)
 	GetKeyNameButtonWidth (&button_width);
 
 	ImGui_PushStyleColor (ImGuiCol_ChildBg, 0x00000000);
-	if (ImGui_BeginTable ("##MenuControlsTable", 7, ImGuiTableFlags_ScrollX |
-			ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV))
+	if (ImGui_BeginTable ("##MenuControlsTable", 1 + MAX_MENU_ALTERNATES,
+			ImGuiTableFlags_ScrollX | ImGuiTableFlags_RowBg |
+			ImGuiTableFlags_BordersInnerV))
 	{
-		ImGui_TableSetupColumn ("Action", 0);
-		ImGui_TableSetupColumn ("Bind 1", 0);
-		ImGui_TableSetupColumn ("Bind 2", 0);
-		ImGui_TableSetupColumn ("Bind 3", 0);
-		ImGui_TableSetupColumn ("Bind 4", 0);
-		ImGui_TableSetupColumn ("Bind 5", 0);
-		ImGui_TableSetupColumn ("Bind 6", 0);
+		ImGui_TableSetupColumn (ImStr (GEN_CON_STR_BASE + 18), 0);
+
+		for (i = 0; i < MAX_MENU_ALTERNATES; i++)
+		{
+			char buf[32];
+
+			snprintf (buf, sizeof buf,
+					ImStr (GEN_CON_STR_BASE + 19), i + 1); // Bind #
+			ImGui_TableSetupColumn (buf, 0);
+		}
+
 		ImGui_TableHeadersRow ();
 
 		for (i = 0; i < NUM_MENU_KEYS; i++)
@@ -650,7 +664,7 @@ MenuControls (void)
 			ImGui_AlignTextToFramePadding ();
 			ImGui_Text ("%s:", pretty_menu_actions[i]);
 
-			for (j = 0; j < 6; j++)
+			for (j = 0; j < MAX_MENU_ALTERNATES; j++)
 			{
 				g = &curr_bindings[i].binding[j];
 
@@ -716,8 +730,9 @@ ShowMenuRebindPopup (void)
 	}
 
 	snprintf (popup_title, sizeof (popup_title),
-			"Action Name: %s | Binding %d of 6",
-			pretty_menu_actions[RSPtr->action], RSPtr->binding + 1);
+			ImStr (GEN_CON_STR_BASE + 21), // Action: %s | Binding %d of %d
+			pretty_menu_actions[RSPtr->action], RSPtr->binding + 1,
+			MAX_MENU_ALTERNATES);
 
 	ImGui_Text ("%s", popup_title);
 
@@ -729,7 +744,8 @@ ShowMenuRebindPopup (void)
 
 	if (RSPtr->has_error && RSPtr->error_message[0] != '\0')
 	{
-		ImGui_TextColored (DangerGradient (), "Illegal bind detected!");
+		ImGui_TextColored (DangerGradient (),
+				ImStr (GEN_CON_STR_BASE + 22)); // Illegal bind detected!
 		ImGui_NewLine ();
 
 		ImGui_TextColored (IV4_RED_COLOR, "%s", RSPtr->error_message);
@@ -744,14 +760,14 @@ ShowMenuRebindPopup (void)
 
 	if (RSPtr->new_g.type == VCONTROL_NONE && !RSPtr->has_error)
 	{
-		ImGui_TextColored (IV4_YELLOW_COLOR, "Waiting for input...");
-		ImGui_Text ("Press any key, button, or move an axis");
-	}
+		ImGui_TextColored (IV4_YELLOW_COLOR,
+				ImStr (GEN_CON_STR_BASE + 23)); // Waiting for input...
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 24));
+	}			// Press any key, button, or move an axis
 	else if (RSPtr->has_error)
 	{
-		ImGui_TextColored (IV4_YELLOW_COLOR,
-				"Please choose a different key/button...");
-	}
+		ImGui_TextColored (IV4_YELLOW_COLOR, ImStr (GEN_CON_STR_BASE + 25));
+	}					// Please choose a different key, button, or axis...
 
 	Spacer ();
 
@@ -759,7 +775,7 @@ ShowMenuRebindPopup (void)
 
 	Spacer ();
 
-	if (ImGui_Button ("Clear"))
+	if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 26))) // Clear
 	{
 		curr_bindings[RSPtr->action].binding[RSPtr->binding].type =
 				VCONTROL_NONE;
@@ -781,7 +797,7 @@ ShowMenuRebindPopup (void)
 
 	ImGui_SameLine ();
 
-	if (ImGui_Button ("Cancel"))
+	if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 17))) // Cancel
 	{
 		if (RSPtr->old_g.type != VCONTROL_NONE)
 		{
@@ -896,7 +912,7 @@ SaveMenuBindings (void)
 		if (menu_res_names[i] == NULL)
 			continue;
 
-		for (j = 0; j < 6; j++)
+		for (j = 0; j < MAX_MENU_ALTERNATES; j++)
 		{
 			g = &curr_bindings[i].binding[j];
 
@@ -925,7 +941,7 @@ LoadDefaultMenuKeys (void)
 		if (!menu_res_names[i])
 			break;
 
-		for (j = 0; j < 6; j++)
+		for (j = 0; j < MAX_MENU_ALTERNATES; j++)
 		{
 			g = &curr_bindings[i].binding[j];
 			VControl_RemoveGestureBinding (g, (int *)&menu_vec[i]);
@@ -934,7 +950,7 @@ LoadDefaultMenuKeys (void)
 		memcpy (&curr_bindings[i], &def_bindings[i],
 				sizeof (MENU_BINDINGS));
 
-		for (j = 0; j < 6; j++)
+		for (j = 0; j < MAX_MENU_ALTERNATES; j++)
 		{
 			g = &def_bindings[i].binding[j];
 			VControl_AddGestureBinding (g, (int *)&menu_vec[i]);
@@ -953,7 +969,7 @@ RestoreMenuBindings (void)
 		if (menu_res_names[i] == NULL)
 			continue;
 
-		for (j = 0; j < 6; j++)
+		for (j = 0; j < MAX_MENU_ALTERNATES; j++)
 		{
 			g = &curr_bindings[i].binding[j];
 			VControl_RemoveGestureBinding (g, (int *)&menu_vec[i]);
@@ -962,7 +978,7 @@ RestoreMenuBindings (void)
 		memcpy (&curr_bindings[i], &saved_menu_bindings[i],
 				sizeof (MENU_BINDINGS));
 
-		for (j = 0; j < 6; j++)
+		for (j = 0; j < MAX_MENU_ALTERNATES; j++)
 		{
 			g = &curr_bindings[i].binding[j];
 			VControl_AddGestureBinding (g, (int *)&menu_vec[i]);
@@ -1092,7 +1108,7 @@ CheckEventMatchesAction (const SDL_Event *e, int action)
 	int i;
 	VCONTROL_GESTURE *g;
 
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < MAX_MENU_ALTERNATES; i++)
 	{
 		g = &curr_bindings[action].binding[i];
 
@@ -1223,7 +1239,7 @@ CheckMenuBindingConflict (int action, VCONTROL_GESTURE *g_compare)
 	int j;
 	VCONTROL_GESTURE *g;
 
-	for (j = 0; j < 6; j++)
+	for (j = 0; j < MAX_MENU_ALTERNATES; j++)
 	{
 		g = &curr_bindings[action].binding[j];
 
@@ -1309,7 +1325,7 @@ CheckRebindConflict (VCONTROL_GESTURE *g, int action, int template_id)
 
 	if (is_menu_rebind && binding_special)
 	{
-		for (i = 0; i < 6; i++)
+		for (i = 0; i < MAX_MENU_ALTERNATES; i++)
 		{
 			for (j = 0; j < NUM_KEYS; j++)
 			{
@@ -1358,10 +1374,10 @@ ProcessControlEvents (SDL_Event *event)
 					else
 						pretty_actions = pretty_flight_actions[action];
 
+					// Cannot Bind Error
 					snprintf (RSPtr->error_message,
 							sizeof (RSPtr->error_message),
-							"Cannot bind to `%s' using the `%s' ( %s ) "
-							"binding",
+							ImStr (GEN_CON_STR_BASE + 30),
 							pretty_actions, RSPtr->conflict_action,
 							GetBindingDisplayText(&new_g));
 
