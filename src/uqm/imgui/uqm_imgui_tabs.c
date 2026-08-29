@@ -326,7 +326,7 @@ UQM_ImGui_Tabs (TabState *state)
 			{
 				ImGui_BeginTooltip ();
 				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-						ImStr (NAV_TAB_STR_BASE + 8)); // Debug Warning
+						ImStr (TIP_WARN_STR_BASE)); // Debug Warning
 				ImGui_EndTooltip ();
 			}
 #endif

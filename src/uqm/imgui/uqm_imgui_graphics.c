@@ -66,7 +66,7 @@ void draw_graphics_menu (void)
 			{
 				ImGui_BeginTooltip ();
 				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-						ImStr (GEN_GFX_STR_BASE + 6)); // Reload Warning
+						ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 				ImGui_EndTooltip ();
 			}
 		}
@@ -74,8 +74,8 @@ void draw_graphics_menu (void)
 		Spacer ();
 
 		{	// Resolution
-			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 7), // Resolution
-					(int *)&loresBlowupScale, resolutions, 7))
+			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 6),
+					(int *)&loresBlowupScale, resolutions, 7)) // Resolution
 			{
 				if (loresBlowupScale < 6)
 				{
@@ -100,7 +100,7 @@ void draw_graphics_menu (void)
 		{	// Custom Resolution
 			int cust_res[2] = { SavedWidth, SavedHeight };
 
-			ImGui_Text (ImStr (GEN_GFX_STR_BASE + 8)); // Custom Resolution
+			ImGui_Text (ImStr (GEN_GFX_STR_BASE + 7)); // Custom Resolution
 			ImGui_InputInt2 ("##CustomResolution", cust_res, 0);
 			if (ImGui_IsItemDeactivatedAfterEdit ()
 				&& cust_res[0] >= 320 && cust_res[1] >= 200)
@@ -114,7 +114,7 @@ void draw_graphics_menu (void)
 		Spacer ();
 
 		{	// Aspect Ratio
-			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 9), // Aspect Ratio
+			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 8), // Aspect Ratio
 					(int *)&optKeepAspectRatio, aspect_ratios, 3))
 			{
 				imgui_SavedWidth = SavedWidth;
@@ -135,8 +135,8 @@ void draw_graphics_menu (void)
 			else
 				display_mode = 0;
 
-			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 10), // Display Mode
-					(int *)&display_mode, display_modes, 3))
+			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 9),
+					(int *)&display_mode, display_modes, 3)) // Display Mode
 			{
 				imgui_GfxFlags = GfxFlags;
 				imgui_GfxFlags &= ~TFB_GFXFLAGS_FS_ANY;
@@ -151,9 +151,9 @@ void draw_graphics_menu (void)
 		Spacer ();
 
 		{	// Gamma
-			ImGui_Text (ImStr (GEN_GFX_STR_BASE + 11)); // Gamma
+			ImGui_Text (ImStr (GEN_GFX_STR_BASE + 10)); // Gamma
 			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // Reset
-					ImStr (GEN_GFX_STR_BASE + 11)))) // Gamma
+					ImStr (GEN_GFX_STR_BASE + 10)))) // Gamma
 			{
 				optGamma = 1.0f;
 				setGammaCorrection (optGamma);
@@ -189,7 +189,7 @@ void draw_graphics_menu (void)
 			case TFB_GFXFLAGS_SCALE_HQXX:       curr_scaler = 5; break;
 			}
 
-			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 12), // Scaler
+			if (ImGui_SizedComboChar (ImStr (GEN_GFX_STR_BASE + 11), // Scaler
 					&curr_scaler, scalers, 6))
 			{
 				const int scaler_list[6] =
@@ -213,8 +213,8 @@ void draw_graphics_menu (void)
 
 		{	// Scanlines
 			bool flags = GfxFlags & TFB_GFXFLAGS_SCANLINES;
-
-			if (ImGui_Checkbox (ImStr (GEN_GFX_STR_BASE + 13), &flags)) // Scanlines
+								// Scanlines
+			if (ImGui_Checkbox (ImStr (GEN_GFX_STR_BASE + 12), &flags))
 			{
 				imgui_GfxFlags = GfxFlags;
 				imgui_GfxFlags &= ~TFB_GFXFLAGS_SCANLINES;
@@ -230,8 +230,8 @@ void draw_graphics_menu (void)
 
 		{	// Show FPS
 			bool flags = GfxFlags & TFB_GFXFLAGS_SHOWFPS;
-
-			if (ImGui_Checkbox (ImStr (GEN_GFX_STR_BASE + 14), &flags)) // Show FPS
+								// Show FPS
+			if (ImGui_Checkbox (ImStr (GEN_GFX_STR_BASE + 13), &flags))
 			{
 				imgui_GfxFlags = GfxFlags;
 				imgui_GfxFlags &= ~TFB_GFXFLAGS_SHOWFPS;

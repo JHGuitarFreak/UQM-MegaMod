@@ -458,8 +458,7 @@ UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 		{
 			ImGui_BeginTooltip ();
 			ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-				"WARNING! This option will drop you\nback to the "
-				"main menu to reload.");
+					ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 			ImGui_EndTooltip ();
 		}
 	}

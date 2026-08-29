@@ -26,48 +26,54 @@ ToCons (int opt)
 void
 draw_engine_menu (void)
 {
-	const char *pc_or_3do[] = { "DOS", "3DO"};
-	const char *star_backgrounds[] = { "DOS", "3DO", "UQM", "HD-mod" };
-	const char *dos_3do_uqm[] = { "DOS", "3DO", "UQM" };
-	const char *menu_styles[] = { "Text", "Pictographic" };
-	const char *font_styles[] = { "Gradients", "Flat" };
-	const char *cutscene_style[] = { "Slides", "Movie" };
-	const char *melee_style[] = { "Stepped", "Smooth" };
-	const char *engine_style[] = { "Green Engine", "Red Engine" };
-	const char *scroll_style[] = { "Per-Page", "Smooth" };
-	const char *slave_shields[] = { "Static", "Pulsating" };
-	const char *sphere_tint[] = { "Shaded", "Plain" };
-	const char *stats_display[] =
+	static const char **pc_or_3do        = NULL;
+	static const char **star_backgrounds = NULL;
+	static const char **dos_3do_uqm      = NULL;
+	static const char **menu_styles      = NULL;
+	static const char **font_styles      = NULL;
+	static const char **cutscene_style   = NULL;
+	static const char **melee_style      = NULL;
+	static const char **engine_style     = NULL;
+	static const char **scroll_style     = NULL;
+	static const char **slave_shields    = NULL;
+	static const char **sphere_tint      = NULL;
+	static const char **stats_display    = NULL;
+
+	if (!pc_or_3do)
 	{
-		"Text",
-		"Pictograms",
-		"Text (6014)",
-		"Pictograms (6014)"
-	};
+		dos_3do_uqm      = ImStrArr (GEN_ENG_STR_BASE);
+		menu_styles      = ImStrArr (GEN_ENG_STR_BASE +  1);
+		font_styles      = ImStrArr (GEN_ENG_STR_BASE +  2);
+		cutscene_style   = ImStrArr (GEN_ENG_STR_BASE +  3);
+		engine_style     = ImStrArr (GEN_ENG_STR_BASE +  4);
+		melee_style      = ImStrArr (GEN_ENG_STR_BASE +  5);
+		pc_or_3do        = ImStrArr (GEN_ENG_STR_BASE +  6);
+		scroll_style     = ImStrArr (GEN_ENG_STR_BASE +  7);
+		star_backgrounds = ImStrArr (GEN_ENG_STR_BASE +  8);
+		stats_display    = ImStrArr (GEN_ENG_STR_BASE +  9);
+		slave_shields    = ImStrArr (GEN_ENG_STR_BASE + 10);
+		sphere_tint      = ImStrArr (GEN_ENG_STR_BASE + 11);
+	}
 
 	if (!IN_MAIN_MENU)
 	{
 		ImGui_BeginStyledChild ("##WarningChild", ZERO_F, CHILD_FLAGS, 0, NULL);
 		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-				"Some of the options in this part of the menu need a full "
-				"screen update for them to take full effect. If in doubt "
-				"enter/leave planet orbit, leave and re-enter "
-				"the current star system, or enter and leave the Starbase");
+				ImStr (TIP_WARN_STR_BASE + 2)); // Options Warning
 		Spacer ();
 		ImGui_EndChild ();
 	}
 
 	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS, 0, NULL);
-	{
-		// User Interface
-		{
-			ImGui_SeparatorText ("User Interface");
-
+	{	
+		{	// User Interface
+			ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 12));
+								// User Interface
 			{
 				int window_type = optWindowType;
 
-				if (ImGui_SizedComboChar ("Platform UI:", &window_type,
-						dos_3do_uqm, 3))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 13),
+						&window_type, dos_3do_uqm, 3)) // Platform UI
 				{
 					if (IN_MAIN_MENU)
 						GLOBAL (CurrentActivity) = 0;
@@ -84,8 +90,7 @@ draw_engine_menu (void)
 				{
 					ImGui_BeginTooltip ();
 					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-						"WARNING! This option will drop you\nback to the "
-						"main menu to reload.");
+							ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 					ImGui_EndTooltip ();
 				}
 			}
@@ -93,8 +98,8 @@ draw_engine_menu (void)
 			{
 				int which_menu = is3DO (optWhichMenu);
 
-				if (ImGui_SizedComboChar ("Menu Style:", &which_menu,
-						menu_styles, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 14),
+						&which_menu, menu_styles, 2)) // Menu Style
 				{
 					optWhichMenu = ToCons (which_menu);
 					res_PutBoolean ("config.textmenu", (BOOLEAN)which_menu);
@@ -104,15 +109,16 @@ draw_engine_menu (void)
 
 			ImGui_NewLine ();
 
-			UQM_ImGui_CheckBox (" DOS Side Menu", &optDosMenus, "mm.dosMenus", false);
+			UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 15), &optDosMenus,
+					"mm.dosMenus", false); // DOS Side Menu
 
 			ImGui_NewLine ();
 
 			{
 				int which_fonts = is3DO (optWhichFonts);
 
-				if (ImGui_SizedComboChar ("Font Style:", &which_fonts,
-						font_styles, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 16),
+						&which_fonts, font_styles, 2)) // Font Style
 				{
 					optWhichFonts = ToCons (which_fonts);
 					res_PutBoolean ("config.textgradients",
@@ -124,8 +130,8 @@ draw_engine_menu (void)
 			{
 				int which_intro = is3DO (optWhichIntro);
 
-				if (ImGui_SizedComboChar ("Cutscenes:", &which_intro,
-						cutscene_style, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 17),
+						&which_intro, cutscene_style, 2)) // Cutscenes
 				{
 					if (IN_MAIN_MENU)
 						GLOBAL (CurrentActivity) = 0;
@@ -142,8 +148,7 @@ draw_engine_menu (void)
 				{
 					ImGui_BeginTooltip ();
 					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-						"WARNING! This option will drop you\nback to the "
-						"main menu to reload.");
+							ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 					ImGui_EndTooltip ();
 				}
 			}
@@ -155,20 +160,21 @@ draw_engine_menu (void)
 
 				int melee_scale = (optMeleeScale != TFB_SCALE_STEP);
 
-				if (ImGui_SizedComboChar ("Melee Zoom:", &melee_scale,
-						melee_style, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 18),
+						&melee_scale, melee_style, 2)) // Melee Zoom
 				{
-					optMeleeScale =
-							(melee_scale ? TFB_SCALE_TRILINEAR : TFB_SCALE_STEP);
-					res_PutBoolean ("config.smoothmelee", (BOOLEAN)melee_scale);
+					optMeleeScale = (melee_scale ?
+							TFB_SCALE_TRILINEAR : TFB_SCALE_STEP);
+					res_PutBoolean ("config.smoothmelee",
+							(BOOLEAN)melee_scale);
 					config_changed = true;
 				}
 
 				if (!IN_MAIN_MENU)
 				{
 					ImGui_TextWrappedColored (IV4_RED_COLOR,
-							"WARNING! Melee Zoom can only be "
-							"changed while in the Main Menu!");
+							ImStr (TIP_WARN_STR_BASE + 3));
+								// Main Menu Warning
 					Spacer ();
 				}
 
@@ -178,8 +184,8 @@ draw_engine_menu (void)
 			{
 				int engine_color = is3DO (optFlagshipColor);
 
-				if (ImGui_SizedComboChar ("Flagship Engine Color:",
-						&engine_color, engine_style, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 19),
+						&engine_color, engine_style, 2)) // Flagship Engine Color
 				{
 					optFlagshipColor = ToCons (engine_color);
 					res_PutBoolean ("mm.flagshipColor", (BOOLEAN)engine_color);
@@ -190,8 +196,8 @@ draw_engine_menu (void)
 			{
 				int scr_trans = is3DO (optScrTrans);
 
-				if (ImGui_SizedComboChar ("Screen Transitions:",
-						&scr_trans, pc_or_3do, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 20),
+						&scr_trans, pc_or_3do, 2)) // Screen Transitions
 				{
 					optScrTrans = ToCons (scr_trans);
 					res_PutBoolean ("mm.scrTransition", (BOOLEAN)scr_trans);
@@ -206,22 +212,24 @@ draw_engine_menu (void)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();
-		ImGui_BeginStyledChild ("##Column2", content_col_size, CHILD_FLAGS, 0, NULL);
+		ImGui_BeginStyledChild ("##Column2", content_col_size, CHILD_FLAGS,
+				0, NULL);
 	}
 
 	{
-		// Conversation Screen
-		{
-			ImGui_SeparatorText ("Conversation Screen");
+		{	// Conversation Screen
+			ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 21));
+								// Conversation Screen
 
 			{
 				int smooth_scroll = is3DO (optSmoothScroll);
 
-				if (ImGui_SizedComboChar ("Scroll Style:",
-						&smooth_scroll, scroll_style, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 22),
+						&smooth_scroll, scroll_style, 2)) // Scroll Style
 				{
 					optSmoothScroll = ToCons (smooth_scroll);
-					res_PutBoolean ("config.smoothscroll", (BOOLEAN)smooth_scroll);
+					res_PutBoolean ("config.smoothscroll",
+							(BOOLEAN)smooth_scroll);
 					config_changed = true;
 				}
 			}
@@ -231,26 +239,28 @@ draw_engine_menu (void)
 			{
 				ImGui_BeginDisabled (true);
 
-				ImGui_Checkbox ("Speech", (bool *)&optSpeech);
+				ImGui_Checkbox (ImStr (GEN_ENG_STR_BASE + 23), // Speech
+						(bool *)&optSpeech);
 
 				if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
 				{
-					ImGui_SetTooltip (
-						"This option can only be changed in the Setup Menu.");
+					ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 4));
+									// Setup Menu Warning
 				}
 
 				ImGui_EndDisabled ();
 			}
 
-			UQM_ImGui_CheckBox ("Subtitles", &optSubtitles, "config.subtitles", false);
+			UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 24), // Subtitles
+					&optSubtitles, "config.subtitles", false);
 
 			ImGui_NewLine ();
 
 			{
 				int scope_style = is3DO (optScopeStyle);
 
-				if (ImGui_SizedComboChar ("Oscilloscope Style:",
-						&scope_style, pc_or_3do, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 25),
+						&scope_style, pc_or_3do, 2)) // Oscilloscope Style
 				{
 					optScopeStyle = ToCons (scope_style);
 					res_PutBoolean ("mm.scopeStyle", (BOOLEAN)scope_style);
@@ -260,17 +270,17 @@ draw_engine_menu (void)
 			ImGui_NewLine ();
 		}
 
-		// Star System View
-		{
-			ImGui_SeparatorText ("Star System View");
+		{	// Star System View
+			ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 26));
+								// Star System View
 
 			{
 				ImGui_BeginDisabled (!IN_MAIN_MENU);
 
 				int planet_style = is3DO (optPlanetStyle);
 
-				if (ImGui_SizedComboChar ("Planet Style:", &planet_style,
-						pc_or_3do, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 27),
+						&planet_style, pc_or_3do, 2)) // Planet Style
 				{
 					optPlanetStyle = ToCons (planet_style);
 					res_PutBoolean ("mm.planetStyle", (BOOLEAN)planet_style);
@@ -280,8 +290,8 @@ draw_engine_menu (void)
 				if (!IN_MAIN_MENU)
 				{
 					ImGui_TextWrappedColored (IV4_RED_COLOR,
-							"WARNING! Planet Style can only be "
-							"changed while in the Main Menu!");
+							ImStr (TIP_WARN_STR_BASE + 3));
+								// Main Menu Warning
 					Spacer ();
 				}
 
@@ -290,9 +300,9 @@ draw_engine_menu (void)
 
 			{
 				int star_background = optStarBackground;
-
-				if (ImGui_SizedComboChar ("Star Background:", &star_background,
-					star_backgrounds, 4))
+											// Star Background
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 28),
+						&star_background, star_backgrounds, 4))
 				{
 					optStarBackground = star_background;
 					res_PutInteger ("mm.starBackground", optStarBackground);
@@ -307,19 +317,19 @@ draw_engine_menu (void)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();
-		ImGui_BeginStyledChild ("##Column3", content_col_size, CHILD_FLAGS, 0, NULL);
+		ImGui_BeginStyledChild ("##Column3", content_col_size, CHILD_FLAGS,
+				0, NULL);
 	}
 
 	{
-		// Orbit Screen
-		{
-			ImGui_SeparatorText ("Orbit Screen");
-
+		{	// Orbit Screen
+			ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 29));
+								// Orbit Screen
 			{
 				int which_scan = optWhichCoarseScan;
 
-				if (ImGui_SizedComboChar ("Stats Display:", &which_scan,
-						stats_display, 4))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 30),
+						&which_scan, stats_display, 4)) // Stats Display
 				{
 					optWhichCoarseScan = which_scan;
 					res_PutInteger ("config.iconicscan", optWhichCoarseScan);
@@ -330,8 +340,8 @@ draw_engine_menu (void)
 			{
 				int which_shield = is3DO (optWhichShield);
 
-				if (ImGui_SizedComboChar ("Slave Shields:", &which_shield,
-						slave_shields, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 31),
+						&which_shield, slave_shields, 2)) // Slave Shields
 				{
 					optWhichShield = ToCons (which_shield);
 					res_PutBoolean ("config.pulseshield", (BOOLEAN)which_shield);
@@ -342,8 +352,8 @@ draw_engine_menu (void)
 			{
 				int scan_style = is3DO (optScanStyle);
 
-				if (ImGui_SizedComboChar ("Scanning Style:", &scan_style,
-					pc_or_3do, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 32),
+						&scan_style, pc_or_3do, 2)) // Scanning Style
 				{
 					optScanStyle = ToCons (scan_style);
 					res_PutBoolean ("mm.scanStyle", (BOOLEAN)scan_style);
@@ -354,8 +364,8 @@ draw_engine_menu (void)
 			{
 				int sphere_style = optScanSphere;
 
-				if (ImGui_SizedComboChar ("Sphere Style:", &sphere_style,
-						dos_3do_uqm, 3))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 33),
+						&sphere_style, dos_3do_uqm, 3)) // Sphere Style
 				{
 					optScanSphere = sphere_style;
 					res_PutInteger ("mm.sphereType", optScanSphere);
@@ -366,8 +376,8 @@ draw_engine_menu (void)
 			{
 				int tint_sphere = is3DO (optTintPlanSphere);
 
-				if (ImGui_SizedComboChar ("Tinted Sphere Scan:", &tint_sphere,
-						sphere_tint, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 34),
+						&tint_sphere, sphere_tint, 2)) // Tinted Sphere Scan
 				{
 					optTintPlanSphere = ToCons (tint_sphere);
 					res_PutBoolean ("mm.tintPlanSphere", (BOOLEAN)tint_sphere);
@@ -378,8 +388,8 @@ draw_engine_menu (void)
 			{
 				int super_pc = is3DO (optSuperPC);
 
-				if (ImGui_SizedComboChar ("Lander View Style:", &super_pc,
-						pc_or_3do, 2))
+				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 35),
+						&super_pc, pc_or_3do, 2)) // Lander View Style
 				{
 					optSuperPC = ToCons (super_pc);
 					res_PutBoolean ("mm.landerStyle", (BOOLEAN)super_pc);
