@@ -32,9 +32,9 @@ bool scr_refresh = false;
 ImGuiIO *io = NULL;
 ImGuiStyle *style = NULL;
 
-SOUND PkunkSounds;
-
 bool show_demo = false;
+
+STRING ImGuiStrings;
 
 static void ShowFullScreenMenu (TabState *state)
 {
@@ -114,9 +114,10 @@ UQM_ImGui_Init (void)
 	AddFontFromResource ("urquanfont.ttf", 20.0f);
 	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
 
-	UQM_ImGui_Style ();
+	if (!ImGuiStrings)
+		ImGuiStrings = CaptureStringTable (LoadStringTable ("text.imgui"));
 
-	PkunkSounds = CaptureSound (LoadSound (PKUNK_SHIP_SOUNDS));
+	UQM_ImGui_Style ();
 
 	{	// ImGui Settings
 		int font_selection = 0;

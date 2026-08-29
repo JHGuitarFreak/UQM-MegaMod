@@ -81,7 +81,6 @@ FRAME HDBorderFrame;
 FRAME CustBevelFrame;
 FRAME DefBevelFrame;
 STRING GameStrings;
-STRING ImGuiStrings;
 QUEUE disp_q;
 
 BOOLEAN solTexturesPresent;
@@ -351,10 +350,6 @@ InitKernel (void)
 	if (GameStrings == 0)
 		return FALSE;
 	AdvanceLoadProgress ();
-
-	ImGuiStrings = CaptureStringTable (LoadStringTable (IMGUI_STRINGS));
-	if (ImGuiStrings == 0)
-		return FALSE;
 
 	MicroFont = LoadFont (MICRO_FONT);
 	if (MicroFont == NULL)

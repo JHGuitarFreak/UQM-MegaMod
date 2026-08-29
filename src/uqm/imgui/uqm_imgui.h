@@ -125,8 +125,6 @@ void ApplyResChanges (void);
 void ApplyGfxChanges (void);
 void FlagStatRefresh (void);
 
-extern SOUND PkunkSounds;
-
 // ImGui Journal
 extern char *jrnl_buf;
 extern char jrnl_name[15];

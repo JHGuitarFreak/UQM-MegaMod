@@ -37,6 +37,7 @@
 #endif
 
 ImVec2 content_col_size;
+SOUND PkunkSounds;
 
 enum
 {
@@ -187,6 +188,9 @@ draw_settings_menu (void)
 			if (ImGui_ButtonEx (insult_factory_str[CurSound],
 					MAKE_IV2 (SCALE_IT (150.0f), 0.0f)))
 			{
+				if (!PkunkSounds)
+					PkunkSounds = CaptureSound (LoadSound (PKUNK_SHIP_SOUNDS));
+
 				CurSound = 2 + ((COUNT)TFB_Random () % (
 						GetSoundCount (PkunkSounds) - 2));
 				PlaySound (SetAbsSoundIndex (PkunkSounds, CurSound),
