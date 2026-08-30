@@ -296,7 +296,7 @@ UQM_GetStrArray (int index)
 	{
 		char error_msg[PATH_MAX];
 		snprintf (error_msg, sizeof (error_msg),
-			"String index %d either not found or empty", index);
+				"String index %d either not found or empty", index);
 
 		array = HMalloc (2 * sizeof (char *));
 		array[0] = strdup (error_msg);
@@ -304,7 +304,7 @@ UQM_GetStrArray (int index)
 		return (const char **)array;
 	}
 
-	token = strtok (copy, ",");
+	token = strtok (copy, ",\n");
 
 	while (token)
 	{
@@ -313,7 +313,7 @@ UQM_GetStrArray (int index)
 
 		array = HRealloc (array, (count + 2) * sizeof (char *));
 		array[count++] = strdup (token);
-		token = strtok (NULL, ",");
+		token = strtok (NULL, ",\n");
 	}
 	free (copy);
 
