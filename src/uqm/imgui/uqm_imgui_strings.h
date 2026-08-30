@@ -34,6 +34,7 @@ extern STRING ImGuiStrings;
 
 #define TIP_WARN_STR_COUNT 11
 
+// General
 #define GEN_SETT_STR_COUNT 11
 #define GEN_GFX_STR_COUNT  14
 #define GEN_ENG_STR_COUNT  36
@@ -41,11 +42,16 @@ extern STRING ImGuiStrings;
 #define GEN_CON_STR_COUNT  31
 #define GEN_ADV_STR_COUNT  14
 
+// Enhancements
 #define ENH_QOL_STR_COUNT  10
 #define ENH_VIS_STR_COUNT  21
-#define ENH_CHT_STR_COUNT  10
+#define ENH_CHT_STR_COUNT  18
 
-#define JOURNAL_STR_COUNT   2
+// Journal
+#define JOURNAL_STR_COUNT   1
+
+// Debug
+#define DBG_STS_STR_COUNT
 
 enum
 {
@@ -62,8 +68,11 @@ enum
 
 	ENH_QOL_STR_BASE  = GEN_ADV_STR_BASE  + GEN_ADV_STR_COUNT,
 	ENH_VIS_STR_BASE  = ENH_QOL_STR_BASE  + ENH_QOL_STR_COUNT,
+	ENH_CHT_STR_BASE  = ENH_VIS_STR_BASE  + ENH_VIS_STR_COUNT,
 
-	IMGUI_STR_COUNT   = ENH_VIS_STR_BASE + ENH_VIS_STR_COUNT
+	JOURNAL_STR_BASE  = ENH_CHT_STR_BASE  + ENH_CHT_STR_COUNT,
+
+	IMGUI_STR_COUNT   = JOURNAL_STR_BASE  + JOURNAL_STR_COUNT
 };
 
 #define IMGUI_STRING(i) ((UNICODE *)GetStringAddress (SetAbsStringTableIndex (ImGuiStrings, (i))))

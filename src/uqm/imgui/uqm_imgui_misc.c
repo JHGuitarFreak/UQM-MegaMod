@@ -245,7 +245,7 @@ draw_journal_menu (float height)
 	{
 		if (strlen (jrnl_name) < 14)
 		{
-			snprintf (buf, sizeof buf, "%s%s", "Not Saved/Loaded",
+			snprintf (buf, sizeof buf, "%s%s", ImStr (JOURNAL_STR_BASE),
 					jrnl_dirty ? " *" : "");
 		}
 		else

@@ -20,31 +20,40 @@
 void draw_cheats_menu (void)
 {
 	int MaxScrounged = MAX_SCROUNGED;
+	static const char **god_modes  = NULL;
+	static const char **time_modes = NULL;
 
-	const char *god_modes[] =
-			{ "None", "Infinite Energy", "Invulnerable", "Full God Mode" };
-	const char *time_modes[] = { "Normal", "Slow (x6)", "Fast (x5)" };
+	if (!god_modes)
+	{
+		god_modes  = ImStrArr (ENH_CHT_STR_BASE);
+		time_modes = ImStrArr (ENH_CHT_STR_BASE + 1);
+	}
 
 	ImGui_BeginStyledChild ("##CheatsColumn", content_col_size,
 			CHILD_FLAGS, 0, NULL);
-	{
-		ImGui_SeparatorText ("Basic Cheats");
+	{	// Basic Cheats
+		ImGui_SeparatorText (ImStr (ENH_CHT_STR_BASE + 2));
 
-		UQM_ImGui_CheckBox ("Kohr-Stahp", &optCheatMode, "cheat.kohrStahp",
-				false);
-		UQM_ImGui_CheckBox ("Kohr-Ah DeCleansing", &optDeCleansing,
+		// Kohr-Stahp
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 3), &optCheatMode,
+				"cheat.kohrStahp", false);
+		// Kohr-Ah DeCleansing
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 4), &optDeCleansing,
 				"cheat.deCleansing", false);
 
 		Spacer ();
 
-		if (ImGui_SizedComboChar ("God Modes:", &optGodModes, god_modes, 4))
+		// God Modes
+		if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 5), &optGodModes,
+				god_modes, 4))
 		{
 			res_PutInteger ("cheat.godModes", optGodModes);
 			cheat_changed = true;
 		}
 
-		if (ImGui_SizedComboChar ("Time Dilation:", &timeDilationScale,
-				time_modes, 3))
+		// Time Dilation
+		if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 6),
+				&timeDilationScale, time_modes, 3))
 		{
 			if (!IN_MAIN_MENU)
 			{
@@ -62,20 +71,38 @@ void draw_cheats_menu (void)
 
 		Spacer ();
 
-		UQM_ImGui_CheckBox ("Bubble Warp", &optBubbleWarp, "cheat.bubbleWarp", false);
-		UQM_ImGui_CheckBox ("Head Start", &optHeadStart, "cheat.headStart", false);
-		UQM_ImGui_CheckBox ("Unlock All Ships", &optUnlockShips, "cheat.unlockShips", false);
-		UQM_ImGui_CheckBox ("Infinite R.U.", &optInfiniteRU, "cheat.infiniteRU", false);
-		UQM_ImGui_CheckBox ("Infinite Fuel", &optInfiniteFuel, "cheat.infiniteFuel", false);
-		UQM_ImGui_CheckBox ("Infinite Credits", &optInfiniteCredits, "cheat.infiniteCredits", false);
-		UQM_ImGui_CheckBox ("No Hyperspace Encounters", &optNoHQEncounters, "cheat.noHQEncounters", false);
-		UQM_ImGui_CheckBox ("No Melee Obstacles", &optMeleeObstacles, "cheat.meleeObstacles", false);
+		// Bubble Warp
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 7), &optBubbleWarp,
+				"cheat.bubbleWarp", false);
+		// Head Start
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 8), &optHeadStart,
+				"cheat.headStart", false);
+		// Unlock All Ships
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 9), &optUnlockShips,
+				"cheat.unlockShips", false);
+		// Infinite R.U.
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 10), &optInfiniteRU,
+				"cheat.infiniteRU", false);
+		// Infinite Fuel
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 11), &optInfiniteFuel,
+				"cheat.infiniteFuel", false);
+		// Infinite Credits
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 12), &optInfiniteCredits,
+				"cheat.infiniteCredits", false);
+		// No Hyperspace Encounters
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 13), &optNoHQEncounters,
+				"cheat.noHQEncounters", false);
+		// No Melee Obstacles
+		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 14), &optMeleeObstacles,
+				"cheat.meleeObstacles", false);
 
 		ImGui_NewLine ();
 
-		ImGui_SeparatorText ("Expanded Cheats");
+		// Expanded Cheats
+		ImGui_SeparatorText (ImStr (ENH_CHT_STR_BASE + 15));
 
-		ImGui_Text ("Lander Capacity:");
+		// Lander Capacity
+		ImGui_Text (ImStr (ENH_CHT_STR_BASE + 16));
 		ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
 		ImGui_SameLine ();
 		ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
@@ -85,7 +112,8 @@ void draw_cheats_menu (void)
 
 		ImGui_NewLine ();
 
-		if (ImGui_Button ("Ships GTFO!"))
+		// Ships GTFO!
+		if (ImGui_Button (ImStr (ENH_CHT_STR_BASE + 17)))
 			ShipGTFO = true;
 
 		ImGui_NewLine ();
