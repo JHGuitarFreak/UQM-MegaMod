@@ -19,20 +19,22 @@
 
 void draw_visual_menu (void)
 {
-	const char *date_formats[] =
-			{ "MMM DD.YYYY", "MM.DD.YYYY", "DD MMM.YYYY", "DD.MM.YYYY" };
-	const char *fuel_ranges[] =
-			{ "None", "At Destination", "To Sol", "Both" };
-	const char *planet_textures[] = { "3DO", "UQM" };
+	static const char **date_formats    = NULL;
+	static const char **fuel_ranges     = NULL;
+	static const char **planet_textures = NULL;
+
+	if (!date_formats)
+	{
+		date_formats    = ImStrArr (ENH_VIS_STR_BASE);
+		fuel_ranges     = ImStrArr (ENH_VIS_STR_BASE + 1);
+		planet_textures = ImStrArr (ENH_VIS_STR_BASE + 2);
+	}
 
 	if (!IN_MAIN_MENU)
 	{
 		ImGui_BeginStyledChild ("##WarningChild", ZERO_F, CHILD_FLAGS, 0, NULL);
 		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
-				"Some of the options in this part of the menu need a full "
-				"screen update for them to take full effect. If in doubt "
-				"enter/leave planet orbit, leave and re-enter "
-				"the current star system, or enter and leave the Starbase");
+				ImStr (TIP_WARN_STR_BASE + 10)); // Screen Update Warning
 		Spacer ();
 		ImGui_EndChild ();
 	}
@@ -40,11 +42,11 @@ void draw_visual_menu (void)
 	ImGui_BeginStyledChild ("##UI", content_col_size, CHILD_FLAGS, 0, NULL);
 	{
 		{	// User Interface
-			ImGui_SeparatorText ("User Interface");
+			ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 12));
 
 			{	// Date Format
-				if (ImGui_SizedComboChar ("Date Format:", &optDateFormat,
-						date_formats, 4))
+				if (ImGui_SizedComboChar (ImStr (ENH_VIS_STR_BASE + 3),
+						&optDateFormat, date_formats, 4))
 				{
 					res_PutInteger ("mm.dateFormat", optDateFormat);
 					mmcfg_changed = true;
@@ -53,14 +55,18 @@ void draw_visual_menu (void)
 
 			Spacer ();
 
-			UQM_ImGui_CheckBox ("Custom Border", &optCustomBorder, "mm.customBorder", false);
-			UQM_ImGui_CheckBox ("Show Whole Fuel Value", &optWholeFuel, "mm.wholeFuel", false);
+			// Custom Border
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 4), &optCustomBorder,
+					"mm.customBorder", false);
+			// Show Whole Fuel Value
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 5), &optWholeFuel,
+					"mm.wholeFuel", false);
 
 			Spacer ();
 
 			{	// Fuel Range Indicators
-				if (ImGui_SizedComboChar ("Fuel Range Indicators:", &optFuelRange,
-						fuel_ranges, 4))
+				if (ImGui_SizedComboChar (ImStr (ENH_VIS_STR_BASE + 6),
+						&optFuelRange, fuel_ranges, 4))
 				{
 					res_PutInteger ("mm.fuelRange", optFuelRange);
 					mmcfg_changed = true;
@@ -69,35 +75,48 @@ void draw_visual_menu (void)
 
 			Spacer ();
 
-			UQM_ImGui_CheckBox ("SOI Colors", (OPT_ENABLABLE *)&optSphereColors, "mm.sphereColors", false);
+			// Alternate SOI Colours
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 7),
+					(OPT_ENABLABLE *)&optSphereColors, "mm.sphereColors",
+					false);
 
 			{	// HD Animations
 				ImGui_BeginDisabled (!IN_MAIN_MENU);
 
-				UQM_ImGui_CheckBox ("HD Animations", &optHyperStars, "mm.hyperStars", false);
+				// HD Animations
+				UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 8),
+						&optHyperStars, "mm.hyperStars", false);
 
 				if (!IN_MAIN_MENU)
 				{
 					ImGui_TextWrappedColored (IV4_RED_COLOR,
-						"WARNING! HD Animations can only be "
-						"(de)activated while in the Main Menu!");
+							ImStr (TIP_WARN_STR_BASE + 3));
+								// Main Menu Warning
 					Spacer ();
 				}
 
 				ImGui_EndDisabled ();
 			}
 
-			UQM_ImGui_CheckBox ("Captain Names in Shipyard", &optCaptainNames, "mm.captainNames", false);
-			UQM_ImGui_CheckBox ("Game Over Cutscenes", &optGameOver, "mm.gameOver", false);
+			// Captain Names in Shipyard
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 9), &optCaptainNames,
+					"mm.captainNames", false);
+			// Game Over Cutscenes
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 10), &optGameOver,
+					"mm.gameOver", false);
 
 			ImGui_NewLine ();
 		}
 
 		{	// Conversation Screen
-			ImGui_SeparatorText ("Conversation Screen");
+			ImGui_SeparatorText (ImStr(GEN_ENG_STR_BASE + 21));
 
-			UQM_ImGui_CheckBox ("Alternate Orz Font", &optOrzCompFont, "mm.orzCompFont", false);
-			UQM_ImGui_CheckBox ("Non-Stop Oscilloscope", &optNonStopOscill, "mm.nonStopOscill", false);
+			// Alternate Orz Font
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 11), &optOrzCompFont,
+					"mm.orzCompFont", false);
+			// Non-Stop Oscilloscope
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 12),
+					&optNonStopOscill, "mm.nonStopOscill", false);
 
 			ImGui_NewLine ();
 		}
@@ -107,14 +126,16 @@ void draw_visual_menu (void)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();
-		ImGui_BeginStyledChild ("##Column2", content_col_size, CHILD_FLAGS, 0, NULL);
+		ImGui_BeginStyledChild ("##Column2",
+				content_col_size, CHILD_FLAGS, 0, NULL);
 	}
 
 	{
 		{	// Star System View
-			ImGui_SeparatorText ("Star System View");
+			ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 26));
 
-			ImGui_Text ("Nebulae & Nebulae Brightness:");
+			// Nebulae & Nebulae Brightness
+			ImGui_Text (ImStr (ENH_VIS_STR_BASE + 13));
 			UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae", false);
 			ImGui_SameLine ();
 			ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
@@ -127,40 +148,48 @@ void draw_visual_menu (void)
 
 			Spacer ();
 
-			UQM_ImGui_CheckBox ("Orbiting Planets", &optOrbitingPlanets, "mm.orbitingPlanets", false);
+			// Orbiting Planets
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 14),
+					&optOrbitingPlanets, "mm.orbitingPlanets", false);
 
-			{
+			{	// Textured Planets
 				ImGui_BeginDisabled (!IN_MAIN_MENU);
 
-				UQM_ImGui_CheckBox ("Textured Planets", &optTexturedPlanets,
-						"mm.texturedPlanets", false);
+				UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 15),
+						&optTexturedPlanets, "mm.texturedPlanets", false);
 
 				if (!IN_MAIN_MENU)
 				{
 					ImGui_TextWrappedColored (IV4_RED_COLOR,
-						"WARNING! Textured Planets can only be "
-						"(de)activated while in the Main Menu!");
+							ImStr (TIP_WARN_STR_BASE + 3));
+								// Main Menu Warning
 					Spacer ();
 				}
 
 				ImGui_EndDisabled ();
 			}
 
-			UQM_ImGui_CheckBox ("Unscaled View (HD Only)", &optUnscaledStarSystem, "mm.unscaledStarSystem", false);
-			UQM_ImGui_CheckBox ("NPC Ship Orientation", &optShipDirectionIP, "mm.shipDirectionIP", false);
+			// Unscaled View (HD Only)
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 16),
+					&optUnscaledStarSystem, "mm.unscaledStarSystem", false);
+			// NPC Ship Orientation
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 17),
+					&optShipDirectionIP, "mm.shipDirectionIP", false);
 
 			ImGui_NewLine ();
 		}
 
 		{	// Orbit Screen
-			ImGui_SeparatorText ("Orbit Screen");
+			ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 29));
 
-			UQM_ImGui_CheckBox ("Hazard Colors", &optHazardColors, "mm.hazardColors", false);
+			// Hazard Colors
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 18),
+					&optHazardColors, "mm.hazardColors", false);
 
 			Spacer ();
 
 			{	// Planet Map Textures
-				if (ImGui_SizedComboChar ("Planet Map Textures:",
+				if (ImGui_SizedComboChar (ImStr (ENH_VIS_STR_BASE + 19),
 						(int *)&optPlanetTexture, planet_textures, 2))
 				{
 					res_PutBoolean ("mm.planetTexture", optPlanetTexture);
@@ -170,7 +199,9 @@ void draw_visual_menu (void)
 
 			Spacer ();
 
-			UQM_ImGui_CheckBox ("Show Lander Upgrades", &optShowUpgrades, "mm.showUpgrades", false);
+			// Show Lander Upgrades
+			UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 20),
+					&optShowUpgrades, "mm.showUpgrades", false);
 
 			ImGui_NewLine ();
 		}

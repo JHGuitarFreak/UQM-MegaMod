@@ -26,17 +26,36 @@ void draw_qol_menu (void)
 	ImGui_BeginStyledChild ("##QoLColumn", content_col_size,
 			CHILD_FLAGS, 0, NULL);
 	{
-		ImGui_SeparatorText ("Basic QoL Options");
+		// Basic QoL Options
+		ImGui_SeparatorText (ImStr (ENH_QOL_STR_BASE));
 
-		UQM_ImGui_CheckBox ("Skip Intro", &optSkipIntro, "mm.skipIntro", false);
-		UQM_ImGui_CheckBox ("Partial Pickup", &optPartialPickup, "mm.partialPickup", false);
-		UQM_ImGui_CheckBox ("Scatter Elements", &optScatterElements, "mm.scatterElements", false);
-		UQM_ImGui_CheckBox ("In-Game Help Menus", &optSubmenu, "mm.submenu", false);
-		UQM_ImGui_CheckBox ("Smart Auto-Pilot", &optSmartAutoPilot, "mm.smartAutoPilot", false);
-		UQM_ImGui_CheckBox ("Advanced Auto-Pilot", &optAdvancedAutoPilot, "mm.advancedAutoPilot", false);
-		UQM_ImGui_CheckBox ("Show Visited Stars", &optShowVisitedStars, "mm.showVisitedStars", false);
-		UQM_ImGui_CheckBox ("Super Melee Ship Descriptions", &optMeleeToolTips, "mm.meleeToolTips", false);
-		UQM_ImGui_CheckBox ("Ship Storage Queue", &optShipStore, "mm.shipStore", false);
+		// Skip Intro
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 1), &optSkipIntro,
+				"mm.skipIntro", false);
+		// Partial Pickup
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 2), &optPartialPickup,
+				"mm.partialPickup", false);
+		// Scatter Elements
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 3), &optScatterElements,
+				"mm.scatterElements", false);
+		// In-Game Help Menus
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 4), &optSubmenu,
+				"mm.submenu", false);
+		// Smart Auto-Pilot
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 5), &optSmartAutoPilot,
+				"mm.smartAutoPilot", false);
+		// Advanced Auto-Pilot
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 6),
+				&optAdvancedAutoPilot, "mm.advancedAutoPilot", false);
+		// Show Visited Stars
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 7), &optShowVisitedStars,
+				"mm.showVisitedStars", false);
+		// Super Melee Ship Descriptions
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 8), &optMeleeToolTips,
+				"mm.meleeToolTips", false);
+		// Ship Storage Queue
+		UQM_ImGui_CheckBox (ImStr (ENH_QOL_STR_BASE + 9), &optShipStore,
+				"mm.shipStore", false);
 	} ImGui_EndChild ();
 }
 
