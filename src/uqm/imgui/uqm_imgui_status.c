@@ -61,18 +61,32 @@ static void module_cache (BOOLEAN apply)
 
 void draw_status_menu (void)
 {
+	static const char **lander_upgrades = NULL;
+	static const char **elements        = NULL;
+	static const char **modules         = NULL;
+	static const char **allied_states   = NULL;
+	static const char **ship_modules    = NULL;
+
+	if (!lander_upgrades)
+	{
+		lander_upgrades = ImStrArr (DBG_STS_STR_BASE);
+		elements        = ImStrArr (DBG_STS_STR_BASE + 1);
+		modules         = ImStrArr (DBG_STS_STR_BASE + 2);
+		allied_states   = ImStrArr (DBG_STS_STR_BASE + 3);
+		ship_modules    = ImStrArr (DBG_STS_STR_BASE + 4);
+	}
 	
 	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS,
 			0, NULL);
 	{
 
 		{	// Currency Status
-			ImGui_SeparatorText ("Currency Status");
+			ImGui_SeparatorText (ImStr (DBG_STS_STR_BASE + 5));
 
 			{	// Current R.U.
 				DWORD curr_ru = GLOBAL_SIS (ResUnits);
 
-				ImGui_Text ("Current R.U.:");
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 6)); // Current R.U.
 				ImGui_InputScalar ("##CurrentRU", ImGuiDataType_U32, &curr_ru);
 				if (ImGui_IsItemDeactivatedAfterEdit ()
 						&& curr_ru > 0 && curr_ru < (DWORD)~0)
@@ -86,7 +100,7 @@ void draw_status_menu (void)
 						GET_CGAME_STATE (MELNORME_CREDIT0),
 						GET_CGAME_STATE (MELNORME_CREDIT1));
 
-				ImGui_Text ("Current Credits:");
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 7)); // Current Credits
 				ImGui_InputIntEx ("##CurrentCredits", &Credits, 0, 0, 0);
 				if (ImGui_IsItemDeactivatedAfterEdit ()
 					&& Credits < (COUNT)~0 && Credits > 0)
@@ -109,14 +123,15 @@ void draw_status_menu (void)
 			bool LanderSpeed = GET_CGAME_STATE (IMPROVED_LANDER_SPEED);
 			bool LanderCargo = GET_CGAME_STATE (IMPROVED_LANDER_CARGO);
 
-			ImGui_SeparatorText ("Lander Upgrades");
+			ImGui_SeparatorText (ImStr (DBG_STS_STR_BASE + 8));
+								// Lander Upgrades
 
 			if (ImGui_BeginTable ("##LanderUpgrades", 3, TABLE_FLAGS))
 			{
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				if (ImGui_Checkbox ("Quake", &QuakeShield))
+				if (ImGui_Checkbox (lander_upgrades[0], &QuakeShield)) // Quake
 				{
 					ShieldFlags ^= 1 << EARTHQUAKE_DISASTER;
 					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
@@ -124,15 +139,15 @@ void draw_status_menu (void)
 
 				ImGui_TableNextColumn ();
 
-				if (ImGui_Checkbox ("BIO", &BioShield))
+				if (ImGui_Checkbox (lander_upgrades[1], &BioShield)) // BIO
 				{
 					ShieldFlags ^= 1 << BIOLOGICAL_DISASTER;
 					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
 				}
 
 				ImGui_TableNextColumn ();
-
-				if (ImGui_Checkbox ("Lightning", &LghtngShield))
+									// Lightning
+				if (ImGui_Checkbox (lander_upgrades[2], &LghtngShield))
 				{
 					ShieldFlags ^= 1 << LIGHTNING_DISASTER;
 					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
@@ -141,7 +156,7 @@ void draw_status_menu (void)
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				if (ImGui_Checkbox ("Lava", &LavaShield))
+				if (ImGui_Checkbox (lander_upgrades[3], &LavaShield)) // Lava
 				{
 					ShieldFlags ^= 1 << LAVASPOT_DISASTER;
 					SET_CGAME_STATE (LANDER_SHIELDS, ShieldFlags);
@@ -149,25 +164,19 @@ void draw_status_menu (void)
 
 				ImGui_TableNextColumn ();
 
-				if (ImGui_Checkbox ("Weapon", &LanderShot))
-				{
+				if (ImGui_Checkbox (lander_upgrades[4], &LanderShot)) // Weapon
 					SET_CGAME_STATE (IMPROVED_LANDER_SHOT, LanderShot);
-				}
 
 				ImGui_TableNextColumn ();
 
-				if (ImGui_Checkbox ("Speed", &LanderSpeed))
-				{
+				if (ImGui_Checkbox (lander_upgrades[5], &LanderSpeed)) // Speed
 					SET_CGAME_STATE (IMPROVED_LANDER_SPEED, LanderSpeed);
-				}
 
 				ImGui_TableNextRow ();
 				ImGui_TableNextColumn ();
 
-				if (ImGui_Checkbox ("Cargo", &LanderCargo))
-				{
+				if (ImGui_Checkbox (lander_upgrades[6], &LanderCargo)) // Cargo
 					SET_CGAME_STATE (IMPROVED_LANDER_CARGO, LanderCargo);
-				}
 
 				ImGui_EndTable ();
 			}
@@ -176,15 +185,10 @@ void draw_status_menu (void)
 		}
 
 		{	// Cargo Status
-			ImGui_SeparatorText ("Cargo Status");
+			ImGui_SeparatorText (ImStr (DBG_STS_STR_BASE + 9));
 
 			if (ImGui_BeginTable ("##Cargo", 2, TABLE_FLAGS))
 			{
-				const char *elements[8] =
-				{
-					"Common", "Corrosive", "Base Metal", "Noble",
-					"Rare Earth", "Precious", "Radioactive", "Exotic"
-				};
 				int i;
 
 				for (i = 0; i < NUM_ELEMENT_CATEGORIES; i++)
@@ -209,7 +213,7 @@ void draw_status_menu (void)
 
 					ImGui_InputInt2 (buf, element, 0);
 					if (ImGui_IsItemDeactivatedAfterEdit ()
-						&& element[0] < (BYTE)~0 && element[1] < (COUNT)~0)
+							&& element[0] < (BYTE)~0 && element[1] < (COUNT)~0)
 					{
 						if (GLOBAL (ElementWorth[i]) != element[0])
 							GLOBAL (ElementWorth[i]) = element[0];
@@ -219,7 +223,7 @@ void draw_status_menu (void)
 							int mass = GLOBAL_SIS (TotalElementMass);
 							int cap = GetStorageBayCapacity ();
 							int temp = element[1]
-								- GLOBAL_SIS (ElementAmounts[i]);
+									- GLOBAL_SIS (ElementAmounts[i]);
 
 							if (mass + temp <= cap)
 							{
@@ -233,16 +237,16 @@ void draw_status_menu (void)
 				{
 					char buf[40];
 					float capacity_filled =
-						(float)GLOBAL_SIS (TotalElementMass)
-						/ (float)GetStorageBayCapacity ();
+							(float)GLOBAL_SIS (TotalElementMass)
+							/ (float)GetStorageBayCapacity ();
 					int rem_capacity = GetStorageBayCapacity ()
-						- GLOBAL_SIS (TotalElementMass);
+							- GLOBAL_SIS (TotalElementMass);
 
 					ImGui_TableNextRow ();
 					ImGui_TableNextColumn ();
 
 					ImGui_AlignTextToFramePadding ();
-					ImGui_Text ("Free Space");
+					ImGui_Text (elements[8]); // Free Space
 
 					ImGui_TableNextColumn ();
 
@@ -257,7 +261,7 @@ void draw_status_menu (void)
 					ImGui_TableNextColumn ();
 
 					ImGui_AlignTextToFramePadding ();
-					ImGui_Text ("Bio-Data");
+					ImGui_Text (elements[9]); // Bio-Data
 
 					ImGui_TableNextColumn ();
 					ImGui_InputIntEx ("##BioData", &BioData, 0, 0, 0);
@@ -278,19 +282,11 @@ void draw_status_menu (void)
 		}
 
 		{	// Module Status
-			ImGui_SeparatorText ("Module Status");
+			ImGui_SeparatorText (ImStr (DBG_STS_STR_BASE + 10));
 
 			if (ImGui_BeginTable ("##Modules", 2, TABLE_FLAGS))
 			{
 				int i;
-				const char *modules[NUM_PURCHASE_MODULES] =
-				{
-					"Lander", "Fusion Thruster", "Turning Jets", "Crew Pod",
-					"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
-					"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
-					"Fusion Blaster", "Hellbore Cannon", "Tracking System",
-					"Point Defense"
-				};
 
 				for (i = 0; i < NUM_PURCHASE_MODULES; i++)
 				{
@@ -334,15 +330,13 @@ void draw_status_menu (void)
 	}
 	{
 		{	// Alien Status
-			ImGui_SeparatorText ("Alien Status");
+			ImGui_SeparatorText (ImStr (DBG_STS_STR_BASE + 11));
 
 			if (ImGui_BeginTable ("##Aliens", 2, TABLE_FLAGS))
 			{
 				HFLEETINFO hStarShip, hNextShip;
 				FLEET_INFO *FleetPtr;
 				int race_state;
-
-				const char *allied_states[3] = { "Dead", "Allied", "Enemy" };
 
 				int Index = 0;
 				for (hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
@@ -361,8 +355,8 @@ void draw_status_menu (void)
 							(bool *)&FleetPtr->can_build);
 					if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 					{
-						ImGui_SetTooltip ("Allows you to build their ships\n"
-							"regardless of alliance status");
+						ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 11));
+										// Build Ship Tooltip
 					}
 
 					ImGui_TableNextColumn ();
@@ -400,22 +394,12 @@ void draw_status_menu (void)
 			int num_m_slots = 16;
 			int jt_begin = num_m_slots - 4;
 			int i;
-			const char *ship_modules[] =
-			{
-				"None", "Crew Pod",
-				"Storage Bay", "Fuel Tank", "High-Eff Fuel Sys",
-				"Dynamo Unit", "Shiva Furnace", "Ion-Bolt Gun",
-				"Fusion Blaster", "Hellbore Cannon", "Tracking System",
-				"Point Defense", "Bomb Module 0", "Bomb Module 1",
-				"Bomb Module 2", "Bomb Module 3", "Bomb Module 4",
-				"Bomb Module 5"
-			};
 
 			ImGuiStyle *style = ImGui_GetStyle ();
 			ImVec2 og_spacing = style->ItemSpacing;
 			style->ItemSpacing = MAKE_IV2 (4, 4);
 
-			ImGui_SeparatorText ("Flagship Status");
+			ImGui_SeparatorText (ImStr (DBG_STS_STR_BASE + 12));
 
 			// Current Coordinates
 			{
@@ -429,7 +413,7 @@ void draw_status_menu (void)
 					universe.x / 10, universe.x % 10,
 					universe.y / 10, universe.y % 10);
 
-				ImGui_Text ("Coordinates:");
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 13)); // Coordinates
 				ImGui_BeginDisabled (true);
 				ImGui_InputText ("##Coordinates", buf, sizeof (buf), 0);
 				ImGui_EndDisabled ();
@@ -450,7 +434,8 @@ void draw_status_menu (void)
 					if (CurStarDescPtr != NULL)
 						GetClusterName (CurStarDescPtr, buf);
 					else
-						snprintf (buf, sizeof buf, "Unknown");
+						snprintf (buf, sizeof buf,
+								ImStr (DBG_STS_STR_BASE + 14)); // Unknown
 					break;
 				case IN_HYPERSPACE:
 					if (GET_CGAME_STATE (ARILOU_SPACE_SIDE) <= 1)
@@ -479,7 +464,7 @@ void draw_status_menu (void)
 					break;
 				}
 
-				ImGui_Text ("Location:");
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 15)); // Location
 				ImGui_BeginDisabled (true);
 				ImGui_InputText ("##Location", buf, sizeof (buf), 0);
 				ImGui_EndDisabled ();
@@ -491,7 +476,7 @@ void draw_status_menu (void)
 				snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
 					"%s", GLOBAL_SIS (CommanderName));
 
-				ImGui_Text ("Captain's Name:");
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 16)); // Captain's Name
 				ImGui_InputText ("##CaptainsName", CaptainsName,
 					sizeof (CaptainsName), 0);
 				if (ImGui_IsItemDeactivatedAfterEdit ()
@@ -511,7 +496,7 @@ void draw_status_menu (void)
 				snprintf ((char *)&SISName, sizeof (SISName),
 					"%s", GLOBAL_SIS (ShipName));
 
-				ImGui_Text ("Ship Name:");
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 17)); // Flagship Name
 				ImGui_InputText ("##SISName", SISName, sizeof (SISName), 0);
 				if (ImGui_IsItemDeactivatedAfterEdit ()
 					&& strlen (SISName) < SIS_NAME_SIZE)
@@ -531,7 +516,7 @@ void draw_status_menu (void)
 					landers_cached = true;
 				}
 
-				ImGui_Text ("Landers:");
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 18)); // Landers
 				ImGui_InputInt ("##Landers", &cached_landers);
 				if (ImGui_IsItemDeactivatedAfterEdit ())
 				{
@@ -547,11 +532,12 @@ void draw_status_menu (void)
 				}
 			}
 
-			{	// Fuel
+			{	// Current Fuel
 				int CurrentFuel = GLOBAL_SIS (FuelOnBoard);
 				int volume = GetFuelTankCapacity ();
 
-				ImGui_Text ("Current Fuel [Max %d]:", volume);
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 19), volume);
+							// Current Fuel [Max %d]
 
 				if (optInfiniteFuel)
 				{
@@ -579,11 +565,12 @@ void draw_status_menu (void)
 				}
 			}
 
-			{	// Crew
+			{	// Current Crew
 				int CurrentCrew = GLOBAL_SIS (CrewEnlisted);
 				int volume = GetCrewPodCapacity ();
 
-				ImGui_Text ("Current Crew [Max %d]:", volume);
+				ImGui_Text (ImStr (DBG_STS_STR_BASE + 20), volume);
+							// Current Crew [Max %d]
 				ImGui_InputIntEx ("##CurrentCrew", &CurrentCrew, 0, 0, 0);
 				if (ImGui_IsItemDeactivatedAfterEdit ())
 				{
