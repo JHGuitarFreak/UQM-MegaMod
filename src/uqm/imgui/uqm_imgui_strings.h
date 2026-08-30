@@ -31,13 +31,13 @@ extern "C" {
 extern STRING ImGuiStrings;
 
 #define NAV_TAB_STR_COUNT   8
-#define TIP_WARN_STR_COUNT  5
+#define TIP_WARN_STR_COUNT 10
 #define GEN_SETT_STR_COUNT 11
 #define GEN_GFX_STR_COUNT  14
 #define GEN_ENG_STR_COUNT  36
 #define GEN_AUD_STR_COUNT  18
-#define GEN_CON_STR_COUNT  30
-#define GEN_ADV_STR_COUNT  13
+#define GEN_CON_STR_COUNT  31
+#define GEN_ADV_STR_COUNT  17
 
 enum
 {
