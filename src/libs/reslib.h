@@ -147,6 +147,8 @@ BINARY_RES *res_GetBinary (const char *key);
 
 BOOLEAN res_Remove (const char *key);
 
+BOOLEAN FreeBinaryData (void *ptr);
+
 #if defined(__cplusplus)
 }
 #endif

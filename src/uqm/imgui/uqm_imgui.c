@@ -153,20 +153,6 @@ UQM_ImGui_Init (void)
 	return 1;
 }
 
-static float
-GetDefaultFontSize ()
-{
-	int i;
-	ImFontAtlas *atlas = io->Fonts;
-
-	for (i = 0; i < atlas->Sources.Size; i++)
-	{
-		if (atlas->Sources.Data[i].DstFont == io->FontDefault)
-			return atlas->Sources.Data[i].SizePixels;
-	}
-	return 0.0f;
-}
-
 // Renders the ImGui draw data
 void UQM_ImGui_Render (void)
 {
@@ -219,6 +205,9 @@ void UQM_ImGui_Shutdown (void)
 		gs_cache.entries = NULL;
 		gs_cache.count = 0;
 	}
+
+	if (ImGuiStrings)
+		DestroyStringTable (ReleaseStringTable (ImGuiStrings));
 
 	cImGui_ImplSDLRenderer2_Shutdown ();
 	cImGui_ImplSDL2_Shutdown ();

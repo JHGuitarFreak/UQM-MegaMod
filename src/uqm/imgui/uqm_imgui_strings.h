@@ -95,4 +95,3 @@ enum
 #endif
 
 #endif  /* UQM_IMGUI_STRINGS_H_ */
-

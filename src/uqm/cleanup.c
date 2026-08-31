@@ -68,7 +68,6 @@ UninitKernel (void)
 	DestroySound (ReleaseSound (MenuSounds));
 	DestroyFont (MicroFont);
 	DestroyStringTable (ReleaseStringTable (GameStrings));
-	DestroyStringTable (ReleaseStringTable (ImGuiStrings));
 	DestroyDrawable (ReleaseDrawable (BorderFrame));
 	DestroyDrawable (ReleaseDrawable (HDBorderFrame));
 	DestroyDrawable (ReleaseDrawable (CustBevelFrame));

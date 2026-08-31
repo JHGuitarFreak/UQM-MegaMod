@@ -181,11 +181,11 @@ draw_engine_menu (void)
 				ImGui_EndDisabled ();
 			}
 
-			{
+			{	// Flagship Engine Color
 				int engine_color = is3DO (optFlagshipColor);
-
+										// Flagship Engine Color
 				if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 19),
-						&engine_color, engine_style, 2)) // Flagship Engine Color
+						&engine_color, engine_style, 2))
 				{
 					optFlagshipColor = ToCons (engine_color);
 					res_PutBoolean ("mm.flagshipColor", (BOOLEAN)engine_color);

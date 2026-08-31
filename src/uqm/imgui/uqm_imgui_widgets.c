@@ -77,29 +77,23 @@ ImGui_SizedComboChar (const char *label, int *curr_item,
 		const char *const items[], int items_count)
 {
 	bool temp = false;
-	char buf[100];
 	float column_width = ImGui_GetColumnWidth (ImGui_GetColumnIndex ());
 	float combo_width = column_width * 0.86f;
-	//float center_offset = (column_width - combo_width) * 0.5f
-	//		- style->WindowPadding.x * 2;
 
 	if (strncmp (label, "##", 2) != 0)
 	{
-		snprintf (buf, sizeof buf, "##%s", label);
-
 		ImGui_AlignTextToFramePadding ();
 		ImGui_TextUnformatted (label);
-		//ImGui_SetCursorPosX (ImGui_GetCursorPosX ());
 	}
-	else
-		snprintf (buf, sizeof buf, "%s", label);
 
 	ImGui_SetNextItemWidth (combo_width);
 
 	ImGui_PushStyleVarImVec2 (ImGuiStyleVar_SelectableTextAlign, CENTER_IT);
+	ImGui_PushID (label);
 
-	temp = ImGui_ComboChar (buf, curr_item, items, items_count);
+	temp = ImGui_ComboChar ("", curr_item, items, items_count);
 
+	ImGui_PopID ();
 	ImGui_PopStyleVar ();
 
 	return temp;
@@ -430,14 +424,43 @@ InitializeFontConfig (ImFontConfig *font_cfg, const char *name, float size)
 void
 AddFontFromResource (const char *res, float size)
 {
+	void *font_data;
 	ImFontConfig font_cfg;
 	BINARY_RES *binfont = ImBinary (res);
+
 	if (binfont != NULL)
 	{
+		font_data = malloc (binfont->size);
+		if (!font_data)
+		{
+			log_add (log_Error, "Failed to allocate font data for: %s", res);
+			return;
+		}
+		memcpy (font_data, binfont->data, binfont->size);
+
 		InitializeFontConfig (&font_cfg, res, size);
-		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, binfont->data,
-			binfont->size, 0, &font_cfg, NULL);
+
+		ImFontAtlas_AddFontFromMemoryTTF (io->Fonts, font_data,
+				binfont->size, 0, &font_cfg, NULL);
+
+		FreeBinaryData (binfont);
 	}
+	else
+		log_add (log_Error, "Failed to load font: %s", res);
+}
+
+float
+GetDefaultFontSize (void)
+{
+	int i;
+	ImFontAtlas *atlas = io->Fonts;
+
+	for (i = 0; i < atlas->Sources.Size; i++)
+	{
+		if (atlas->Sources.Data[i].DstFont == io->FontDefault)
+			return atlas->Sources.Data[i].SizePixels;
+	}
+	return 0.0f;
 }
 
 void

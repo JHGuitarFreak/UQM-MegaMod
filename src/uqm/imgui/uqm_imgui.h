@@ -280,6 +280,7 @@ ImFontConfig *InitializeFontConfig (ImFontConfig *font_cfg, const char *name,
 		float size);
 
 void AddFontFromResource (const char *res, float size);
+float GetDefaultFontSize (void);
 void DrawBorderAroundLastItem (void);
 
 typedef struct im_rect

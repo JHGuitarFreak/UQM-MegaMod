@@ -363,16 +363,19 @@ GetBinaryFileData (const char *pathname, RESOURCE_DATA *resdata)
 	resdata->ptr = LoadResourceFromPath (pathname, GetBinaryData);
 }
 
-static BOOLEAN
-ReleaseBinaryData (void *ptr)
+BOOLEAN
+FreeBinaryData (void *ptr)
 {
-	if (ptr)
-	{
-		BINARY_RES *bin = (BINARY_RES *)ptr;
-		if (bin->data)
-			HFree (bin->data);
-		HFree (bin);
-	}
+	BINARY_RES *bin;
+
+	if (!ptr)
+		return FALSE;
+
+	bin = (BINARY_RES *)ptr;
+	if (bin->data)
+		HFree (bin->data);
+	HFree (bin);
+
 	return TRUE;
 }
 
@@ -402,7 +405,7 @@ InitResourceSystem (void)
 			BooleanToString);
 	InstallResTypeVectors ("COLOR", DescriptorToColor, NULL, ColorToString);
 	InstallResTypeVectors ("FLOAT", DescriptorToFlt, NULL, FltToString);
-	InstallResTypeVectors ("BINARY", GetBinaryFileData, ReleaseBinaryData, NULL);
+	InstallResTypeVectors ("BINARY", GetBinaryFileData, NULL, NULL);
 	InstallGraphicResTypes ();
 	InstallStringTableResType ();
 	InstallAudioResTypes ();
