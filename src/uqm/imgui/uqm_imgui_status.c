@@ -700,16 +700,22 @@ void draw_status_menu (void)
 void
 draw_devices_menu (void)
 {
+	static const char **ultron_status = NULL;
+
+	if (!ultron_status)
+		ultron_status = ImStrArr (DBG_DVC_STR_BASE);
+
 	ImGui_BeginStyledChild ("##DevicesColumn", content_col_size,
 		CHILD_FLAGS, 0, NULL);
 	{
-		ImGui_SeparatorText ("Devices");
+		ImGui_SeparatorText (ImStr (DBG_DVC_STR_BASE + 1)); // Devices
 
 		if (ImGui_BeginTable ("##EventManipulatorTable", 2,
 				ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg))
-		{
-			ImGui_TableSetupColumn ("Retrieved", 0);
-			ImGui_TableSetupColumn ("On-Board", 0);
+		{							// Retrieved
+			ImGui_TableSetupColumn (ImStr (DBG_DVC_STR_BASE + 2), 0);
+									// On-Board
+			ImGui_TableSetupColumn (ImStr (DBG_DVC_STR_BASE + 3), 0);
 			ImGui_TableHeadersRow ();
 			ImGui_TableNextColumn ();
 
@@ -747,14 +753,9 @@ draw_devices_menu (void)
 
 		{
 			int ultron_state = GET_CGAME_STATE (ULTRON_CONDITION);
-			const char *ultron_status[] =
-			{
-				"Not On-Board", "Broken", "Fix 1",
-				"Fix 2", "Fixed", "Given Back"
-			};
 			ImGui_Text ("ULTRON_CONDITION");
 			if (ImGui_ComboChar ("##ULTRON_CONDITION", &ultron_state,
-					ultron_status, ARRAY_SIZE (ultron_status)))
+					ultron_status, 6))
 			{
 				SET_CGAME_STATE (ULTRON_CONDITION, ultron_state);
 			}

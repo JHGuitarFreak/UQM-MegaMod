@@ -51,7 +51,7 @@ extern STRING ImGuiStrings;
 
 // Debug
 #define DBG_STS_STR_COUNT  21
-#define DBG_DVC_STR_COUNT  1
+#define DBG_DVC_STR_COUNT  4
 #define DBG_GMS_STR_COUNT  1
 #define DBG_EVT_STR_COUNT  1
 #define DBG_STA_STR_COUNT  1
