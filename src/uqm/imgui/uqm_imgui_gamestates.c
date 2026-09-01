@@ -724,7 +724,7 @@ GamestatesTab01 (void)
 
 				ImGui_PushID ("RAINBOW_WORLD");
 
-				if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 15)))
+				if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 15))) // Set All
 				{
 					bitmask = ~0;
 					SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
@@ -732,7 +732,7 @@ GamestatesTab01 (void)
 				}
 				ImGui_SameLine ();
 
-				if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 16)))
+				if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 16))) // Clear All
 				{
 					bitmask = 0;
 					SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));

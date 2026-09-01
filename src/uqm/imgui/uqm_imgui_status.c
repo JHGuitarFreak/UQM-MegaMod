@@ -885,38 +885,41 @@ void
 draw_events_menu (void)
 {
 	int i, col;
+	static EVENT tmp_evnt;
+	float frame_padding;
 	static int delay = 1;
 	bool block_btn = false;
-	static EVENT tmp_evnt;
 	static float widget_width = 0;
-	float frame_padding;
+	static const char **resume_pause = NULL;
+
+	if (!resume_pause)
+		resume_pause = ImStrArr (DBG_EVT_STR_BASE + 14);
 
 	GetEvents (delay);
 
 	UQM_AutoChild ("##EventManipulation");
 	{
-		ImGui_SeparatorText ("Event Manipulation");
+		ImGui_SeparatorText (ImStr (DBG_EVT_STR_BASE)); // Event Manipulation
 
 		Spacer ();
-
 
 		ImGui_PushStyleColorImVec4 (ImGuiCol_TableHeaderBg, MAKE_IV4 (0,0,0,0));
 		if (ImGui_BeginTable ("##EventManipulatorTable", 5, 0))
 		{
 			ImGui_TableSetupColumn ("", ImGuiTableColumnFlags_NoHeaderLabel);
-			ImGui_TableSetupColumn ("Event Index", 0);
-			ImGui_TableSetupColumn ("Years", 0);
-			ImGui_TableSetupColumn ("Months", 0);
-			ImGui_TableSetupColumn ("Days", 0);
+			ImGui_TableSetupColumn (ImStr (DBG_EVT_STR_BASE + 1), 0); // Event Index
+			ImGui_TableSetupColumn (ImStr (DBG_EVT_STR_BASE + 2), 0); // Years
+			ImGui_TableSetupColumn (ImStr (DBG_EVT_STR_BASE + 3), 0); // Months
+			ImGui_TableSetupColumn (ImStr (DBG_EVT_STR_BASE + 4), 0); // Days
 			ImGui_TableHeadersRow ();
 
 			ImGui_TableNextColumn ();
 
-			if (ImGui_Button ("Add Event##AddEventBtn"))
+			if (ImGui_Button (ImStr (DBG_EVT_STR_BASE + 5))) // Add Event
 			{
 				AddEvent (RELATIVE_EVENT, tmp_evnt.month_index,
-					tmp_evnt.day_index, tmp_evnt.year_index,
-					tmp_evnt.func_index);
+						tmp_evnt.day_index, tmp_evnt.year_index,
+						tmp_evnt.func_index);
 			}
 
 			ImGui_TableNextColumn ();
@@ -959,21 +962,22 @@ draw_events_menu (void)
 
 	UQM_AutoChild ("##EventStatus");
 	{
-		ImGui_SeparatorText ("Event Status");
+		ImGui_SeparatorText (ImStr (DBG_EVT_STR_BASE + 6)); // Event Status
 
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text ("Refresh delay: ", delay);
+		ImGui_Text (ImStr (DBG_EVT_STR_BASE + 7)); // Refresh delay: 
 		ImGui_SameLine ();
-		ImGui_SliderInt ("Second(s)", &delay, 1, 10);
+		ImGui_SliderInt (ImStr (DBG_EVT_STR_BASE + 8), &delay, 1, 10);
 
 		Spacer ();
 
-		ImGui_Text ("Current Date: %04d/%02d/%02d",
-			GLOBAL (GameClock).year_index,
-			GLOBAL (GameClock).month_index,
-			GLOBAL (GameClock).day_index);
+		ImGui_Text ("%s: %04d/%02d/%02d",
+				ImStr (DBG_EVT_STR_BASE + 9), // Current Date
+				GLOBAL (GameClock).year_index,
+				GLOBAL (GameClock).month_index,
+				GLOBAL (GameClock).day_index);
 
 		col = 0;
 		for (i = 0; i < NUM_EVENTS; i++)
@@ -985,7 +989,8 @@ draw_events_menu (void)
 				if (!block_btn)
 				{
 					ImGui_NewLine ();
-					ImGui_SeparatorText ("Blocked Events");
+					ImGui_SeparatorText (ImStr (DBG_EVT_STR_BASE + 10));
+										// Blocked Events
 					Spacer ();
 					block_btn = true;
 				}
@@ -995,10 +1000,9 @@ draw_events_menu (void)
 
 				snprintf (buf, sizeof buf, "%s##%d",
 						eventIdNumToStr (i), i);
+
 				if (ImGui_Button (buf))
-				{
 					events[i].blocked = false;
-				}
 
 				col++;
 			}
@@ -1023,21 +1027,24 @@ draw_events_menu (void)
 			if (days_left >= 0 || events[i].paused)
 			{
 				static bool paused[NUM_EVENTS];
-				char buf[60];
-				char *buf_test = NULL;
 
 				if (col > 0 && col % NUM_EVENT_COL != 0)
 					ImGui_SameLine ();
 				else
 					Spacer ();
 
-				snprintf (buf, sizeof buf, "Card##%s", eventIdNumToStr (i));
-				ImGui_BeginChild (buf, ZERO_F, CARD_FLAGS,
+				ImGui_PushID (eventIdNumToStr (i));
+
+				ImGui_BeginChild ("Card", ZERO_F, CARD_FLAGS,
 						ImGuiWindowFlags_MenuBar);
 				{
 					if (ImGui_BeginMenuBar ())
 					{
-						snprintf (buf, 30, "EventID: %02d", i);
+						char buf[60];
+
+						snprintf (buf, 30, "%s: %02d",
+								ImStr (DBG_EVT_STR_BASE + 11), i);
+									// EventID
 						ImGui_MenuItemEx (buf, NULL, false, false);
 						ImGui_EndMenuBar ();
 					}
@@ -1050,13 +1057,14 @@ draw_events_menu (void)
 					Spacer ();
 
 					ImGui_Text ("%04d/%02d/%02d",
-						events[i].year_index,
-						events[i].month_index,
-						events[i].day_index);
+							events[i].year_index,
+							events[i].month_index,
+							events[i].day_index);
 
 					Spacer ();
 
-					ImGui_Text ("Days Left: %d", days_left);
+					ImGui_Text (ImStr (DBG_EVT_STR_BASE + 12), days_left);
+							// Days Left: %d
 
 					if (paused[i])
 						ImGui_PopStyleColor ();
@@ -1067,18 +1075,13 @@ draw_events_menu (void)
 
 					Spacer ();
 
-					snprintf (buf, sizeof buf, "Block##%s",
-							eventIdNumToStr (i));
-					if (ImGui_Button (buf))
+					if (ImGui_Button (ImStr (DBG_EVT_STR_BASE + 13))) // Block
 						events[i].blocked = !events[i].blocked;
 
 					ImGui_SameLine ();
 
-					snprintf (buf, sizeof buf, "%s##%s",
-						(events[i].paused ? "Resume" : "Pause"),
-						eventIdNumToStr (i));
-					if (ImGui_Button (buf))
-					{
+					if (ImGui_Button (resume_pause[events[i].paused]))
+					{				// Pause, Resume
 						events[i].paused = !events[i].paused;
 
 						if (events[i].paused)
@@ -1088,7 +1091,10 @@ draw_events_menu (void)
 					}
 
 					Spacer ();
-				} ImGui_EndChild (); // Card##
+
+				} ImGui_EndChild (); // Card
+
+				ImGui_PopID ();
 			
 				DrawBorderAroundLastItem ();
 
