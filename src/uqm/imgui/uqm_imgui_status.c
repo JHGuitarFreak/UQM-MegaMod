@@ -1141,26 +1141,30 @@ void draw_stars_menu (void)
 	static int min_y = 0, max_y = MAX_Y_UNIVERSE;
 	static int longest_postfix = -1;
 	static int longest_prefix = -1;
-	const char *star_type[NUM_STAR_TYPES] =
-			{ "Dwarf", "Giant", "Super Giant" };
-	const char *star_colour[NUM_STAR_COLORS] =
-			{ "Blue", "Green", "Orange", "Red", "White", "Yellow" };
+	static const char **star_type = NULL;
+	static const char **star_colour = NULL;
+
+	if (!star_colour)
+	{
+		star_type   = ImStrArr (DBG_STA_STR_BASE);
+		star_colour = ImStrArr (DBG_STA_STR_BASE + 1);
+	}
 
 	ImGui_BeginStyledChild ("##StarFilters", ZERO_F, CH_FLAT_NAV, 0, NULL);
 	{
-		ImGui_SeparatorText ("Filters");
+		ImGui_SeparatorText (ImStr (DBG_STA_STR_BASE + 2)); // Filters
 
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text ("Filter by Presence");
+		ImGui_Text (ImStr (DBG_STA_STR_BASE + 3)); // Filter by Presence
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##FilterPresence", &by_presence);
 
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text ("Show only Type");
+		ImGui_Text (ImStr (DBG_STA_STR_BASE + 4)); // Show only Type
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##FilterTypeBool", &filter_type_bool);
 		ImGui_SameLine ();
@@ -1170,7 +1174,7 @@ void draw_stars_menu (void)
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text ("Show only Colour");
+		ImGui_Text (ImStr (DBG_STA_STR_BASE + 5)); // Show only Colour
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##FilterColourBool", &filter_colour_bool);
 		ImGui_SameLine ();
@@ -1180,14 +1184,14 @@ void draw_stars_menu (void)
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text ("Current Star System");
+		ImGui_Text (ImStr (DBG_STA_STR_BASE + 6)); // Current Star System
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##CurStar", &by_cur_star);
 
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text ("X/Y Range");
+		ImGui_Text (ImStr (DBG_STA_STR_BASE + 7)); // X/Y Range
 		ImGui_SameLine ();
 		ImGui_SliderIntRange ("##XRange", &min_x, &max_x, 0, 9999, "%d", 0, 0);
 		ImGui_SameLine ();
@@ -1200,7 +1204,7 @@ void draw_stars_menu (void)
 
 	ImGui_BeginStyledChild ("##StarTable", ZERO_F, CH_FLAT_NAV, 0, NULL);
 	{
-		ImGui_SeparatorText ("Star Table");
+		ImGui_SeparatorText (ImStr (DBG_STA_STR_BASE + 8)); // Star Table
 
 		Spacer ();
 
@@ -1209,7 +1213,7 @@ void draw_stars_menu (void)
 			ImGuiTableFlags_NoHostExtendX |
 			ImGuiTableFlags_SizingStretchSame))
 		{
-			ImGui_TableSetupColumnEx ("Idx",
+			ImGui_TableSetupColumnEx (ImStr (DBG_STA_STR_BASE + 9), // Idx
 					ImGuiTableColumnFlags_WidthFixed,
 					ImGui_CalcTextSize ("999").x +
 						style->FramePadding.x, 0);
@@ -1218,7 +1222,7 @@ void draw_stars_menu (void)
 				longest_prefix = FindLongestString (STAR_NUMBER_BASE,
 						STAR_NUMBER_COUNT - 1);
 
-			ImGui_TableSetupColumnEx ("Prefix",
+			ImGui_TableSetupColumnEx (ImStr (DBG_STA_STR_BASE + 10), // Prefix
 					ImGuiTableColumnFlags_WidthFixed,
 					ImGui_CalcTextSize (GAME_STRING (
 							STAR_NUMBER_BASE + longest_prefix)).x +
@@ -1228,7 +1232,7 @@ void draw_stars_menu (void)
 				longest_postfix = FindLongestString (STAR_STRING_BASE,
 						STAR_STRING_COUNT - 17);
 
-			ImGui_TableSetupColumnEx ("Postfix",
+			ImGui_TableSetupColumnEx (ImStr (DBG_STA_STR_BASE + 11), // Postfix
 					ImGuiTableColumnFlags_WidthFixed,
 					ImGui_CalcTextSize (GAME_STRING (
 						STAR_STRING_BASE + longest_postfix)).x +
@@ -1244,15 +1248,15 @@ void draw_stars_menu (void)
 					ImGui_CalcTextSize ("99999").x +
 						style->FramePadding.x * 2, 4);
 
-			ImGui_TableSetupColumn ("Type", 0);
-			ImGui_TableSetupColumn ("Colour", 0);
-			ImGui_TableSetupColumn ("Presence", 0);
+			ImGui_TableSetupColumn (ImStr (DBG_STA_STR_BASE + 12), 0); // Type
+			ImGui_TableSetupColumn (ImStr (DBG_STA_STR_BASE + 13), 0); // Colour
+			ImGui_TableSetupColumn (ImStr (DBG_STA_STR_BASE + 14), 0); // Presence
 			ImGui_TableHeadersRow ();
 
 			for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
 			{
 				if (by_cur_star && CurStarDescPtr &&
-					!(CurStarDescPtr->star_pt.x ==
+						!(CurStarDescPtr->star_pt.x ==
 						star_array[i].star_pt.x &&
 						CurStarDescPtr->star_pt.y ==
 						star_array[i].star_pt.y))
@@ -1266,10 +1270,10 @@ void draw_stars_menu (void)
 				if (by_presence && star_array[i].Index == 0)
 					continue;
 				if (!(star_array[i].star_pt.x >= min_x &&
-					star_array[i].star_pt.x <= max_x))
+						star_array[i].star_pt.x <= max_x))
 					continue;
 				if (!(star_array[i].star_pt.y >= min_y &&
-					star_array[i].star_pt.y <= max_y))
+						star_array[i].star_pt.y <= max_y))
 					continue;
 
 				ImGui_TableNextColumn ();
@@ -1304,7 +1308,7 @@ void draw_stars_menu (void)
 					ImGui_SetNextItemWidth (-1);
 					ImGui_InputIntEx (buf, &star_ptx, 0, 0, 0);
 					if (ImGui_IsItemDeactivatedAfterEdit ()
-						&& star_ptx >= 0 && star_ptx <= 9999)
+							&& star_ptx >= 0 && star_ptx <= 9999)
 					{
 						star_array[i].star_pt.x = star_ptx;
 					}
@@ -1320,7 +1324,7 @@ void draw_stars_menu (void)
 					ImGui_SetNextItemWidth (-1);
 					ImGui_InputIntEx (buf, &star_pty, 0, 0, 0);
 					if (ImGui_IsItemDeactivatedAfterEdit ()
-						&& star_pty >= 0 && star_pty <= 9999)
+							&& star_pty >= 0 && star_pty <= 9999)
 					{
 						star_array[i].star_pt.y = star_pty;
 					}
@@ -1337,7 +1341,7 @@ void draw_stars_menu (void)
 
 					ImGui_SetNextItemWidth (-1);
 					if (ImGui_ComboChar (buf,
-						&cur_star_type, star_type, NUM_STAR_TYPES))
+							&cur_star_type, star_type, NUM_STAR_TYPES))
 					{
 						star_array[i].Type = MAKE_STAR (cur_star_type,
 								STAR_COLOR (star_array[i].Type), -1);
@@ -1355,7 +1359,7 @@ void draw_stars_menu (void)
 
 					ImGui_SetNextItemWidth (-1);
 					if (ImGui_ComboChar (buf,
-						&cur_star_colour, star_colour, NUM_STAR_COLORS))
+							&cur_star_colour, star_colour, NUM_STAR_COLORS))
 					{
 						star_array[i].Type = MAKE_STAR (
 								STAR_TYPE (star_array[i].Type),
@@ -1374,7 +1378,7 @@ void draw_stars_menu (void)
 
 					ImGui_SetNextItemWidth (-1);
 					if (ImGui_ComboChar (buf,
-						&cur_presence, presence_names, NUM_PLOTS))
+							&cur_presence, presence_names, NUM_PLOTS))
 					{
 						star_array[i].Index = cur_presence;
 					}

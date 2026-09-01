@@ -54,7 +54,7 @@ extern STRING ImGuiStrings;
 #define DBG_DVC_STR_COUNT  4
 #define DBG_GMS_STR_COUNT  17
 #define DBG_EVT_STR_COUNT  15
-#define DBG_STA_STR_COUNT  1
+#define DBG_STA_STR_COUNT  17
 
 enum
 {
