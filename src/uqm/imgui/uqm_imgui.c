@@ -109,23 +109,22 @@ UQM_ImGui_Init (void)
 	io->IniFilename = NULL;
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+	// Set the theme
+	UQM_ImGui_Style ();
+
+	// Load resources
 	AddFontFromResource ("playerfont.ttf", 18.0f);
-	AddFontFromResource ("tinyfont.ttf", 18.0f);
+	AddFontFromResource ("tinyfont.ttf",   18.0f);
 	AddFontFromResource ("urquanfont.ttf", 20.0f);
 	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
-
-	if (!ImGuiStrings)
-		ImGuiStrings = CaptureStringTable (LoadStringTable ("text.imgui"));
-
-	UQM_ImGui_Style ();
+	LoadResourceIndex (configDir, "imgui.cfg", "imgui.");
+	ImGuiStrings = CaptureStringTable (LoadStringTable ("text.imgui"));
 
 	{	// ImGui Settings
 		int font_selection = 0;
 		float ui_scale = style->FontScaleMain;
 		bool nav_gamepad = 1;
 		float background_opacity = style->Colors[ImGuiCol_ChildBg].w;
-
-		LoadResourceIndex (configDir, "imgui.cfg", "imgui.");
 
 		ImGetInt (font_selection);
 		if (font_selection < io->Fonts->Fonts.Size && font_selection >= 0)
@@ -408,145 +407,4 @@ int UQM_ImGui_WantCaptureInput (void)
 
 	ImGuiIO *io = ImGui_GetIO ();
 	return (io->WantCaptureKeyboard || io->WantCaptureMouse) ? 1 : 0;
-}
-
-// Helper functions
-
-void
-UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
-		bool needs_reboot)
-{
-	if (key == NULL)
-		return;
-
-	if (ImGui_Checkbox (label, (bool *)v) || key == NULL)
-	{
-		res_PutBoolean (key, *v);
-
-		if (strncmp (key, "cheat.", 6) == 0)
-			cheat_changed = true;
-		else if (strncmp (key, "mm.", 3) == 0)
-			mmcfg_changed = true;
-		else if (strncmp (key, "config.", 7) == 0)
-			config_changed = true;
-
-		if (needs_reboot)
-		{
-			if (IN_MAIN_MENU)
-				GLOBAL (CurrentActivity) = 0;
-			else
-				GLOBAL (CurrentActivity) |= CHECK_ABORT;
-
-			optRequiresReload = TRUE;
-		}
-	}
-
-
-	if (needs_reboot)
-	{
-		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
-		{
-			ImGui_BeginTooltip ();
-			ImGui_TextColoredUnformatted (IV4_RED_COLOR,
-					ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
-			ImGui_EndTooltip ();
-		}
-	}
-
-}
-
-// Begin GameState cache implementation
-
-GameStateCache gs_cache = { NULL, 0 };
-
-GSCacheEntry *
-find_cache_entry (const char *name)
-{
-	for (size_t i = 0; i < gs_cache.count; i++)
-	{
-		if (strcmp (gs_cache.entries[i].name, name) == 0)
-		{
-			return &gs_cache.entries[i];
-		}
-	}
-	return NULL;
-}
-
-static GSCacheEntry *
-add_cache_entry (const char *name)
-{
-	size_t new_count = gs_cache.count + 1;
-	size_t new_size = sizeof (GSCacheEntry) * new_count;
-	GSCacheEntry *new_entries = realloc (gs_cache.entries, new_size);
-
-	if (!new_entries)
-	{
-		log_add (log_Warning, "Failed to realloc gs_cache");
-		return NULL;
-	}
-
-	gs_cache.entries = new_entries;
-
-	gs_cache.entries[gs_cache.count].name = name;
-	gs_cache.entries[gs_cache.count].valid = false;
-	gs_cache.entries[gs_cache.count].value = 0;
-
-	return &gs_cache.entries[gs_cache.count++];
-}
-
-// Get cached gamestate if it exists, If not, create one
-int
-get_cached_gamestate (const char *name)
-{
-	GSCacheEntry *entry = find_cache_entry (name);
-
-	if (entry)
-	{
-		if (!entry->valid)
-		{
-			entry->value = D_GET_GAME_STATE (name);
-			entry->valid = true;
-		}
-		return entry->value;
-	}
-
-	entry = add_cache_entry (name);
-	if (entry)
-	{
-		entry->value = D_GET_GAME_STATE (name);
-		entry->valid = true;
-		return entry->value;
-	}
-
-	return D_GET_GAME_STATE (name);
-}
-
-// Set cached gamestate if it exists. If not, create one
-void
-set_cached_gamestate (const char *name, int value)
-{
-	GSCacheEntry *entry = find_cache_entry (name);
-
-	D_SET_GAME_STATE (name, value);
-
-	if (entry)
-	{
-		entry->value = value;
-		entry->valid = true;
-	}
-	else
-	{
-		entry = add_cache_entry (name);
-		if (entry)
-		{
-			entry->value = value;
-			entry->valid = true;
-		}
-	}
-}
-
-void revalidate_game_state_cache (void)
-{
-	for (size_t i = 0; i < gs_cache.count; i++)
-		gs_cache.entries[i].valid = false;
 }

@@ -169,6 +169,47 @@ DangerGradient (void)
 }
 
 void
+UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
+	bool needs_reboot)
+{
+	if (key == NULL)
+		return;
+
+	if (ImGui_Checkbox (label, (bool *)v) || key == NULL)
+	{
+		res_PutBoolean (key, *v);
+
+		if (strncmp (key, "cheat.", 6) == 0)
+			cheat_changed = true;
+		else if (strncmp (key, "mm.", 3) == 0)
+			mmcfg_changed = true;
+		else if (strncmp (key, "config.", 7) == 0)
+			config_changed = true;
+
+		if (needs_reboot)
+		{
+			if (IN_MAIN_MENU)
+				GLOBAL (CurrentActivity) = 0;
+			else
+				GLOBAL (CurrentActivity) |= CHECK_ABORT;
+
+			optRequiresReload = TRUE;
+		}
+	}
+
+	if (needs_reboot)
+	{
+		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		{
+			ImGui_BeginTooltip ();
+			ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
+			ImGui_EndTooltip ();
+		}
+	}
+}
+
+void
 UQM_GetInt (const char *key, int *var)
 {
 	char imgui_key[40];
@@ -659,4 +700,103 @@ UQM_ScaleAllSizes (void)
 	style->DisplaySafeAreaPadding.x = SCALE_IT (3.0f);
 	style->DisplaySafeAreaPadding.y = SCALE_IT (3.0f);
 	style->MouseCursorScale = SCALE_IT (1.0f);
+}
+
+// Begin GameState cache implementation
+
+GameStateCache gs_cache = { NULL, 0 };
+
+GSCacheEntry *
+find_cache_entry (const char *name)
+{
+	for (size_t i = 0; i < gs_cache.count; i++)
+	{
+		if (strcmp (gs_cache.entries[i].name, name) == 0)
+		{
+			return &gs_cache.entries[i];
+		}
+	}
+	return NULL;
+}
+
+static GSCacheEntry *
+add_cache_entry (const char *name)
+{
+	size_t new_count = gs_cache.count + 1;
+	size_t new_size = sizeof (GSCacheEntry) * new_count;
+	GSCacheEntry *new_entries = realloc (gs_cache.entries, new_size);
+
+	if (!new_entries)
+	{
+		log_add (log_Warning, "Failed to realloc gs_cache");
+		return NULL;
+	}
+
+	gs_cache.entries = new_entries;
+
+	gs_cache.entries[gs_cache.count].name = name;
+	gs_cache.entries[gs_cache.count].valid = false;
+	gs_cache.entries[gs_cache.count].value = 0;
+
+	return &gs_cache.entries[gs_cache.count++];
+}
+
+// Get cached gamestate if it exists, If not, create one
+int
+get_cached_gamestate (const char *name)
+{
+	GSCacheEntry *entry = find_cache_entry (name);
+
+	if (entry)
+	{
+		if (!entry->valid)
+		{
+			entry->value = D_GET_GAME_STATE (name);
+			entry->valid = true;
+		}
+		return entry->value;
+	}
+
+	entry = add_cache_entry (name);
+	if (entry)
+	{
+		entry->value = D_GET_GAME_STATE (name);
+		entry->valid = true;
+		return entry->value;
+	}
+
+	return D_GET_GAME_STATE (name);
+}
+
+// Set cached gamestate if it exists. If not, create one
+void
+set_cached_gamestate (const char *name, int value)
+{
+	GSCacheEntry *entry = find_cache_entry (name);
+
+	D_SET_GAME_STATE (name, value);
+
+	if (entry)
+	{
+		entry->value = value;
+		entry->valid = true;
+	}
+	else
+	{
+		entry = add_cache_entry (name);
+		if (entry)
+		{
+			entry->value = value;
+			entry->valid = true;
+		}
+	}
+}
+
+void
+revalidate_game_state_cache (void)
+{
+	size_t i;
+
+	for (i = 0; i < gs_cache.count; i++)
+		gs_cache.entries[i].valid = false;
 }
