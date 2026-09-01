@@ -31,7 +31,7 @@ extern "C" {
 extern STRING ImGuiStrings;
 
 #define NAV_TAB_STR_COUNT   8
-#define TIP_WARN_STR_COUNT 12
+#define TIP_WARN_STR_COUNT 16
 
 // General
 #define GEN_SETT_STR_COUNT 11
@@ -52,7 +52,7 @@ extern STRING ImGuiStrings;
 // Debug
 #define DBG_STS_STR_COUNT  21
 #define DBG_DVC_STR_COUNT  4
-#define DBG_GMS_STR_COUNT  1
+#define DBG_GMS_STR_COUNT  17
 #define DBG_EVT_STR_COUNT  1
 #define DBG_STA_STR_COUNT  1
 

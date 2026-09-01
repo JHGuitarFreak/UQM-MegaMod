@@ -383,20 +383,24 @@ UQM_BitRegister (const char *gamestate, int size)
 		}
 		ImGui_PopStyleColor ();
 		ImGui_PopStyleVar ();
+		
+		ImGui_PushID (gamestate);
 
-		snprintf (buf, sizeof buf, "Set All##%s", gamestate);
-		if (ImGui_Button (buf))
+		if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 15)))
 		{
 			bitmask = ~0;
 			D_SET_CGAME_STATE (gamestate, bitmask);
 		}
+
 		ImGui_SameLine ();
-		snprintf (buf, sizeof buf, "Clear All##%s", gamestate);
-		if (ImGui_Button (buf))
+
+		if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 16)))
 		{
 			bitmask = 0;
 			D_SET_CGAME_STATE (gamestate, bitmask);
 		}
+
+		ImGui_PopID ();
 	} ImGui_EndChild (); // ##AutoChild
 
 	DrawBorderAroundLastItem ();

@@ -46,7 +46,38 @@ GamestatesTab00 (void)
 {
 	ImVec2 column_size;
 
-	if (!ImGui_BeginTabItem ("Page 1", NULL, 0))
+	static const char **usm_states = NULL;
+	static const char **zfpd_states = NULL;
+	static const char **tm_states = NULL;
+	static const char **tc_states = NULL;
+	static const char **pkmis_states = NULL;
+	static const char **cb_states = NULL;
+	static const char **om_states = NULL;
+	static const char **nan_states = NULL;
+	static const char **lac_states = NULL;
+	static const char **sm_states = NULL;
+	static const char **fps_states = NULL;
+	static char tab_page[32];
+
+	if (!usm_states)
+	{
+		fps_states   = ImStrArr (DBG_GMS_STR_BASE);      // FOUND_PLUTO_SPATHI
+		sm_states    = ImStrArr (DBG_GMS_STR_BASE +  1); // SPATHI_MANNER
+		lac_states   = ImStrArr (DBG_GMS_STR_BASE +  2); // LIED_ABOUT_CREATURES
+		nan_states   = ImStrArr (DBG_GMS_STR_BASE +  3); // NEW_ALLIANCE_NAME
+		om_states    = ImStrArr (DBG_GMS_STR_BASE +  4); // ORZ_MANNER
+		cb_states    = ImStrArr (DBG_GMS_STR_BASE +  5); // CHMMR_BOMB_STATE
+		pkmis_states = ImStrArr (DBG_GMS_STR_BASE +  6); // PKUNK_MISSION
+		tc_states    = ImStrArr (DBG_GMS_STR_BASE +  7); // THRADD_CULTURE
+		tm_states    = ImStrArr (DBG_GMS_STR_BASE +  8); // THRADD_MISSION
+		zfpd_states  = ImStrArr (DBG_GMS_STR_BASE +  9); // ZOQFOT_DISTRESS
+		usm_states   = ImStrArr (DBG_GMS_STR_BASE + 10); // UTWIG_SUPOX_MISSION
+
+		snprintf (tab_page, sizeof tab_page, ImStr (DBG_GMS_STR_BASE + 14), 1);
+											// Page 1
+	}
+
+	if (!ImGui_BeginTabItem (tab_page, NULL, 0))
 		return;
 
 	GetColumnSize (&column_size, NUM_COLUMNS);
@@ -63,13 +94,10 @@ GamestatesTab00 (void)
 
 		{
 			int found_pluto_spathi = GET_CGAME_STATE (FOUND_PLUTO_SPATHI);
-			const char *fps_states[] =
-			{
-				"Not Found", "Talking to", "Post-dialog", "Told the Safe Ones"
-			};
+
 			ImGui_Text ("FOUND_PLUTO_SPATHI");
 			if (ImGui_ComboChar ("##FOUND_PLUTO_SPATHI", &found_pluto_spathi,
-				fps_states, ARRAY_SIZE (fps_states)))
+					fps_states, 4))
 			{
 				SET_CGAME_STATE (FOUND_PLUTO_SPATHI, found_pluto_spathi);
 			}
@@ -85,13 +113,10 @@ GamestatesTab00 (void)
 
 		{
 			int spathi_manner = GET_CGAME_STATE (SPATHI_MANNER);
-			const char *sm_states[] =
-			{
-				"Neutral", "Miffed", "Pissed", "Friendly"
-			};
+
 			ImGui_Text ("SPATHI_MANNER");
 			if (ImGui_ComboChar ("##SPATHI_MANNER", &spathi_manner,
-				sm_states, ARRAY_SIZE (sm_states)))
+					sm_states, 4))
 			{
 				SET_CGAME_STATE (SPATHI_MANNER, spathi_manner);
 			}
@@ -101,13 +126,10 @@ GamestatesTab00 (void)
 
 		{
 			int lied_about_creatures = GET_CGAME_STATE (LIED_ABOUT_CREATURES);
-			const char *lac_states[] =
-			{
-				"Haven't Lied", "Lied Once", "Lied Twice"
-			};
+
 			ImGui_Text ("LIED_ABOUT_CREATURES");
-			if (ImGui_ComboChar ("##LIED_ABOUT_CREATURES", &lied_about_creatures,
-				lac_states, ARRAY_SIZE (lac_states)))
+			if (ImGui_ComboChar ("##LIED_ABOUT_CREATURES",
+					&lied_about_creatures, lac_states, 3))
 			{
 				SET_CGAME_STATE (LIED_ABOUT_CREATURES, lied_about_creatures);
 			}
@@ -139,7 +161,8 @@ GamestatesTab00 (void)
 	{
 		ImGui_EndChild (); // ##Column1
 		ImGui_SameLine ();
-		ImGui_BeginStyledChild ("##Column2", column_size, CHILD_FLAGS, 0, NULL);
+		ImGui_BeginStyledChild ("##Column2", column_size,
+				CHILD_FLAGS, 0, NULL);
 	}
 
 	{
@@ -148,23 +171,25 @@ GamestatesTab00 (void)
 		GS_CHECKBOX (MET_ARILOU);
 		GS_CHECKBOX (ATTACKED_DRUUGE);
 
+		Spacer ();
+
 		{
 			int new_alliance_name = GET_CGAME_STATE (NEW_ALLIANCE_NAME);
 			static char empire_of[PATH_MAX];
-			const char *nan_states[] =
+			const char *nan_copy[4] =
 			{
-					"The New Alliance of Free Stars",
-					"The Concordance of Alien Nations",
-					"The United Federation of Worlds",
+					nan_states[0],
+					nan_states[1],
+					nan_states[2],
 					empire_of
 			};
 
-			snprintf (empire_of, sizeof (empire_of), "The Empire of %s",
-				GLOBAL_SIS (CommanderName));
+			snprintf (empire_of, sizeof (empire_of), nan_states[3],
+					GLOBAL_SIS (CommanderName));
 
 			ImGui_Text ("NEW_ALLIANCE_NAME");
 			if (ImGui_ComboChar ("##NEW_ALLIANCE_NAME", &new_alliance_name,
-				nan_states, ARRAY_SIZE (nan_states)))
+					nan_copy, 4))
 			{
 				SET_CGAME_STATE (NEW_ALLIANCE_NAME, new_alliance_name);
 			}
@@ -173,7 +198,8 @@ GamestatesTab00 (void)
 		Spacer ();
 
 		{
-			bool game_state = GET_CGAME_STATE (PORTAL_COUNTER) == 1 ? true : false;
+			bool game_state =
+					GET_CGAME_STATE (PORTAL_COUNTER) == 1 ? true : false;
 
 			if (ImGui_Checkbox ("PORTAL_COUNTER", &game_state))
 				SET_CGAME_STATE (PORTAL_COUNTER, game_state);
@@ -189,17 +215,10 @@ GamestatesTab00 (void)
 
 		{
 			int orz_manner = GET_CGAME_STATE (ORZ_MANNER);
-			const char *om_states[] =
-			{
-					"Neutral",
-					"Kinda miffed",
-					"FRUMPLE!",
-					"Friendly"
-			};
 
 			ImGui_Text ("ORZ_MANNER");
 			if (ImGui_ComboChar ("##ORZ_MANNER", &orz_manner,
-				om_states, ARRAY_SIZE (om_states)))
+					om_states, 4))
 			{
 				SET_CGAME_STATE (ORZ_MANNER, orz_manner);
 			}
@@ -236,17 +255,10 @@ GamestatesTab00 (void)
 	{
 		{
 			int chmmr_bomb_state = GET_CGAME_STATE (CHMMR_BOMB_STATE);
-			const char *cb_states[] =
-			{
-					"Ignorant about Precursor Bomb",
-					"You need the Precursor Bomb",
-					"Chmmr Bomb is being Installed",
-					"Chmmr Bomb Installed"
-			};
 
 			ImGui_Text ("CHMMR_BOMB_STATE");
 			if (ImGui_ComboChar ("##CHMMR_BOMB_STATE", &chmmr_bomb_state,
-				cb_states, ARRAY_SIZE (cb_states)))
+					cb_states, 4))
 			{
 				SET_CGAME_STATE (CHMMR_BOMB_STATE, chmmr_bomb_state);
 			}
@@ -262,26 +274,17 @@ GamestatesTab00 (void)
 
 		{
 			int pkunk_mission = GET_CGAME_STATE (PKUNK_MISSION);
-			const char *pm_states[] =
-			{
-					"Stationary",
-					"On the move",
-					"Returning",
-					"On the move again",
-					"Returning again",
-					"On the move yet again"
-			};
 
 			ImGui_Text ("PKUNK_MISSION");
 			if (ImGui_ComboChar ("##PKUNK_MISSION", &pkunk_mission,
-				pm_states, ARRAY_SIZE (pm_states)))
+					pkmis_states, 6))
 			{
 				SET_CGAME_STATE (PKUNK_MISSION, pkunk_mission);
 			}
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip ("Switch this to \"Returning\" if you've turned\n"
-					"off any of the GOOD_REASONS.");
+				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 12));
+								// PKUNK_MISSION Tooltip
 			}
 		}
 
@@ -290,20 +293,20 @@ GamestatesTab00 (void)
 		{
 			int thradd_culture = GET_CGAME_STATE (THRADD_CULTURE);
 			static char empire_of[PATH_MAX];
-			const char *tc_states[] =
+			const char *tc_copy[] =
 			{
-					"Unknown culture",
-					"Culture Twenty",
-					"The Fat Obstreperous Jerks",
+					tc_states[0],
+					tc_states[1],
+					tc_states[2],
 					empire_of
 			};
 
-			snprintf (empire_of, sizeof (empire_of),
-				"The Glorious Slave Empire of %s", GLOBAL_SIS (CommanderName));
+			snprintf (empire_of, sizeof (empire_of), tc_states[3],
+					GLOBAL_SIS (CommanderName));
 
 			ImGui_Text ("THRADD_CULTURE");
 			if (ImGui_ComboChar ("##THRADD_CULTURE", &thradd_culture,
-				tc_states, ARRAY_SIZE (tc_states)))
+					tc_copy, 4))
 			{
 				SET_CGAME_STATE (THRADD_CULTURE, thradd_culture);
 			}
@@ -313,25 +316,17 @@ GamestatesTab00 (void)
 
 		{
 			int thradd_mission = GET_CGAME_STATE (THRADD_MISSION);
-			const char *tm_states[] =
-			{
-					"No Mission",
-					"Heading towards the Kohr-Ah",
-					"Fighting the Kohr-Ah",
-					"Returning from fight",
-					"Back at home"
-			};
 
 			ImGui_Text ("THRADD_MISSION");
 			if (ImGui_ComboChar ("##THRADD_MISSION", &thradd_mission,
-				tm_states, ARRAY_SIZE (tm_states)))
+					tm_states, 5))
 			{
 				SET_CGAME_STATE (THRADD_MISSION, thradd_mission);
 			}
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip ("Editing this only changes dialog responses\n"
-					"and doesn't affect the actual mission.");
+				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 13));
+								// THRADD_MISSION Tooltip
 			}
 		}
 
@@ -344,23 +339,17 @@ GamestatesTab00 (void)
 
 		{
 			int zfp_distress = GET_CGAME_STATE (ZOQFOT_DISTRESS);
-			const char *zfpd_states[] =
-			{
-					"ZFP aren't in distress",
-					"ZFP Are under attack!",
-					"ZFP have been destroyed by attack"
-			};
 
 			ImGui_Text ("ZOQFOT_DISTRESS");
 			if (ImGui_ComboChar ("##ZOQFOT_DISTRESS", &zfp_distress,
-				zfpd_states, ARRAY_SIZE (zfpd_states)))
+					zfpd_states, 3))
 			{
 				SET_CGAME_STATE (ZOQFOT_DISTRESS, zfp_distress);
 			}
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip ("Editing this doesn't stop the ZFP from being\n"
-					"under distress.");
+				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 14));
+								// ZOQFOT_DISTRESS Tooltip
 			}
 		}
 
@@ -411,19 +400,10 @@ GamestatesTab00 (void)
 
 		{
 			int utwig_supox_mission = GET_CGAME_STATE (UTWIG_SUPOX_MISSION);
-			const char *usm_states[] =
-			{
-				"U&S fleet haven't left",
-				"U&S are on their way",
-				"U&S are fighting the Kohr-Ah",
-				"U&S are fighting the Kohr-Ah 2",
-				"U&S are returning home",
-				"U&S are back home"
-			};
 
 			ImGui_Text ("UTWIG_SUPOX_MISSION");
 			if (ImGui_ComboChar ("##UTWIG_SUPOX_MISSION", &utwig_supox_mission,
-				usm_states, ARRAY_SIZE (usm_states)))
+					usm_states, 6))
 			{
 				SET_CGAME_STATE (UTWIG_SUPOX_MISSION, utwig_supox_mission);
 			}
@@ -440,7 +420,22 @@ GamestatesTab01 (void)
 {
 	ImVec2 column_size;
 
-	if (!ImGui_BeginTabItem ("Page 2", NULL, 0))
+	static const char **am_states    = NULL;
+	static const char **pkman_states = NULL;
+	static const char **kas_states   = NULL;
+	static char tab_page[32];
+
+	if (!am_states)
+	{
+		kas_states   = ImStrArr (DBG_GMS_STR_BASE + 11); // KNOW_ABOUT_SHATTERED
+		pkman_states = ImStrArr (DBG_GMS_STR_BASE + 12); // PKUNK_MANNER
+		am_states    = ImStrArr (DBG_GMS_STR_BASE + 13); // ARILOU_MANNER
+
+		snprintf (tab_page, sizeof tab_page, ImStr (DBG_GMS_STR_BASE + 14), 2);
+											// Page 2
+	}
+
+	if (!ImGui_BeginTabItem (tab_page, NULL, 0))
 		return;
 
 	GetColumnSize (&column_size, NUM_COLUMNS);
@@ -459,17 +454,10 @@ GamestatesTab01 (void)
 
 		{
 			int know_about_shattered = GET_CGAME_STATE (KNOW_ABOUT_SHATTERED);
-			const char *kas_states[] =
-			{
-				"Ignorant of Shattered Worlds",
-				"Encountered Shattered World",
-				"Know are caused by Deep Children",
-				"Told the Syreen about Deep Children"
-			};
 
 			ImGui_Text ("KNOW_ABOUT_SHATTERED");
-			if (ImGui_ComboChar ("##KNOW_ABOUT_SHATTERED", &know_about_shattered,
-				kas_states, ARRAY_SIZE (kas_states)))
+			if (ImGui_ComboChar ("##KNOW_ABOUT_SHATTERED",
+					&know_about_shattered, kas_states, 4))
 			{
 				SET_CGAME_STATE (KNOW_ABOUT_SHATTERED, know_about_shattered);
 			}
@@ -488,17 +476,10 @@ GamestatesTab01 (void)
 
 		{
 			int pkunk_manner = GET_CGAME_STATE (PKUNK_MANNER);
-			const char *pm_states[] =
-			{
-				"Not met Pkunk",
-				"Fought Pkunk, relation salvageable",
-				"Hostile relations with Pkunk",
-				"Friendly relations with Pkunk"
-			};
 
 			ImGui_Text ("PKUNK_MANNER");
 			if (ImGui_ComboChar ("##PKUNK_MANNER", &pkunk_manner,
-				pm_states, ARRAY_SIZE (pm_states)))
+						pkman_states, 4))
 			{
 				SET_CGAME_STATE (PKUNK_MANNER, pkunk_manner);
 			}
@@ -543,8 +524,8 @@ GamestatesTab01 (void)
 			ImGui_EndGroup ();
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip ("When turning these off make sure to set\n"
-					"PKUNK_MISSION to \"Returning\"");
+				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 15));
+								// ZOQFOT_DISTRESS Tooltip
 			}
 			if (ImGui_Checkbox ("##BAD_REASON_1", &bad_reason_1))
 			{
@@ -579,17 +560,10 @@ GamestatesTab01 (void)
 
 		{
 			int arilou_manner = GET_CGAME_STATE (ARILOU_MANNER);
-			const char *am_states[] =
-			{
-				"Not met Arilou",
-				"Fought Arilou, relation salvageable",
-				"Hostile relations with Arilou",
-				"Friendly relations with Arilou"
-			};
 
 			ImGui_Text ("ARILOU_MANNER");
 			if (ImGui_ComboChar ("##ARILOU_MANNER", &arilou_manner,
-				am_states, ARRAY_SIZE (am_states)))
+					am_states, 4))
 			{
 				SET_CGAME_STATE (ARILOU_MANNER, arilou_manner);
 			}
@@ -625,9 +599,10 @@ GamestatesTab01 (void)
 			int sly_multiplier = GET_CGAME_STATE (SLYLANDRO_MULTIPLIER);
 
 			ImGui_Text ("SLYLANDRO_MULTIPLIER");
-			ImGui_InputIntEx ("##SLYLANDRO_MULTIPLIER", &sly_multiplier, 0, 0, 0);
+			ImGui_InputIntEx ("##SLYLANDRO_MULTIPLIER",
+					&sly_multiplier, 0, 0, 0);
 			if (ImGui_IsItemDeactivatedAfterEdit ()
-				&& sly_multiplier < (COUNT)~0 && sly_multiplier >= 0)
+					&& sly_multiplier < (COUNT)~0 && sly_multiplier >= 0)
 			{
 				SET_CGAME_STATE (SLYLANDRO_MULTIPLIER, sly_multiplier);
 			}
@@ -655,7 +630,8 @@ GamestatesTab01 (void)
 	{
 		ImGui_EndChild ();
 		ImGui_SameLine ();
-		ImGui_BeginStyledChild ("##Column3", column_size, CHILD_FLAGS, 0, NULL);
+		ImGui_BeginStyledChild ("##Column3", column_size,
+				CHILD_FLAGS, 0, NULL);
 	}
 
 	{
@@ -746,7 +722,9 @@ GamestatesTab01 (void)
 				ImGui_PopStyleColor ();
 				ImGui_PopStyleVar ();
 
-				if (ImGui_Button ("Set All##RAINBOW_WORLD"))
+				ImGui_PushID ("RAINBOW_WORLD");
+
+				if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 15)))
 				{
 					bitmask = ~0;
 					SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
@@ -754,12 +732,14 @@ GamestatesTab01 (void)
 				}
 				ImGui_SameLine ();
 
-				if (ImGui_Button ("Clear All##RAINBOW_WORLD"))
+				if (ImGui_Button (ImStr (DBG_GMS_STR_BASE + 16)))
 				{
 					bitmask = 0;
 					SET_CGAME_STATE (RAINBOW_WORLD0, LOBYTE (bitmask));
 					SET_CGAME_STATE (RAINBOW_WORLD1, HIBYTE (bitmask));
 				}
+
+				ImGui_PopID ();
 			}ImGui_EndChild ();
 
 			DrawBorderAroundLastItem ();
