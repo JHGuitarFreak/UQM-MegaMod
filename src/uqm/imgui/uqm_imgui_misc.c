@@ -203,7 +203,7 @@ void draw_adv_menu (void)
 	ImGui_EndDisabled (); // Risky Options
 
 	ImGui_NewLine ();
-	ImGui_EndChild ();
+	ImGui_EndChild (); // ##AdvancedOptsColumn
 }
 
 void

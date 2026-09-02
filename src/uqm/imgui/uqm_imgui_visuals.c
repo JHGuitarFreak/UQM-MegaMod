@@ -45,12 +45,8 @@ void draw_visual_menu (void)
 	ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 12));
 
 	// Date Format
-	if (ImGui_SizedComboChar (ImStr (ENH_VIS_STR_BASE + 3),
-			&optDateFormat, date_formats, 4))
-	{
-		res_PutInteger ("mm.dateFormat", optDateFormat);
-		mmcfg_changed = true;
-	}
+	UQM_ComboChar (ImStr (ENH_VIS_STR_BASE + 3), date_formats, 4,
+			&optDateFormat, "mm.dateFormat", false);
 
 	Spacer ();
 
@@ -64,12 +60,8 @@ void draw_visual_menu (void)
 	Spacer ();
 
 	// Fuel Range Indicators
-	if (ImGui_SizedComboChar (ImStr (ENH_VIS_STR_BASE + 6), &optFuelRange,
-			fuel_ranges, 4))
-	{
-		res_PutInteger ("mm.fuelRange", optFuelRange);
-		mmcfg_changed = true;
-	}
+	UQM_ComboChar (ImStr (ENH_VIS_STR_BASE + 6), fuel_ranges, 6,
+			&optFuelRange, "mm.fuelRange", false);
 
 	Spacer ();
 
@@ -184,12 +176,8 @@ void draw_visual_menu (void)
 	Spacer ();
 
 	// Planet Map Textures
-	if (ImGui_SizedComboChar (ImStr (ENH_VIS_STR_BASE + 19),
-			(int *)&optPlanetTexture, planet_textures, 2))
-	{
-		res_PutBoolean ("mm.planetTexture", optPlanetTexture);
-		mmcfg_changed = true;
-	}
+	UQM_ComboChar (ImStr (ENH_VIS_STR_BASE + 19), planet_textures, 6,
+			(int *)&optPlanetTexture, "mm.planetTexture", false);
 
 	Spacer ();
 

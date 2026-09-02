@@ -45,12 +45,8 @@ void draw_cheats_menu (void)
 	Spacer ();
 
 	// God Modes
-	if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 5), &optGodModes,
-			god_modes, 4))
-	{
-		res_PutInteger ("cheat.godModes", optGodModes);
-		cheat_changed = true;
-	}
+	UQM_ComboChar (ImStr (ENH_CHT_STR_BASE + 5), god_modes, 4, &optGodModes,
+			"cheat.godModes", false);
 
 	// Time Dilation
 	if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 6),

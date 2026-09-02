@@ -148,18 +148,20 @@ Control_Tabs (void)
 {
 	ImGui_BeginStyledChild ("##EditControlsColumn", ZERO_F,
 		CHILD_FLAGS, 0, NULL);
-	{	// Edit Controls
-		ImGui_SeparatorText (ImStr (GEN_CON_STR_BASE + 11));
 
-		if (ImGui_BeginTabBar ("ControlTabs", 0))
-		{
-			FlightControlsTab ();
-			MenuControlsTab ();
-			DeadzoneControlsTab ();
+	// Edit Controls
+	ImGui_SeparatorText (ImStr (GEN_CON_STR_BASE + 11));
 
-			ImGui_EndTabBar ();
-		}
-	} ImGui_EndChild ();
+	if (ImGui_BeginTabBar ("ControlTabs", 0))
+	{
+		FlightControlsTab ();
+		MenuControlsTab ();
+		DeadzoneControlsTab ();
+
+		ImGui_EndTabBar ();
+	}
+
+	ImGui_EndChild (); // ##EditControlsColumn
 }
 
 static void
@@ -198,7 +200,7 @@ FlightControlsTab (void)
 
 	FlightControls ();
 
-	ImGui_EndTabItem ();
+	ImGui_EndTabItem (); // Flight
 }
 
 static void
@@ -300,105 +302,116 @@ FlightControls (void)
 
 static void
 DeadzoneControlsTab (void)
-{	// Deadzones
+{
+	// Deadzones
 	if (!ImGui_BeginTabItem (ImStr (GEN_CON_STR_BASE + 14), NULL, 0))
 		return;
 
 	ImGui_NewLine ();
 
+	ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 1); // - Player 1 -
+
+	Spacer ();
+
 	{
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 1); // - Player 1 -
-		Spacer ();
+		float value = (float)DeadZoneLeftStick[0] / MAX_DEADZONE * 100.0f;
+
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
+		if (ImGui_Button (ImMakeID (
+				ImStr (GEN_SETT_STR_BASE + 5), "LSP1"))) // Reset##LSP1
 		{
-			float value = (float)DeadZoneLeftStick[0] / MAX_DEADZONE * 100.0f;
-
-			ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
-			if (ImGui_Button (ImMakeID (
-					ImStr (GEN_SETT_STR_BASE + 5), "LSP1"))) // Reset##LSP1
-			{
-				DeadZoneLeftStick[0] = DEFAULT_DZONE;
-				res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
-				mmcfg_changed = true;
-			}
-			ImGui_SameLine ();
-			if (ImGui_SliderFloat ("##LeftStickP1", &value, 0.0, 100.0))
-			{
-				DeadZoneLeftStick[0] = (value * MAX_DEADZONE) / 100;
-
-				res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
-				mmcfg_changed = true;
-			}
-		}
-		Spacer ();
-		{
-			float value = (float)DeadZoneRightStick[0] / MAX_DEADZONE * 100.0f;
-
-			ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
-			if (ImGui_Button (ImMakeID (
-					ImStr (GEN_SETT_STR_BASE + 5), "RSP1"))) // Reset##LSP2
-			{
-				DeadZoneRightStick[0] = DEFAULT_DZONE;
-				res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
-				mmcfg_changed = true;
-			}
-			ImGui_SameLine ();
-			if (ImGui_SliderFloat ("##RightStickP1", &value, 0.0, 100.0))
-			{
-				DeadZoneRightStick[0] = (value * MAX_DEADZONE) / 100;
-
-				res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
-				mmcfg_changed = true;
-			}
+			DeadZoneLeftStick[0] = DEFAULT_DZONE;
+			res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
+			mmcfg_changed = true;
 		}
 
-		ImGui_NewLine ();
+		ImGui_SameLine ();
 
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 2); // - Player 2 -
-		Spacer ();
+		if (ImGui_SliderFloat ("##LeftStickP1", &value, 0.0, 100.0))
 		{
-			float value = (float)DeadZoneLeftStick[1] / MAX_DEADZONE * 100.0f;
+			DeadZoneLeftStick[0] = (value * MAX_DEADZONE) / 100;
 
-			ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
-			if (ImGui_Button (ImMakeID (
-					ImStr (GEN_SETT_STR_BASE + 5), "LSP2"))) // Reset##LSP1
-			{
-				DeadZoneLeftStick[1] = DEFAULT_DZONE;
-				res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
-				mmcfg_changed = true;
-			}
-			ImGui_SameLine ();
-			if (ImGui_SliderFloat ("##LeftStickP2", &value, 0.0, 100.0))
-			{
-				DeadZoneLeftStick[1] = (value * MAX_DEADZONE) / 100;
-
-				res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
-				mmcfg_changed = true;
-			}
-		}
-		Spacer ();
-		{
-			float value = (float)DeadZoneRightStick[1] / MAX_DEADZONE * 100.0f;
-
-			ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
-			if (ImGui_Button (ImMakeID (
-					ImStr (GEN_SETT_STR_BASE + 5), "RSP2"))) // Reset##RSP2
-			{
-				DeadZoneRightStick[1] = DEFAULT_DZONE;
-				res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
-				mmcfg_changed = true;
-			}
-			ImGui_SameLine ();
-			if (ImGui_SliderFloat ("##RightStickP2", &value, 0.0, 100.0))
-			{
-				DeadZoneRightStick[1] = (value * MAX_DEADZONE) / 100;
-
-				res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
-				mmcfg_changed = true;
-			}
+			res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
+			mmcfg_changed = true;
 		}
 	}
 
-	ImGui_EndTabItem ();
+	Spacer ();
+
+	{
+		float value = (float)DeadZoneRightStick[0] / MAX_DEADZONE * 100.0f;
+
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
+		if (ImGui_Button (ImMakeID (
+				ImStr (GEN_SETT_STR_BASE + 5), "RSP1"))) // Reset##LSP2
+		{
+			DeadZoneRightStick[0] = DEFAULT_DZONE;
+			res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
+			mmcfg_changed = true;
+		}
+
+		ImGui_SameLine ();
+
+		if (ImGui_SliderFloat ("##RightStickP1", &value, 0.0, 100.0))
+		{
+			DeadZoneRightStick[0] = (value * MAX_DEADZONE) / 100;
+
+			res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
+			mmcfg_changed = true;
+		}
+	}
+
+	ImGui_NewLine ();
+
+	ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 2); // - Player 2 -
+
+	Spacer ();
+
+	{
+		float value = (float)DeadZoneLeftStick[1] / MAX_DEADZONE * 100.0f;
+
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
+		if (ImGui_Button (ImMakeID (
+				ImStr (GEN_SETT_STR_BASE + 5), "LSP2"))) // Reset##LSP1
+		{
+			DeadZoneLeftStick[1] = DEFAULT_DZONE;
+			res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
+			mmcfg_changed = true;
+		}
+		ImGui_SameLine ();
+		if (ImGui_SliderFloat ("##LeftStickP2", &value, 0.0, 100.0))
+		{
+			DeadZoneLeftStick[1] = (value * MAX_DEADZONE) / 100;
+
+			res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
+			mmcfg_changed = true;
+		}
+	}
+
+	Spacer ();
+
+	{
+		float value = (float)DeadZoneRightStick[1] / MAX_DEADZONE * 100.0f;
+
+		ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
+		if (ImGui_Button (ImMakeID (
+				ImStr (GEN_SETT_STR_BASE + 5), "RSP2"))) // Reset##RSP2
+		{
+			DeadZoneRightStick[1] = DEFAULT_DZONE;
+			res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
+			mmcfg_changed = true;
+		}
+		ImGui_SameLine ();
+		if (ImGui_SliderFloat ("##RightStickP2", &value, 0.0, 100.0))
+		{
+			DeadZoneRightStick[1] = (value * MAX_DEADZONE) / 100;
+
+			res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
+			mmcfg_changed = true;
+		}
+	}
+
+	ImGui_EndTabItem (); // Deadzones
 }
 
 static void
@@ -572,8 +585,9 @@ ShowFlightRebindPopup (void)
 
 static void
 MenuControlsTab (void)
-{							// Menu
-	if (!ImGui_BeginTabItem (ImStr (GEN_CON_STR_BASE + 13), NULL, 0))
+{
+	// Menu
+	if (!ImGui_BeginTabItem (ImStr (GEN_CON_STR_BASE + 13), NULL, 0)) // Menu
 		return;
 
 	Spacer ();
@@ -605,7 +619,7 @@ MenuControlsTab (void)
 
 	MenuControls ();
 
-	ImGui_EndTabItem ();
+	ImGui_EndTabItem (); // Menu
 }
 
 static void

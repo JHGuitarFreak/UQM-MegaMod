@@ -204,17 +204,9 @@ draw_engine_menu (void)
 	// Orbit Screen
 	ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 29)); // Orbit Screen
 
-	{	// Stats Display
-		int which_scan = optWhichCoarseScan;
-
-		if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 30),
-				&which_scan, stats_display, 4)) // Stats Display
-		{
-			optWhichCoarseScan = which_scan;
-			res_PutInteger ("config.iconicscan", optWhichCoarseScan);
-			config_changed = true;
-		}
-	}
+	// Stats Display
+	UQM_ComboChar (ImStr (GEN_ENG_STR_BASE + 30), stats_display, 4,
+			&optWhichCoarseScan, "config.iconicscan", false);
 
 	// Slave Shields
 	UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 31), slave_shields,
@@ -223,18 +215,10 @@ draw_engine_menu (void)
 	// Slave Shields
 	UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 32), pc_or_3do,
 			&optScanStyle, "mm.scanStyle", false);
-
-	{	// Sphere Style
-		int sphere_style = optScanSphere;
-
-		if (ImGui_SizedComboChar (ImStr (GEN_ENG_STR_BASE + 33),
-				&sphere_style, dos_3do_uqm, 3)) // Sphere Style
-		{
-			optScanSphere = sphere_style;
-			res_PutInteger ("mm.sphereType", optScanSphere);
-			mmcfg_changed = true;
-		}
-	}
+	
+	// Sphere Style
+	UQM_ComboChar (ImStr (GEN_ENG_STR_BASE + 33), dos_3do_uqm, 3,
+			&optScanSphere, "mm.sphereType", false);
 
 	// Tinted Sphere Scan
 	UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 34), sphere_tint,
