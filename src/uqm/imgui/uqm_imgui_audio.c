@@ -153,25 +153,8 @@ void draw_audio_menu (void)
 	Spacer ();
 
 	// Interplanetary Alien Ambience
-	if (ImGui_SizedComboChar (ImStr (GEN_AUD_STR_BASE + 15), &optSpaceMusic,
-			alien_ambience, 3))
-	{
-		if (IN_MAIN_MENU)
-			GLOBAL (CurrentActivity) = 0;
-		else
-			GLOBAL (CurrentActivity) |= CHECK_ABORT;
-
-		optRequiresReload = TRUE;
-
-		res_PutInteger ("mm.spaceMusic", optSpaceMusic);
-		mmcfg_changed = true;
-	}
-	if (ImGui_BeginItemTooltip ())
-	{
-		ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_RED_COLOR),
-				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
-		ImGui_EndTooltip ();
-	} // Interplanetary Alien Ambience
+	UQM_ComboChar (ImStr (GEN_AUD_STR_BASE + 15), alien_ambience, 3,
+			&optSpaceMusic, "mm.spaceMusic",true);
 
 	Spacer ();
 
@@ -181,12 +164,8 @@ void draw_audio_menu (void)
 	Spacer ();
 
 	// Music Resume
-	if (ImGui_SizedComboChar (ImStr (GEN_AUD_STR_BASE + 17), &optMusicResume,
-			music_resume, 3))
-	{
-		res_PutInteger ("mm.musicResume", optMusicResume);
-		mmcfg_changed = true;
-	}
+	UQM_ComboChar (ImStr (GEN_AUD_STR_BASE + 17), music_resume, 3,
+			&optMusicResume, "mm.musicResume", false);
 
 	ImGui_EndChild (); // ##AudioChild
 }

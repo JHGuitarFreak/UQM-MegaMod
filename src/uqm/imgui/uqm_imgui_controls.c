@@ -105,61 +105,40 @@ draw_controls_menu (void)
 
 	ImGui_BeginStyledChild ("##ControlOptionsColumn", content_col_size,
 			CHILD_FLAGS, 0, NULL);
-	{
-		{	// Control Options
-			ImGui_SeparatorText (ImStr (GEN_CON_STR_BASE + 6));
 
-			// Auto-Detect Icons
-			ImGui_Checkbox (ImStr (GEN_CON_STR_BASE + 7),
-					(bool *)&optAutoButtons);
+	// Control Options
+	ImGui_SeparatorText (ImStr (GEN_CON_STR_BASE + 6));
 
-			Spacer ();
+	// Auto-Detect Icons
+	ImGui_Checkbox (ImStr (GEN_CON_STR_BASE + 7), (bool *)&optAutoButtons);
 
-			{	// Button Icons
-				if (ImGui_SizedComboChar (ImStr (GEN_CON_STR_BASE + 8),
-						(int *)&optControllerType, control_display, 4))
-				{
-					res_PutInteger ("mm.controllerType", optControllerType);
-					mmcfg_changed = true;
-				}
-			}
+	Spacer ();
 
-			Spacer ();
+	// Button Icons
+	UQM_ComboChar (ImStr (GEN_CON_STR_BASE + 8), control_display, 4,
+			&optControllerType, "mm.controllerType", false);
 
-			{	// Directional Joystick P1
-				ImGui_Text (ImStr (GEN_CON_STR_BASE + 9), 1);
-				if (ImGui_SizedComboChar ("##DirectionalJoystickP1",
-						(int *)&optDirJoy[0], dir_joy_disp, 5))
-				{
-					res_PutInteger ("mm.dirJoyP1", optDirJoy[0]);
-					mmcfg_changed = true;
-				}
-			}
+	Spacer ();
 
-			{	// Directional Joystick P2
-				ImGui_Text (ImStr (GEN_CON_STR_BASE + 9), 2);
-				if (ImGui_SizedComboChar ("##DirectionalJoystickP2",
-						(int *)&optDirJoy[1], dir_joy_disp, 5))
-				{
-					res_PutInteger ("mm.dirJoyP2", optDirJoy[1]);
-					mmcfg_changed = true;
-				}
-			}
+	// Directional Joystick P1
+	ImGui_Text (ImStr (GEN_CON_STR_BASE + 9), 1);
+	UQM_ComboChar ("##DirectionalJoystickP1", dir_joy_disp, 5,
+			&optDirJoy[0], "mm.dirJoyP1", false);
 
-			Spacer ();
+	// Directional Joystick P2
+	ImGui_Text (ImStr (GEN_CON_STR_BASE + 9), 2);
+	UQM_ComboChar ("##DirectionalJoystickP2", dir_joy_disp, 5,
+			&optDirJoy[1], "mm.dirJoyP2", false);
 
-			{	// Crappy Mouse Input
-				if (ImGui_SizedComboChar (ImStr (GEN_CON_STR_BASE + 10),
-						(int *)&optMouseInput, cmouse_input, 3))
-				{
-					res_PutInteger ("mm.mouseInput", optMouseInput);
-					mmcfg_changed = true;
-				}
-			}
+	Spacer ();
 
-			ImGui_NewLine ();
-		}
-	} ImGui_EndChild ();
+	// Crappy Mouse Input
+	UQM_ComboChar (ImStr (GEN_CON_STR_BASE + 10), cmouse_input, 3,
+			&optMouseInput, "mm.mouseInput", false);
+
+	ImGui_NewLine ();
+
+	ImGui_EndChild (); // ##ControlOptionsColumn
 
 	Control_Tabs ();
 }
