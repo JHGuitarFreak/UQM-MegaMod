@@ -33,7 +33,7 @@ void draw_visual_menu (void)
 	if (!IN_MAIN_MENU)
 	{
 		ImGui_BeginStyledChild ("##WarningChild", ZERO_F, CHILD_FLAGS, 0, NULL);
-		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+		ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (TIP_WARN_STR_BASE + 10)); // Screen Update Warning
 		Spacer ();
 		ImGui_EndChild ();
@@ -89,7 +89,7 @@ void draw_visual_menu (void)
 
 				if (!IN_MAIN_MENU)
 				{
-					ImGui_TextWrappedColored (IV4_RED_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 3));
 								// Main Menu Warning
 					Spacer ();
@@ -160,7 +160,7 @@ void draw_visual_menu (void)
 
 				if (!IN_MAIN_MENU)
 				{
-					ImGui_TextWrappedColored (IV4_RED_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 3));
 								// Main Menu Warning
 					Spacer ();

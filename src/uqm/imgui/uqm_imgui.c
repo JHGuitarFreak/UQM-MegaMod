@@ -21,14 +21,6 @@ bool menu_visible = false;
 static bool imgui_initialized = false;
 static TabState tab_state;
 
-bool config_changed = false;
-bool mmcfg_changed = false;
-bool cheat_changed = false;
-bool imcfg_changed = false;
-bool res_change = false;
-bool gfx_change = false;
-bool scr_refresh = false;
-
 ImGuiIO *io = NULL;
 ImGuiStyle *style = NULL;
 
@@ -63,22 +55,8 @@ static void ShowFullScreenMenu (TabState *state)
 
 	ImGui_End ();
 
-	if (config_changed || mmcfg_changed || cheat_changed || imcfg_changed)
-	{
-		if (config_changed)
-			SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
-		if (mmcfg_changed)
-			SaveResourceIndex (configDir, "megamod.cfg", "mm.", TRUE);
-		if (cheat_changed)
-			SaveResourceIndex (configDir, "cheats.cfg", "cheat.", TRUE);
-		if (imcfg_changed)
-			SaveResourceIndex (configDir, "imgui.cfg", "imgui.", TRUE);
-
-		config_changed = mmcfg_changed = cheat_changed = imcfg_changed = false;
-	}
+	UQM_SaveConfigs ();
 }
-
-// ImGui implementation below
 
 // Initializes ImGui with SDL2 and SDL_Renderer2
 static int
@@ -119,34 +97,7 @@ UQM_ImGui_Init (void)
 	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
 	LoadResourceIndex (configDir, "imgui.cfg", "imgui.");
 	ImGuiStrings = CaptureStringTable (LoadStringTable ("text.imgui"));
-
-	{	// ImGui Settings
-		int font_selection = 0;
-		float ui_scale = style->FontScaleMain;
-		bool nav_gamepad = 1;
-		float background_opacity = style->Colors[ImGuiCol_ChildBg].w;
-
-		ImGetInt (font_selection);
-		if (font_selection < io->Fonts->Fonts.Size && font_selection >= 0)
-			io->FontDefault = io->Fonts->Fonts.Data[font_selection];
-
-		ImGetFlt (ui_scale);
-		if (ui_scale >= 0.50f && ui_scale <= 3.0f)
-		{
-			style->FontScaleMain = ui_scale;
-			UQM_ScaleAllSizes ();
-		}
-
-		ImGetFlt (background_opacity);
-		if (background_opacity >= 0.0f && background_opacity <= 1.0f)
-			style->Colors[ImGuiCol_ChildBg].w = background_opacity;
-
-		ImGetBool (nav_gamepad);
-		if (nav_gamepad)
-			io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-		else
-			io->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
-	}
+	UQM_LoadImGuiSettings ();
 
 	imgui_initialized = true;
 	return 1;
@@ -249,162 +200,11 @@ bool UQM_ImGui_ProcessEvent (SDL_Event *event)
 	return ProcessControlEvents (event);
 }
 
-// Applies resolution changes.
-void
-ApplyResChanges (void)
-{
-	BOOLEAN isExclusive;
-	int NewGfxFlags;
-	int NewWidth = imgui_SavedWidth;
-	int NewHeight = imgui_SavedHeight;
-
-	if (!window || !renderer || !res_change)
-		return;
-
-	res_change = false;
-
-	NewGfxFlags = GfxFlags;
-
-	SavedWidth = NewWidth;
-	SavedHeight = NewHeight;
-
-	isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
-
-	if (NewWidth != WindowWidth || NewHeight != WindowHeight)
-	{
-		if (isExclusive)
-			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
-
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-				NewWidth, NewHeight);
-
-		TFB_SetWindowSize (NewWidth, NewHeight);
-	}
-
-	if (NewGfxFlags != GfxFlags)
-		GfxFlags = NewGfxFlags;
-
-	if (isExclusive)
-	{	// needed twice to reinitialize Exclusive Full Screen after a 
-		// resolution change
-		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-				WindowWidth, WindowHeight);
-	}
-
-	res_PutInteger ("config.keepaspectratio", optKeepAspectRatio);
-	res_PutInteger ("config.loresBlowupScale", loresBlowupScale);
-	res_PutInteger ("config.reswidth", SavedWidth);
-	res_PutInteger ("config.resheight", SavedHeight);
-
-	config_changed = true;
-}
-
-// Applies graphics changes such as Full Screen, Exclusive Full Screen,
-// Scanlines, FPS Counter, and Scaler settings
-void
-ApplyGfxChanges (void)
-{
-	BOOLEAN isExclusive;
-	int NewGfxFlags;
-
-	if (!window || !renderer || !gfx_change)
-		return;
-
-	gfx_change = false;
-
-	NewGfxFlags = imgui_GfxFlags;
-
-	isExclusive = NewGfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN;
-
-	if (NewGfxFlags != GfxFlags)
-	{
-		if (isExclusive)
-			NewGfxFlags &= ~TFB_GFXFLAGS_EX_FULLSCREEN;
-
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, NewGfxFlags,
-				WindowWidth, WindowHeight);
-	}
-
-	if (NewGfxFlags != GfxFlags)
-		GfxFlags = NewGfxFlags;
-
-	if (isExclusive)
-	{	// needed twice to reinitialize Exclusive Full Screen after a 
-		// resolution change
-		GfxFlags |= TFB_GFXFLAGS_EX_FULLSCREEN;
-		TFB_DrawScreen_ReinitVideo (GraphicsDriver, GfxFlags,
-				WindowWidth, WindowHeight);
-	}
-
-	res_PutBoolean ("config.scanlines", GfxFlags & TFB_GFXFLAGS_SCANLINES);
-	res_PutBoolean ("config.showfps", GfxFlags & TFB_GFXFLAGS_SHOWFPS);
-
-	{
-		int fullscreen_mode = 0;
-
-		if (GfxFlags & TFB_GFXFLAGS_FULLSCREEN)
-			fullscreen_mode = 2;
-		else if (GfxFlags & TFB_GFXFLAGS_EX_FULLSCREEN)
-			fullscreen_mode = 1;
-
-		res_PutInteger ("config.fullscreen", fullscreen_mode);
-	}
-
-	{
-		const char *scaler_list[6] =
-				{ "no", "bilinear", "biadapt", "biadv", "triscan", "hq" };
-		int curr_scaler;
-
-		switch (GfxFlags & 248)
-		{
-			case TFB_GFXFLAGS_SCALE_BILINEAR:
-				curr_scaler = 1;
-				break;
-			case TFB_GFXFLAGS_SCALE_BIADAPT:
-				curr_scaler = 2;
-				break;
-			case TFB_GFXFLAGS_SCALE_BIADAPTADV:
-				curr_scaler = 3;
-				break;
-			case TFB_GFXFLAGS_SCALE_TRISCAN:
-				curr_scaler = 4;
-				break;
-			case TFB_GFXFLAGS_SCALE_HQXX:
-				curr_scaler = 5;
-				break;
-			default:
-				curr_scaler = 0;
-				break;
-		}
-
-		res_PutString ("config.scaler", scaler_list[curr_scaler]);
-	}
-
-	config_changed = true;
-}
-
-// Refreshes the Flagship stats when changing Captain/Ship name,
-// Landers, Fuel, Modules, and Crew.
-void
-FlagStatRefresh (void)
-{
-	if (!scr_refresh)
-		return;
-
-	scr_refresh = false;
-
-	DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
-
-	printf ("FlagStats refreshed\n");
-}
-
 // This redirects input to ImGui when the menu is visible
 int UQM_ImGui_WantCaptureInput (void)
 {
 	if (!imgui_initialized)
 		return 0;
 
-	ImGuiIO *io = ImGui_GetIO ();
 	return (io->WantCaptureKeyboard || io->WantCaptureMouse) ? 1 : 0;
 }

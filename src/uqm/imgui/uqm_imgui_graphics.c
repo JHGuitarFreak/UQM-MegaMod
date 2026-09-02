@@ -65,7 +65,7 @@ void draw_graphics_menu (void)
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
 				ImGui_BeginTooltip ();
-				ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+				ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_RED_COLOR),
 						ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 				ImGui_EndTooltip ();
 			}

@@ -58,7 +58,7 @@ draw_engine_menu (void)
 	if (!IN_MAIN_MENU)
 	{
 		ImGui_BeginStyledChild ("##WarningChild", ZERO_F, CHILD_FLAGS, 0, NULL);
-		ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+		ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (TIP_WARN_STR_BASE + 2)); // Options Warning
 		Spacer ();
 		ImGui_EndChild ();
@@ -89,7 +89,8 @@ draw_engine_menu (void)
 				if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 				{
 					ImGui_BeginTooltip ();
-					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+					ImGui_TextColoredUnformatted (
+							ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 					ImGui_EndTooltip ();
 				}
@@ -147,7 +148,8 @@ draw_engine_menu (void)
 				if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 				{
 					ImGui_BeginTooltip ();
-					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+					ImGui_TextColoredUnformatted (
+							ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 					ImGui_EndTooltip ();
 				}
@@ -172,7 +174,7 @@ draw_engine_menu (void)
 
 				if (!IN_MAIN_MENU)
 				{
-					ImGui_TextWrappedColored (IV4_RED_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 3));
 								// Main Menu Warning
 					Spacer ();
@@ -289,7 +291,7 @@ draw_engine_menu (void)
 
 				if (!IN_MAIN_MENU)
 				{
-					ImGui_TextWrappedColored (IV4_RED_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 3));
 								// Main Menu Warning
 					Spacer ();

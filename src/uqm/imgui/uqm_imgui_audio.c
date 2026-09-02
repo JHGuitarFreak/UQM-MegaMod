@@ -169,7 +169,8 @@ void draw_audio_menu (void)
 				}
 				if (ImGui_BeginItemTooltip ())
 				{
-					ImGui_TextColoredUnformatted (IV4_RED_COLOR,
+					ImGui_TextColoredUnformatted (
+							ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 					ImGui_EndTooltip ();
 				}

@@ -124,6 +124,8 @@ int UQM_ImGui_WantCaptureInput (void);
 void ApplyResChanges (void);
 void ApplyGfxChanges (void);
 void FlagStatRefresh (void);
+void UQM_SaveConfigs (void);
+void UQM_LoadImGuiSettings (void);
 
 // ImGui Journal
 extern char *jrnl_buf;
@@ -229,15 +231,6 @@ ImVec4 UQM_ColorToImVec4 (Color color);
 
 ImU32 UQM_ColorToU32 (Color color);
 #define ColorToU32(a) (UQM_ColorToU32 (a))
-
-#define IV4_RED_COLOR    ((ImVec4){ 1.0f, 0.0f, 0.0f, 1.0f })
-#define IV4_YELLOW_COLOR ((ImVec4){ 1.0f, 1.0f, 0.0f, 1.0f })
-#define IV4_WHITE_COLOR  ((ImVec4){ 1.0f, 1.0f, 1.0f, 1.0f })
-#define IV4_GREEN_COLOR  ((ImVec4){ 0.0f, 1.0f, 0.0f, 1.0f })
-#define IV4_BLUE_COLOR   ((ImVec4){ 0.0f, 0.0f, 1.0f, 1.0f })
-
-#define U32_RED_COLOR   0xAF0000FF
-#define U32_GREEN_COLOR 0xAF00FF00
 
 #define U32_FRAMEBG_GS     0x8A464646
 #define U32_FRAMEBG_HOV_GS 0x66898989

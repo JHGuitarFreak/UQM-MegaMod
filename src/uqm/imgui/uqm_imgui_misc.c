@@ -80,7 +80,7 @@ void draw_adv_menu (void)
 		{
 			ImGui_Text (ImStr (GEN_ADV_STR_BASE + 3)); // Enable Risky Options
 			ImGui_Checkbox ("##RiskyOptions", &risky_options);
-			ImGui_TextWrappedColored (IV4_RED_COLOR,
+			ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 					ImStr (TIP_WARN_STR_BASE + 5)); // Risky Warning
 		}
 
@@ -150,10 +150,10 @@ void draw_adv_menu (void)
 				}
 				if (!IN_MAIN_MENU && risky_options)
 				{
-					ImGui_TextWrappedColored (IV4_RED_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 6));
 								// HyperSpace Warning
-					ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 7));
 								// Seed Type Warning
 				}
@@ -171,7 +171,7 @@ void draw_adv_menu (void)
 			}
 			if (!IN_MAIN_MENU && risky_options)
 			{
-				ImGui_TextWrappedColored (IV4_RED_COLOR,
+				ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 						ImStr (TIP_WARN_STR_BASE + 8));
 							// Ship Seed Warning
 			}
@@ -193,10 +193,10 @@ void draw_adv_menu (void)
 				}
 				if (!IN_MAIN_MENU && risky_options)
 				{
-					ImGui_TextWrappedColored (IV4_RED_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 6));
 								// HyperSpace Warning
-					ImGui_TextWrappedColored (IV4_YELLOW_COLOR,
+					ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 							ImStr (TIP_WARN_STR_BASE + 9));
 								// Custom Seed Warning
 				}
