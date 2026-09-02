@@ -31,91 +31,97 @@ void draw_cheats_menu (void)
 
 	ImGui_BeginStyledChild ("##CheatsColumn", content_col_size,
 			CHILD_FLAGS, 0, NULL);
-	{	// Basic Cheats
-		ImGui_SeparatorText (ImStr (ENH_CHT_STR_BASE + 2));
 
-		// Kohr-Stahp
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 3), &optCheatMode,
-				"cheat.kohrStahp", false);
-		// Kohr-Ah DeCleansing
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 4), &optDeCleansing,
-				"cheat.deCleansing", false);
+	// Basic Cheats
+	ImGui_SeparatorText (ImStr (ENH_CHT_STR_BASE + 2));
 
-		Spacer ();
+	// Kohr-Stahp
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 3), &optCheatMode,
+			"cheat.kohrStahp", false);
+	// Kohr-Ah DeCleansing
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 4), &optDeCleansing,
+			"cheat.deCleansing", false);
 
-		// God Modes
-		if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 5), &optGodModes,
-				god_modes, 4))
+	Spacer ();
+
+	// God Modes
+	if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 5), &optGodModes,
+			god_modes, 4))
+	{
+		res_PutInteger ("cheat.godModes", optGodModes);
+		cheat_changed = true;
+	}
+
+	// Time Dilation
+	if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 6),
+			&timeDilationScale, time_modes, 3))
+	{
+		if (!IN_MAIN_MENU)
 		{
-			res_PutInteger ("cheat.godModes", optGodModes);
-			cheat_changed = true;
+			LockGameClock ();
+			if (GLOBAL (CurrentActivity) & IN_INTERPLANETARY)
+				SetGameClockRate (INTERPLANETARY_CLOCK_RATE);
+			else if (GLOBAL (CurrentActivity) & IN_HYPERSPACE)
+				SetGameClockRate (HYPERSPACE_CLOCK_RATE);
+			UnlockGameClock ();
 		}
 
-		// Time Dilation
-		if (ImGui_SizedComboChar (ImStr (ENH_CHT_STR_BASE + 6),
-				&timeDilationScale, time_modes, 3))
-		{
-			if (!IN_MAIN_MENU)
-			{
-				LockGameClock ();
-				if (GLOBAL (CurrentActivity) & IN_INTERPLANETARY)
-					SetGameClockRate (INTERPLANETARY_CLOCK_RATE);
-				else if (GLOBAL (CurrentActivity) & IN_HYPERSPACE)
-					SetGameClockRate (HYPERSPACE_CLOCK_RATE);
-				UnlockGameClock ();
-			}
+		res_PutInteger ("cheat.timeDilation", timeDilationScale);
+		cheat_changed = true;
+	}
 
-			res_PutInteger ("cheat.timeDilation", timeDilationScale);
-			cheat_changed = true;
-		}
+	Spacer ();
 
-		Spacer ();
+	// Bubble Warp
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 7), &optBubbleWarp,
+			"cheat.bubbleWarp", false);
+	// Head Start
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 8), &optHeadStart,
+			"cheat.headStart", false);
+	// Unlock All Ships
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 9), &optUnlockShips,
+			"cheat.unlockShips", false);
+	// Infinite R.U.
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 10), &optInfiniteRU,
+			"cheat.infiniteRU", false);
+	// Infinite Fuel
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 11), &optInfiniteFuel,
+			"cheat.infiniteFuel", false);
+	// Infinite Credits
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 12), &optInfiniteCredits,
+			"cheat.infiniteCredits", false);
+	// No Hyperspace Encounters
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 13), &optNoHQEncounters,
+			"cheat.noHQEncounters", false);
+	// No Melee Obstacles
+	UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 14), &optMeleeObstacles,
+			"cheat.meleeObstacles", false);
 
-		// Bubble Warp
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 7), &optBubbleWarp,
-				"cheat.bubbleWarp", false);
-		// Head Start
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 8), &optHeadStart,
-				"cheat.headStart", false);
-		// Unlock All Ships
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 9), &optUnlockShips,
-				"cheat.unlockShips", false);
-		// Infinite R.U.
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 10), &optInfiniteRU,
-				"cheat.infiniteRU", false);
-		// Infinite Fuel
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 11), &optInfiniteFuel,
-				"cheat.infiniteFuel", false);
-		// Infinite Credits
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 12), &optInfiniteCredits,
-				"cheat.infiniteCredits", false);
-		// No Hyperspace Encounters
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 13), &optNoHQEncounters,
-				"cheat.noHQEncounters", false);
-		// No Melee Obstacles
-		UQM_ImGui_CheckBox (ImStr (ENH_CHT_STR_BASE + 14), &optMeleeObstacles,
-				"cheat.meleeObstacles", false);
+	ImGui_NewLine ();
 
-		ImGui_NewLine ();
+	// Expanded Cheats
+	ImGui_SeparatorText (ImStr (ENH_CHT_STR_BASE + 15));
 
-		// Expanded Cheats
-		ImGui_SeparatorText (ImStr (ENH_CHT_STR_BASE + 15));
+	// Lander Capacity
+	ImGui_Text (ImStr (ENH_CHT_STR_BASE + 16));
 
-		// Lander Capacity
-		ImGui_Text (ImStr (ENH_CHT_STR_BASE + 16));
-		ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
-		ImGui_SameLine ();
-		ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
-				(ImGui_GetItemRectSize ().x + style->ItemSpacing.x));
-		ImGui_InputInt ("##LanderCapacity",
-				!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
+	ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
 
-		ImGui_NewLine ();
+	ImGui_SameLine ();
 
-		// Ships GTFO!
-		if (ImGui_Button (ImStr (ENH_CHT_STR_BASE + 17)))
-			ShipGTFO = true;
+	ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
+			(ImGui_GetItemRectSize ().x + style->ItemSpacing.x));
 
-		ImGui_NewLine ();
-	} ImGui_EndChild ();
+	ImGui_InputInt ("##LanderCapacity",
+			!changeLanderCapacity ? &MaxScrounged : &optLanderHold);
+
+	ImGui_NewLine (); // Lander Capacity
+
+	// Ships GTFO!
+	if (ImGui_Button (ImStr (ENH_CHT_STR_BASE + 17)))
+		ShipGTFO = true;
+
+	ImGui_NewLine ();
+
+	ImGui_EndChild (); // ##CheatsColumn
 }

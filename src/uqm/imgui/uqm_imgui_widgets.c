@@ -107,6 +107,91 @@ ImGui_SizedComboChar (const char *label, int *curr_item,
 	return temp;
 }
 
+static int
+ToCons (int opt)
+{
+	return (opt ? OPT_3DO : OPT_PC);
+}
+
+void
+UQM_WhichConfig (const char *key)
+{
+	if (strncmp (key, "config.", 7) == 0)
+		config_changed = true;
+	else if (strncmp (key, "mm.", 3) == 0)
+		mmcfg_changed = true;
+	else if (strncmp (key, "cheat.", 6) == 0)
+		cheat_changed = true;
+	else if (strncmp (key, "imgui.", 6) == 0)
+		imcfg_changed = true;
+}
+
+void
+UQM_ComboChar (const char* label, const char *const items[],
+		int items_count, int *option, const char *key, bool reload)
+{
+	int temp = *option;
+
+	if (ImGui_SizedComboChar (label, &temp, items, items_count))
+	{
+		if (reload)
+		{
+			if (IN_MAIN_MENU)
+				GLOBAL (CurrentActivity) = 0;
+			else
+				GLOBAL (CurrentActivity) |= CHECK_ABORT;
+		}
+
+		*option = temp;
+		res_PutInteger (key, temp);
+
+		UQM_WhichConfig (key);
+
+		optRequiresReload = reload;
+	}
+	if (reload && ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+	{
+		ImGui_BeginTooltip ();
+		ImGui_TextColoredUnformatted (
+				ColorToIV4 (BRIGHT_RED_COLOR),
+				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
+		ImGui_EndTooltip ();
+	}
+}
+
+void
+UQM_ConsComboChar (const char* label, const char *const items[],
+		int *option, const char *key, bool reload)
+{
+	int temp = is3DO (*option);
+
+	if (ImGui_SizedComboChar (label, &temp, items, 2))
+	{
+		if (reload)
+		{
+			if (IN_MAIN_MENU)
+				GLOBAL (CurrentActivity) = 0;
+			else
+				GLOBAL (CurrentActivity) |= CHECK_ABORT;
+		}
+
+		*option = ToCons (temp);
+		res_PutBoolean (key, (BOOLEAN)temp);
+
+		UQM_WhichConfig (key);
+
+		optRequiresReload = reload;
+	}
+	if (reload && ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+	{
+		ImGui_BeginTooltip ();
+		ImGui_TextColoredUnformatted (
+				ColorToIV4 (BRIGHT_RED_COLOR),
+				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
+		ImGui_EndTooltip ();
+	}
+}
+
 // Code adapted from StackOverflow reply
 // https://stackoverflow.com/a/70073137
 void
@@ -358,7 +443,7 @@ UQM_GetStrArray (int index)
 		array[count++] = strdup (token);
 		token = strtok (NULL, ",\n");
 	}
-	free (copy);
+	HFree (copy);
 
 	if (array == NULL)
 	{

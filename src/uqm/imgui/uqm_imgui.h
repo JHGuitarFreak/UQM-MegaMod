@@ -217,6 +217,10 @@ void UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 		bool needs_reboot);
 bool ImGui_SizedComboChar (const char *label, int *curr_item,
 		const char *const items[], int items_count);
+void UQM_ComboChar (const char *label, const char *const items[],
+		int items_count, int *option, const char *key, bool reload);
+void UQM_ConsComboChar (const char *label, const char *const items[],
+		int *option, const char *key, bool reload);
 void ImGui_TextWrappedColored (ImVec4 col, const char *fmt, ...);
 void ImGui_HoriVertSeparator (const char *str_id, bool v);
 void ImGui_BeginStyledChild (const char *str_id, ImVec2 size,
