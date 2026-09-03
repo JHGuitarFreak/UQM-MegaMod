@@ -233,14 +233,16 @@ MELEE_STATE *pMeleeState;
 FONT MicroThinFont;
 FONT ButtonFont;
 
-static RECT MeleeOptionRects[9];
+#define NUM_MELEE_RECTS 9
+static RECT MeleeOptionRects[NUM_MELEE_RECTS];
 
+#define NUM_FLEET_RECTS 15 * 2
 typedef struct
 {
 	COUNT row, col, side;
 	RECT r;
 } FLEET_EDIT;
-static FLEET_EDIT FleetEdit[15 * 2];
+static FLEET_EDIT FleetEdit[NUM_FLEET_RECTS];
 
 BOOLEAN DoMelee (MELEE_STATE *pMS);
 static BOOLEAN DoEdit (MELEE_STATE *pMS);
@@ -262,7 +264,8 @@ static void Melee_UpdateView_teamName (MELEE_STATE *pMS, COUNT side);
 
 static BYTE GetShipRow (FleetShipIndex index);
 static BYTE GetShipColumn (int index);
-static void GetFullStringRect (COUNT side, RECT *r);
+static void GetTeamStringRect (COUNT side, RECT *r);
+static void GetFleetValueRect (COUNT side, RECT *r);
 
 static void
 InitMeleeRects (void)
@@ -290,6 +293,12 @@ InitMeleeRects (void)
 	GetFrameRect (SetAbsFrameIndex (MeleeFrame, QUIT_BUTTON), &r);
 	MeleeOptionRects[8] = r;
 
+	for (i = 0; i < NUM_MELEE_RECTS; i++)
+	{
+		MeleeOptionRects[i].corner.x += SAFE_X;
+		MeleeOptionRects[i].corner.y += SAFE_Y;
+	}
+
 	for (i = 0, side = 0; side < NUM_SIDES; side++, i++)
 	{
 		FleetShipIndex index;
@@ -304,7 +313,8 @@ InitMeleeRects (void)
 
 			GetShipBox (&r, side, row, col);
 
-			//printf ("side %d, row %d, col %d\n", side, row, col);
+			r.corner.x += SAFE_X;
+			r.corner.y += SAFE_Y;
 
 			FleetEdit[i].r = r;
 			FleetEdit[i].col = col;
@@ -312,12 +322,19 @@ InitMeleeRects (void)
 			FleetEdit[i].side = side;
 		}
 
-		GetFullStringRect (side, &r);
+		GetTeamStringRect (side, &r);
+
+		r.corner.x += SAFE_X;
+		r.corner.y += SAFE_Y;
 
 		FleetEdit[i].r = r;
 		FleetEdit[i].col = 0;
 		FleetEdit[i].row = 2;
 		FleetEdit[i].side = side;
+
+		GetFleetValueRect (side, &r);
+
+		FleetEdit[i].r.extent.width += r.extent.width;
 	}
 }
 
@@ -326,7 +343,7 @@ HoveringOverOption (BYTE *item)
 {
 	BYTE i;
 
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < NUM_MELEE_RECTS; i++)
 	{
 		if (MouseInRect (MeleeOptionRects[i]))
 		{
@@ -343,7 +360,7 @@ HoveringOverEdit (FLEET_EDIT *item)
 {
 	BYTE i;
 
-	for (i = 0; i < 30; i++)
+	for (i = 0; i < NUM_FLEET_RECTS; i++)
 	{
 		if (MouseInRect (FleetEdit[i].r))
 		{
@@ -2767,7 +2784,7 @@ DoMelee (MELEE_STATE *pMS)
 			int cursor = CURSOR_POINTER;
 			BYTE hovered_item = NewMeleeOption;
 
-			for (i = 0; i < 9; i++)
+			for (i = 0; i < NUM_MELEE_RECTS; i++)
 			{
 				if (MouseInRect (MeleeOptionRects[i]))
 				{
