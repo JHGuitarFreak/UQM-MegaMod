@@ -90,7 +90,7 @@ extern void SeedFleet (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap);
 // SeedShip handles ship seeding, used in build.c to handle the load window
 extern SPECIES_ID SeedShip (SPECIES_ID SpeciesID, BOOLEAN loadWindow);
 extern BOOLEAN legacySave;
-extern BYTE GTFO;
+extern BYTE Ilwrath_GTFO;
 
 #if defined(__cplusplus)
 }

@@ -25,7 +25,7 @@
 #include "options.h"
 #include SDL_INCLUDE(SDL.h)
 
-int fs_height = 0; 
+int fs_height = 0;
 int fs_width  = 0;
 
 // Actual canvas size we're plotting our graphics to

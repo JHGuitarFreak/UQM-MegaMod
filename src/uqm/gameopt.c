@@ -34,6 +34,7 @@
 #include "util.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/log/uqmlog.h"
+#include "libs/inplib.h"
 #include "comm.h"
 #include "master.h"
 
@@ -56,6 +57,8 @@ BYTE OutfitOrShipyard = 0;
 BOOLEAN SaveOrLoad = FALSE;
 BOOLEAN TextEntry3DO = FALSE;
 BOOLEAN QuickLoadRequested = FALSE;
+
+static RECT SlotRects[MAX_SAVED_GAMES + 1];
 
 void
 ConfirmSaveLoad (STAMP *MsgStamp)
@@ -416,7 +419,8 @@ NameCaptainOrShip (BOOLEAN nameCaptain, BOOLEAN gamestart)
 }
 
 static BOOLEAN
-DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state, COUNT gameIndex)
+DrawSaveNameString (UNICODE *Str, COUNT CursorPos, COUNT state,
+		COUNT gameIndex)
 {
 	RECT r;
 	TEXT lf;
@@ -624,13 +628,15 @@ DoSettings (MENU_STATE *pMS)
 		PulsedInputState.menu[KEY_MENU_SELECT] = 65535;
 	}
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| (PulsedInputState.menu[KEY_MENU_SELECT]
+	if ((PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+			|| ((PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_SETTINGS_MENU))
 	{
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{
@@ -1503,8 +1509,10 @@ TruncateSaveName (UNICODE* buf, COORD maxWidth, BOOLEAN naming)
 		const char ellipses[] = "...";
 
 		do
-		{	// Shorten the save name down so it will fit the width of the save name box
-			strncpy (&buf[--stringLength - sizeof(ellipses)], ellipses, sizeof(ellipses));
+		{	// Shorten the save name down so it will fit the width of the
+			// save name box
+			strncpy (&buf[--stringLength - sizeof(ellipses)], ellipses,
+					sizeof(ellipses));
 			r = font_GetTextRect(&t);
 		} while (r.extent.width > maxWidth);
 
@@ -1529,6 +1537,8 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 
 	DrawSaveLoadText (pickState);
 
+	memset (SlotRects, 0, sizeof (SlotRects));
+
 	// Erase the selection menu
 	r.corner.x = RES_SCALE (1);
 	r.corner.y = RES_SCALE (160);
@@ -1542,7 +1552,7 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 	t.align = ALIGN_LEFT;
 
 	// Draw savegame slots info
-	totalSlots = pickState->saving ? MAX_SAVED_GAMES : MAX_SAVED_GAMES + 1;
+	totalSlots = MAX_SAVED_GAMES + (pickState->saving ? 0 : 1);
 	curSlot = selSlot - (selSlot % SAVES_PER_PAGE);
 	for (i = 0; i < SAVES_PER_PAGE && curSlot < totalSlots; ++i, ++curSlot)
 	{
@@ -1575,6 +1585,9 @@ DrawGameSelection (PICK_GAME_STATE *pickState, COUNT selSlot)
 				(SIS_SCREEN_WIDTH - RES_SCALE (242));
 		r.corner.x = RES_SCALE (30);
 		DrawRectangle (&r, IS_HD);
+
+		if (curSlot < totalSlots)
+			SlotRects[curSlot] = r;
 
 		t.baseline.x = r.corner.x + RES_SCALE (3);
 		if (desc->year_index == 0)
@@ -1638,17 +1651,27 @@ DoPickGame (MENU_STATE *pMS)
 	BYTE NewState;
 	SUMMARY_DESC *pSD;
 	DWORD TimeIn = GetTimeCounter ();
-	COUNT maxSlots = pickState->saving ? MAX_SAVED_GAMES - 1 : MAX_SAVED_GAMES;
+	COUNT maxSlots = MAX_SAVED_GAMES - (pickState->saving ? 1 : 0);
+	BOOLEAN pgup, pgdn;
 
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 		return FALSE;
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL])
+	pgup = PulsedInputState.menu[KEY_MENU_LEFT] ||
+			PulsedInputState.menu[KEY_MENU_PAGE_UP] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP];
+	pgdn = PulsedInputState.menu[KEY_MENU_RIGHT]  ||
+			PulsedInputState.menu[KEY_MENU_PAGE_DOWN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
+
+	if (PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT))
 	{
 		pickState->success = FALSE;
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| CtxMouseClicker (SlotRects[pMS->CurState]))
 	{
 		pSD = &pickState->summary[pMS->CurState];
 		if (pickState->saving || pSD->year_index ||
@@ -1666,7 +1689,8 @@ DoPickGame (MENU_STATE *pMS)
 					GLOBAL_SIS (FuelOnBoard) = loadFuel;
 				else
 				{
-					GLOBAL_SIS (ResUnits) += (LoadFuelScaled - TankCapacityScaled) * GLOBAL (FuelCost);
+					GLOBAL_SIS (ResUnits) += (LoadFuelScaled -
+							TankCapacityScaled) * GLOBAL (FuelCost);
 					GLOBAL_SIS (FuelOnBoard) = GetFuelTankCapacity();
 				}
 			}
@@ -1680,8 +1704,7 @@ DoPickGame (MENU_STATE *pMS)
 	else
 	{
 		NewState = pMS->CurState;
-		if (PulsedInputState.menu[KEY_MENU_LEFT]
-			|| PulsedInputState.menu[KEY_MENU_PAGE_UP])
+		if (pgup)
 		{
 			if (NewState == 0)
 				NewState = maxSlots;
@@ -1690,8 +1713,7 @@ DoPickGame (MENU_STATE *pMS)
 			else
 				NewState = 0;
 		}
-		else if (PulsedInputState.menu[KEY_MENU_RIGHT]
-			|| PulsedInputState.menu[KEY_MENU_PAGE_DOWN])
+		else if (pgdn)
 		{
 			if (NewState == maxSlots)
 				NewState = 0;
@@ -1702,6 +1724,7 @@ DoPickGame (MENU_STATE *pMS)
 		}
 		else if (PulsedInputState.menu[KEY_MENU_UP])
 		{
+
 			if (NewState == 0)
 				NewState = maxSlots;
 			else
@@ -1713,6 +1736,32 @@ DoPickGame (MENU_STATE *pMS)
 				NewState = 0;
 			else
 				NewState++;
+		}
+
+		if (!(pgup || pgdn) && SetMouseContext (SpaceContext))
+		{
+			BYTE i;
+			int cursor = CURSOR_POINTER;
+			COUNT total_slots = MAX_SAVED_GAMES + (pickState->saving ? 0 : 1);
+			BYTE hovered_item = NewState;
+
+			for (i = 0; i < total_slots; i++)
+			{
+				if (MouseInRect (SlotRects[i]))
+				{
+					hovered_item = i;
+					cursor = CURSOR_POINTER_HILITE;
+					break;
+				}
+			}
+
+			UQM_SetCursor (cursor);
+
+			if (hovered_item != NewState)
+			{
+				NewState = hovered_item;
+				PlayMenuSound (MENU_SOUND_MOVE);
+			}
 		}
 
 		if (NewState != pMS->CurState)
@@ -1729,7 +1778,8 @@ DoPickGame (MENU_STATE *pMS)
 }
 
 static BOOLEAN
-SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex, BOOLEAN *canceled_by_user)
+SaveLoadGame (PICK_GAME_STATE *pickState, COUNT gameIndex,
+		BOOLEAN *canceled_by_user)
 {
 	SUMMARY_DESC *desc = pickState->summary + gameIndex;
 	UNICODE nameBuf[256];
@@ -1912,7 +1962,8 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 	if (!(GLOBAL (CurrentActivity) & CHECK_ABORT) &&
 			(saving || (!pickState.success && !fromMainMenu)))
 	{	// Restore previous screen
-		BOOLEAN InStarbase = (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) == (BYTE)~0);
+		BOOLEAN InStarbase =
+				(GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) == (BYTE)~0);
 
 		// Math to include the title bars in the screen transition
 		DlgRect.extent.width += DlgRect.corner.x;
@@ -1924,11 +1975,13 @@ PickGame (BOOLEAN saving, BOOLEAN fromMainMenu)
 
 		DrawStamp (&DlgStamp);
 
-		// These redraw the status of the ship after saving or aborting a load/save
+		// These redraw the status of the ship after saving or aborting
+		// a load/save
 
 		// Redraws main title bar at the top-left
 		if (InStarbase && OutfitOrShipyard > 1)
-			DrawSISMessage (GAME_STRING (STARBASE_STRING_BASE + OutfitOrShipyard));
+			DrawSISMessage (
+					GAME_STRING (STARBASE_STRING_BASE + OutfitOrShipyard));
 		else
 			DrawSISMessage (NULL);
 
@@ -2053,13 +2106,15 @@ DoGameOptions (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL]
-			|| (PulsedInputState.menu[KEY_MENU_SELECT]
+	if ((PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT))
+			|| ((PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 			&& pMS->CurState == EXIT_GAME_MENU))
 	{
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{

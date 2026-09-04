@@ -30,12 +30,16 @@
 #include "libs/gfxlib.h"
 #include "libs/log.h"
 #include "libs/tasklib.h"
+#include "libs/inplib.h"
 
 #include <stdlib.h>
 
-// JMS_GFX: These exist to prevent the leftover red borders of the rostered ships in hi-res.
+// JMS_GFX: These exist to prevent the leftover red borders of the rostered
+// ships in hi-res.
 static RECT  savedShipFrame_r;
 static STAMP savedShipFrame;
+
+static RECT RosterRects[MAX_BUILT_SHIPS];
 
 // Ship icon positions in status display around the flagship
 static const POINT ship_pos[MAX_BUILT_SHIPS] =
@@ -75,16 +79,20 @@ drawSupportShip (ROSTER_STATE *rosterState, bool filled, bool saveFrame)
 	s.origin.y = RES_SCALE (rosterState->curShipPt.y);
 	s.frame = rosterState->curShipFrame;
 
-	if (saveFrame) {
+	if (saveFrame)
+	{
 		savedShipFrame_r.corner.x = s.origin.x;
 		savedShipFrame_r.corner.y = s.origin.y;
 		savedShipFrame_r.extent.width  = RES_SCALE (16);
-		savedShipFrame_r.extent.height = RES_SCALE (16); 
+		savedShipFrame_r.extent.height = RES_SCALE (16);
 	
 		savedShipFrame = SaveContextFrame (&savedShipFrame_r);
 		
-		log_add (log_Debug,"Saved x:%u, y:%u", savedShipFrame_r.corner.x ,savedShipFrame_r.corner.y);
-	} else {
+		//log_add (log_Debug,"Saved x:%u, y:%u", savedShipFrame_r.corner.x,
+		//		savedShipFrame_r.corner.y);
+	}
+	else
+	{
 		if (filled)
 			DrawFilledStamp (&s);
 		else
@@ -260,8 +268,9 @@ DoModifyRoster (MENU_STATE *pMS)
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			CtxMouseClicker (RosterRects[pMS->CurState]);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	up = PulsedInputState.menu[KEY_MENU_UP];
 	down = PulsedInputState.menu[KEY_MENU_DOWN];
 	// Left or right produces the same effect because there are 2 columns
@@ -280,20 +289,26 @@ DoModifyRoster (MENU_STATE *pMS)
 		if (!rosterState->modifyingCrew)
 		{
 			SetFlashRect (NULL, FALSE);
-			SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGE, MENU_SOUND_SELECT);
+			SetMenuSounds (MENU_SOUND_ARROWS | MENU_SOUND_PAGE,
+					MENU_SOUND_SELECT);
 		}
 		else
 		{
 			drawModifiedSupportShip (rosterState);
 			flashSupportShipCrew ();
-			SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_PAGE, 
-				MENU_SOUND_ACTION);
+			SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN | MENU_SOUND_PAGE,
+					MENU_SOUND_ACTION);
 		}
 	}
 	else if (rosterState->modifyingCrew)
 	{
 		COUNT loop, DoLoop = 0;
 		BOOLEAN failed = FALSE;
+
+		if (PulsedInputState.menu[MOUSE_WHEEL_UP])
+			up = TRUE;
+		if (PulsedInputState.menu[MOUSE_WHEEL_DOWN])
+			down = TRUE;
 
 		if (up || pgup)
 		{
@@ -313,7 +328,8 @@ DoModifyRoster (MENU_STATE *pMS)
 		if (DoLoop != 0)
 		{
 			for (loop = 0; loop < DoLoop; loop++)
-				failed = !DeltaSupportCrew (rosterState, (down || pgdn) ? -1 : 1);
+				failed = !DeltaSupportCrew (rosterState,
+						(down || pgdn) ? -1 : 1);
 		}
 
 		if (failed)
@@ -367,6 +383,40 @@ DoModifyRoster (MENU_STATE *pMS)
 				NewState = rosterState->count - 1;
 			else
 				--NewState;
+		}
+		else
+		{
+			if (rosterState->count > 1 && SetMouseContext (StatusContext))
+			{
+				BYTE i;
+				int cursor = CURSOR_POINTER;
+				BYTE hovered_item = NewState;
+
+				for (i = 0; i < rosterState->count; i++)
+				{
+					RosterRects[i].corner.x =
+							RES_SCALE (rosterState->shipPos[i].x);
+					RosterRects[i].corner.y =
+							RES_SCALE (rosterState->shipPos[i].y);
+					RosterRects[i].extent.width = RES_SCALE (16);
+					RosterRects[i].extent.height = RES_SCALE (16);
+
+					if (MouseInRect (RosterRects[i]))
+					{
+						hovered_item = i;
+						cursor = CURSOR_POINTER_HILITE;
+						break;
+					}
+				}
+
+				UQM_SetCursor (cursor);
+
+				if (hovered_item != NewState)
+				{
+					NewState = hovered_item;
+					PlayMenuSound (MENU_SOUND_MOVE);
+				}
+			}
 		}
 
 		BatchGraphics ();
@@ -442,6 +492,8 @@ RosterMenu (void)
 	memcpy (RosterState.shipPos, ship_pos, sizeof (ship_pos));
 	qsort (RosterState.shipPos, RosterState.count,
 			sizeof (RosterState.shipPos[0]), compShipPos);
+
+	memset (RosterRects, 0, sizeof RosterRects);
 
 	SetContext (StatusContext);
 	selectSupportShip (&RosterState, MenuState.CurState);

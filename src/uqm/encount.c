@@ -68,7 +68,7 @@ DoSelectAction (MENU_STATE *pMS)
 		pMS->Initialized = TRUE;
 		pMS->InputFunc = DoSelectAction;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT] || MouseButton (MOUSE_LFT))
 	{
 		switch (pMS->CurState)
 		{

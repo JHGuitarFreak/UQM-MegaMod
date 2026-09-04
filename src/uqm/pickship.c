@@ -33,6 +33,7 @@
 #include "sounds.h"
 #include "libs/mathlib.h"
 #include "util.h"
+#include "libs/inplib.h"
 
 #define NUM_PICK_SHIP_ROWS 2
 #define NUM_PICK_SHIP_COLUMNS 6
@@ -44,6 +45,58 @@
 
 FRAME PickFrame;
 POINT frameOrigin;
+
+typedef struct
+{
+	POINT pt;
+	RECT r;
+} PICK_HOVER;
+
+static PICK_HOVER PickHover[14];
+
+static void
+InitPickShipRects (RECT pick_r)
+{
+	BYTE i;
+
+	for (i = 0; i < 14; i++)
+	{
+		if (i == 10)
+			continue;
+
+		if (i < 7)
+		{
+			PickHover[i].pt.x = i;
+			PickHover[i].pt.y = 0;
+		}
+		else
+		{
+			PickHover[i].pt.x = i - 7;
+			PickHover[i].pt.y = 1;
+		}
+
+		PickHover[i].r.corner.x = pick_r.corner.x + RES_SCALE (5) +
+				((ICON_WIDTH + RES_SCALE (4)) * (i % 7));
+		PickHover[i].r.corner.y = pick_r.corner.y + RES_SCALE (16) +
+				((ICON_HEIGHT + RES_SCALE (4)) * (i / 7));
+		PickHover[i].r.extent.width = RES_SCALE (16);
+		PickHover[i].r.extent.height = RES_SCALE (16);
+
+		if ((i % 7) >= (7 >> 1))
+			PickHover[i].r.corner.x += RES_SCALE (6);
+
+		if (i == 3)
+		{	// Flagship is special
+			PickHover[i].pt.x = 3;
+			PickHover[i].pt.y = 0;
+
+			PickHover[i].r.corner.x = pick_r.corner.x + FLAGSHIP_X_OFFS;
+			PickHover[i].r.corner.y = pick_r.corner.y + FLAGSHIP_Y_OFFS;
+			PickHover[i].r.extent.width = FLAGSHIP_WIDTH;
+			PickHover[i].r.extent.height = FLAGSHIP_HEIGHT;
+		}
+	}
+}
 
 void
 InitPickFrame (void)
@@ -100,11 +153,13 @@ DoPickBattleShip (MENU_STATE *pMS)
 
 		goto ChangeSelection;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT))
 	{
 		if ((HSTARSHIP)pMS->CurFrame)
 		{
 			PlayMenuSound (MENU_SOUND_SUCCESS);
+			UQM_SetCursor (CURSOR_DISABLE);
 			return (FALSE);
 		}
 	}
@@ -119,8 +174,33 @@ DoPickBattleShip (MENU_STATE *pMS)
 
 		new_col = pMS->first_item.x + dx;
 		new_row = pMS->first_item.y + dy;
-		if (new_row != pMS->first_item.y
-				|| new_col != pMS->first_item.x)
+
+		if (SetMouseContext (SpaceContext))
+		{
+			BYTE i;
+			int cursor = CURSOR_POINTER;
+			POINT hovered_item = pMS->first_item;
+
+			for (i = 0; i < 14; i++)
+			{
+				if (MouseInRect (PickHover[i].r))
+				{
+					hovered_item = PickHover[i].pt;
+					cursor = CURSOR_POINTER_HILITE;
+					break;
+				}
+			}
+
+			UQM_SetCursor (cursor);
+
+			if (!pointsEqual (hovered_item, pMS->first_item))
+			{
+				new_col = hovered_item.x;
+				new_row = hovered_item.y;
+			}
+		}
+
+		if (new_row != pMS->first_item.y || new_col != pMS->first_item.x)
 		{
 			RECT r;
 			TEXT t;
@@ -141,7 +221,6 @@ DoPickBattleShip (MENU_STATE *pMS)
 
 			PlayMenuSound (MENU_SOUND_MOVE);
 
-
 #ifdef NEVER
 			SetContextForeGroundColor (
 					BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x0A), 0x1D));
@@ -154,26 +233,31 @@ ChangeSelection:
 			if (pMS->first_item.x == (NUM_PICK_SHIP_COLUMNS >> 1))
 			{
 				pMS->flash_rect0.corner.x =
-						pMS->flash_rect1.corner.x - RES_SCALE (2) + FLAGSHIP_X_OFFS;
+						pMS->flash_rect1.corner.x - RES_SCALE (2) +
+							FLAGSHIP_X_OFFS;
 				pMS->flash_rect0.corner.y =
-						pMS->flash_rect1.corner.y - RES_SCALE (2) + FLAGSHIP_Y_OFFS;
+						pMS->flash_rect1.corner.y - RES_SCALE (2) +
+							FLAGSHIP_Y_OFFS;
 				pMS->flash_rect0.extent.width = FLAGSHIP_WIDTH + RES_SCALE (4);
-				pMS->flash_rect0.extent.height = FLAGSHIP_HEIGHT + RES_SCALE (4);
+				pMS->flash_rect0.extent.height = FLAGSHIP_HEIGHT +
+						RES_SCALE (4);
 
 				hBattleShip = GetTailLink (&race_q[0]); /* Flagship */
 			}
 			else
 			{
 				new_col = pMS->first_item.x;
-				pMS->flash_rect0.corner.x = RES_SCALE (5) + pMS->flash_rect1.corner.x
-						- RES_SCALE (2) + ((ICON_WIDTH + RES_SCALE (4)) * new_col); 
+				pMS->flash_rect0.corner.x = RES_SCALE (5) +
+						pMS->flash_rect1.corner.x - RES_SCALE (2) +
+							((ICON_WIDTH + RES_SCALE (4)) * new_col); 
 				if (new_col > (NUM_PICK_SHIP_COLUMNS >> 1))
 				{
 					--new_col;
 					pMS->flash_rect0.corner.x += FLAGSHIP_WIDTH - ICON_WIDTH;
 				}
-				pMS->flash_rect0.corner.y = RES_SCALE (16) + pMS->flash_rect1.corner.y
-						- RES_SCALE (2) + ((ICON_HEIGHT + RES_SCALE (4)) * pMS->first_item.y);
+				pMS->flash_rect0.corner.y = RES_SCALE (16) +
+						pMS->flash_rect1.corner.y - RES_SCALE (2) +
+						((ICON_HEIGHT + RES_SCALE (4)) * pMS->first_item.y);
 				pMS->flash_rect0.extent.width = ICON_WIDTH + RES_SCALE (4);
 				pMS->flash_rect0.extent.height = ICON_HEIGHT + RES_SCALE (4);
 
@@ -203,9 +287,12 @@ ChangeSelection:
 			pMS->CurFrame = (FRAME)hBattleShip;
 
 			SetContextForeGroundColor (BLACK_COLOR);
-			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE (6) - RES_SCALE (1);
-			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE (5) - RES_SCALE (1);
-			r.extent.width = ((ICON_WIDTH + RES_SCALE (4)) * 3) - RES_SCALE (4);
+			r.corner.x = pMS->flash_rect1.corner.x + RES_SCALE (6) -
+					RES_SCALE (1);
+			r.corner.y = pMS->flash_rect1.corner.y + RES_SCALE (5) -
+					RES_SCALE (1);
+			r.extent.width = ((ICON_WIDTH + RES_SCALE (4)) * 3) -
+					RES_SCALE (4);
 			r.extent.height = RES_SCALE (7);
 
 			if (IS_HD)
@@ -221,10 +308,11 @@ ChangeSelection:
 			}
 			else
 			{
-				SetContextFont (isPC (optWhichFonts) ? TinyFont : TinyFontBold);
+				SetContextFont (isPC (optWhichFonts) ?
+						TinyFont : TinyFontBold);
 
 				t.baseline.x = r.corner.x + (r.extent.width >> 1);
-				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE (1)); 
+				t.baseline.y = r.corner.y + (r.extent.height - RES_SCALE (1));
 				t.align = ALIGN_CENTER;
 
 				StarShipPtr = LockStarShip (&race_q[0], hBattleShip);
@@ -409,10 +497,12 @@ GetEncounterStarShip (STARSHIP *LastStarShipPtr, COUNT which_player)
 				}
 				else
 				{	// Player ran away
-					if (GLOBAL_SIS (FuelOnBoard) > RUN_AWAY_FUEL_COST && !optInfiniteFuel)
+					if (GLOBAL_SIS (FuelOnBoard) > RUN_AWAY_FUEL_COST
+							&& !optInfiniteFuel)
 						GLOBAL_SIS (FuelOnBoard) -= RUN_AWAY_FUEL_COST;
 					else
-						GLOBAL_SIS (FuelOnBoard) = (optInfiniteFuel ? GLOBAL_SIS (FuelOnBoard) : 0);
+						GLOBAL_SIS (FuelOnBoard) = (optInfiniteFuel ?
+								GLOBAL_SIS (FuelOnBoard) : 0);
 				}
 			}
 			return 0;
@@ -497,7 +587,7 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 	OldFontEffect = SetContextFontEffect (NULL);
 
 	t.baseline.x = pick_r.corner.x + (pick_r.extent.width >> 1);
-	t.baseline.y = pick_r.corner.y + pick_r.extent.height - RES_SCALE (5); 
+	t.baseline.y = pick_r.corner.y + pick_r.extent.height - RES_SCALE (5);
 	t.align = ALIGN_CENTER;
 	t.pStr = GLOBAL_SIS (ShipName);
 	t.CharCount = (COUNT)~0;
@@ -530,20 +620,21 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 
 			s.origin.x = pick_r.corner.x
 					+ (RES_SCALE (5) + ((ICON_WIDTH + RES_SCALE (4))
-					* (ship_index % NUM_PICK_SHIP_COLUMNS))); 
+					* (ship_index % NUM_PICK_SHIP_COLUMNS)));
 			if ((ship_index % NUM_PICK_SHIP_COLUMNS) >=
 					(NUM_PICK_SHIP_COLUMNS >> 1))
-				s.origin.x += FLAGSHIP_WIDTH + RES_SCALE (4); 
+				s.origin.x += FLAGSHIP_WIDTH + RES_SCALE (4);
 			s.origin.y = pick_r.corner.y
 					+ (RES_SCALE (16) + ((ICON_HEIGHT + RES_SCALE (4))
-					* (ship_index / NUM_PICK_SHIP_COLUMNS))); 
+					* (ship_index / NUM_PICK_SHIP_COLUMNS)));
 			s.frame = StarShipPtr->icons;
 			r.corner = s.origin;
 
 			SetContextForeGroundColor (BLACK_COLOR);
 			DrawFilledRectangle (&r);
 
-			if ((StarShipPtr->SpeciesID != NO_ID) || (StarShipPtr->crew_level == 0))
+			if ((StarShipPtr->SpeciesID != NO_ID) ||
+				(StarShipPtr->crew_level == 0))
 			{
 				DrawStamp (&s);
 				if (StarShipPtr->SpeciesID == NO_ID)
@@ -566,6 +657,8 @@ DrawArmadaPickShip (BOOLEAN draw_salvage_frame, RECT *pPickRect)
 		hNextShip = _GetSuccLink (StarShipPtr);
 		UnlockStarShip (&race_q[0], hBattleShip);
 	}
+
+	InitPickShipRects (pick_r);
 
 	UnbatchGraphics ();
 

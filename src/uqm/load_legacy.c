@@ -31,6 +31,7 @@
 #include "state.h"
 #include "grpinfo.h"
 #include "uqmdebug.h"
+#include "imgui/uqm_imgui.h"
 
 #include "libs/tasklib.h"
 #include "libs/log.h"
@@ -1357,6 +1358,8 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 	DebugKeyPressed = FALSE;
 	SET_GAME_STATE (SEED_TYPE, optSeedType = OPTVAL_PRIME);
 	GLOBAL_SIS (Seed) = optCustomSeed = PrimeA;
+
+	ResetJournal ();
 
 	return InitStarseed (FALSE);
 }

@@ -32,12 +32,7 @@
  * specially, and we cannot treat them as normal keys.  Pain, 
  * tragedy. */
 
-typedef struct vcontrol_keyname {
-	const char *name;
-	int code;
-} keyname;
-
-static keyname keynames[] = {
+keyname keynames[] = {
 	{"Backspace", SDLK_BACKSPACE},
 	{"Tab", SDLK_TAB},
 	{"Clear", SDLK_CLEAR},

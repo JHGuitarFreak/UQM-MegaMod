@@ -58,6 +58,9 @@ enum
 #define TFB_GFXFLAGS_SCALE_SOFT_ONLY \
 		( TFB_GFXFLAGS_SCALE_ANY & ~TFB_GFXFLAGS_SCALE_BILINEAR )
 #define TFB_GFXFLAGS_EX_FULLSCREEN      (1<<8)
+#define TFB_GFXFLAGS_FS_ANY \
+		( TFB_GFXFLAGS_FULLSCREEN   | \
+		  TFB_GFXFLAGS_EX_FULLSCREEN )
 
 // The flag variable itself
 extern int GfxFlags;
@@ -123,5 +126,6 @@ extern int GraphicsDriver;
 void TFB_ScreenShot (void);
 void TFB_ClearFPSCanvas (void);
 void TFB_GetScreenSize (SIZE *width, SIZE *height);
+extern void TFB_SetWindowSize (int width, int height);
 
 #endif

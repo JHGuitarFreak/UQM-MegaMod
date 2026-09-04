@@ -21,7 +21,7 @@
 #define LIBS_THREADLIB_H_
 
 #define NAMED_SYNCHRO           /* Should synchronizable objects have names? */
-#define TRACK_CONTENTION       /* Should we report when a thread sleeps on synchronize? */
+//#define TRACK_CONTENTION       /* Should we report when a thread sleeps on synchronize? */
 
 /* TRACK_CONTENTION implies NAMED_SYNCHRO. */
 #ifdef TRACK_CONTENTION

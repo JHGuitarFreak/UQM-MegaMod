@@ -28,8 +28,13 @@
 #include "libs/file.h"
 #include "libs/log.h"
 #include "libs/reslib.h"
-#include "options.h"
+#include "libs/graphics/gfx_common.h"
+#include "uqm/colors.h"
+#include "uqm/units.h"
+#include "uqm/sounds.h"
+#include "uqm/setup.h"
 
+#include "uqm/imgui/uqm_imgui.h"
 
 #define KBDBUFSIZE (1 << 8)
 static int kbdhead=0, kbdtail=0;
@@ -41,17 +46,20 @@ static BOOLEAN set_character_mode = FALSE;
 		// on this setting
 
 volatile int *menu_vec;
-static int num_menu;
+int num_menu;
 // The last vector element is the character repeat "key"
 // This is only used in SDL1 input but it's mostly harmless everywhere else
 #define KEY_MENU_ANY  (num_menu - 1)
-static volatile int *flight_vec;
+volatile int *flight_vec;
 static int num_templ;
-static int num_flight;
+int num_flight;
 
 static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
+
+POINT CurrentMousePos = { 0, 0 };
+POINT MouseContext = { 0, 0 };
 
 MENU_BINDINGS curr_bindings[NUM_MENU_KEYS];
 MENU_BINDINGS def_bindings[NUM_MENU_KEYS];
@@ -84,14 +92,20 @@ const char *menu_res_names[] = {
 	"screenshot",
 	"quicksave",
 	"quickload",
+	"imgui",
 	"debug_2",
 	"debug_3",
 	"debug_4",
+	"mouse_left",
+	"mouse_right",
+	"mouse_middle",
+	"mouse_wheel_up",
+	"mouse_wheel_down",
 	"journal",
 	NULL
 };
 
-static const char *flight_res_names[] = {
+const char *flight_res_names[] = {
 	"up",
 	"down",
 	"left",
@@ -102,6 +116,52 @@ static const char *flight_res_names[] = {
 	"thrust",
 	NULL
 };
+
+void GetCurrentMenuBindings (void)
+{
+	int i, j;
+	char buf[40];
+
+	for (i = 0; menu_res_names[i] != NULL; i++)
+	{
+		snprintf (curr_bindings[i].action,
+				sizeof (curr_bindings[i].action), "%s", menu_res_names[i]);
+
+		for (j = 1; j <= 6; j++)
+		{
+			snprintf (buf, 39, "menu.%s.%d", menu_res_names[i], j);
+
+			if (!res_IsString (buf))
+				break;
+
+			VControl_ParseGesture (&curr_bindings[i].binding[j - 1],
+					res_GetString (buf));
+		}
+	}
+}
+
+void GetDefaultMenuBindings (void)
+{
+	int i, j;
+	char buf[40];
+
+	for (i = 0; menu_res_names[i] != NULL; i++)
+	{
+		snprintf (def_bindings[i].action,
+				sizeof (def_bindings[i].action), "%s", menu_res_names[i]);
+
+		for (j = 1; j <= 6; j++)
+		{
+			snprintf (buf, 39, "menu.%s.%d", menu_res_names[i], j);
+
+			if (!res_IsString (buf))
+				break;
+
+			VControl_ParseGesture (&def_bindings[i].binding[j - 1],
+					res_GetString (buf));
+		}
+	}
+}
 
 static void
 register_menu_controls (int index)
@@ -155,6 +215,54 @@ register_flight_controls (void)
 				VControl_ParseGesture (g, res_GetString (buf));
 				VControl_AddGestureBinding (g,
 						(int *)(flight_vec + i * num_flight + j));
+			}
+		}
+	}
+}
+
+void GetCurrentFlightBindings(void)
+{
+	int i, j, k;
+	char buf[40];
+
+	for (i = 0; i < num_templ; i++)
+	{
+		for (j = 0; flight_res_names[j] != NULL; j++)
+		{
+			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
+			{
+				snprintf(buf, 39, "keys.%d.%s.%d", i + 1,
+					flight_res_names[j], k + 1);
+
+				if (res_IsString(buf))
+				{
+					VControl_ParseGesture(&curr_fl_bindings[i][j].binding[k],
+						res_GetString(buf));
+				}
+			}
+		}
+	}
+}
+
+void GetDefaultFlightBindings(void)
+{
+	int i, j, k;
+	char buf[40];
+
+	for (i = 0; i < num_templ; i++)
+	{
+		for (j = 0; flight_res_names[j] != NULL; j++)
+		{
+			for (k = 0; k < MAX_FLIGHT_ALTERNATES; k++)
+			{
+				snprintf(buf, 39, "keys.%d.%s.%d", i + 1,
+					flight_res_names[j], k + 1);
+
+				if (res_IsString(buf))
+				{
+					VControl_ParseGesture(&def_fl_bindings[i][j].binding[k],
+						res_GetString(buf));
+				}
 			}
 		}
 	}
@@ -216,17 +324,12 @@ initKeyConfig (void)
 	}
 	GetMenuBindings (curr_bindings);
 
-	LoadResourceIndex (configDir, "flight.cfg", "keys.");
-	if (!res_HasKey ("keys.version"))
-	{
-		/* Either flight.cfg doesn't exist, or we're using an old version
-		   of flight.cfg, and thus we wound up loading untyped values into
-		   'keys.keys.version' and such.  Load the defaults from the
-		   content directory. */
-		LoadResourceIndex (contentDir, "uqm.key", "keys.");
-	}
+	LoadResourceIndex(contentDir, "uqm.key", "keys.");
+	GetDefaultFlightBindings();
 
+	LoadResourceIndex (configDir, "flight.cfg", "keys.");
 	register_flight_controls ();
+	GetCurrentFlightBindings();
 
 	return;
 }
@@ -265,6 +368,9 @@ initJoystick (void)
 			SDL_GetError ());
 		exit (EXIT_FAILURE);
 	}
+
+	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+	SDL_SetHint (SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
 
 	SDL_GameControllerEventState (SDL_ENABLE);
 
@@ -389,6 +495,81 @@ UniChar
 GetLastCharacter (void)
 {
 	return lastchar;
+}
+
+BOOLEAN
+MouseButton (int button)
+{
+	int temp = 0;
+
+	switch (button)
+	{
+	case MOUSE_LFT:
+		temp = MOUSE_BTN_LEFT;
+		break;
+	case MOUSE_RGT:
+		temp = MOUSE_BTN_RIGHT;
+		break;
+	case MOUSE_MID:
+		temp = MOUSE_BTN_MIDDLE;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return PulsedInputState.menu[temp];
+}
+
+BOOLEAN
+MouseWheel (int direction)
+{
+	int temp = 0;
+
+	switch (direction)
+	{
+	case WHEEL_UP:
+		temp = MOUSE_WHEEL_UP;
+		break;
+	case WHEEL_DOWN:
+		temp = MOUSE_WHEEL_DOWN;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return PulsedInputState.menu[temp];
+}
+
+BOOLEAN
+MouseBtnInCtx (int button, CONTEXT context)
+{
+	int temp = 0;
+
+	switch (button)
+	{
+	case MOUSE_LFT:
+		temp = MOUSE_BTN_LEFT;
+		break;
+	case MOUSE_RGT:
+		temp = MOUSE_BTN_RIGHT;
+		break;
+	case MOUSE_MID:
+		temp = MOUSE_BTN_MIDDLE;
+		break;
+	default:
+		return FALSE;
+	}
+
+	if (temp == 0)
+		return FALSE;
+
+	return MouseInContext (context) && PulsedInputState.menu[temp];
 }
 
 static inline int
@@ -608,6 +789,15 @@ InterrogateInputState (int templat, int control, int index, char *buffer,
 		}
 		buffer[maxlen - 1] = 0;
 		break;
+	case VCONTROL_MOUSEBUTTON:
+		snprintf (buffer, maxlen, "Mouse B%d", g->gesture.mouse_button.button);
+		buffer[maxlen - 1] = 0;
+		break;
+	case VCONTROL_MOUSEWHEEL:
+		snprintf (buffer, maxlen, "Wheel %s",
+			g->gesture.mouse_wheel.direction > 0 ? "Up" : "Down");
+		buffer[maxlen - 1] = 0;
+		break;
 	default:
 		/* Something we don't handle yet */
 		buffer[0] = 0;
@@ -785,4 +975,292 @@ int GetActionFromEvent (const SDL_Event *event, int player)
 	}
 
 	return -1;
+}
+
+RECT
+GetWindowScale (void)
+{
+	RECT r;
+	float window_aspect;
+	float target_aspect;
+
+	switch (optKeepAspectRatio)
+	{
+	case 0:
+		r.corner.x = 0;
+		r.corner.y = 0;
+		r.extent.width = WindowWidth;
+		r.extent.height = WindowHeight;
+		return r;
+	case 2:
+		target_aspect = 4.0f / 3.0f;
+		break;
+	case 1:
+	default:
+		target_aspect = (float)CanvasWidth / (float)CanvasHeight;
+		break;
+	}
+
+	window_aspect = (float)WindowWidth / (float)WindowHeight;
+
+	if (window_aspect > target_aspect)
+	{
+		r.extent.height = WindowHeight;
+		r.extent.width = (int)(WindowHeight * target_aspect);
+		r.corner.x = (WindowWidth - r.extent.width) / 2;
+		r.corner.y = 0;
+	}
+	else
+	{
+		r.extent.width = WindowWidth;
+		r.extent.height = (int)(WindowWidth / target_aspect);
+		r.corner.x = 0;
+		r.corner.y = (WindowHeight - r.extent.height) / 2;
+	}
+
+	return r;
+}
+
+POINT
+ScaleCanvas (void)
+{
+	POINT temp;
+	POINT pt = CurrentMousePos;
+	RECT r = GetWindowScale ();
+
+	if (!pointWithinRect (r, pt))
+	{
+		temp.x = -1;
+		temp.y = -1;
+		return temp;
+	}
+
+	temp.x = (pt.x - r.corner.x) * ((float)CanvasWidth /
+			(float)r.extent.width);
+	temp.y = (pt.y - r.corner.y) * ((float)CanvasHeight /
+			(float)r.extent.height);
+
+	return temp;
+}
+
+POINT
+ScreenToCanvas (CONTEXT context)
+{
+	POINT mpos;
+	RECT r;
+
+	GetContextClipDiRect (&r, context);
+
+	mpos = ScaleCanvas ();
+
+	mpos.x = (COORD)inBounds (mpos.x - r.corner.x, 0, r.extent.width);
+	mpos.y = (COORD)inBounds (mpos.y - r.corner.y, 0, r.extent.height);
+
+	return mpos;
+}
+
+DPOINT
+CanvasToScreen (CONTEXT context, POINT canvasPos)
+{
+	RECT r;
+	POINT canvas_pos;
+	DPOINT screen_pos;
+	RECT w_scale = GetWindowScale ();
+
+	GetContextClipDiRect (&r, context);
+
+	canvas_pos.x = canvasPos.x + r.corner.x;
+	canvas_pos.y = canvasPos.y + r.corner.y;
+
+	screen_pos.x = (canvas_pos.x * (float)w_scale.extent.width /
+			(float)CanvasWidth) + w_scale.corner.x;
+	screen_pos.y = (canvas_pos.y * (float)w_scale.extent.height /
+			(float)CanvasHeight) + w_scale.corner.y;
+
+	return screen_pos;
+}
+
+BOOLEAN
+MouseInContext (CONTEXT context)
+{
+	RECT r;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	GetContextClipDiRect (&r, context);
+
+	return pointWithinRect (r, ScaleCanvas ());
+}
+
+BOOLEAN
+SetMouseContext (CONTEXT context)
+{
+	RECT r;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	GetContextClipDiRect (&r, context);
+
+	if (pointWithinRect (r, ScaleCanvas ()))
+	{
+		MouseContext = ScreenToCanvas (context);
+		return TRUE;
+	}
+	else
+		return FALSE;
+}
+
+BOOLEAN
+MouseInRect (RECT r)
+{
+	return pointWithinRect (r, MouseContext);
+}
+
+static void
+MouseThing (BYTE *NewState, CONTEXT context, RECT *rect, BYTE num_rects)
+{
+	BYTE i;
+	int cursor = CURSOR_POINTER;
+	BYTE hovered_item;
+
+	if (!SetMouseContext (context))
+		return;
+
+	hovered_item = *NewState;
+
+	for (i = 0; i < num_rects; i++)
+	{
+		if (MouseInRect (rect[i]))
+		{
+			hovered_item = i;
+			cursor = CURSOR_POINTER_HILITE;
+			break;
+		}
+	}
+
+	UQM_SetCursor (cursor);
+
+	if (hovered_item != *NewState)
+	{
+		*NewState = hovered_item;
+		PlayMenuSound (MENU_SOUND_MOVE);
+	}
+}
+
+void
+DebugMouseCursor (CONTEXT context)
+{
+	LINE line;
+	Color OldColor;
+	POINT pt;
+
+	pt = ScreenToCanvas (context);
+
+	BatchGraphics ();
+
+	OldColor = SetContextForeGroundColor (BRIGHT_PINK_COLOR);
+
+	line.first.x = pt.x - RES_SCALE (3);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (3);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (3);
+	DrawLine (&line, RES_SCALE (1));
+
+	SetContextForeGroundColor (OldColor);
+
+	UnbatchGraphics ();
+}
+
+void
+DrawAutopilotTarget (POINT pt)
+{
+	LINE line;
+	RECT diag;
+
+	BatchGraphics ();
+
+	line.first.x = pt.x - RES_SCALE (4);
+	line.second.x = pt.x - RES_SCALE (2);
+	line.first.y = pt.y;
+	line.second.y = pt.y;
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x + RES_SCALE (2);
+	line.second.x = pt.x + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.x = pt.x;
+	line.second.x = pt.x;
+	line.first.y = pt.y - RES_SCALE (4);
+	line.second.y = pt.y - RES_SCALE (2);
+	DrawLine (&line, RES_SCALE (1));
+	line.first.y = pt.y + RES_SCALE (2);
+	line.second.y = pt.y + RES_SCALE (4);
+	DrawLine (&line, RES_SCALE (1));
+
+	diag.corner.x = pt.x - RES_SCALE (2);
+	diag.corner.y = pt.y - RES_SCALE (2);
+	diag.extent = MAKE_EXTENT (RES_SCALE (1), RES_SCALE (1));
+	DrawFilledRectangle (&diag);
+	diag.corner.x += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.y += RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+	diag.corner.x -= RES_SCALE (4);
+	DrawFilledRectangle (&diag);
+
+	UnbatchGraphics ();
+}
+
+// Makes it so the mouse has to be on the rectangle of an entry to be able to
+// click on it
+BOOLEAN
+MouseClicker (RECT r, CONTEXT context)
+{
+	POINT mousePos = ScreenToCanvas (context);
+
+	if (MouseButton (MOUSE_LFT))
+	{
+		if (pointWithinRect (r, mousePos))
+		{
+			UQM_SetCursor (CURSOR_POINTER);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+BOOLEAN
+CtxMouseClicker (RECT r)
+{
+	if (MouseButton (MOUSE_LFT))
+	{
+		if (pointWithinRect (r, MouseContext))
+		{
+			UQM_SetCursor (CURSOR_POINTER);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+extern SDL_Window *window;
+
+void
+PutMouse (CONTEXT context, POINT pt)
+{
+	DPOINT temp = CanvasToScreen (context, pt);
+
+	SDL_WarpMouseInWindow (window, temp.x, temp.y);
 }

@@ -84,6 +84,7 @@ extern int optSpaceMusic;
 extern OPT_ENABLABLE optVolasMusic;
 extern OPT_ENABLABLE optWholeFuel;
 extern int optDirJoy[2];
+extern bool changeLanderCapacity;
 extern int optLanderHold;
 extern int optScrTrans;
 extern int optDifficulty;
@@ -130,6 +131,8 @@ extern OPT_ENABLABLE optDosMenus;
 extern OPT_ADD_REMOVE optDeviceArray[28];
 extern OPT_ADD_REMOVE optUpgradeArray[13];
 extern int optHyperSpaceColor;
+extern int optMouseInput;
+extern bool ShipGTFO;
 
 #define MAX_DEADZONE SINT16_MAX
 #define DEFAULT_DZONE 6881
@@ -141,7 +144,7 @@ extern OPT_ENABLABLE optRemixMusic;
 extern OPT_ENABLABLE optSpeech;
 extern OPT_ENABLABLE optSubtitles;
 extern OPT_ENABLABLE optStereoSFX;
-extern OPT_ENABLABLE optKeepAspectRatio;
+extern int optKeepAspectRatio;
 extern BOOLEAN restartGame;
 
 #define GAMMA_SCALE  1000
@@ -156,6 +159,7 @@ extern char baseContentPath[PATH_MAX];
 
 extern char *contentDirPath;
 extern char *addonDirPath;
+extern char *configDirPath;
 
 extern const char **optAddons;
 
@@ -208,6 +212,23 @@ int loadIndices (uio_DirHandle *baseDir);
 BOOLEAN isAddonAvailable (const char *addon_name);
 
 bool setGammaCorrection (float gamma);
+
+enum
+{
+	CURSOR_POINTER,
+	CURSOR_POINTER_HILITE,
+	CURSOR_CROSSHAIR,
+	CURSOR_CROSSHAIR_HILITE,
+	CURSOR_INVALID,
+
+	CURSOR_DISABLE,
+
+	NUM_CURSORS = CURSOR_DISABLE
+};
+
+extern SDL_Cursor *UQM_Cursors[NUM_CURSORS];
+
+extern BOOLEAN UQM_SetCursor (int cursor);
 
 #if defined(__cplusplus)
 }

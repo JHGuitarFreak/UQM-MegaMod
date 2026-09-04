@@ -34,7 +34,7 @@
 #include "setup.h"
 
 BOOLEAN legacySave;
-BYTE GTFO = 0;
+BYTE Ilwrath_GTFO = 0;
 extern FRAME SpaceJunkFrame;
 
 static inline SIZE
@@ -218,16 +218,22 @@ ip_group_preprocess (ELEMENT *ElementPtr)
 
 	if ((GET_GAME_STATE (KOHR_AH_FRENZY)
 		 && CheckAlliance (GroupPtr->race_id) == DEAD_GUY)
-		|| (GTFO == 1 && GroupPtr->race_id == ILWRATH_SHIP))
+		|| (Ilwrath_GTFO == 1 && GroupPtr->race_id == ILWRATH_SHIP))
 	{
-		GTFO = 0;
+		Ilwrath_GTFO = 0;
 		NotifyOthers (GroupPtr->race_id, IPNL_FLEE);
 	}
 
-	if (GTFO == 2 && GroupPtr->race_id == ILWRATH_SHIP)
+	if (Ilwrath_GTFO == 2 && GroupPtr->race_id == ILWRATH_SHIP)
 	{
-		GTFO = 0;
+		Ilwrath_GTFO = 0;
 		NotifyOthers (ILWRATH_SHIP, IPNL_INTERCEPT_PLAYER);
+	}
+
+	if (ShipGTFO)
+	{
+		ShipGTFO = false;
+		NotifyOthers (GroupPtr->race_id, IPNL_FLEE);
 	}
 
 	task = GroupPtr->task;

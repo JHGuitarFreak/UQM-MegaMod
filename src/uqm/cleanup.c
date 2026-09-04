@@ -30,6 +30,7 @@
 #include "libs/sndlib.h"
 #include "libs/vidlib.h"
 
+#include "imgui/uqm_imgui_strings.h"
 
 void
 FreeKernel (void)
@@ -60,6 +61,8 @@ UninitContexts (void)
 static void
 UninitKernel (void)
 {
+	BYTE i;
+
 	UninitSpace ();
 
 	DestroySound (ReleaseSound (MenuSounds));
@@ -79,6 +82,9 @@ UninitKernel (void)
 	DestroyFont (SlabFont);
 	DestroyFont (SquareFont);
 	DestroyFont (PlayMenuFont);
+
+	for (i = 0; i < NUM_CURSORS; i++)
+		SDL_FreeCursor (UQM_Cursors[i]);
 
 	UninitQueue (&race_q[0]);
 	UninitQueue (&race_q[1]);

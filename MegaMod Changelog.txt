@@ -8,10 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Added
 - EXTENDED: New sounds when Fwiffo opens fire on lander
 - New floating message above lander in playable area if its cargo or data bank is full
+- Full mouse input for all the menus and rudimentary local auto-pilot for solar systems and lander.
 - Legacy and Vanilla save's scan records used to fill out visited stars
+- Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander
+- UQM now scales to the window instead of the window scaling to UQM
 
 ### Fixed
 - DeCleansing mod fixed when loading saves

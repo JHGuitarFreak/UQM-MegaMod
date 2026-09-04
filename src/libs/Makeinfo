@@ -1,5 +1,6 @@
 uqm_SUBDIRS="callback decomp file graphics heap input list math memory
-		resource sound strings task threads time uio video log luauqm"
+		resource sound strings task threads time uio video log luauqm
+		imgui"
 if [ -n "$uqm_USE_INTERNAL_MIKMOD" ]; then
 	uqm_SUBDIRS="$uqm_SUBDIRS mikmod"
 fi

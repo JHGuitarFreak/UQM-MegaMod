@@ -44,6 +44,7 @@
 #include "libs/graphics/drawable.h"
 #include "libs/inplib.h"
 #include "libs/mathlib.h"
+#include "uqm/shipcont.h"
 
 extern FRAME SpaceJunkFrame;
 
@@ -68,6 +69,71 @@ enum ScanMenuItems
 	DISPATCH_SHUTTLE,
 };
 
+// Begin mouse-centric code chunk
+
+static POINT
+ScreenToScanCoords (void)
+{
+	POINT pos;
+	POINT pt = ScaleCanvas ();
+
+	RECT scanRect;
+
+	GetContextClipDiRect (&scanRect, ScanContext);
+
+	pos.x = (pt.x - scanRect.corner.x) << MAG_SHIFT;
+	pos.y = (pt.y - scanRect.corner.y) << MAG_SHIFT;
+
+	if (pos.x < 0) pos.x = 0;
+	else if (pos.x >= (SCALED_MAP_WIDTH << MAG_SHIFT))
+		pos.x = (SCALED_MAP_WIDTH << MAG_SHIFT) - 1;
+	if (pos.y < 0) pos.y = 0;
+	else if (pos.y >= (MAP_HEIGHT << MAG_SHIFT))
+		pos.y = (MAP_HEIGHT << MAG_SHIFT) - 1;
+
+	return pos;
+}
+
+static void restorePlanetLocationImage (void);
+static void drawPlanetCursor (BOOLEAN filled);
+static void setPlanetLoc (POINT new_pt, BOOLEAN restoreOld);
+
+static BOOLEAN
+ScanCursorLocation (void)
+{
+	POINT pt = ScreenToScanCoords ();
+
+	if (pointsEqual (pt, planetLoc))
+		return FALSE;
+
+	restorePlanetLocationImage ();
+	setPlanetLoc (pt, FALSE);
+	drawPlanetCursor (FALSE);
+
+	return TRUE;
+}
+
+static BOOLEAN
+ScanMouseInput (void)
+{
+	BOOLEAN cursorMoved = FALSE;
+
+	if (!optMouseInput)
+		return FALSE;
+
+	if (!MouseInContext (ScanContext))
+	{
+		UQM_SetCursor (CURSOR_POINTER);
+
+		return FALSE;
+	}
+	else
+		UQM_SetCursor (CURSOR_DISABLE);
+
+	return ScanCursorLocation ();
+}
+
+// End mouse-centric code chunk
 
 void
 RepairBackRect (RECT *pRect)
@@ -679,6 +745,7 @@ RedrawSurfaceScan (const POINT *newLoc)
 		setPlanetLoc (*newLoc, FALSE);
 		drawPlanetCursor (FALSE);
 	}
+
 	UnbatchGraphics ();
 
 	SetContext (OldContext);
@@ -785,8 +852,14 @@ DoPickPlanetSide (MENU_STATE *pMS)
 	DWORD TimeIn = GetTimeCounter ();
 	BOOLEAN select, cancel;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	if (ScanMouseInput ())
+	{
+		flashPlanetLocation ();
+	}
+
+	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
+			MouseBtnInCtx (MOUSE_LFT, ScanContext);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] || MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
 	{
@@ -1299,7 +1372,7 @@ ScanPlanet (COUNT scanType)
 			{	// delay between scans
 				TimeOut = GetTimeCounter () + ONE_SECOND;
 				while (GetTimeCounter () < TimeOut
-						&& !AnyButtonPress (TRUE))
+					&& (!AnyButtonPress (TRUE)))
 					RotatePlanetSphere (TRUE, NULL);
 			}
 			else
@@ -1343,8 +1416,10 @@ DoScan (MENU_STATE *pMS)
 {
 	BOOLEAN select, cancel;
 
-	select = PulsedInputState.menu[KEY_MENU_SELECT];
-	cancel = PulsedInputState.menu[KEY_MENU_CANCEL];
+	select = PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT);
+	cancel = PulsedInputState.menu[KEY_MENU_CANCEL]
+			|| MouseButton (MOUSE_RGT);
 	
 	if (GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))
 		return FALSE;
