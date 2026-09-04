@@ -202,6 +202,8 @@ draw_settings_menu (void)
 		}
 	}
 
+	ImGui_NewLine ();
+
 	if (NUM_COLUMNS != 1)
 	{
 		ImGui_EndChild ();
@@ -279,6 +281,10 @@ UQM_ImGui_Tabs (TabState *state)
 	static float temp_width = 0;
 	static float temp_height = 0;
 	float scale = SCALE_20F;
+	static float nav_width = 0;
+	ImVec2 text_size;
+	ImVec2 button_size;
+	static float button_room = 0;
 
 	const char *subtab_not = ImStr (NAV_TAB_STR_BASE + 6);
 			// Subtab %d not found.
@@ -307,13 +313,13 @@ UQM_ImGui_Tabs (TabState *state)
 	// Without this the border doesn't draw correctly around the navbar
 	DrawBorderAroundLastItem ();
 
+	nav_width = (ImGui_GetContentRegionAvail ().x * 0.8528f) / style->FontScaleMain;
+
 	// Begin NavBar
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, temp_height), IGCF_B, 0);
 
 	for (i = 0; i < NUM_IMGUI_MENUS; i++)
 	{
-		ImVec2 text_size;
-		ImVec2 button_size;
 		bool selected = (active_tab == i);
 
 		ImGui_SameLine ();
@@ -339,6 +345,32 @@ UQM_ImGui_Tabs (TabState *state)
 		}
 #endif
 	}
+
+	ImGui_PushFontFloat (io->Fonts->Fonts.Data[2], GetDefaultFontSize ());
+
+	ImGui_SameLine ();
+	ImGui_Dummy (MAKE_IV2 (ImGui_GetContentRegionAvail().x - button_room, 0));
+	ImGui_SameLine ();
+
+	text_size = ImGui_CalcTextSize ("Reload");
+	button_size = (ImVec2){ text_size.x + scale, scale };
+
+	button_room = button_size.x + style->WindowPadding.x * 2;
+
+	ImGui_SelectableEx ("Reload", true, 0, button_size);
+
+	ImGui_SameLine ();
+	ImGui_Dummy (MAKE_IV2 (SCALE_IT (4.0f), 0));
+	ImGui_SameLine ();
+
+	text_size = ImGui_CalcTextSize ("Exit");
+	button_size = (ImVec2){ text_size.x + scale, scale };
+
+	button_room += button_size.x + style->WindowPadding.x * 2;
+
+	ImGui_SelectableEx ("Exit", true, 0, button_size);
+
+	ImGui_PopFont ();
 
 	temp_height = ImGui_GetItemRectMax ().y - 1;
 	ImGui_EndChild (); // NavBar

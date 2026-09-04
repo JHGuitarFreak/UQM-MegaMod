@@ -196,6 +196,16 @@ extern ImGuiStyle *style;
 #define DISPLAY_SIZE io->DisplaySize
 #define IN_MAIN_MENU (!inFullGame ())
 
+enum
+{
+	FONT_PLAYER,
+	FONT_TINY,
+	FONT_URQUAN,
+	FONT_DEFAULT,
+
+	FONT_NUM_FONTS
+};
+
 int NumberOfColumns (void);
 #define NUM_COLUMNS (NumberOfColumns ())
 
