@@ -264,8 +264,7 @@ static void Melee_UpdateView_teamName (MELEE_STATE *pMS, COUNT side);
 
 static BYTE GetShipRow (FleetShipIndex index);
 static BYTE GetShipColumn (int index);
-static void GetTeamStringRect (COUNT side, RECT *r);
-static void GetFleetValueRect (COUNT side, RECT *r);
+static void GetFullStringRect (COUNT side, RECT *r);
 
 static void
 InitMeleeRects (void)
@@ -322,7 +321,7 @@ InitMeleeRects (void)
 			FleetEdit[i].side = side;
 		}
 
-		GetTeamStringRect (side, &r);
+		GetFullStringRect (side, &r);
 
 		r.corner.x += SAFE_X;
 		r.corner.y += SAFE_Y;
@@ -331,10 +330,6 @@ InitMeleeRects (void)
 		FleetEdit[i].col = 0;
 		FleetEdit[i].row = 2;
 		FleetEdit[i].side = side;
-
-		GetFleetValueRect (side, &r);
-
-		FleetEdit[i].r.extent.width += r.extent.width;
 	}
 }
 
@@ -1162,10 +1157,12 @@ GetFleetValueRect (COUNT side, RECT *r)
 static void
 GetFullStringRect (COUNT side, RECT *r)
 {
-	r->extent.width = TEAM_NAME_BOX_WIDTH;
-	r->extent.height = TEAM_NAME_BOX_HEIGHT;
-	r->corner.x = TEAM_NAME_BOX_X_OFFS;
-	r->corner.y = TEAM_NAME_BOX_Y_OFFS << side;
+	RECT temp;
+
+	GetTeamStringRect (side, r);
+	GetFleetValueRect (side, &temp);
+
+	r->extent.width += temp.extent.width;
 }
 
 static void
