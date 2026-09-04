@@ -16,7 +16,7 @@ set (CMAKE_C_FLAGS_DEBUG "-g -Og -Wall -DDEBUG")
 set (CMAKE_C_FLAGS_RELEASE "-O2 -s -DNDEBUG")
 set (COMMON_C_FLAGS "")
 
-set (CXX_EXTRA_FLAGS "-fno-rtti -fno-exceptions -nostdinc++")
+set (CXX_EXTRA_FLAGS "-fno-rtti" "-fno-exceptions" "-nostdinc++")
 
 set (USE_WINSOCK FALSE)
 set (IS_MINGW FALSE)
@@ -55,7 +55,6 @@ option (UQM_JOYSTICK            "Enable joystick support"           ON)
 option (UQM_ZIP_IO              "Enable direct & .zip file I/O"     ON)
 option (UQM_PLATFORM_ACCEL      "Enable platform acceleration"      ON)
 
-#set (UQM_GFX_BACKEND   "SDL2")
 set (UQM_THREAD_LIB    "SDL")
 set (UQM_SOUND_BACKEND "mixsdl")
 
@@ -275,7 +274,6 @@ function (parse_makeinfo_with_recurse target_sources)
 	set_env_if (uqm_NETPLAY             "1"   UQM_NETPLAY)
 	set_env_if (MACRO___MINGW32__       "1"   IS_MINGW)
 	set_env_if (uqm_USE_WINSOCK         "1"   USE_WINSOCK)
-#	set_env_if (uqm_GFXMODULE           "sdl" UQM_GFX_BACKEND)
 
 	if (APPLE)
 		set (ENV{HOST_SYSTEM} "Darwin")

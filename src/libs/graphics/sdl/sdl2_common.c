@@ -59,9 +59,6 @@ TFB_PreInit (void)
 	}
 #endif
 
-	SDL_SetHint (SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
-	SDL_SetHint (SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0");
-
 	if ((SDL_Init (SDL_INIT_VIDEO) == -1))
 	{
 		log_add (log_Fatal, "Could not initialize SDL: %s.", SDL_GetError ());
@@ -96,14 +93,6 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height,
 
 	result = TFB_Pure_ConfigureVideo (TFB_GFXDRIVER_SDL_PURE, flags,
 			width, height, togglefullscreen, *resFactor, *windowType);
-
-	if (flags & TFB_GFXFLAGS_FULLSCREEN
-			|| flags & TFB_GFXFLAGS_EX_FULLSCREEN)
-	{
-		SDL_ShowCursor (SDL_DISABLE);
-	}
-	else
-		SDL_ShowCursor (SDL_ENABLE);
 
 	return result;
 }

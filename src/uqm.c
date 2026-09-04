@@ -58,6 +58,7 @@
 #include "uqm/setup.h"
 #include "uqm/starcon.h"
 #include "libs/math/random.h"
+#include "uqm/imgui/uqm_imgui.h"
 
 BOOLEAN restartGame;
 
@@ -119,7 +120,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(bool,  scanlines);
 	DECL_CONFIG_OPTION(int,   scaler);
 	DECL_CONFIG_OPTION(bool,  showFps);
-	DECL_CONFIG_OPTION(bool,  keepAspectRatio);
+	DECL_CONFIG_OPTION(int,   keepAspectRatio);
 	DECL_CONFIG_OPTION(float, gamma);
 	DECL_CONFIG_OPTION(int,   soundDriver);
 	DECL_CONFIG_OPTION(int,   soundQuality);
@@ -215,6 +216,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   deadZoneLeftP2);
 	DECL_CONFIG_OPTION(int,   deadZoneRightP2);
 	DECL_CONFIG_OPTION(int,   dirJoyP2);
+	DECL_CONFIG_OPTION(int,   mouseInput);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -334,7 +336,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
 		INIT_CONFIG_OPTION(  showFps,           false ),
-		INIT_CONFIG_OPTION(  keepAspectRatio,   false ),
+		INIT_CONFIG_OPTION(  keepAspectRatio,   1 ),
 		INIT_CONFIG_OPTION(  gamma,             1.0f ),
 		INIT_CONFIG_OPTION(  soundDriver,       audio_DRIVER_MIXSDL ),
 		INIT_CONFIG_OPTION(  soundQuality,      audio_QUALITY_HIGH ),
@@ -431,6 +433,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  deadZoneLeftP2,    DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  deadZoneRightP2,   DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
+		INIT_CONFIG_OPTION(  mouseInput,        0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -669,6 +672,7 @@ int main(int argc, char** argv)
 	DeadZoneLeftStick[1] = options.deadZoneLeftP2.value;
 	DeadZoneRightStick[1] = options.deadZoneRightP2.value;
 	optDirJoy[1] = options.dirJoyP2.value;
+	optMouseInput = options.mouseInput.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -708,7 +712,7 @@ int main(int argc, char** argv)
 			SavedHeight = inBounds(options.resolution.height, 200, 1440);
 		}
 
-		if (optKeepAspectRatio)
+		if (optKeepAspectRatio == 2)
 		{
 			float threshold = 0.75f;
 			float ratio = (float)SavedHeight / (float)SavedWidth;
@@ -799,6 +803,9 @@ int main(int argc, char** argv)
 		ProcessUtilityKeys ();
 		ProcessThreadLifecycles ();
 		TFB_FlushGraphics ();
+
+		if (menu_visible)
+			TFB_SwapBuffers (TFB_REDRAW_YES);
 	}
 
 	/* Currently, we use atexit() callbacks everywhere, so we
@@ -806,6 +813,7 @@ int main(int argc, char** argv)
 	 *   tasks might still be using it */
 	if (MainExited)
 	{
+		FreeJournal ();
 		TFB_UninitInput ();
 		unInitAudio ();
 		uninit_communication ();
@@ -1000,8 +1008,10 @@ getUserConfigOptions (struct options_struct *options)
 		options->fullscreen.value = res_GetInteger ("config.fullscreen");
 	getBoolConfigValue (&options->scanlines, "config.scanlines");
 	getBoolConfigValue (&options->showFps, "config.showfps");
-	getBoolConfigValue (&options->keepAspectRatio,
-			"config.keepaspectratio");
+
+	if (res_IsInteger ("config.keepaspectratio") && !options->keepAspectRatio.set)
+		options->keepAspectRatio.value = res_GetInteger ("config.keepaspectratio");
+
 	getGammaConfigValue (&options->gamma, "config.gamma");
 
 	getBoolConfigValue (&options->subtitles, "config.subtitles");
@@ -1120,8 +1130,8 @@ getUserConfigOptions (struct options_struct *options)
 		options->dirJoyP1.value = res_GetInteger ("mm.dirJoyP1");
 	}
 
-	getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
-		OPT_3DO, OPT_PC);
+	/*getBoolConfigValueXlat (&options->landerHold, "mm.landerHold",
+		OPT_3DO, OPT_PC);*/
 	getBoolConfigValueXlat (&options->scrTrans, "mm.scrTransition",
 		OPT_3DO, OPT_PC);
 	if (res_IsInteger ("mm.difficulty") && !options->optDifficulty.set)
@@ -1235,6 +1245,11 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->dosMenus, "mm.dosMenus");
 
+	if (res_IsInteger ("mm.mouseInput") && !options->mouseInput.set)
+	{
+		options->mouseInput.value = res_GetInteger ("mm.mouseInput");
+	}
+
 	getBoolConfigValueXlat (&options->hyperSpaceColor, "mm.hyperSpaceColor",
 			OPT_3DO, OPT_PC);
 
@@ -1341,6 +1356,7 @@ enum
 	DZRP1_OPT,
 	DZLP2_OPT,
 	DZRP2_OPT,
+	MOUSE_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1462,6 +1478,7 @@ static struct option longOptions[] =
 	{"deadzonerightp1", 1, NULL, DZRP1_OPT},
 	{"deadzoneleftp2", 1, NULL, DZLP2_OPT},
 	{"deadzonerightp2", 1, NULL, DZRP2_OPT},
+	{"mouseinput", 1, NULL, MOUSE_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -1623,8 +1640,25 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				setBoolOption (&options->opengl, false);
 				break;
 			case 'k':
-				setBoolOption (&options->keepAspectRatio, true);
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Aspect Ratio") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nAspect Ratio has to be 0, 1, or 2.\n");
+					badArg = true;
+				}
+				else
+				{
+					options->keepAspectRatio.value = temp;
+					options->keepAspectRatio.set = true;
+				}
 				break;
+			}
 			case 'c':
 				if (!setListOption (&options->scaler, optarg, scalerList))
 				{
@@ -2357,6 +2391,26 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case CLAPAK_OPT:
 				optNoClassic = TRUE;
 				break;
+			case MOUSE_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "Mouse Input") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nMouse INput has to be between 0-2\n");
+					badArg = true;
+				}
+				else
+				{
+					options->mouseInput.value = temp;
+					options->mouseInput.set = true;
+				}
+				break;
+			}
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -2487,8 +2541,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			boolOptString (&defaults->opengl));
 	log_add (log_User, "  -x, --nogl (default: %s)",
 			boolNotOptString (&defaults->opengl));
-	log_add (log_User, "  -k, --keepaspectratio (default: %s)",
-			boolOptString (&defaults->keepAspectRatio));
+	log_add (log_User, "  -k, --keepaspectratio (default: 1)");
 	log_add (log_User, "  -c, --scale=MODE (bilinear, biadapt, biadv, "
 			"triscan, hq or none (default) )");
 	log_add (log_User, "  -b, --meleezoom=MODE (step, aka pc, or smooth, "
@@ -2746,6 +2799,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --hyperspacecolor : Choose between either the PC"
 			" or 3DO Flagship engine color (default: %s)",
 			choiceOptString (&defaults->hyperSpaceColor));
+	log_add (log_User, "  --mouseinput : Enable mouse pointer input "
+			"Mouse input types : 0: None | 1: Manual Control | 2: "
+			"Local Auto-Pilot (default: 0)");
 
 	log_setOutput (old);
 }

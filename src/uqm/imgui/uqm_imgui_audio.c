@@ -1,0 +1,171 @@
+//Copyright Paul Reiche, Fred Ford. 1992-2002
+/*
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#include "uqm_imgui.h"
+#include "libs/sound/sound.h"
+
+void draw_audio_menu (void)
+{
+	static const char **sound_drivers   = NULL;
+	static const char **sound_qualities = NULL;
+	static const char **alien_ambience  = NULL;
+	static const char **music_resume    = NULL;
+
+	if (!sound_drivers)
+	{
+		sound_drivers   = ImStrArr (GEN_AUD_STR_BASE);
+		sound_qualities = ImStrArr (GEN_AUD_STR_BASE + 1);
+		alien_ambience  = ImStrArr (GEN_AUD_STR_BASE + 2);
+		music_resume    = ImStrArr (GEN_AUD_STR_BASE + 3);
+	}
+
+	ImGui_BeginStyledChild ("##AudioChild", content_col_size,
+			CH_FLAT_NAV, 0, NULL);
+
+	// Sound Options
+	ImGui_SeparatorText (ImStr (GEN_AUD_STR_BASE + 4));
+
+	{	// Music Volume
+		int volume = musicVolumeScale * 100;
+
+		ImGui_Text (ImStr (GEN_AUD_STR_BASE + 5)); // Music Volume
+		if (ImGui_SliderInt ("##MusicVolume", &volume, 0, 100))
+		{
+			musicVolumeScale = volume / 100.0f;
+			SetMusicVolume (musicVolume);
+
+			res_PutInteger ("config.musicvol", volume);
+			config_changed = true;
+		}
+	}
+
+	{	// SFX Volume
+		int volume = sfxVolumeScale * 100;
+
+		ImGui_Text (ImStr (GEN_AUD_STR_BASE + 6)); // SFX Volume
+		if (ImGui_SliderInt ("##SFXVolume", &volume, 0, 100))
+		{
+			sfxVolumeScale = volume / 100.0f;
+			SetSFXVolume (sfxVolumeScale);
+
+			res_PutInteger ("config.sfxvol", volume);
+			config_changed = true;
+		}
+	}
+
+	{	// Speech Volume
+		int volume = speechVolumeScale * 100;
+
+		ImGui_Text (ImStr (GEN_AUD_STR_BASE + 7)); // Speech Volume
+		if (ImGui_SliderInt ("##SpeechVolume", &volume, 0, 100))
+		{
+			speechVolumeScale = volume / 100.0f;
+			SetSpeechVolume (speechVolumeScale);
+
+			res_PutInteger ("config.speechvol", volume);
+			config_changed = true;
+		}
+	}
+
+	Spacer ();
+
+	// Positional Audio
+	UQM_ImGui_CheckBox (ImStr (GEN_AUD_STR_BASE + 8), &optStereoSFX,
+			"config.positionalsfx", true);
+
+	Spacer ();
+
+	ImGui_BeginDisabled (true);
+
+	{	// Sound Driver
+		int driver;
+
+		switch (snddriver)
+		{
+		case audio_DRIVER_MIXSDL:
+			driver = 1;
+			break;
+		case audio_DRIVER_OPENAL:
+			driver = 2;
+			break;
+		case audio_DRIVER_NOSOUND:
+		default:
+			driver = 0;
+		}
+								// Sound Driver
+		if (ImGui_SizedComboChar (ImStr (GEN_AUD_STR_BASE + 9),
+				&driver, sound_drivers, 3))
+		{
+			// Add switching code here
+		}
+	}
+
+	{	// Sound Quality
+		int quality;
+
+		if (soundflags & audio_QUALITY_HIGH)
+			quality = OPTVAL_HIGH;
+		else if (soundflags & audio_QUALITY_LOW)
+			quality = OPTVAL_LOW;
+		else
+			quality = OPTVAL_MEDIUM;
+								// Sound Quality
+		if (ImGui_SizedComboChar (ImStr (GEN_AUD_STR_BASE + 10),
+				&quality, sound_qualities, 3))
+		{
+			// Add switching code here
+		}
+	}
+
+	ImGui_EndDisabled ();
+
+	ImGui_NewLine ();
+
+	// Music Options
+	ImGui_SeparatorText (ImStr (GEN_AUD_STR_BASE + 11));
+
+	Spacer ();
+
+	// 3DO Remixes
+	UQM_ImGui_CheckBox (ImStr (GEN_AUD_STR_BASE + 12), &opt3doMusic,
+			"config.3domusic", true);
+	// Precursor's Remixes
+	UQM_ImGui_CheckBox (ImStr (GEN_AUD_STR_BASE + 13),
+			&optRemixMusic, "config.remixmusic", true);
+	// Volasaurus' Remixes
+	UQM_ImGui_CheckBox (ImStr (GEN_AUD_STR_BASE + 14),
+			&optVolasMusic, "mm.volasMusic", true);
+
+	Spacer ();
+
+	// Interplanetary Alien Ambience
+	UQM_ComboChar (ImStr (GEN_AUD_STR_BASE + 15), alien_ambience, 3,
+			&optSpaceMusic, "mm.spaceMusic",true);
+
+	Spacer ();
+
+	UQM_ImGui_CheckBox (ImStr (GEN_AUD_STR_BASE + 16),  &optMainMenuMusic,
+			"mm.mainMenuMusic", false);
+
+	Spacer ();
+
+	// Music Resume
+	UQM_ComboChar (ImStr (GEN_AUD_STR_BASE + 17), music_resume, 3,
+			&optMusicResume, "mm.musicResume", false);
+
+	ImGui_EndChild (); // ##AudioChild
+}

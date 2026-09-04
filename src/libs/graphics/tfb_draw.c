@@ -210,7 +210,7 @@ TFB_DrawScreen_WaitForSignal (void)
 	TFB_BatchReset ();
 	TFB_EnqueueDrawCommand (&DrawCommand);
 	Unlock_DCQ();
-	SetSemaphore (s);	
+	SetSemaphore (s);
 }
 
 void

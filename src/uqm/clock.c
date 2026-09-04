@@ -37,7 +37,7 @@
 //   may access the clock and event data from a different thread
 static Mutex clock_mutex;
 
-static BOOLEAN
+BOOLEAN
 IsLeapYear (COUNT year)
 {
 	//     every 4th year      but not 100s          yet still 400s
@@ -45,7 +45,7 @@ IsLeapYear (COUNT year)
 }
 
 /* month is 1-based: 1=Jan, 2=Feb, etc. */
-static BYTE
+BYTE
 DaysInMonth (COUNT month, COUNT year)
 {
 	static const BYTE days_in_month[12] =

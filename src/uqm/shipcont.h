@@ -20,6 +20,8 @@
 #define UQM_SHIPCONT_H_
 
 #include "menustat.h"
+#include "libs/graphics/gfx_common.h"
+#include "libs/input/sdl/input.h"
 
 #if defined(__cplusplus)
 extern "C" {

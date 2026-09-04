@@ -71,6 +71,7 @@ typedef struct _widget_menu_screen {
 	int num_children;
 	struct _widget **child;
 	int highlighted;
+	RECT *widget_rects;
 } WIDGET_MENU_SCREEN;
 
 typedef struct {
@@ -91,6 +92,7 @@ typedef struct _widget_choice {
 	CHOICE_OPTION *options;
 	int selected, highlighted, choice_num;
 	void (*onChange)(struct _widget_choice *self, int oldval);
+	RECT hover_rect;
 } WIDGET_CHOICE;
 
 typedef struct _widget_button {
@@ -103,6 +105,7 @@ typedef struct _widget_button {
 	int (*width)(struct _widget *self);
 	const char *name;
 	const char *tooltip[3];
+	RECT hover_rect;
 } WIDGET_BUTTON;
 
 typedef struct _widget_label {
@@ -131,6 +134,7 @@ typedef struct _widget_slider {
 	const char *category;
 	const char *tooltip[3];
 	void (*onChange)(struct _widget_slider *self);
+	RECT hover_rect;
 } WIDGET_SLIDER;
 
 typedef enum {
@@ -159,6 +163,7 @@ typedef struct _widget_textentry {
 	WIDGET_TEXTENTRY_STATE state;
 	int cursor_pos;
 	const char *tooltip[3];
+	RECT hover_rect;
 } WIDGET_TEXTENTRY;
 
 typedef struct _widget_controlentry {
@@ -177,6 +182,7 @@ typedef struct _widget_controlentry {
 	char controlname[4][WIDGET_CONTROLENTRY_WIDTH];
 	int current_page;
 	int num_pages;
+	RECT hover_rect;
 } WIDGET_CONTROLENTRY;
 
 typedef struct _widget_menucontrolentry
@@ -196,6 +202,7 @@ typedef struct _widget_menucontrolentry
 	char controlname[6][WIDGET_CONTROLENTRY_WIDTH];
 	int current_page;
 	int num_pages;
+	RECT hover_rect;
 } WIDGET_MENUCONTROLENTRY;
 
 void DrawShadowedBox (RECT *r, Color bg, Color dark, Color medium);
@@ -244,6 +251,7 @@ void Widget_Slider_DrawValue (WIDGET_SLIDER *self, int x, int y);
 void ResetOffset (void);
 void LoadArrows (void);
 void ReleaseArrows (void);
+void FullReload (void);
 
 /* Other implementations will need these values */
 extern WIDGET *widget_focus;

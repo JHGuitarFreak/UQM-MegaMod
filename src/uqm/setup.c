@@ -40,6 +40,7 @@
 #include "libs/vidlib.h"
 #include "libs/log.h"
 #include "libs/misc.h"
+#include "libs/graphics/sdl/sdl_common.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -375,6 +376,16 @@ InitKernel (void)
 	InitStatusOffsets ();
 	InitSpace ();
 	AdvanceLoadProgress ();
+
+	{
+		BYTE i;
+		FRAME cursor_frame = CaptureDrawable (LoadGraphic (CURSOR_MASK_PMAP_ANIM));
+
+		for (i = 0; i < NUM_CURSORS; i++)
+			LoadCustomCursor (&UQM_Cursors[i], SetAbsFrameIndex (cursor_frame, i));
+
+		DestroyDrawable (ReleaseDrawable (cursor_frame));
+	}
 
 	return TRUE;
 }

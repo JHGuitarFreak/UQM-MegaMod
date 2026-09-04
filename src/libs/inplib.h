@@ -24,6 +24,7 @@
 #include "libs/uio.h"
 #include "libs/unicode.h"
 #include "libs/input/sdl/vcontrol.h"
+#include "options.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -36,14 +37,6 @@ extern BOOLEAN ActKeysPress (void);
 
 extern void TFB_ResetControls (void);
 
-/*
- * Not used right now
-extern BOOLEAN FindMouse (void);
-extern void MoveMouse (SWORD x, SWORD y);
-extern BYTE LocateMouse (SWORD *px, SWORD *py);
-*/
-
-extern volatile int MouseButtonDown;
 extern volatile int QuitPosted;
 extern volatile int GameActive;
 
@@ -69,6 +62,9 @@ void BeginInputFrame (void);
 
 extern const char *menu_res_names[];
 extern volatile int *menu_vec;
+extern const char *flight_res_names[];
+extern volatile int *flight_vec;
+extern int num_flight;
 
 extern const char xbx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
 extern const char xbx_axes[SDL_CONTROLLER_AXIS_MAX][16];
@@ -76,6 +72,25 @@ extern const char ds4_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
 extern const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16];
 extern const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
 extern const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
+
+#define MOUSE_LFT 1
+#define MOUSE_MID 2
+#define MOUSE_RGT 3
+#define WHEEL_UP 1
+#define WHEEL_DOWN 2
+
+extern BOOLEAN MouseButton (int button);
+extern BOOLEAN MouseBtnInCtx (int button, CONTEXT context);
+extern POINT ScaleCanvas (void);
+extern POINT ScreenToCanvas (CONTEXT context);
+extern BOOLEAN MouseInContext (CONTEXT context);
+extern BOOLEAN SetMouseContext (CONTEXT context);
+extern BOOLEAN MouseInRect (RECT r);
+extern void DebugMouseCursor (CONTEXT context);
+extern void DrawAutopilotTarget (POINT pt);
+extern BOOLEAN MouseClicker (RECT r, CONTEXT context);
+extern BOOLEAN CtxMouseClicker (RECT r);
+extern void PutMouse (CONTEXT context, POINT pt);
 
 #if defined(__cplusplus)
 }

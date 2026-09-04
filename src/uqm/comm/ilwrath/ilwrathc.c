@@ -132,7 +132,7 @@ CombatIsInevitable (RESPONSE_REF R)
 	{
 		NPCPhrase (GOODBYE_GODS);
 
-		GTFO = isGTFO;
+		Ilwrath_GTFO = isGTFO;
 
 		setSegue (Segue_peace);
 	}
@@ -629,7 +629,7 @@ Intro (void)
 						break;
 					case 5:
 						NPCPhrase (DECEIVERS);
-						GTFO = 2;
+						Ilwrath_GTFO = 2;
 						--NumVisits;
 						break;
 				}

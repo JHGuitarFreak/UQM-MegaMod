@@ -37,6 +37,7 @@
 #include "libs/graphics/gfx_common.h"
 #include "../gendef.h"
 #include "uqm/gamestr.h"
+#include "libs/inplib.h"
 
 
 // PlanetOrbitMenu() items
@@ -639,7 +640,8 @@ FreeLanderFont (PLANET_INFO *info)
 static BOOLEAN
 DoPlanetOrbit (MENU_STATE *pMS)
 {
-	BOOLEAN select = (BOOLEAN)PulsedInputState.menu[KEY_MENU_SELECT];
+	BOOLEAN select = (BOOLEAN)(PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT));
 	BOOLEAN handled;
 
 	if ((GLOBAL (CurrentActivity) & (CHECK_ABORT | CHECK_LOAD))

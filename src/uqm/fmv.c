@@ -212,27 +212,27 @@ Reload (void)
 void
 AdvanceLoadProgress (void)
 {
-	if (optRequiresReload)
+	RECT r;
+	static COUNT i = 0;
+
+	if (!optRequiresReload)
+		return;
+
+	r.corner.x = RES_SCALE (16);
+	r.corner.y = CanvasHeight - DOS_BOOL_SCL (50, 30);
+	r.extent.height = RES_SCALE (15);
+	r.extent.width = RES_SCALE ((i + 1) * 7);
+
+	if (i == MAX_LOAD_ENTRIES)
 	{
-		RECT r;
-		static COUNT i = 0;
-
-		r.corner.x = RES_SCALE (16);
-		r.corner.y = CanvasHeight - DOS_BOOL_SCL (50, 30);
-		r.extent.height = RES_SCALE (15);
-		r.extent.width = RES_SCALE ((i + 1) * 7);
-
-		if (i == MAX_LOAD_ENTRIES)
-		{
-			SetContextForeGroundColor (BUILD_COLOR_RGBA (0, 192, 0, 255));
-			i = 0;
-		}
-		else
-		{
-			SetContextForeGroundColor (
-					BUILD_COLOR_RGBA (0, 128, 192, 255));
-			i++;
-		}
-		DrawFilledRectangle (&r);
+		SetContextForeGroundColor (BUILD_COLOR_RGBA (0, 192, 0, 255));
+		i = 0;
 	}
+	else
+	{
+		SetContextForeGroundColor (
+				BUILD_COLOR_RGBA (0, 128, 192, 255));
+		i++;
+	}
+	DrawFilledRectangle (&r);
 }

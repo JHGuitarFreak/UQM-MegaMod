@@ -17,6 +17,14 @@
 #ifndef LIBS_INPUT_SDL_KEYNAMES_H_
 #define LIBS_INPUT_SDL_KEYNAMES_H_
 
+typedef struct vcontrol_keyname
+{
+	const char *name;
+	int code;
+} keyname;
+
+extern keyname keynames[];
+
 const char *VControl_code2name (int code);
 int VControl_name2code (const char *code);
 int VControl_code2index (int code);

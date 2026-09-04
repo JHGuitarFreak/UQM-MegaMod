@@ -311,6 +311,7 @@ enum {
 	CHOICE_DOSMENUS,
 	CHOICE_HSCOLOR,
 	CHOICE_DIRJOYP2,
+	CHOICE_MOUSEINPUT,
 
 	CHOICE_COUNT
 };
@@ -438,9 +439,15 @@ enum
 	MENUCONTROL_SCREENSHOT,
 	MENUCONTROL_QUICKSAVE,
 	MENUCONTROL_QUICKLOAD,
+	MENUCONTROL_IMGUI,
 	MENUCONTROL_DEBUG2,
 	MENUCONTROL_DEBUG3,
 	MENUCONTROL_DEBUG4,
+	MENUCONTROL_MOUSELEFT,
+	MENUCONTROL_MOUSERIGHT,
+	MENUCONTROL_MOUSEMIDDLE,
+	MENUCONTROL_MWHEELUP,
+	MENUCONTROL_MWHEELDOWN,
 
 	MENUCONTROL_COUNT
 };
@@ -474,7 +481,7 @@ typedef struct globalopts_struct {
 	OPT_ADD_REMOVE deviceArray[28], upgradeArray[NUM_UPGRADES];
 	OPT_DIRECTJOY dirJoy[2];
 	OPT_ENABLABLE fullscreen, subtitles, scanlines, fps, stereo, music3do,
-			musicremix, speech, keepaspect, cheatMode, mainMenuMusic,
+			musicremix, speech, cheatMode, mainMenuMusic,
 			nebulae, orbitingPlanets, texturedPlanets, godMode, bubbleWarp,
 			unlockShips, headStart, autoButtons, infiniteRU, skipIntro,
 			infiniteFuel, partialPickup, submenu, infiniteCredits,
@@ -489,8 +496,9 @@ typedef struct globalopts_struct {
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
 	CONTROL_TEMPLATE player1, player2;
-	int speechvol, musicvol, sfxvol, nebulaevol, cscan;
-	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2];
+	int speechvol, musicvol, sfxvol, nebulaevol, cscan, keepaspect;
+	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2],
+			mouseInput;
 } GLOBALOPTS;
 
 void SetupMenu (void);

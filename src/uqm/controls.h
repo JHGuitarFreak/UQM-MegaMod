@@ -68,9 +68,15 @@ enum {
 	KEY_SCREENSHOT,
 	KEY_QUICKSAVE,
 	KEY_QUICKLOAD,
+	KEY_IMGUI,
 	KEY_DEBUG_2,
 	KEY_DEBUG_3,
 	KEY_DEBUG_4,
+	MOUSE_BTN_LEFT,
+	MOUSE_BTN_RIGHT,
+	MOUSE_BTN_MIDDLE,
+	MOUSE_WHEEL_UP,
+	MOUSE_WHEEL_DOWN,
 	KEY_MENU_ANY, /* abstract char key */
 	NUM_MENU_KEYS
 };
@@ -164,6 +170,7 @@ typedef UBYTE BATTLE_INPUT_STATE;
 BATTLE_INPUT_STATE CurrentInputToBattleInput (COUNT player, int direction);
 BATTLE_INPUT_STATE PulsedInputToBattleInput (COUNT player);
 BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
+BATTLE_INPUT_STATE BattleMouseHook (int player);
 
 extern CONTROLLER_INPUT_STATE CurrentInputState;
 extern CONTROLLER_INPUT_STATE PulsedInputState;

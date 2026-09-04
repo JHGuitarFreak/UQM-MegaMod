@@ -39,11 +39,10 @@
 #include "libs/graphics/gfx_common.h"
 #include "gameopt.h"
 #include "libs/log/uqmlog.h"
+#include "imgui/uqm_imgui.h"
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
 #define MENU_REPEAT_DELAY (ONE_SECOND >> 1)
-
-#define IN_MAIN_MENU (GLOBAL (CurrentActivity) == 0)
 
 typedef struct
 {
@@ -79,8 +78,6 @@ volatile BOOLEAN OnScreenKeyboardLocked;
 static InputFrameCallback *inputCallback;
 
 static void ControllerTypeSwitcher (void);
-
-BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player);
 
 static void
 _clear_menu_state (void)
@@ -316,6 +313,12 @@ UpdateInputState (void)
 	if (PulsedInputState.menu[KEY_DEBUG_4])
 		debugKey4PressedSynchronous ();
 #endif
+
+	{
+		ApplyResChanges ();
+		ApplyGfxChanges ();
+		FlagStatRefresh ();
+	}
 }
 
 InputFrameCallback *
@@ -368,7 +371,11 @@ MenuKeysToSoundFlags (const CONTROLLER_INPUT_STATE *state)
 	soundFlags = MENU_SOUND_NONE;
 	if (state->menu[KEY_MENU_UP])
 		soundFlags |= MENU_SOUND_UP;
+	if (state->menu[MOUSE_WHEEL_UP])
+		soundFlags |= MENU_SOUND_UP;
 	if (state->menu[KEY_MENU_DOWN])
+		soundFlags |= MENU_SOUND_DOWN;
+	if (state->menu[MOUSE_WHEEL_DOWN])
 		soundFlags |= MENU_SOUND_DOWN;
 	if (state->menu[KEY_MENU_LEFT])
 		soundFlags |= MENU_SOUND_LEFT;
@@ -376,9 +383,15 @@ MenuKeysToSoundFlags (const CONTROLLER_INPUT_STATE *state)
 		soundFlags |= MENU_SOUND_RIGHT;
 	if (state->menu[KEY_MENU_SELECT])
 		soundFlags |= MENU_SOUND_SELECT;
+	if (state->menu[MOUSE_BTN_LEFT])
+		soundFlags |= MENU_SOUND_SELECT;
 	if (state->menu[KEY_MENU_CANCEL])
 		soundFlags |= MENU_SOUND_CANCEL;
+	if (state->menu[MOUSE_BTN_RIGHT])
+		soundFlags |= MENU_SOUND_CANCEL;
 	if (state->menu[KEY_MENU_SPECIAL])
+		soundFlags |= MENU_SOUND_SPECIAL;
+	if (state->menu[MOUSE_BTN_MIDDLE])
 		soundFlags |= MENU_SOUND_SPECIAL;
 	if (state->menu[KEY_MENU_PAGE_UP])
 		soundFlags |= MENU_SOUND_PAGEUP;
@@ -457,6 +470,7 @@ ControlInputToBattleInput (const int *keyState, COUNT player, int direction)
 	BATTLE_INPUT_STATE InputState = 0;
 
 	InputState |= GetDirectionalJoystickInput (direction, player);
+	InputState |= BattleMouseHook  (player);
 
 	if (keyState[KEY_LEFT])
 		InputState |= BATTLE_LEFT;
@@ -521,7 +535,9 @@ DirKeysPress (void)
 		CurrentInputState.menu[KEY_MENU_LEFT] ||
 		CurrentInputState.menu[KEY_MENU_RIGHT] ||
 		CurrentInputState.menu[KEY_MENU_UP] ||
-		CurrentInputState.menu[KEY_MENU_DOWN]
+		CurrentInputState.menu[KEY_MENU_DOWN] ||
+		CurrentInputState.menu[MOUSE_WHEEL_UP] ||
+		CurrentInputState.menu[MOUSE_WHEEL_DOWN]
 	);
 }
 
@@ -536,7 +552,10 @@ ActKeysPress (void)
 		CurrentInputState.key[PlayerControls[0]][KEY_ESCAPE] ||
 		CurrentInputState.menu[KEY_MENU_SELECT] ||
 		CurrentInputState.menu[KEY_MENU_CANCEL] ||
-		CurrentInputState.menu[KEY_MENU_SPECIAL]
+		CurrentInputState.menu[KEY_MENU_SPECIAL] ||
+		CurrentInputState.menu[MOUSE_BTN_LEFT] ||
+		CurrentInputState.menu[MOUSE_BTN_RIGHT] ||
+		CurrentInputState.menu[MOUSE_BTN_MIDDLE]
 	);
 }
 
@@ -711,7 +730,8 @@ static inline int atan2i (int y, int x)
 		return(angle);
 }
 
-BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
+BATTLE_INPUT_STATE
+GetDirectionalJoystickInput (int direction, int player)
 {
 	int axisX = 0;
 	int axisY = 0;
@@ -775,6 +795,93 @@ BATTLE_INPUT_STATE GetDirectionalJoystickInput (int direction, int player)
 
 			if (abs (axisX) > undead_zone || abs (axisY) > undead_zone)
 				InputState |= BATTLE_THRUST;
+		}
+	}
+
+	return InputState;
+}
+static void
+ShipFaceCursor (STARSHIP *StarShipPtr, BATTLE_INPUT_STATE *InputState)
+{
+	POINT ship_pos, mouse_pos;
+	SIZE dx = 0, dy = 0;
+	COUNT desired_facing, current_facing;
+	int facing_diff;
+	ELEMENT *ShipPtr;
+
+	LockElement (StarShipPtr->hShip, &ShipPtr);
+	ship_pos = DisplayArray[ShipPtr->PrimIndex].Object.Point;
+	UnlockElement (StarShipPtr->hShip);
+
+	mouse_pos = ScreenToCanvas (SpaceContext);
+
+	dx = mouse_pos.x - ship_pos.x;
+	dy = mouse_pos.y - ship_pos.y;
+
+	desired_facing = ANGLE_TO_FACING (ARCTAN (dx, dy));
+	current_facing = StarShipPtr->ShipFacing;
+	facing_diff = NORMALIZE_FACING (desired_facing - current_facing);
+
+	if (facing_diff == 0)
+	{
+		// Do nothing
+	}
+	else if (facing_diff <= 8)
+		*InputState |= BATTLE_RIGHT;
+	else
+		*InputState |= BATTLE_LEFT;
+}
+
+BATTLE_INPUT_STATE
+BattleMouseHook (int player)
+{
+	size_t sideI;
+	BATTLE_INPUT_STATE InputState = 0;
+	int cursor = CURSOR_POINTER;
+
+	if (!SetMouseContext (ScreenContext) || PickingShip ||
+			(inHQSpace () && !(GLOBAL (autopilot).x == ~0 ||
+			GLOBAL (autopilot).y == ~0)) ||
+			!((PlayerControl[player] & HUMAN_CONTROL) &&
+			((PlayerControl[0] & COMPUTER_CONTROL) ||
+			(PlayerControl[1] & COMPUTER_CONTROL) ||
+			(PlayerControl[1] & NETWORK_CONTROL) ||
+			(PlayerControl[0] & NETWORK_CONTROL))))
+	{
+		return 0;
+	}
+
+	if (MouseInContext (SpaceContext))
+		cursor = CURSOR_CROSSHAIR;
+
+	UQM_SetCursor (cursor);
+
+	for (sideI = 0; sideI < NUM_SIDES; sideI++)
+	{
+		HSTARSHIP hBattleShip, hNextShip;
+		size_t cur_player = player;
+
+		for (hBattleShip = GetHeadLink (&race_q[cur_player]);
+			hBattleShip != 0; hBattleShip = hNextShip)
+		{
+			STARSHIP *StarShipPtr;
+			StarShipPtr = LockStarShip (&race_q[cur_player], hBattleShip);
+			hNextShip = _GetSuccLink (StarShipPtr);
+			if (StarShipPtr->hShip)
+			{
+				if (!MouseInContext (StatusContext))
+				{
+					ShipFaceCursor (StarShipPtr, &InputState);
+
+					if (CurrentInputState.menu[MOUSE_BTN_LEFT])
+						InputState |= BATTLE_THRUST;
+					if (CurrentInputState.menu[MOUSE_BTN_MIDDLE])
+						InputState |= BATTLE_SPECIAL;
+					if (CurrentInputState.menu[MOUSE_BTN_RIGHT])
+						InputState |= BATTLE_WEAPON;
+				}
+			}
+			UnlockStarShip (&race_q[cur_player], hBattleShip);
 		}
 	}
 

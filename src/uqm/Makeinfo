@@ -1,4 +1,4 @@
-uqm_SUBDIRS="comm lua planets ships supermelee"
+uqm_SUBDIRS="comm lua planets ships supermelee imgui"
 uqm_CFILES="battle.c battlecontrols.c border.c build.c cleanup.c clock.c
 		cnctdlg.c collide.c comm.c commanim.c commglue.c confirm.c credits.c
 		cyborg.c demo.c displist.c dummy.c encount.c flash.c fmv.c galaxy.c

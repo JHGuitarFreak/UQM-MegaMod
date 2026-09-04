@@ -25,6 +25,7 @@
 #include "../gfxintrn.h"
 #include "libs/graphics/tfb_draw.h"
 #include "libs/graphics/gfx_common.h"
+#include "uqm/imgui/uqm_imgui.h"
 
 // The Graphics Backend vtable
 typedef struct _tfb_graphics_backend {
@@ -34,6 +35,9 @@ typedef struct _tfb_graphics_backend {
 	void (*screen) (SCREEN screen, Uint8 alpha, SDL_Rect *rect);
 	void (*color) (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
 } TFB_GRAPHICS_BACKEND;
+
+extern SDL_Window *window;
+extern SDL_Renderer *renderer;
 
 extern TFB_GRAPHICS_BACKEND *graphics_backend;
 
@@ -61,5 +65,7 @@ void UnInit_Screen (SDL_Surface **screen);
 extern BOOLEAN TFB_SDL_ScreenShot (const char *path);
 
 extern int CopySurfaceToClipboard (SDL_Surface *surface);
+
+extern void LoadCustomCursor (SDL_Cursor **cursor, FRAME frame);
 
 #endif /* SDL_COMMON_H */

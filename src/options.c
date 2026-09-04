@@ -34,6 +34,7 @@
 #include "uqm/starmap.h"
 #include "uqm/planets/scan.h"
 #include "types.h"
+#include "uqm/imgui/uqm_imgui.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -59,6 +60,8 @@ unsigned int loresBlowupScale;
 unsigned int resolutionFactor;
 unsigned int audioDriver;
 unsigned int audioQuality;
+
+SDL_Cursor *UQM_Cursors[NUM_CURSORS] = { NULL };
 
 // Added options
 BOOLEAN optRequiresReload;
@@ -95,6 +98,7 @@ int optSpaceMusic;
 OPT_ENABLABLE optVolasMusic;
 OPT_ENABLABLE optWholeFuel;
 int optDirJoy[2];
+bool changeLanderCapacity;
 int optLanderHold;
 int optScrTrans;
 int optDifficulty;
@@ -143,13 +147,15 @@ OPT_ADD_REMOVE optUpgradeArray[13];
 int optHyperSpaceColor;
 int DeadZoneLeftStick[2];
 int DeadZoneRightStick[2];
+int optMouseInput;
+bool ShipGTFO = false;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;
 OPT_ENABLABLE optSpeech;
 OPT_ENABLABLE optSubtitles;
 OPT_ENABLABLE optStereoSFX;
-OPT_ENABLABLE optKeepAspectRatio;
+int optKeepAspectRatio;
 float optGamma;
 uio_DirHandle *contentDir;
 uio_DirHandle *configDir;
@@ -160,6 +166,7 @@ uio_MountHandle* contentMountHandle;
 
 char *contentDirPath;
 char *addonDirPath;
+char *configDirPath;
 
 char baseContentPath[PATH_MAX];
 
@@ -343,6 +350,9 @@ prepareConfigDir (const char *configDirName) {
 	configDirName = buf;
 
 	log_add (log_Debug, "Using config dir '%s'", configDirName);
+
+	if (!configDirPath)
+		configDirPath = strdup (configDirName);
 
 	// Set the environment variable UQM_CONFIG_DIR so UQM_MELEE_DIR
 	// and UQM_SAVE_DIR can refer to it.
@@ -876,4 +886,48 @@ setGammaCorrection (float gamma)
 	else
 		log_add (log_Warning, "Unable to set gamma correction.");
 	return set;
+}
+
+static int cursor_enabled = -1;
+
+static BOOLEAN
+UQM_IsCursorVisible (void)
+{
+	BOOLEAN old_state;
+
+	if (cursor_enabled != -1)
+		return cursor_enabled;
+
+	old_state = SDL_ShowCursor (SDL_DISABLE);
+
+	if (old_state == SDL_ENABLE)
+		SDL_ShowCursor (SDL_ENABLE);
+
+	return cursor_enabled = (old_state == SDL_ENABLE);
+}
+
+BOOLEAN
+UQM_SetCursor (int cursor)
+{
+	BOOLEAN cursor_visible = UQM_IsCursorVisible ();
+
+	if ((!optMouseInput && cursor_visible && !menu_visible) ||
+			cursor == CURSOR_DISABLE)
+	{
+		SDL_ShowCursor (SDL_DISABLE);
+		cursor_enabled = FALSE;
+		return FALSE;
+	}
+
+	cursor_enabled = TRUE;
+
+	if (SDL_GetCursor () == UQM_Cursors[cursor] && cursor_visible)
+		return TRUE;
+
+	SDL_SetCursor (UQM_Cursors[cursor]);
+
+	if (!cursor_visible)
+		SDL_ShowCursor (SDL_ENABLE);
+
+	return TRUE;
 }

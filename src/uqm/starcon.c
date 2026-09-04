@@ -58,6 +58,7 @@
 #include <time.h>//required to use 'srand(time(NULL))'
 #include "sounds.h"
 #include "gameopt.h"
+#include "imgui/uqm_imgui.h"
 
 volatile int MainExited = FALSE;
 #ifdef DEBUG_SLEEP
@@ -159,6 +160,16 @@ ProcessUtilityKeys (void)
 	{
 		FlushInput ();
 		TFB_ScreenShot ();
+	}
+
+	if (ImmediateInputState.menu[KEY_IMGUI])
+	{
+		FlushInput ();
+		UQM_ImGui_ToggleMenu ();
+
+		// Redraws the screen when exiting ImGui to prevent screen freezes.
+		if (!menu_visible)
+			TFB_SwapBuffers (TFB_REDRAW_YES);
 	}
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
