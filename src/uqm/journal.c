@@ -712,7 +712,7 @@ WriteJournals (void)
 			&& GGS (TAALO_PROTECTOR_ON_SHIP);
 	have_tpet = GGS (TALKING_PET) && GGS (TALKING_PET_ON_SHIP);
 
-	AddJournal (ARTIFACTS_JOURNAL, 9,
+	AddJournal (ARTIFACTS_JOURNAL, 8,
 			investigate_orionis,         INVESTIGATE_ORIONIS,
 			arilou_tp,                   ASK_UMGAH_TPET,
 			!arilou_tp && umgah_zombies, UMGAH_BEING_WEIRD,
@@ -720,7 +720,7 @@ WriteJournals (void)
 			arilou_scouts > 0,           FOLLOWUP_UMGAH_WEIRD,
 			arilou_scouts == 3,          CHECK_UMGAH_HOME,
 			neutralize_tpet,             NEUTRALIZE_TPET,
-			have_taalo_shield,           CONFRONT_TPET,
+			//have_taalo_shield,           CONFRONT_TPET,
 			have_tpet,                   ACQUIRED_TPET);
 
 	AddJournal (ARTIFACTS_JOURNAL, 1,
