@@ -2582,6 +2582,7 @@ DoMoveCursor (MENU_STATE *pMS)
 	static COUNT moveRepeats;
 	BOOLEAN isMove = FALSE;
 	BOOLEAN zoom_in_key, zoom_out_key;
+	int cursor = CURSOR_POINTER;
 
 	zoom_in_key = PulsedInputState.menu[KEY_MENU_ZOOM_IN] ||
 			PulsedInputState.menu[MOUSE_WHEEL_UP];
@@ -2805,7 +2806,7 @@ DoMoveCursor (MENU_STATE *pMS)
 
 	if (MouseInContext (SpaceContext))
 	{
-		UQM_SetCursor (CURSOR_DISABLE);
+		cursor = CURSOR_DISABLE;
 
 		manual_input = FALSE;
 
@@ -2818,8 +2819,8 @@ DoMoveCursor (MENU_STATE *pMS)
 			UpdateFuelRequirement ();
 		}
 	}
-	else
-		UQM_SetCursor (CURSOR_POINTER);
+	
+	UQM_SetCursor (cursor);
 
 	flashCurrentLocation (NULL, FALSE);
 

@@ -1259,7 +1259,15 @@ extern SDL_Window *window;
 void
 PutMouse (CONTEXT context, POINT pt)
 {
-	DPOINT temp = CanvasToScreen (context, pt);
+	DPOINT temp;
+
+#if defined(__linux__)
+	return;
+	// On Linux the mouse pointer gets stuck where it's moved to and can't be
+	// restored until you exit the starmap or Alt+TAB out of the game.
+#endif
+
+	temp = CanvasToScreen (context, pt);
 
 	SDL_WarpMouseInWindow (window, temp.x, temp.y);
 }
