@@ -142,21 +142,8 @@ void draw_visual_menu (void)
 			&optOrbitingPlanets, "mm.orbitingPlanets", false);
 
 	// Textured Planets
-	ImGui_BeginDisabled (!IN_MAIN_MENU);
-
-	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 15),
-			&optTexturedPlanets, "mm.texturedPlanets", false);
-
-	if (!IN_MAIN_MENU)
-	{
-		ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
-				ImStr (TIP_WARN_STR_BASE + 3));
-					// Main Menu Warning
-		Spacer ();
-	}
-
-	ImGui_EndDisabled (); // // Textured Planets
-
+	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 15), &optTexturedPlanets,
+			"mm.texturedPlanets", false);
 	// Unscaled View (HD Only)
 	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 16), &optUnscaledStarSystem,
 			"mm.unscaledStarSystem", false);

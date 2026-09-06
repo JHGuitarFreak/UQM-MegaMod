@@ -321,6 +321,7 @@ const char *UQM_MakeIDFromStrings (const char *str1, const char *str2);
 #define ImMakeID(str1,str2) UQM_MakeIDFromStrings (str1, str2)
 
 void UQM_ToolTip (int var);
+void UQM_WhichConfig (const char *key);
 
 void UQM_ImGui_Style (void);
 void UQM_ScaleAllSizes (void);

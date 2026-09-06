@@ -2408,6 +2408,74 @@ RotatePlanets (BOOLEAN IsInnerSystem)
 	}
 }
 
+static BOOLEAN
+UpdatePlanets (void)
+{
+	static BOOLEAN tex_check = FALSE;
+
+	if (tex_check == (BOOLEAN)optTexturedPlanets)
+		return FALSE;
+
+	if (optTexturedPlanets)
+	{
+		if (playerInInnerSystem ())
+		{
+			GenerateTexturedPlanets ();
+			GenerateTexturedMoons (pSolarSysState,
+					pSolarSysState->pOrbitalDesc);
+		}
+		else
+			GenerateTexturedPlanets ();
+	}
+	else if (pSolarSysState->PlanetDesc->orbit.lpTopoData)
+	{
+		int i, j;
+		PLANET_DESC *planet, *pMoonDesc;
+
+		for (i = 0; i < pSolarSysState->SunDesc[0].NumPlanets; ++i)
+		{
+			planet = &pSolarSysState->PlanetDesc[i];
+
+			for (j = 0, pMoonDesc = pSolarSysState->MoonDesc;
+					j < planet->NumPlanets; ++j, ++pMoonDesc)
+			{
+				if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
+				{
+					SIZE diameterPick =
+							pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
+							LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+					DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
+				}
+				pMoonDesc->frame_offset = UNDEFINED_OFFSET;
+			}
+
+			DestroyOrbitStruct (&planet->orbit, PLANET_DIAMETER);
+			planet->frame_offset = UNDEFINED_OFFSET;
+		}
+	}
+
+	tex_check = (BOOLEAN)optTexturedPlanets;
+
+	if (SolarSysFrame)
+	{
+		DestroyDrawable (ReleaseDrawable (SolarSysFrame));
+		SolarSysFrame = NULL;
+	}
+
+	SetTransitionSource (NULL);
+	BatchGraphics ();
+	if (playerInInnerSystem ())
+		DrawInnerSystem ();
+	else
+		DrawOuterSystem ();
+	RedrawQueue (FALSE);
+	ScreenTransition (1, NULL); 
+	UnbatchGraphics ();
+
+	return TRUE;
+}
+
 // Normally called by DoIpFlight() to process a frame
 static void
 IP_frame (void)
@@ -2417,6 +2485,9 @@ IP_frame (void)
 
 	SetContext (SpaceContext);
 	ProcessShipControls ();
+
+	if (UpdatePlanets ())
+		return;
 	
 	locChange = CheckShipLocation (&newRadius);
 	if (locChange)

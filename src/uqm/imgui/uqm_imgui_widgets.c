@@ -263,22 +263,13 @@ DangerGradient (void)
 
 void
 UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
-	bool needs_reboot)
+		bool needs_reboot)
 {
 	if (key == NULL)
 		return;
 
-	if (ImGui_Checkbox (label, (bool *)v) || key == NULL)
+	if (ImGui_Checkbox (label, (bool *)v))
 	{
-		res_PutBoolean (key, *v);
-
-		if (strncmp (key, "cheat.", 6) == 0)
-			cheat_changed = true;
-		else if (strncmp (key, "mm.", 3) == 0)
-			mmcfg_changed = true;
-		else if (strncmp (key, "config.", 7) == 0)
-			config_changed = true;
-
 		if (needs_reboot)
 		{
 			if (IN_MAIN_MENU)
@@ -288,17 +279,17 @@ UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 
 			optRequiresReload = TRUE;
 		}
+
+		res_PutBoolean (key, *v);
+		UQM_WhichConfig (key);
 	}
 
-	if (needs_reboot)
+	if (needs_reboot && ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 	{
-		if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
-		{
-			ImGui_BeginTooltip ();
-			ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_RED_COLOR),
+		ImGui_BeginTooltip ();
+		ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_RED_COLOR),
 				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
-			ImGui_EndTooltip ();
-		}
+		ImGui_EndTooltip ();
 	}
 }
 
