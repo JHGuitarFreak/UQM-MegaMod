@@ -146,7 +146,7 @@ draw_engine_menu (void)
 	ImGui_NewLine ();
 
 	// Speech
-	UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 23), (bool *)&optSpeech,
+	UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 23), &optSpeech,
 			"config.speech", true);
 
 	// Subtitles
