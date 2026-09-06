@@ -30,8 +30,8 @@ extern "C" {
 
 extern STRING ImGuiStrings;
 
-#define NAV_TAB_STR_COUNT   8
-#define TIP_WARN_STR_COUNT 16
+#define NAV_TAB_STR_COUNT  11
+#define TIP_WARN_STR_COUNT 18
 
 // General
 #define GEN_SETT_STR_COUNT 11

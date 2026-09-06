@@ -666,6 +666,17 @@ UQM_DblColTableCheckBox (const char *gs_retrieved, const char *gs_on_ship)
 	ImGui_TableNextColumn ();
 }
 
+void
+UQM_ToolTip (int var)
+{
+	if (!ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+		return;
+
+	ImGui_BeginTooltip ();
+	ImGui_Text (ImStr (var));
+	ImGui_EndTooltip ();
+}
+
 ImVec4
 UQM_ColorToImVec4 (Color color)
 {

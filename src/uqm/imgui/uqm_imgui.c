@@ -95,6 +95,7 @@ UQM_ImGui_Init (void)
 	AddFontFromResource ("tinyfont.ttf",   18.0f);
 	AddFontFromResource ("urquanfont.ttf", 20.0f);
 	ImFontAtlas_AddFontDefault (io->Fonts, NULL);
+	AddFontFromResource ("icons.ttf", 18.0f);
 	LoadResourceIndex (configDir, "imgui.cfg", "imgui.");
 	ImGuiStrings = CaptureStringTable (LoadStringTable ("text.imgui"));
 	UQM_LoadImGuiSettings ();
@@ -171,8 +172,7 @@ void UQM_ImGui_Shutdown (void)
 void UQM_ImGui_ToggleMenu (void)
 {
 	menu_visible = !menu_visible;
-
-	if (menu_visible)
+	
 	{
 		if (!UQM_ImGui_Init ())
 		{

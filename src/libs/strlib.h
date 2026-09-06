@@ -93,6 +93,11 @@ extern const char *LoadStringInstance (RESOURCE res);
 #define UNICHAR_COLON         0x003A
 #define STR_COLON           "\x3A"
 
+#define UNICHAR_POWER         0x23FB
+#define STR_POWER            "\xE2\x8F\xBB"
+#define UNICHAR_RELOAD        0x21BB
+#define STR_RELOAD           "\xE2\x86\xBB"
+
 
 #define STR_NULL "null"
 

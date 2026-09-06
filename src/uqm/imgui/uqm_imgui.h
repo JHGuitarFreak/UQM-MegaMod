@@ -203,7 +203,9 @@ enum
 	FONT_URQUAN,
 	FONT_DEFAULT,
 
-	FONT_NUM_FONTS
+	FONT_ICONS,
+
+	FONT_NUM_FONTS = FONT_ICONS
 };
 
 int NumberOfColumns (void);
@@ -253,6 +255,10 @@ ImU32 UQM_ColorToU32 (Color color);
 #define U32_BUTTON_GS     0x66898989
 #define U32_BUTTON_HOV_GS 0xFF898989
 #define U32_BUTTON_ACT_GS 0xFF404040
+
+#define U32_FRAMEBG_RED     0x4F4242FA
+#define U32_FRAMEBG_HOV_RED 0xCC4242FA
+#define U32_FRAMEBG_ACT_RED 0xFF4242FA
 
 ImVec4 DangerGradient (void);
 
@@ -313,6 +319,8 @@ void UQM_DblColTableCheckBox (const char *gs_retrieved, const char *gs_on_ship);
 
 const char *UQM_MakeIDFromStrings (const char *str1, const char *str2);
 #define ImMakeID(str1,str2) UQM_MakeIDFromStrings (str1, str2)
+
+void UQM_ToolTip (int var);
 
 void UQM_ImGui_Style (void);
 void UQM_ScaleAllSizes (void);

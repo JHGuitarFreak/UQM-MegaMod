@@ -68,7 +68,7 @@ draw_settings_menu (void)
 	{	// Font Selector
 		int i, font_selection = 0;
 		const ImFontAtlas *font_atlas = io->Fonts;
-		const int num_fonts = font_atlas->Fonts.Size;
+		const int num_fonts = FONT_NUM_FONTS;
 		const char **font_names = HMalloc (num_fonts * sizeof (const char *));
 
 		for (i = 0; i < num_fonts; i++)
@@ -283,8 +283,9 @@ UQM_ImGui_Tabs (TabState *state)
 	float scale = SCALE_20F;
 	static float nav_width = 0;
 	ImVec2 text_size;
-	ImVec2 button_size;
-	static float button_room = 0;
+	ImVec2 button_size = ZERO_F;
+	static float button_room = 0.0f;
+	static bool do_modal = false;
 
 	const char *subtab_not = ImStr (NAV_TAB_STR_BASE + 6);
 			// Subtab %d not found.
@@ -346,31 +347,116 @@ UQM_ImGui_Tabs (TabState *state)
 #endif
 	}
 
-	ImGui_PushFontFloat (io->Fonts->Fonts.Data[2], GetDefaultFontSize ());
+	// Reload and Exit buttons
+	ImGui_PushFontFloat (io->Fonts->Fonts.Data[FONT_ICONS],
+			GetDefaultFontSize ());
 
 	ImGui_SameLine ();
-	ImGui_Dummy (MAKE_IV2 (ImGui_GetContentRegionAvail().x - button_room, 0));
+	ImGui_Dummy (MAKE_IV2 (ImGui_GetContentRegionAvail().x - button_room, 0.0f));
 	ImGui_SameLine ();
 
-	text_size = ImGui_CalcTextSize ("Reload");
+	if (!IN_MAIN_MENU)
+	{
+		text_size = ImGui_CalcTextSize (STR_RELOAD);
+		button_size = (ImVec2){ text_size.x + scale, scale };
+
+		button_room = button_size.x + style->WindowPadding.x * 2;
+
+		ImGui_PushStyleColor (ImGuiCol_Header, U32_BUTTON_GS);
+		ImGui_PushStyleColor (ImGuiCol_HeaderHovered, U32_BUTTON_HOV_GS);
+		ImGui_PushStyleColor (ImGuiCol_HeaderActive, U32_BUTTON_ACT_GS);
+
+		if (ImGui_SelectableEx (STR_RELOAD, true, 0, button_size))
+			GLOBAL (CurrentActivity) |= CHECK_ABORT;
+
+		ImGui_PopStyleColorEx (3);
+
+		UQM_ToolTip (TIP_WARN_STR_BASE + 16); // Reload Button
+
+
+		ImGui_SameLine ();
+		ImGui_Dummy (MAKE_IV2 (SCALE_IT (4.0f), 0));
+		ImGui_SameLine ();
+	}
+
+	text_size = ImGui_CalcTextSize (STR_POWER);
 	button_size = (ImVec2){ text_size.x + scale, scale };
 
-	button_room = button_size.x + style->WindowPadding.x * 2;
+	if (!IN_MAIN_MENU)
+		button_room += button_size.x + style->WindowPadding.x * 2;
+	else
+		button_room = button_size.x + style->WindowPadding.x * 2;
 
-	ImGui_SelectableEx ("Reload", true, 0, button_size);
+	ImGui_PushStyleColor (ImGuiCol_Header,        U32_FRAMEBG_RED);
+	ImGui_PushStyleColor (ImGuiCol_HeaderHovered, U32_FRAMEBG_HOV_RED);
+	ImGui_PushStyleColor (ImGuiCol_HeaderActive,  U32_FRAMEBG_ACT_RED);
 
-	ImGui_SameLine ();
-	ImGui_Dummy (MAKE_IV2 (SCALE_IT (4.0f), 0));
-	ImGui_SameLine ();
+	if (ImGui_SelectableEx (STR_POWER, true, 0, button_size))
+	{
+		ImGui_OpenPopup ("##Exit", 0);
+		do_modal = true;
+	}
 
-	text_size = ImGui_CalcTextSize ("Exit");
-	button_size = (ImVec2){ text_size.x + scale, scale };
+	ImGui_PopStyleColorEx (3);
+	UQM_ToolTip (TIP_WARN_STR_BASE + 17); // Quit Button
 
-	button_room += button_size.x + style->WindowPadding.x * 2;
+	ImGui_PopFont (); // Reload and Exit buttons
 
-	ImGui_SelectableEx ("Exit", true, 0, button_size);
+	// Exit Modal
+	if (do_modal)
+		ImGui_SetNextWindowPosEx (Float2Mult (DISPLAY_SIZE, 0.5f),
+				ImGuiCond_Always, CENTER_IT);
 
-	ImGui_PopFont ();
+	if (ImGui_BeginPopupModal ("##Exit", &do_modal,
+			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static float yes_size;
+		float region_avail;
+
+		ImGui_BeginStyledChild ("##ExitModal", ZERO_F, CARD_FLAGS, 0, NULL);
+
+		ImGui_Text (ImStr (NAV_TAB_STR_BASE + 8)); // Are you sure...
+		ImGui_NewLine ();
+		ImGui_Separator ();
+		Spacer ();
+
+		ImGui_PushStyleColor (ImGuiCol_Button, U32_FRAMEBG_RED);
+		ImGui_PushStyleColor (ImGuiCol_ButtonHovered, U32_FRAMEBG_HOV_RED);
+		ImGui_PushStyleColor (ImGuiCol_ButtonActive, U32_FRAMEBG_ACT_RED);
+
+		region_avail = ImGui_GetContentRegionAvail ().x / 2;
+
+		ImGui_SameLine ();
+		ImGui_Dummy (MAKE_IV2 (region_avail - yes_size, 0.0f));
+		ImGui_SameLine ();
+
+		if (ImGui_Button (ImStr (NAV_TAB_STR_BASE + 9))) // Yes
+		{
+			log_showBox (false, false);
+			exit (EXIT_SUCCESS);
+		}
+
+		ImGui_PopStyleColorEx (3);
+
+		yes_size = ImGui_GetItemRectSize ().x + style->WindowPadding.x * 2;
+
+		ImGui_SameLine ();
+
+		if (ImGui_Button (ImStr (NAV_TAB_STR_BASE + 10))) // No
+			ImGui_CloseCurrentPopup ();
+
+		ImGui_EndChild ();
+		DrawBorderAroundLastItem ();
+
+		if (!ImGui_IsMouseHoveringRectEx (ImGui_GetItemRectMin (),
+				ImGui_GetItemRectMax (), false) && ImGui_IsMouseClicked (0))
+		{
+			ImGui_CloseCurrentPopup ();
+		}
+
+		ImGui_EndPopup ();
+	} // Exit Modal
 
 	temp_height = ImGui_GetItemRectMax ().y - 1;
 	ImGui_EndChild (); // NavBar
