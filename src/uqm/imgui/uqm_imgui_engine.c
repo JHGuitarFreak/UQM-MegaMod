@@ -145,20 +145,12 @@ draw_engine_menu (void)
 
 	ImGui_NewLine ();
 
-	ImGui_BeginDisabled (true);
-
 	// Speech
-	ImGui_Checkbox (ImStr (GEN_ENG_STR_BASE + 23), // Speech
-			(bool *)&optSpeech);
-	if (ImGui_IsItemHovered (ImGuiHoveredFlags_AllowWhenDisabled))
-	{
-		ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 4));
-						// Setup Menu Warning
-	}
+	UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 23), (bool *)&optSpeech,
+			"config.speech", true);
 
-	ImGui_EndDisabled ();
-
-	UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 24), // Subtitles
+	// Subtitles
+	UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 24),
 			&optSubtitles, "config.subtitles", false);
 
 	ImGui_NewLine ();

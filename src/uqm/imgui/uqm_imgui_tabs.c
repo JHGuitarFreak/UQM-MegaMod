@@ -314,7 +314,8 @@ UQM_ImGui_Tabs (TabState *state)
 	// Without this the border doesn't draw correctly around the navbar
 	DrawBorderAroundLastItem ();
 
-	nav_width = (ImGui_GetContentRegionAvail ().x * 0.8528f) / style->FontScaleMain;
+	nav_width = (ImGui_GetContentRegionAvail ().x * 0.8528f) /
+			style->FontScaleMain;
 
 	// Begin NavBar
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, temp_height), IGCF_B, 0);
@@ -352,7 +353,7 @@ UQM_ImGui_Tabs (TabState *state)
 			GetDefaultFontSize ());
 
 	ImGui_SameLine ();
-	ImGui_Dummy (MAKE_IV2 (ImGui_GetContentRegionAvail().x - button_room, 0.0f));
+	ImGui_Dummy (MAKE_IV2 (ImGui_GetContentRegionAvail().x - button_room, 0));
 	ImGui_SameLine ();
 
 	if (!IN_MAIN_MENU)
@@ -372,7 +373,6 @@ UQM_ImGui_Tabs (TabState *state)
 		ImGui_PopStyleColorEx (3);
 
 		UQM_ToolTip (TIP_WARN_STR_BASE + 16); // Reload Button
-
 
 		ImGui_SameLine ();
 		ImGui_Dummy (MAKE_IV2 (SCALE_IT (4.0f), 0));
