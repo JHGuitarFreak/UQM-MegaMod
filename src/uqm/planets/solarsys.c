@@ -120,6 +120,7 @@ FRAME SpaceJunkFrame;
 COLORMAP OrbitalCMap;
 COLORMAP SunCMap;
 MUSIC_REF SpaceMusic;
+BOOLEAN RedrawSolarSys = FALSE;
 
 SIZE EncounterRace;
 BYTE EncounterGroup;
@@ -937,10 +938,8 @@ LoadIPData (void)
 		SISIPFrame = CaptureDrawable (LoadGraphic (SIS_IP_MASK));
 
 		OrbitalCMap = CaptureColorMap (LoadColorMap (ORBPLAN_COLOR_MAP));
-		OrbitalFrame = CaptureDrawable (
-						LoadGraphic (PLANETS_MASK));
-		OrbitalShield = CaptureDrawable (
-						LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
+		OrbitalFrame = CaptureDrawable (LoadGraphic (PLANETS_MASK));
+		OrbitalShield = CaptureDrawable (LoadGraphic (ORBSHLD_MASK_PMAP_ANIM));
 
 		NebulaFrame = LoadNebulaeFrame (CurStarDescPtr->star_pt);
 
@@ -2409,53 +2408,58 @@ RotatePlanets (BOOLEAN IsInnerSystem)
 }
 
 static BOOLEAN
-UpdatePlanets (void)
+UpdateSolarSys (void)
 {
 	static BOOLEAN tex_check = FALSE;
+	static int planet_check = FALSE;
 
-	if (tex_check == (BOOLEAN)optTexturedPlanets)
+	if (!RedrawSolarSys)
 		return FALSE;
 
-	if (optTexturedPlanets)
-	{
-		if (playerInInnerSystem ())
-		{
-			GenerateTexturedPlanets ();
-			GenerateTexturedMoons (pSolarSysState,
-					pSolarSysState->pOrbitalDesc);
-		}
-		else
-			GenerateTexturedPlanets ();
-	}
-	else if (pSolarSysState->PlanetDesc->orbit.lpTopoData)
-	{
-		int i, j;
-		PLANET_DESC *planet, *pMoonDesc;
+	RedrawSolarSys = FALSE;
 
-		for (i = 0; i < pSolarSysState->SunDesc[0].NumPlanets; ++i)
+	if (tex_check != (BOOLEAN)optTexturedPlanets)
+	{
+		if (optTexturedPlanets)
 		{
-			planet = &pSolarSysState->PlanetDesc[i];
-
-			for (j = 0, pMoonDesc = pSolarSysState->MoonDesc;
-					j < planet->NumPlanets; ++j, ++pMoonDesc)
+			if (playerInInnerSystem ())
 			{
-				if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
+				GenerateTexturedPlanets ();
+				GenerateTexturedMoons (pSolarSysState,
+					pSolarSysState->pOrbitalDesc);
+			}
+			else
+				GenerateTexturedPlanets ();
+		}
+		else if (pSolarSysState->PlanetDesc->orbit.lpTopoData)
+		{
+			int i, j;
+			PLANET_DESC *planet, *pMoonDesc;
+
+			for (i = 0; i < pSolarSysState->SunDesc[0].NumPlanets; ++i)
+			{
+				planet = &pSolarSysState->PlanetDesc[i];
+
+				for (j = 0, pMoonDesc = pSolarSysState->MoonDesc;
+					j < planet->NumPlanets; ++j, ++pMoonDesc)
 				{
-					SIZE diameterPick =
+					if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
+					{
+						SIZE diameterPick =
 							pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 							LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
-					DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
+						DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
+					}
+					pMoonDesc->frame_offset = UNDEFINED_OFFSET;
 				}
-				pMoonDesc->frame_offset = UNDEFINED_OFFSET;
+
+				DestroyOrbitStruct (&planet->orbit, PLANET_DIAMETER);
+				planet->frame_offset = UNDEFINED_OFFSET;
 			}
-
-			DestroyOrbitStruct (&planet->orbit, PLANET_DIAMETER);
-			planet->frame_offset = UNDEFINED_OFFSET;
 		}
+		tex_check = (BOOLEAN)optTexturedPlanets;
 	}
-
-	tex_check = (BOOLEAN)optTexturedPlanets;
 
 	if (SolarSysFrame)
 	{
@@ -2464,13 +2468,28 @@ UpdatePlanets (void)
 	}
 
 	SetTransitionSource (NULL);
+
 	BatchGraphics ();
+
+	DestroyDrawable (ReleaseDrawable (NebulaFrame));
+	NebulaFrame = LoadNebulaeFrame (CurStarDescPtr->star_pt);
+
+	DestroyDrawable (ReleaseDrawable (StarsFrame));
+	StarsFrame = GetStarBackGround (FALSE);
+
+	DrawStarBackGround ();
+
+	//DestroyDrawable (ReleaseDrawable (OrbitalFrame));
+	//OrbitalFrame = CaptureDrawable (LoadGraphic (PLANETS_MASK));
+
 	if (playerInInnerSystem ())
 		DrawInnerSystem ();
 	else
 		DrawOuterSystem ();
+
 	RedrawQueue (FALSE);
-	ScreenTransition (1, NULL); 
+	ScreenTransition (1, NULL);
+
 	UnbatchGraphics ();
 
 	return TRUE;
@@ -2486,7 +2505,7 @@ IP_frame (void)
 	SetContext (SpaceContext);
 	ProcessShipControls ();
 
-	if (UpdatePlanets ())
+	if (UpdateSolarSys ())
 		return;
 	
 	locChange = CheckShipLocation (&newRadius);
@@ -2832,7 +2851,6 @@ InitSolarSys (void)
 	SetContext (SpaceContext);
 	SetContextFGFrame (Screen);
 	SetContextBackGroundColor (BLACK_COLOR);
-	
 
 	orbital = LoadSolarSys ();
 	InnerSystem = CheckZoomLevel ();

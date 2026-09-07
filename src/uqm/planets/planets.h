@@ -376,6 +376,7 @@ extern MUSIC_REF SpaceMusic;
 extern CONTEXT PlanetContext;
 extern BOOLEAN useDosSpheres;
 extern BOOLEAN use3DOSpheres;
+extern BOOLEAN RedrawSolarSys;
 
 // Random context used for all solar system, planets, and surfaces
 // generation

@@ -180,8 +180,11 @@ draw_engine_menu (void)
 	ImGui_EndDisabled ();
 	
 	// Star Background
-	UQM_ComboChar (ImStr (GEN_ENG_STR_BASE + 28), star_backgrounds, 4,
-			&optStarBackground, "mm.starBackground", false);
+	if (UQM_ComboChar (ImStr (GEN_ENG_STR_BASE + 28), star_backgrounds, 4,
+			&optStarBackground, "mm.starBackground", false))
+	{
+		RedrawSolarSys = TRUE;
+	}
 
 	ImGui_NewLine ();
 

@@ -122,7 +122,10 @@ void draw_visual_menu (void)
 	// Nebulae & Nebulae Brightness
 	ImGui_Text (ImStr (ENH_VIS_STR_BASE + 13));
 
-	UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae", false);
+	if (UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae", false))
+	{
+		RedrawSolarSys = TRUE;
+	}
 
 	ImGui_SameLine ();
 
@@ -133,6 +136,7 @@ void draw_visual_menu (void)
 	{
 		res_PutInteger ("mm.nebulaevol", optNebulaeVolume);
 		mmcfg_changed = true;
+		RedrawSolarSys = TRUE;
 	} // Nebulae & Nebulae Brightness
 
 	Spacer ();
@@ -142,11 +146,17 @@ void draw_visual_menu (void)
 			&optOrbitingPlanets, "mm.orbitingPlanets", false);
 
 	// Textured Planets
-	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 15), &optTexturedPlanets,
-			"mm.texturedPlanets", false);
+	if (UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 15), &optTexturedPlanets,
+			"mm.texturedPlanets", false))
+	{
+		RedrawSolarSys = TRUE;
+	}
 	// Unscaled View (HD Only)
-	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 16), &optUnscaledStarSystem,
-			"mm.unscaledStarSystem", false);
+	if (UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 16), &optUnscaledStarSystem,
+		"mm.unscaledStarSystem", false))
+	{
+		RedrawSolarSys = TRUE;
+	}
 	// NPC Ship Orientation
 	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 17), &optShipDirectionIP,
 			"mm.shipDirectionIP", false);

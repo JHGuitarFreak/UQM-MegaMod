@@ -126,11 +126,14 @@ UQM_WhichConfig (const char *key)
 		imcfg_changed = true;
 }
 
-void
+BOOLEAN
 UQM_ComboChar (const char* label, const char *const items[],
 		int items_count, int *option, const char *key, bool reload)
 {
 	int temp = *option;
+
+	if (key == NULL)
+		return FALSE;
 
 	if (ImGui_SizedComboChar (label, &temp, items, items_count))
 	{
@@ -148,6 +151,8 @@ UQM_ComboChar (const char* label, const char *const items[],
 		UQM_WhichConfig (key);
 
 		optRequiresReload = reload;
+
+		return TRUE;
 	}
 	if (reload && ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 	{
@@ -157,13 +162,17 @@ UQM_ComboChar (const char* label, const char *const items[],
 				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 		ImGui_EndTooltip ();
 	}
+	return FALSE;
 }
 
-void
+BOOLEAN
 UQM_ConsComboChar (const char* label, const char *const items[],
 		int *option, const char *key, bool reload)
 {
 	int temp = is3DO (*option);
+
+	if (key == NULL)
+		return FALSE;
 
 	if (ImGui_SizedComboChar (label, &temp, items, 2))
 	{
@@ -181,6 +190,8 @@ UQM_ConsComboChar (const char* label, const char *const items[],
 		UQM_WhichConfig (key);
 
 		optRequiresReload = reload;
+
+		return TRUE;
 	}
 	if (reload && ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 	{
@@ -190,6 +201,7 @@ UQM_ConsComboChar (const char* label, const char *const items[],
 				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 		ImGui_EndTooltip ();
 	}
+	return FALSE;
 }
 
 // Code adapted from StackOverflow reply
@@ -261,12 +273,12 @@ DangerGradient (void)
 	return MAKE_IV4 (1, (float)c_index / (float)c_count, 0, 1);
 }
 
-void
+BOOLEAN
 UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 		bool needs_reboot)
 {
 	if (key == NULL)
-		return;
+		return FALSE;
 
 	if (ImGui_Checkbox (label, (bool *)v))
 	{
@@ -282,6 +294,8 @@ UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 
 		res_PutBoolean (key, *v);
 		UQM_WhichConfig (key);
+
+		return TRUE;
 	}
 
 	if (needs_reboot && ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
@@ -291,6 +305,8 @@ UQM_ImGui_CheckBox (const char *label, OPT_ENABLABLE *v, const char *key,
 				ImStr (TIP_WARN_STR_BASE + 1)); // Reload Warning
 		ImGui_EndTooltip ();
 	}
+
+	return FALSE;
 }
 
 void
