@@ -124,7 +124,8 @@ void draw_visual_menu (void)
 
 	if (UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae", false))
 	{
-		RedrawSolarSys = TRUE;
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
 	}
 
 	ImGui_SameLine ();
@@ -137,7 +138,7 @@ void draw_visual_menu (void)
 		res_PutInteger ("mm.nebulaevol", optNebulaeVolume);
 		mmcfg_changed = true;
 
-		if (optNebulae)
+		if (optNebulae && playerInSolarSystem ())
 			RedrawSolarSys = TRUE;
 	} // Nebulae & Nebulae Brightness
 
@@ -151,13 +152,15 @@ void draw_visual_menu (void)
 	if (UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 15), &optTexturedPlanets,
 			"mm.texturedPlanets", false))
 	{
-		RedrawSolarSys = TRUE;
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
 	}
 	// Unscaled View (HD Only)
 	if (UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 16), &optUnscaledStarSystem,
 		"mm.unscaledStarSystem", false))
 	{
-		RedrawSolarSys = TRUE;
+		if (IS_HD && playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
 	}
 	// NPC Ship Orientation
 	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 17), &optShipDirectionIP,
@@ -175,7 +178,7 @@ void draw_visual_menu (void)
 	Spacer ();
 
 	// Planet Map Textures
-	UQM_ComboChar (ImStr (ENH_VIS_STR_BASE + 19), planet_textures, 6,
+	UQM_ComboChar (ImStr (ENH_VIS_STR_BASE + 19), planet_textures, 2,
 			(int *)&optPlanetTexture, "mm.planetTexture", false);
 
 	Spacer ();

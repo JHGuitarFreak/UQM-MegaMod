@@ -2404,7 +2404,9 @@ static BOOLEAN
 UpdateSolarSys (void)
 {
 	static BOOLEAN tex_check = FALSE;
+	static int dos_check = FALSE;
 	static BOOLEAN neb_check = FALSE;
+	static int ship_check = 0;
 	static int planet_check = FALSE;
 
 	if (!RedrawSolarSys)
@@ -2412,46 +2414,55 @@ UpdateSolarSys (void)
 
 	RedrawSolarSys = FALSE;
 
-	if (tex_check != (BOOLEAN)optTexturedPlanets)
+	SetTransitionSource (NULL);
+
+	BatchGraphics ();
+
+	if (tex_check != (BOOLEAN)optTexturedPlanets ||
+		dos_check != optPlanetStyle)
 	{
+		int i, j;
+		PLANET_DESC *planet, *pMoonDesc;
+
+		for (i = 0; i < pSolarSysState->SunDesc[0].NumPlanets; ++i)
+		{
+			planet = &pSolarSysState->PlanetDesc[i];
+
+			for (j = 0, pMoonDesc = pSolarSysState->MoonDesc;
+				j < planet->NumPlanets; ++j, ++pMoonDesc)
+			{
+				if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
+				{
+					SIZE diameterPick =
+						pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
+						LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+					DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
+				}
+				pMoonDesc->frame_offset = UNDEFINED_OFFSET;
+				pMoonDesc->size = 0;
+			}
+
+			DestroyOrbitStruct (&planet->orbit, PLANET_DIAMETER);
+			planet->frame_offset = UNDEFINED_OFFSET;
+			planet->size = 0;
+		}
+
+		DestroyDrawable (ReleaseDrawable (OrbitalFrame));
+		OrbitalFrame = CaptureDrawable (LoadGraphic (PLANETS_MASK));
+
 		if (optTexturedPlanets)
 		{
 			if (playerInInnerSystem ())
 			{
 				GenerateTexturedPlanets ();
 				GenerateTexturedMoons (pSolarSysState,
-						pSolarSysState->pOrbitalDesc);
+					pSolarSysState->pOrbitalDesc);
 			}
 			else
 				GenerateTexturedPlanets ();
 		}
-		else if (pSolarSysState->PlanetDesc->orbit.lpTopoData)
-		{
-			int i, j;
-			PLANET_DESC *planet, *pMoonDesc;
 
-			for (i = 0; i < pSolarSysState->SunDesc[0].NumPlanets; ++i)
-			{
-				planet = &pSolarSysState->PlanetDesc[i];
-
-				for (j = 0, pMoonDesc = pSolarSysState->MoonDesc;
-					j < planet->NumPlanets; ++j, ++pMoonDesc)
-				{
-					if (!(pMoonDesc->data_index & WORLD_TYPE_SPECIAL))
-					{
-						SIZE diameterPick =
-							pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
-							LARGE_MOON_DIAMETER : MOON_DIAMETER;
-
-						DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
-					}
-					pMoonDesc->frame_offset = UNDEFINED_OFFSET;
-				}
-
-				DestroyOrbitStruct (&planet->orbit, PLANET_DIAMETER);
-				planet->frame_offset = UNDEFINED_OFFSET;
-			}
-		}
 		tex_check = (BOOLEAN)optTexturedPlanets;
 	}
 
@@ -2460,10 +2471,6 @@ UpdateSolarSys (void)
 		DestroyDrawable (ReleaseDrawable (SolarSysFrame));
 		SolarSysFrame = NULL;
 	}
-
-	SetTransitionSource (NULL);
-
-	BatchGraphics ();
 
 	DestroyDrawable (ReleaseDrawable (NebulaFrame));
 	NebulaFrame = LoadNebulaeFrame (CurStarDescPtr->star_pt);
@@ -2506,16 +2513,26 @@ UpdateSolarSys (void)
 				pMoonDesc->temp_color = pCurDesc->temp_color;
 			}
 		}
+
 		neb_check = (BOOLEAN)optNebulae;
 	}
 
 	DestroyDrawable (ReleaseDrawable (StarsFrame));
 	StarsFrame = GetStarBackGround (FALSE);
 
-	DrawStarBackGround ();
+	if (ship_check != optFlagshipColor)
+	{
+		int facing = GLOBAL (ShipFacing);
 
-	//DestroyDrawable (ReleaseDrawable (OrbitalFrame));
-	//OrbitalFrame = CaptureDrawable (LoadGraphic (PLANETS_MASK));
+		ship_check = optFlagshipColor;
+
+		DestroyDrawable (ReleaseDrawable (SISIPFrame));
+		SISIPFrame = CaptureDrawable (LoadGraphic (SIS_IP_MASK));
+		GLOBAL (ShipStamp.frame) = SetAbsFrameIndex (SISIPFrame, facing - 1);
+		GLOBAL (ShipFacing) = facing;
+	}
+
+	DrawStarBackGround ();
 
 	if (playerInInnerSystem ())
 		DrawInnerSystem ();

@@ -119,8 +119,13 @@ draw_engine_menu (void)
 	ImGui_EndDisabled ();
 
 	// Flagship Engine Color
-	UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 19), engine_style,
-			&optFlagshipColor, "mm.flagshipColor", false);
+	if (UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 19), engine_style,
+			&optFlagshipColor, "mm.flagshipColor", false))
+	{
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
+		scr_refresh = true;
+	}
 
 	// Screen Transitions
 	UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 20), pc_or_3do,
@@ -165,25 +170,20 @@ draw_engine_menu (void)
 	ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 26));
 						// Star System View
 
-	ImGui_BeginDisabled (!IN_MAIN_MENU);
-
 	// Planet Style
-	UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 27), pc_or_3do,
-			&optPlanetStyle, "mm.planetStyle", false);
-	if (!IN_MAIN_MENU)
+	if (UQM_ConsComboChar (ImStr (GEN_ENG_STR_BASE + 27), pc_or_3do,
+			&optPlanetStyle, "mm.planetStyle", false))
 	{
-		ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
-				ImStr (TIP_WARN_STR_BASE + 3)); // Main Menu Warning
-		Spacer ();
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
 	}
-
-	ImGui_EndDisabled ();
 	
 	// Star Background
 	if (UQM_ComboChar (ImStr (GEN_ENG_STR_BASE + 28), star_backgrounds, 4,
 			&optStarBackground, "mm.starBackground", false))
 	{
-		RedrawSolarSys = TRUE;
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
 	}
 
 	ImGui_NewLine ();
