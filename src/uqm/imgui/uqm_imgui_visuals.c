@@ -136,7 +136,9 @@ void draw_visual_menu (void)
 	{
 		res_PutInteger ("mm.nebulaevol", optNebulaeVolume);
 		mmcfg_changed = true;
-		RedrawSolarSys = TRUE;
+
+		if (optNebulae)
+			RedrawSolarSys = TRUE;
 	} // Nebulae & Nebulae Brightness
 
 	Spacer ();

@@ -1157,23 +1157,16 @@ LoadSolarSys (void)
 	PLANET_DESC *orbital = NULL;
 	PLANET_DESC *pCurDesc;
 #define NUM_TEMP_RANGES 5
-	Color temp_color_array[NUM_TEMP_RANGES] =
-	{
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0E), 0x54),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x06, 0x08), 0x62),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x0B, 0x00), 0x6D),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2D),
-		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x08, 0x00), 0x75),
-	};
+	Color orbit_temp_array[NUM_TEMP_RANGES] = { ORBIT_TEMP_COLORS };
 
 	if (NebulaFrame)
 	{
 		BYTE brightness = (optNebulaeVolume + 1) * 5;
 		for (i = 0; i < NUM_TEMP_RANGES; i++)
 		{
-			IncreaseBrightness (&temp_color_array[i].r, brightness);
-			IncreaseBrightness (&temp_color_array[i].g, brightness);
-			IncreaseBrightness (&temp_color_array[i].b, brightness);
+			IncreaseBrightness (&orbit_temp_array[i].r, brightness);
+			IncreaseBrightness (&orbit_temp_array[i].g, brightness);
+			IncreaseBrightness (&orbit_temp_array[i].b, brightness);
 		}
 	}
 
@@ -1218,7 +1211,7 @@ LoadSolarSys (void)
 			if (index >= NUM_TEMP_RANGES)
 				index = NUM_TEMP_RANGES - 1;
 
-			pCurDesc->temp_color = temp_color_array[index];
+			pCurDesc->temp_color = orbit_temp_array[index];
 		}
 		pCurDesc->frame_offset = UNDEFINED_OFFSET;
 	}
@@ -2048,7 +2041,7 @@ leaveInnerSystem (PLANET_DESC *planet)
 
 	// Now the ship is in outer system (as per game logic)
 
-	if (optTexturedPlanets) 
+	if (optTexturedPlanets)
 	{	// BW: clean up data generated for textured IP moons
 		for (i = 0, pMoonDesc = pSolarSysState->MoonDesc;
 			 i < planet->NumPlanets; ++i, ++pMoonDesc)
@@ -2411,6 +2404,7 @@ static BOOLEAN
 UpdateSolarSys (void)
 {
 	static BOOLEAN tex_check = FALSE;
+	static BOOLEAN neb_check = FALSE;
 	static int planet_check = FALSE;
 
 	if (!RedrawSolarSys)
@@ -2426,7 +2420,7 @@ UpdateSolarSys (void)
 			{
 				GenerateTexturedPlanets ();
 				GenerateTexturedMoons (pSolarSysState,
-					pSolarSysState->pOrbitalDesc);
+						pSolarSysState->pOrbitalDesc);
 			}
 			else
 				GenerateTexturedPlanets ();
@@ -2473,6 +2467,47 @@ UpdateSolarSys (void)
 
 	DestroyDrawable (ReleaseDrawable (NebulaFrame));
 	NebulaFrame = LoadNebulaeFrame (CurStarDescPtr->star_pt);
+
+	if (NebulaFrame || neb_check != (BOOLEAN)optNebulae)
+	{
+		int i, j;
+		PLANET_DESC *pCurDesc, *pMoonDesc;
+		BYTE brightness = (optNebulaeVolume + 1) * 5;
+		Color orbit_color_array[NUM_TEMP_RANGES] = { ORBIT_TEMP_COLORS };
+
+		pCurDesc = pSolarSysState->PlanetDesc;
+
+		if (NebulaFrame)
+		{
+			for (i = 0; i < NUM_TEMP_RANGES; i++)
+			{
+				IncreaseBrightness (&orbit_color_array[i].r, brightness);
+				IncreaseBrightness (&orbit_color_array[i].g, brightness);
+				IncreaseBrightness (&orbit_color_array[i].b, brightness);
+			}
+		}
+
+		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
+				i < pSolarSysState->SunDesc[0].NumPlanets; ++i, ++pCurDesc)
+		{
+			COUNT index;
+			SYSTEM_INFO SysInfo;
+
+			DoPlanetaryAnalysis (&SysInfo, pCurDesc);
+			index = (SysInfo.PlanetInfo.SurfaceTemperature + 250) / 100;
+			if (index >= NUM_TEMP_RANGES)
+				index = NUM_TEMP_RANGES - 1;
+
+			pCurDesc->temp_color = orbit_color_array[index];
+
+			for (j = 0, pMoonDesc = pSolarSysState->MoonDesc;
+					j < pCurDesc->NumPlanets; ++j, ++pMoonDesc)
+			{
+				pMoonDesc->temp_color = pCurDesc->temp_color;
+			}
+		}
+		neb_check = (BOOLEAN)optNebulae;
+	}
 
 	DestroyDrawable (ReleaseDrawable (StarsFrame));
 	StarsFrame = GetStarBackGround (FALSE);
