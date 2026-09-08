@@ -158,10 +158,8 @@ DestroyOrbitStruct (PLANET_ORBIT* Orbit, SIZE height)
 	{
 		HFree (Orbit->ShadeColors);
 		Orbit->ShadeColors = NULL;
-	}	
+	}
 }
-
-
 
 static void
 CreatePlanetContext (void)
