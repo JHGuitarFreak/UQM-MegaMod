@@ -2412,10 +2412,14 @@ RotatePlanets (BOOLEAN IsInnerSystem)
 static BOOLEAN
 UpdateSolarSys (void)
 {
+	int do_transition = OPT_PC;
+
 	if (!RedrawSolarSys)
 		return FALSE;
 
 	RedrawSolarSys = FALSE;
+
+	SetTransitionSource (NULL);
 
 	BatchGraphics ();
 
@@ -2463,6 +2467,9 @@ UpdateSolarSys (void)
 						pSolarSysState->pOrbitalDesc);
 			}
 		}
+
+		if (texturedPlanetsCheck != (BOOLEAN)optTexturedPlanets)
+			do_transition = OPT_3DO;
 
 		texturedPlanetsCheck = (BOOLEAN)optTexturedPlanets;
 		planetStyleCheck = optPlanetStyle;
@@ -2516,6 +2523,9 @@ UpdateSolarSys (void)
 			}
 		}
 
+		if (nebulaeCheck != (BOOLEAN)optNebulae)
+			do_transition = OPT_3DO;
+
 		nebulaeCheck = (BOOLEAN)optNebulae;
 	}
 
@@ -2542,6 +2552,9 @@ UpdateSolarSys (void)
 		DrawOuterSystem ();
 
 	RedrawQueue (FALSE);
+
+	ScreenTransition (do_transition, NULL);
+
 	UnbatchGraphics ();
 
 	return TRUE;
