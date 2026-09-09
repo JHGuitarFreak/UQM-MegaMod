@@ -2443,12 +2443,14 @@ UpdateSolarSys (void)
 							pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 							LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
+					pMoonDesc->image.frame = 0;
 					DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
 					pMoonDesc->frame_offset = UNDEFINED_OFFSET;
 					pMoonDesc->size = 0;
 				}
 			}
 
+			pPlanetDesc->image.frame = 0;
 			DestroyOrbitStruct (&pPlanetDesc->orbit, PLANET_DIAMETER);
 			pPlanetDesc->frame_offset = UNDEFINED_OFFSET;
 			pPlanetDesc->size = 0;
