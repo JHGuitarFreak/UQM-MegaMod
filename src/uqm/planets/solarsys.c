@@ -2409,6 +2409,22 @@ RotatePlanets (BOOLEAN IsInnerSystem)
 	}
 }
 
+static void
+FreePlanetDesc (PLANET_DESC *pPlanetDesc, SIZE diameter)
+{
+	if (pPlanetDesc->image.frame)
+		pPlanetDesc->image.frame = 0;
+
+	if (pPlanetDesc->frame_offset)
+		pPlanetDesc->frame_offset = UNDEFINED_OFFSET;
+
+	if (pPlanetDesc->size)
+		pPlanetDesc->size = 0;
+
+	if (pPlanetDesc->orbit.lpTopoData)
+		DestroyOrbitStruct (&pPlanetDesc->orbit, diameter);
+}
+
 static BOOLEAN
 UpdateSolarSys (void)
 {
@@ -2443,17 +2459,10 @@ UpdateSolarSys (void)
 							pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
 							LARGE_MOON_DIAMETER : MOON_DIAMETER;
 
-					pMoonDesc->image.frame = 0;
-					DestroyOrbitStruct (&pMoonDesc->orbit, diameterPick);
-					pMoonDesc->frame_offset = UNDEFINED_OFFSET;
-					pMoonDesc->size = 0;
+					FreePlanetDesc (pMoonDesc, diameterPick);
 				}
 			}
-
-			pPlanetDesc->image.frame = 0;
-			DestroyOrbitStruct (&pPlanetDesc->orbit, PLANET_DIAMETER);
-			pPlanetDesc->frame_offset = UNDEFINED_OFFSET;
-			pPlanetDesc->size = 0;
+			FreePlanetDesc (pPlanetDesc, PLANET_DIAMETER);
 		}
 
 		DestroyDrawable (ReleaseDrawable (OrbitalFrame));
