@@ -1106,6 +1106,12 @@ FindLongestString (int string_base, int string_count)
 	return longest_index;
 }
 
+BOOLEAN
+ImGuiInQuasiSpace (void)
+{
+	return GET_CGAME_STATE (ARILOU_SPACE_SIDE) > 1;
+}
+
 void draw_stars_menu (void)
 {
 	int i;
@@ -1121,6 +1127,8 @@ void draw_stars_menu (void)
 	static int longest_prefix = -1;
 	static const char **star_type = NULL;
 	static const char **star_colour = NULL;
+	int start_loop = 0;
+	int end_loop = NUM_SOLAR_SYSTEMS;
 
 	if (!star_colour)
 	{
@@ -1146,7 +1154,7 @@ void draw_stars_menu (void)
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##FilterTypeBool", &filter_type_bool);
 		ImGui_SameLine ();
-		ImGui_ComboChar ("##FilterTypeCombo", &filter_type, star_type, 
+		ImGui_ComboChar ("##FilterTypeCombo", &filter_type, star_type,
 				NUM_STAR_TYPES);
 
 		Spacer ();
@@ -1186,7 +1194,7 @@ void draw_stars_menu (void)
 
 		Spacer ();
 
-		if (ImGui_BeginTable ("##StarArrayTable", 8,
+		if (ImGui_BeginTable ("##StarArrayTable", ImGuiInQuasiSpace () ? 7:8,
 			ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
 			ImGuiTableFlags_NoHostExtendX |
 			ImGuiTableFlags_SizingStretchSame))
@@ -1200,15 +1208,18 @@ void draw_stars_menu (void)
 				longest_prefix = FindLongestString (STAR_NUMBER_BASE,
 						STAR_NUMBER_COUNT - 1);
 
-			ImGui_TableSetupColumnEx (ImStr (DBG_STA_STR_BASE + 10), // Prefix
+			if (!ImGuiInQuasiSpace ())
+			{
+				ImGui_TableSetupColumnEx (ImStr (DBG_STA_STR_BASE + 10), // Prefix
 					ImGuiTableColumnFlags_WidthFixed,
 					ImGui_CalcTextSize (GAME_STRING (
-							STAR_NUMBER_BASE + longest_prefix)).x +
-							style->FramePadding.x, 1);
+						STAR_NUMBER_BASE + longest_prefix)).x +
+						style->FramePadding.x, 1);
+			}
 
 			if (longest_postfix == -1)
 				longest_postfix = FindLongestString (STAR_STRING_BASE,
-						STAR_STRING_COUNT - 17);
+						STAR_STRING_COUNT - (ImGuiInQuasiSpace () ? 0 : 17));
 
 			ImGui_TableSetupColumnEx (ImStr (DBG_STA_STR_BASE + 11), // Postfix
 					ImGuiTableColumnFlags_WidthFixed,
@@ -1231,7 +1242,13 @@ void draw_stars_menu (void)
 			ImGui_TableSetupColumn (ImStr (DBG_STA_STR_BASE + 14), 0); // Presence
 			ImGui_TableHeadersRow ();
 
-			for (i = 0; i < NUM_SOLAR_SYSTEMS; i++)
+			if (ImGuiInQuasiSpace ())
+			{
+				start_loop = NUM_SOLAR_SYSTEMS + 1;
+				end_loop = start_loop + NUM_HYPER_VORTICES + 1;
+			}
+
+			for (i = start_loop; i < end_loop; i++)
 			{
 				if (by_cur_star && CurStarDescPtr &&
 						!(CurStarDescPtr->star_pt.x ==
@@ -1256,17 +1273,34 @@ void draw_stars_menu (void)
 
 				ImGui_TableNextColumn ();
 
-				ImGui_AlignTextToFramePadding ();
-				ImGui_Text ("%03d", i);
-
-				ImGui_TableNextColumn ();
-
-				if (star_array[i].Prefix > 0)
 				{
+					char buf[4];
+					snprintf (buf, sizeof buf, "%03d", i);
 					ImGui_AlignTextToFramePadding ();
-					ImGui_Text ("%s",
+					if (ImGui_SelectableEx (buf, true, 0, ZERO_F))
+					{
+						GLOBAL (autopilot) = star_array[i].star_pt;
+						DoBubbleWarp (FALSE);
+					}
+					if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
+					{
+						ImGui_BeginTooltip ();
+						ImGui_Text ("Warp to this star");
+						ImGui_EndTooltip ();
+					}
+				}
+
+				if (!ImGuiInQuasiSpace ())
+				{
+					ImGui_TableNextColumn ();
+
+					if (star_array[i].Prefix > 0)
+					{
+						ImGui_AlignTextToFramePadding ();
+						ImGui_Text ("%s",
 							GAME_STRING (STAR_NUMBER_BASE +
 								star_array[i].Prefix - 1));
+					}
 				}
 
 				ImGui_TableNextColumn ();

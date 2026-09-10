@@ -482,6 +482,8 @@ extern void SaveSolarSysLocation (void);
 
 extern BYTE PickClosestHabitable (SOLARSYS_STATE *solarSys);
 
+void DoBubbleWarp (BOOLEAN UseFuel);
+
 #if defined(__cplusplus)
 }
 #endif
