@@ -220,7 +220,18 @@ BuildGroups (void)
 	BYTE HomeWorld[] = { HOMEWORLD_LOC };
 	BYTE EncounterPercent[] = { RACE_INTERPLANETARY_PERCENT };
 
-	EncounterPercent[SLYLANDRO_SHIP] *= GET_GAME_STATE (SLYLANDRO_MULTIPLIER);
+	if (DIF_HARD || EXTENDED)
+	{
+		EncounterPercent[SLYLANDRO_SHIP] *=
+				GET_GAME_STATE (SLYLANDRO_MULTIPLIER);
+	}
+	else
+		EncounterPercent[SLYLANDRO_SHIP] = 0;
+		// Limit Slylandro Probes appearing in solar systems to Hard Mode and
+		// Extended Lore. Even though it was technically a bug in the original
+		// games that they never showed up, it was the original experience that
+		// the Probes were never found in solar systems.
+		// -- JHGuitarFreak
 
 	/* make Ur-Quan encounters impossible at the ZFP homeworld,
 	 * like their dialog claims */
