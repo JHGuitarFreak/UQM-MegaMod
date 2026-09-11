@@ -110,7 +110,8 @@ draw_controls_menu (void)
 	ImGui_SeparatorText (ImStr (GEN_CON_STR_BASE + 6));
 
 	// Auto-Detect Icons
-	ImGui_Checkbox (ImStr (GEN_CON_STR_BASE + 7), (bool *)&optAutoButtons);
+	UQM_ImGui_CheckBox (ImStr (GEN_CON_STR_BASE + 7), &optAutoButtons,
+			"mm.autoButtons", false);
 
 	Spacer ();
 
