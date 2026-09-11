@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander
 - UQM now scales to the window instead of the window scaling to UQM
+- Limit Slylandro Probes showing up in solar systems to Extended Lore and Hard Mode
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
