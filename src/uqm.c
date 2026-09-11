@@ -217,6 +217,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   deadZoneRightP2);
 	DECL_CONFIG_OPTION(int,   dirJoyP2);
 	DECL_CONFIG_OPTION(int,   mouseInput);
+	DECL_CONFIG_OPTION(bool,  battleMouse);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -434,6 +435,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  deadZoneRightP2,   DEFAULT_DZONE ),
 		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
 		INIT_CONFIG_OPTION(  mouseInput,        0 ),
+		INIT_CONFIG_OPTION(  battleMouse,       false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -673,6 +675,7 @@ int main(int argc, char** argv)
 	DeadZoneRightStick[1] = options.deadZoneRightP2.value;
 	optDirJoy[1] = options.dirJoyP2.value;
 	optMouseInput = options.mouseInput.value;
+	optBattleMouse = options.battleMouse.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1263,6 +1266,8 @@ getUserConfigOptions (struct options_struct *options)
 		options->dirJoyP2.value = res_GetInteger ("mm.dirJoyP2");
 	}
 
+	getBoolConfigValue (&options->battleMouse, "mm.battleMouse");
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1357,6 +1362,7 @@ enum
 	DZLP2_OPT,
 	DZRP2_OPT,
 	MOUSE_OPT,
+	BATMOUSE_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1479,6 +1485,7 @@ static struct option longOptions[] =
 	{"deadzoneleftp2", 1, NULL, DZLP2_OPT},
 	{"deadzonerightp2", 1, NULL, DZRP2_OPT},
 	{"mouseinput", 1, NULL, MOUSE_OPT},
+	{"battlemouse", 0, NULL, BATMOUSE_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2411,6 +2418,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
+			case BATMOUSE_OPT:
+				optBattleMouse = TRUE;
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -2802,6 +2812,9 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --mouseinput : Enable mouse pointer input "
 			"Mouse input types : 0: None | 1: Manual Control | 2: "
 			"Local Auto-Pilot (default: 0)");
+	log_add (log_User, "  --battlemouse : Use relative mouse controls for "
+			"Super Melee (default: %s)",
+			boolOptString (&defaults->battleMouse));
 
 	log_setOutput (old);
 }

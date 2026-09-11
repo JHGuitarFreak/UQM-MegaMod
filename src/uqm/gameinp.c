@@ -800,6 +800,7 @@ GetDirectionalJoystickInput (int direction, int player)
 
 	return InputState;
 }
+
 static void
 ShipFaceCursor (STARSHIP *StarShipPtr, BATTLE_INPUT_STATE *InputState)
 {
@@ -850,6 +851,9 @@ BattleMouseHook (int player)
 	{
 		return 0;
 	}
+
+	if (!optBattleMouse && !inHQSpace ())
+		return 0;
 
 	if (MouseInContext (SpaceContext))
 		cursor = CURSOR_CROSSHAIR;

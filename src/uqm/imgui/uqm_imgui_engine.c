@@ -80,8 +80,9 @@ draw_engine_menu (void)
 
 	ImGui_NewLine ();
 
+	// DOS Side Menu
 	UQM_ImGui_CheckBox (ImStr (GEN_ENG_STR_BASE + 15), &optDosMenus,
-			"mm.dosMenus", false); // DOS Side Menu
+			"mm.dosMenus", false);
 
 	ImGui_NewLine ();
 

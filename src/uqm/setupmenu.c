@@ -311,6 +311,7 @@ static WIDGET *keyconfig_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_DIRJOYP1  ]), // Directional Joystick P1
 	(WIDGET *)(&choices[CHOICE_DIRJOYP2  ]), // Directional Joystick P2
 	(WIDGET *)(&choices[CHOICE_MOUSEINPUT]), // Mouse Input
+	(WIDGET *)(&choices[CHOICE_BATMOUSE  ]), // Battle Mouse Input
 
 	(WIDGET *)(&labels [LABEL_SPACER      ]), // Spacer
 	(WIDGET *)(&labels [LABEL_KEYSTOOLTIP ]), // "To view or edit..."
@@ -1500,6 +1501,7 @@ SetDefaults (void)
 	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
 	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
 	choices[CHOICE_MOUSEINPUT].selected = opts.mouseInput;
+	choices[CHOICE_BATMOUSE  ].selected = opts.battleMouse;
 
 	sliders[SLIDER_MUSVOLUME  ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME  ].value = opts.sfxvol;
@@ -1630,6 +1632,7 @@ PropagateResults (void)
 	opts.captainNames = choices[CHOICE_CAPTNAMES ].selected;
 	opts.dosMenus =     choices[CHOICE_DOSMENUS  ].selected;
 	opts.mouseInput =   choices[CHOICE_MOUSEINPUT].selected;
+	opts.battleMouse =  choices[CHOICE_BATMOUSE  ].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -3121,6 +3124,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->player1 = PlayerControls[0];
 	opts->player2 = PlayerControls[1];
 	opts->mouseInput = optMouseInput;
+	opts->battleMouse = optBattleMouse;
 
 	// QoL
 	opts->scatterElements = optScatterElements;
@@ -3440,6 +3444,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 
 	PutIntOpt (&optMouseInput, (int*)&opts->mouseInput, "mm.mouseInput", FALSE);
+
+	PutBoolOpt (&optBattleMouse, &opts->battleMouse, "mm.battleMouse", FALSE);
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
 

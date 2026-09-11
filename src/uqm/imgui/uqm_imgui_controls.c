@@ -137,6 +137,12 @@ draw_controls_menu (void)
 	UQM_ComboChar (ImStr (GEN_CON_STR_BASE + 10), cmouse_input, 3,
 			&optMouseInput, "mm.mouseInput", false);
 
+	Spacer ();
+
+	// Battle Mouse Input
+	UQM_ImGui_CheckBox (ImStr (GEN_CON_STR_BASE + 31), &optBattleMouse,
+			"mm.battleMouse", false);
+
 	ImGui_NewLine ();
 
 	ImGui_EndChild (); // ##ControlOptionsColumn

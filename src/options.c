@@ -149,6 +149,7 @@ int DeadZoneLeftStick[2];
 int DeadZoneRightStick[2];
 int optMouseInput;
 bool ShipGTFO = false;
+OPT_ENABLABLE optBattleMouse;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

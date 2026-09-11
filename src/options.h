@@ -133,6 +133,7 @@ extern OPT_ADD_REMOVE optUpgradeArray[13];
 extern int optHyperSpaceColor;
 extern int optMouseInput;
 extern bool ShipGTFO;
+extern OPT_ENABLABLE optBattleMouse;
 
 #define MAX_DEADZONE SINT16_MAX
 #define DEFAULT_DZONE 6881
