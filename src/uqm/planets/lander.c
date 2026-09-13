@@ -2991,7 +2991,7 @@ GetHazardChance (int hazardType, unsigned HazardRating)
 	BYTE WeatherChanceTab  [] = {0, 0, 1*3, 2*3, 3*3,  6*3, 12*3, 24*3};
 	BYTE FireChanceTab     [] = {0, 0, 1*3, 2*3, 4*3, 12*3, 24*3, 48*3};
 
-	if (EXTENDED)
+	if (DIF_HARD)
 	{
 		TectonicsChanceTab[1] = 1;
 		WeatherChanceTab[1] = 1;
