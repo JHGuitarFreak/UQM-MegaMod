@@ -313,6 +313,7 @@ enum {
 	CHOICE_DIRJOYP2,
 	CHOICE_MOUSEINPUT,
 	CHOICE_BATMOUSE,
+	CHOICE_SCRSHOTS,
 
 	CHOICE_COUNT
 };
@@ -499,7 +500,7 @@ typedef struct globalopts_struct {
 	CONTROL_TEMPLATE player1, player2;
 	int speechvol, musicvol, sfxvol, nebulaevol, cscan, keepaspect;
 	int gamma, starBackground, deadZoneLeftStick[2], deadZoneRightStick[2],
-			mouseInput;
+			mouseInput, screenShots;
 } GLOBALOPTS;
 
 void SetupMenu (void);

@@ -211,6 +211,7 @@ static WIDGET *graphics_widgets[] = {
 	(WIDGET *)(&choices    [CHOICE_SCALER    ]), // Scaler
 	(WIDGET *)(&choices    [CHOICE_SCANLINE  ]), // Scanlines
 	(WIDGET *)(&choices    [CHOICE_SHOWFPS   ]), // Show FPS
+	(WIDGET *)(&choices    [CHOICE_SCRSHOTS  ]), // Screenshot options
 
 	(WIDGET *)(&labels     [LABEL_SPACER     ]), // Spacer
 	(WIDGET *)(&buttons    [BTN_QUITSUBMENU  ]), // Exit to Menu
@@ -1502,6 +1503,7 @@ SetDefaults (void)
 	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
 	choices[CHOICE_MOUSEINPUT].selected = opts.mouseInput;
 	choices[CHOICE_BATMOUSE  ].selected = opts.battleMouse;
+	choices[CHOICE_SCRSHOTS  ].selected = opts.screenShots;
 
 	sliders[SLIDER_MUSVOLUME  ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME  ].value = opts.sfxvol;
@@ -1633,6 +1635,7 @@ PropagateResults (void)
 	opts.dosMenus =     choices[CHOICE_DOSMENUS  ].selected;
 	opts.mouseInput =   choices[CHOICE_MOUSEINPUT].selected;
 	opts.battleMouse =  choices[CHOICE_BATMOUSE  ].selected;
+	opts.screenShots =  choices[CHOICE_SCRSHOTS  ].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -3133,6 +3136,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->player2 = PlayerControls[1];
 	opts->mouseInput = optMouseInput;
 	opts->battleMouse = optBattleMouse;
+	opts->screenShots = optScreenShots;
 
 	// QoL
 	opts->scatterElements = optScatterElements;
@@ -3454,6 +3458,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt (&optMouseInput, (int*)&opts->mouseInput, "mm.mouseInput", FALSE);
 
 	PutBoolOpt (&optBattleMouse, &opts->battleMouse, "mm.battleMouse", FALSE);
+
+	PutIntOpt (&optScreenShots, (int*)&opts->screenShots, "mm.screenShots", FALSE);
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
 

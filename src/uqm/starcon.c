@@ -156,7 +156,7 @@ ProcessUtilityKeys (void)
 				WindowWidth, WindowHeight);
 	}
 
-	if (ImmediateInputState.menu[KEY_SCREENSHOT])
+	if (optScreenShots && ImmediateInputState.menu[KEY_SCREENSHOT])
 	{
 		FlushInput ();
 		TFB_ScreenShot ();

@@ -218,6 +218,7 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   dirJoyP2);
 	DECL_CONFIG_OPTION(int,   mouseInput);
 	DECL_CONFIG_OPTION(bool,  battleMouse);
+	DECL_CONFIG_OPTION(int,   screenShots);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -436,6 +437,7 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  dirJoyP2,          0 ),
 		INIT_CONFIG_OPTION(  mouseInput,        0 ),
 		INIT_CONFIG_OPTION(  battleMouse,       false ),
+		INIT_CONFIG_OPTION(  screenShots,       0 ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -676,6 +678,7 @@ int main(int argc, char** argv)
 	optDirJoy[1] = options.dirJoyP2.value;
 	optMouseInput = options.mouseInput.value;
 	optBattleMouse = options.battleMouse.value;
+	optScreenShots = options.screenShots.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1268,6 +1271,11 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->battleMouse, "mm.battleMouse");
 
+	if (res_IsInteger ("mm.screenShots") && !options->screenShots.set)
+	{
+		options->screenShots.value = res_GetInteger ("mm.screenShots");
+	}
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1363,6 +1371,7 @@ enum
 	DZRP2_OPT,
 	MOUSE_OPT,
 	BATMOUSE_OPT,
+	SCRSHOTS_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1486,6 +1495,7 @@ static struct option longOptions[] =
 	{"deadzonerightp2", 1, NULL, DZRP2_OPT},
 	{"mouseinput", 1, NULL, MOUSE_OPT},
 	{"battlemouse", 0, NULL, BATMOUSE_OPT},
+	{"screenshots", 1, NULL, SCRSHOTS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2421,6 +2431,26 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 			case BATMOUSE_OPT:
 				setBoolOption (&options->battleMouse, true);
 				break;
+			case SCRSHOTS_OPT:
+			{
+				int temp;
+				if (parseIntOption (optarg, &temp, "ScreenShots") == -1)
+				{
+					badArg = true;
+					break;
+				}
+				else if (temp < 0 || temp > 2)
+				{
+					saveError ("\nScreenShots has to be between 0-2\n");
+					badArg = true;
+				}
+				else
+				{
+					options->screenShots.value = temp;
+					options->screenShots.set = true;
+				}
+				break;
+			}
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;

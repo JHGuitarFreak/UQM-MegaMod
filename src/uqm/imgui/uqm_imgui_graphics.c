@@ -32,6 +32,7 @@ void draw_graphics_menu (void)
 	static const char **aspect_ratios = NULL;
 	static const char **display_modes = NULL;
 	static const char **scalers = NULL;
+	static const char **scrshots = NULL;
 
 	if (!resolutions)
 	{
@@ -39,6 +40,7 @@ void draw_graphics_menu (void)
 		aspect_ratios = ImStrArr (GEN_GFX_STR_BASE + 1);
 		display_modes = ImStrArr (GEN_GFX_STR_BASE + 2);
 		scalers = ImStrArr (GEN_GFX_STR_BASE + 3);
+		scrshots = ImStrArr (GEN_GFX_STR_BASE + 14);
 	}
 
 	ImGui_BeginStyledChild ("##Column1", content_col_size, CHILD_FLAGS,
@@ -242,5 +244,12 @@ void draw_graphics_menu (void)
 				gfx_change = true;
 			}
 		}
+
+		Spacer ();
+		
+		// Screenshots
+		UQM_ComboChar (ImStr (GEN_GFX_STR_BASE + 15), scrshots, 4,
+				(int *)&optScreenShots, "mm.screenShots", false);
+
 	} ImGui_EndChild ();
 }

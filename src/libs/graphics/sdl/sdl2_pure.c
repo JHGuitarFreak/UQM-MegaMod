@@ -717,10 +717,19 @@ TFB_SDL_ScreenShot (const char *path)
 	SDL_LockSurface (tmp);
 	SDL_RenderReadPixels (renderer, NULL, tmp->format->format,
 		tmp->pixels, tmp->pitch);
-	if (SDL_SavePNG (tmp, path) == 0)
-		successful = TRUE;
 
-	if (successful && CopySurfaceToClipboard (tmp) != 0)
+	if ((optScreenShots == 1 || optScreenShots == 3) && 
+			SDL_SavePNG (tmp, path) == 0)
+	{
+		successful = TRUE;
+	}
+
+	if (optScreenShots >= 2 && CopySurfaceToClipboard (tmp) == 0)
+	{
+		if (!successful)
+			successful = TRUE;
+	}
+	else
 		log_add (log_Error, "Failed to copy PNG to clipboard\n");
 
 	SDL_UnlockSurface (tmp);

@@ -134,6 +134,7 @@ extern int optHyperSpaceColor;
 extern int optMouseInput;
 extern bool ShipGTFO;
 extern OPT_ENABLABLE optBattleMouse;
+extern int optScreenShots;
 
 #define MAX_DEADZONE SINT16_MAX
 #define DEFAULT_DZONE 6881
