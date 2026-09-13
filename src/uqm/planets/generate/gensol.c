@@ -462,7 +462,7 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 		{	// For Sol Textures
 			RESOURCE maskAnim = NULL;
 
-			if (optScanSphere)
+			if (solTexturesPresent && optScanSphere)
 			{
 				switch (planetNr)
 				{
@@ -472,9 +472,9 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 					case 1: // VENUS
 						maskAnim = VENUS_MASK_ANIM;
 						break;
-					case 2: // EARTH
-						maskAnim = EARTH_MASK_ANIM;
-						break;
+					//case 2: // EARTH
+					//	maskAnim = EARTH_MASK_ANIM;
+					//	break;
 					case 3: // MARS
 						maskAnim = MARS_MASK_ANIM;
 						break;
@@ -495,10 +495,14 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						break;
 				}
 			}
-			else if (planetNr == 2)
+			
+			if (planetNr == 2)
 				maskAnim = EARTH_MASK_ANIM;
 
-			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
+			if (!maskAnim)
+				LoadPlanet (NULL);
+			else
+				LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}
 	}
 	else
@@ -653,7 +657,10 @@ GenerateSol_generateOrbital (SOLARSYS_STATE *solarSys, PLANET_DESC *world)
 						break;
 				}
 			}
-			LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
+			if (!solTexturesPresent)
+				LoadPlanet (NULL);
+			else
+				LoadPlanet (CaptureDrawable (LoadGraphic (maskAnim)));
 		}
 	}
 

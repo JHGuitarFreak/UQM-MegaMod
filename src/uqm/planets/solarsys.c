@@ -777,11 +777,16 @@ GenerateTexturedMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 			}
 
 			MoonDiameter = pMoonDesc->data_index > LAST_SMALL_ROCKY_WORLD ?
-					LARGE_MOON_DIAMETER : MOON_DIAMETER;
-			GeneratePlanetSurface (pMoonDesc,
-					CaptureDrawable (LoadGraphic (maskAnim)),
-					GENERATE_PERIMETER (MoonDiameter), MoonDiameter
-				);
+				LARGE_MOON_DIAMETER : MOON_DIAMETER;
+
+			if (!solTexturesPresent)
+				GeneratePlanetSurface (pMoonDesc, NULL,
+						GENERATE_PERIMETER (MoonDiameter), MoonDiameter);
+			else
+				GeneratePlanetSurface (pMoonDesc,
+						CaptureDrawable (LoadGraphic (maskAnim)),
+						GENERATE_PERIMETER (MoonDiameter), MoonDiameter
+					);
 			pMoonDesc->orbit = pSolarSysState->Orbit;
 			PrepareNextRotationFrameForIP (pMoonDesc, 0);
 
@@ -1137,12 +1142,23 @@ GenerateTexturedPlanets (void)
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 1533;
 				break;
 			}
+
+			if (!solTexturesPresent)
+				maskanim = i == 2 ? EARTH_MASK_ANIM : NULL;
 		}
 		
-		GeneratePlanetSurface (pCurDesc,
-				CaptureDrawable (LoadGraphic (maskanim)),
+		if (!maskanim)
+		{
+			GeneratePlanetSurface (pCurDesc, NULL,
 				GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER
 			);
+		}
+		else
+			GeneratePlanetSurface (pCurDesc,
+					CaptureDrawable (LoadGraphic (maskanim)),
+					GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER
+				);
+
 		pCurDesc->orbit = pSolarSysState->Orbit;
 		PrepareNextRotationFrameForIP (pCurDesc, 0);
 		
