@@ -2132,6 +2132,14 @@ VControl_GestureEqual (VCONTROL_GESTURE *a, VCONTROL_GESTURE *b)
 		return (a->gesture.axis.port == b->gesture.axis.port &&
 				a->gesture.axis.index == b->gesture.axis.index &&
 				a->gesture.axis.polarity == b->gesture.axis.polarity);
+
+	case VCONTROL_MOUSEBUTTON:
+		return a->gesture.mouse_button.button ==
+				b->gesture.mouse_button.button;
+	case VCONTROL_MOUSEWHEEL:
+		return a->gesture.mouse_wheel.direction ==
+				b->gesture.mouse_wheel.direction;
+
 	default:
 		return FALSE;
 	}

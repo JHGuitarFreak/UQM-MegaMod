@@ -34,7 +34,7 @@
  * so we do not rely on being able to declare an array with one
  * entry per key. */
 #define KEYBOARD_INPUT_BUCKETS 512
-#define MOUSE_BUTTON_BUCKETS 4
+#define MOUSE_BUTTON_BUCKETS (SDL_BUTTON_X2 + 1)
 
 extern POINT CurrentMousePos;
 
@@ -628,8 +628,14 @@ event2gesture (SDL_Event *e, VCONTROL_GESTURE *g)
 		break;
 #endif /* HAVE_JOYSTICK */
 	case SDL_MOUSEBUTTONDOWN:
-		g->type = VCONTROL_MOUSEBUTTON;
-		g->gesture.mouse_button.button = e->button.button;
+		if (e->button.button >= SDL_BUTTON_LEFT
+				&& e->button.button <= SDL_BUTTON_X2)
+		{
+			g->type = VCONTROL_MOUSEBUTTON;
+			g->gesture.mouse_button.button = e->button.button;
+		}
+		else
+			g->type = VCONTROL_NONE;
 		break;
 	case SDL_MOUSEWHEEL:
 		g->type = VCONTROL_MOUSEWHEEL;
@@ -956,7 +962,7 @@ VControl_RemoveJoyButtonBinding (int port, int button, int *target)
 int
 VControl_AddMouseButtonBinding (int button, int *target)
 {
-	if (button == 0)
+	if (button < SDL_BUTTON_LEFT || button > SDL_BUTTON_X2)
 		return -1;
 
 	add_binding (&mouse_button_bindings[button], target, SDLK_UNKNOWN);
@@ -966,7 +972,7 @@ VControl_AddMouseButtonBinding (int button, int *target)
 void
 VControl_RemoveMouseButtonBinding (int button, int *target)
 {
-	if (button == 0)
+	if (button < SDL_BUTTON_LEFT || button > SDL_BUTTON_X2)
 		return;
 
 	remove_binding (&mouse_button_bindings[button], target, SDLK_UNKNOWN);
@@ -1152,12 +1158,18 @@ VControl_ProcessJoyAxis (int port, int axis, int value)
 void
 VControl_ProcessMouseButtonDown (int button)
 {
+	if (button < SDL_BUTTON_LEFT || button > SDL_BUTTON_X2)
+		return;
+
 	activate (mouse_button_bindings[button], SDLK_UNKNOWN);
 }
 
 void
 VControl_ProcessMouseButtonUp (int button)
 {
+	if (button < SDL_BUTTON_LEFT || button > SDL_BUTTON_X2)
+		return;
+
 	deactivate (mouse_button_bindings[button], SDLK_UNKNOWN);
 }
 
@@ -1651,7 +1663,8 @@ parse_gesture (parse_state *state, VCONTROL_GESTURE *gesture)
 	{
 		consume (state, "mousebutton");
 		int button = consume_num (state);
-		if (!state->error && button >= 1 && button <= 3)
+		if (!state->error && button >= SDL_BUTTON_LEFT &&
+				button <= SDL_BUTTON_X2)
 		{
 			gesture->type = VCONTROL_MOUSEBUTTON;
 			gesture->gesture.mouse_button.button = button;
