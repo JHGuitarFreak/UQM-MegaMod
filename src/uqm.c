@@ -2408,7 +2408,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				else if (temp < 0 || temp > 2)
 				{
-					saveError ("\nMouse INput has to be between 0-2\n");
+					saveError ("\nMouse Input has to be between 0-2\n");
 					badArg = true;
 				}
 				else
@@ -2419,7 +2419,7 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				break;
 			}
 			case BATMOUSE_OPT:
-				optBattleMouse = TRUE;
+				setBoolOption (&options->battleMouse, true);
 				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
