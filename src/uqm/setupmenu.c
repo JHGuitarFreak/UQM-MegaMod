@@ -835,14 +835,12 @@ SaveMenuBindings (void)
 		{
 			g = &curr_bindings[i].binding[j];
 
-			if (g->type != VCONTROL_NONE)
-			{
-				VControl_DumpGesture (g_str, sizeof (g_str), g);
-				uio_fprintf (f, "%s.%d = STRING:%s\n", menu_res_names[i],
-						j + 1, g_str);
-			}
-			else
-				uio_fprintf (f, "%s.%d =\n", menu_res_names[i], j + 1);
+			if (g->type == VCONTROL_NONE)
+				continue;
+
+			VControl_DumpGesture (g_str, sizeof (g_str), g);
+			uio_fprintf (f, "%s.%d = STRING:%s\n", menu_res_names[i],
+					j + 1, g_str);
 		}
 	}
 
