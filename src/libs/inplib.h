@@ -73,9 +73,9 @@ extern const char ds4_axes[SDL_CONTROLLER_AXIS_MAX][16];
 extern const char nx_buttons[SDL_CONTROLLER_BUTTON_MAX][16];
 extern const char nx_axes[SDL_CONTROLLER_AXIS_MAX][16];
 
-#define MOUSE_LFT 1
-#define MOUSE_MID 2
-#define MOUSE_RGT 3
+#define MOUSE_LFT SDL_BUTTON_LEFT
+#define MOUSE_MID SDL_BUTTON_MIDDLE
+#define MOUSE_RGT SDL_BUTTON_RIGHT
 #define WHEEL_UP 1
 #define WHEEL_DOWN 2
 

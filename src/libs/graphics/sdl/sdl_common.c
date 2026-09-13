@@ -154,6 +154,11 @@ TFB_ProcessEvents ()
 					/* Screen needs to be redrawn */
 					TFB_SwapBuffers (TFB_REDRAW_EXPOSE);
 				}
+				else if (Event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+				{
+					// Reset controls when window loses focus
+					TFB_ResetControls ();
+				}
 				break;
 			default:
 				break;
@@ -617,7 +622,13 @@ TFB_ScreenShot (void)
 	if (stat (shotDirName, &sb) == 0 && S_ISDIR (sb.st_mode))
 	{
 		if (TFB_SDL_ScreenShot (fullPath))
-			log_add (log_Info, "Screenshot saved at path, '%s'", fullPath);
+		{
+			if (optScreenShots == 1 || optScreenShots == 3)
+				log_add (log_Info, "Screenshot saved at path, '%s'", fullPath);
+			if (optScreenShots >= 2)
+				log_add (log_Info, "%s copied to clipboard",
+						optScreenShots == 3 ? "And" : "Screenshot");
+		}
 		else
 			log_add (log_Debug, "Screenshot not saved due to an error");
 	}

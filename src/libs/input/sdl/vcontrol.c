@@ -1370,9 +1370,9 @@ VControl_HandleEvent (const SDL_Event *e)
 					VControl_ProcessMouseWheel (direction);
 					lastWheelTime = currentTime;
 					last_interesting = *e;
+					event_ready = 1;
 				}
 			}
-			event_ready = 1;
 			break;
 		}
 		case SDL_MOUSEMOTION:
