@@ -1789,15 +1789,21 @@ DoSetupMenu (SETUP_MENU_STATE *pInputState)
 		}
 	}
 
-	if (PulsedInputState.menu[KEY_MENU_UP]
-			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP]))
+	if (PulsedInputState.menu[KEY_MENU_UP])
 	{
 		Widget_Event (WIDGET_EVENT_UP);
 	}
-	else if (PulsedInputState.menu[KEY_MENU_DOWN]
-			|| (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))
+	else if (PulsedInputState.menu[KEY_MENU_DOWN])
 	{
 		Widget_Event (WIDGET_EVENT_DOWN);
+	}
+	else if (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_UP])
+	{
+		Widget_Event (WIDGET_EVENT_PAGE_UP);
+	}
+	else if (!clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN])
+	{
+		Widget_Event (WIDGET_EVENT_PAGE_DOWN);
 	}
 	else if (PulsedInputState.menu[KEY_MENU_LEFT]
 			|| (clicked_in && PulsedInputState.menu[MOUSE_WHEEL_DOWN]))

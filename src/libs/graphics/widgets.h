@@ -29,6 +29,8 @@ enum {
 	WIDGET_EVENT_SELECT,
 	WIDGET_EVENT_CANCEL,
 	WIDGET_EVENT_DELETE,
+	WIDGET_EVENT_PAGE_UP,
+	WIDGET_EVENT_PAGE_DOWN,
 	NUM_WIDGET_EVENTS
 };
 
@@ -255,5 +257,7 @@ void FullReload (void);
 
 /* Other implementations will need these values */
 extern WIDGET *widget_focus;
+
+extern void Widget_ScrollMenuScreen (WIDGET *_self, int direction);
 
 #endif /* LIBS_GRAPHICS_WIDGETS_H_ */

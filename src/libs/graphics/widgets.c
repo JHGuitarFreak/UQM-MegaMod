@@ -1369,6 +1369,37 @@ Widget_HandleEventSlider (WIDGET *_self, int event)
 	}
 }
 
+void
+Widget_ScrollMenuScreen (WIDGET *_self, int direction)
+{
+	int i, target;
+	WIDGET *child;
+	WIDGET_MENU_SCREEN *self = (WIDGET_MENU_SCREEN *)_self;
+	int last = self->num_children;
+	int step = (direction < 0) ? -1 : 1;
+
+	if ((direction < 0 && offset_t == 0) ||
+		(direction > 0 && offset_b >= (last - 1)))
+		return;
+
+	offset_t += step;
+	offset_b += step;
+
+	target = (direction < 0) ? offset_t : offset_b;
+
+	for (i = target; i >= (int) offset_t && i <= (int) offset_b; i -= step)
+	{
+		int w_dir = (direction < 0) ? WIDGET_EVENT_DOWN : WIDGET_EVENT_UP;
+
+		child = self->child[i];
+		if ((*child->receiveFocus)(child, w_dir))
+		{
+			self->highlighted = i;
+			return;
+		}
+	}
+}
+
 int
 Widget_HandleEventMenuScreen (WIDGET *_self, int event)
 {
@@ -1382,6 +1413,12 @@ Widget_HandleEventMenuScreen (WIDGET *_self, int event)
 	case WIDGET_EVENT_DOWN:
 		dx = 1;
 		break;
+	case WIDGET_EVENT_PAGE_UP:
+		Widget_ScrollMenuScreen (_self, -1);
+		return TRUE;
+	case WIDGET_EVENT_PAGE_DOWN:
+		Widget_ScrollMenuScreen (_self, 1);
+		return TRUE;
 	case WIDGET_EVENT_CANCEL:
 		/* On cancel, shift focus to last element and send a SELECT. */
 		self->highlighted = self->num_children - 1;
