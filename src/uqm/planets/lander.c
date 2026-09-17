@@ -1503,13 +1503,13 @@ AddLightning (void)
 		LightningElementPtr->life_span = 10 + (HIWORD (rand_val) % 10) + 1;
 		LightningElementPtr->next.location.x = (curLanderLoc.x
 				+ ((SCALED_MAP_WIDTH << MAG_SHIFT)
-				- ((SURFACE_WIDTH >> 1) - 6))
+				- ((SURFACE_WIDTH >> 1) - RES_SCALE (6)))
 				+ (RES_BOOL (LOBYTE (rand_val), rand_val)
 				% (SURFACE_WIDTH - RES_SCALE (12))))
 				% (SCALED_MAP_WIDTH << MAG_SHIFT);
 		LightningElementPtr->next.location.y = (curLanderLoc.y
-				+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1) - 6))
-				+ (RES_BOOL (HIBYTE (rand_val), rand_val)
+				+ ((MAP_HEIGHT << MAG_SHIFT) - ((SURFACE_HEIGHT >> 1)
+				- RES_SCALE (6))) + (RES_BOOL (HIBYTE (rand_val), rand_val)
 				% (SURFACE_HEIGHT - RES_SCALE (12))))
 				% (MAP_HEIGHT << MAG_SHIFT);
 
