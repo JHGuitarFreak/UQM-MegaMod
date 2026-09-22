@@ -87,7 +87,7 @@ GenerateZoqFotPik_generatePlanets (SOLARSYS_STATE *solarSys)
 			pSunDesc->PlanetByte = 0;
 			pPlanet = &solarSys->PlanetDesc[pSunDesc->PlanetByte];
 
-			pPlanet->data_index = WATER_WORLD;
+			pPlanet->data_index = REDUX_WORLD;
 			pPlanet->NumPlanets = 1;
 			pPlanet->radius = EARTH_RADIUS * 138L / 100;
 			angle = ARCTAN (pPlanet->location.x, pPlanet->location.y);
