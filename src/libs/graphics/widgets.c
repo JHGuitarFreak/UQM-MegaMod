@@ -400,34 +400,45 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 	if (self->index == MENU_DEADZONES)
 	{
 #define ANALOG_BODY RES_SCALE (60)
+#define HEIGHT_STANDARD RES_SCALE (30)
 		float ratio = (float)DeadZoneLeftStick[0] / MAX_DEADZONE;
 		int solved_ratio;
 		DRECT main_body, deadzone;
+		RECT backdrop;
 		POINT analog_pt;
 		int axisX = 0;
 		float axisX_adjusted = 0.0f;
 		int axisY = 0;
 		float axisY_adjusted = 0.0f;
 
+		backdrop.corner.x = 0;
+		backdrop.corner.y = RES_SCALE (110) + NDOS_NUM (HEIGHT_STANDARD) + IF_HD (1);
+		backdrop.extent.width = CanvasWidth;
+		backdrop.extent.height = RES_SCALE (63);
+
+		SetContextForeGroundColor (buildColorRgba (0, 0, 0, 191));
+
+		DrawFilledRectangle (&backdrop);
+
 		main_body.corner.x = RES_SCALE (130);
-		main_body.corner.y = RES_SCALE (111);
+		main_body.corner.y = RES_SCALE (111) + NDOS_NUM (HEIGHT_STANDARD);
 		main_body.extent.width = ANALOG_BODY;
 		main_body.extent.height = ANALOG_BODY;
 
 		SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
 		DrawOval (&main_body, 0, TRUE);
 
-		solved_ratio = RES_SCALE ((int)(ANALOG_BODY * ratio));
+		solved_ratio = (int)(ANALOG_BODY * ratio);
 
 		deadzone.corner.x = main_body.corner.x +
-				(ANALOG_BODY - solved_ratio) / 2;
+				(ANALOG_BODY - solved_ratio) / 2 + IF_HD (2);
 		deadzone.corner.y = main_body.corner.y +
-				(ANALOG_BODY - solved_ratio) / 2;
+				(ANALOG_BODY - solved_ratio) / 2 + IF_HD (2);
 		deadzone.extent.width = solved_ratio;
 		deadzone.extent.height = deadzone.extent.width;
 
 		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
-		DrawOval (&deadzone, 0, TRUE);
+		DrawOval (&deadzone, 0, FALSE);
 
 		axisX = VControl_GetJoyAxis (0, SDL_CONTROLLER_AXIS_LEFTX, TRUE);
 		axisY = VControl_GetJoyAxis (0, SDL_CONTROLLER_AXIS_LEFTY, TRUE);
