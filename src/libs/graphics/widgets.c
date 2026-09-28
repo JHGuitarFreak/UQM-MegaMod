@@ -27,6 +27,7 @@
 #include "uqm/util.h"
 #include "uqm/setup.h"
 #include "uqm/gamestr.h"
+#include "uqm/planets/planets.h"
 
 WIDGET *widget_focus = NULL;
 
@@ -394,6 +395,52 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 		(*c->draw)(c, 0, widget_y);
 		widget_y += (*c->height)(c) + RES_SCALE (5);
+	}
+
+	if (self->index == MENU_DEADZONES)
+	{
+#define ANALOG_BODY RES_SCALE (60)
+		float ratio = (float)DeadZoneLeftStick[0] / MAX_DEADZONE;
+		int solved_ratio;
+		DRECT main_body, deadzone;
+		POINT analog_pt;
+		int axisX = 0;
+		float axisX_adjusted = 0.0f;
+		int axisY = 0;
+		float axisY_adjusted = 0.0f;
+
+		main_body.corner.x = RES_SCALE (130);
+		main_body.corner.y = RES_SCALE (111);
+		main_body.extent.width = ANALOG_BODY;
+		main_body.extent.height = ANALOG_BODY;
+
+		SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
+		DrawOval (&main_body, 0, TRUE);
+
+		solved_ratio = RES_SCALE ((int)(ANALOG_BODY * ratio));
+
+		deadzone.corner.x = main_body.corner.x +
+				(ANALOG_BODY - solved_ratio) / 2;
+		deadzone.corner.y = main_body.corner.y +
+				(ANALOG_BODY - solved_ratio) / 2;
+		deadzone.extent.width = solved_ratio;
+		deadzone.extent.height = deadzone.extent.width;
+
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+		DrawOval (&deadzone, 0, TRUE);
+
+		axisX = VControl_GetJoyAxis (0, SDL_CONTROLLER_AXIS_LEFTX, TRUE);
+		axisY = VControl_GetJoyAxis (0, SDL_CONTROLLER_AXIS_LEFTY, TRUE);
+
+		axisX_adjusted = (float)axisX / MAX_DEADZONE;
+		axisY_adjusted = (float)axisY / MAX_DEADZONE;
+
+		analog_pt.x = main_body.corner.x + (ANALOG_BODY / 2) +
+				(((ANALOG_BODY / 2) - RES_SCALE (2)) * axisX_adjusted);
+		analog_pt.y = main_body.corner.y + (ANALOG_BODY / 2) +
+				(((ANALOG_BODY / 2) - RES_SCALE (2)) * axisY_adjusted);
+		SetContextForeGroundColor (BRIGHT_RED_COLOR);
+		DrawPoint (&analog_pt);
 	}
 
 	SetContextFontEffect (oldFontEffect);

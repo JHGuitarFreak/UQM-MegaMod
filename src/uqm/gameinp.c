@@ -743,13 +743,13 @@ GetDirectionalJoystickInput (int direction, int player)
 
 	if (optDirJoy [player] == 1 || optDirJoy[player] == 3)
 	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY);
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX, FALSE);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY, FALSE);
 	}
 	if (optDirJoy[player] == 2 || optDirJoy[player] == 4)
 	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY);
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX, FALSE);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY, FALSE);
 	}
 
 	// Process analog stick input

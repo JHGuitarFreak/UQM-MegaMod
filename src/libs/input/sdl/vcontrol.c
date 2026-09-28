@@ -1730,7 +1730,7 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 }
 
 int
-VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
+VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis, int raw)
 {
 #ifdef HAVE_JOYSTICK
 	SDL_JoystickID instance_id;
@@ -1776,7 +1776,7 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 
 			threshold = VControl_GetAxisThreshold (logical_port, axis);
 
-			if (raw_value > -threshold && raw_value < threshold)
+			if (!raw && (raw_value > -threshold && raw_value < threshold))
 				return 0;
 
 			return raw_value;

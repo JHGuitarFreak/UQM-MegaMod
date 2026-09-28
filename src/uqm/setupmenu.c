@@ -516,6 +516,11 @@ static WIDGET *editdeadzone_widgets[] = {
 
 	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
 	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
+
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	NULL };
 
 static const struct
@@ -2374,6 +2379,7 @@ init_widgets (void)
 		menus[i].child = menu_defs[i].widgets;
 		menus[i].highlighted = 0;
 		menus[i].widget_rects = NULL;
+		menus[i].index = i;
 	}
 	if (menu_defs[i].widgets != NULL)
 	{

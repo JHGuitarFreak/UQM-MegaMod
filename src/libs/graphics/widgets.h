@@ -74,6 +74,7 @@ typedef struct _widget_menu_screen {
 	struct _widget **child;
 	int highlighted;
 	RECT *widget_rects;
+	int index;
 } WIDGET_MENU_SCREEN;
 
 typedef struct {
