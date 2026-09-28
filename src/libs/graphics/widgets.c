@@ -399,45 +399,42 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 	if (self->index == MENU_DEADZONES)
 	{
-#define ANALOG_BODY RES_SCALE (60)
-#define HEIGHT_STANDARD RES_SCALE (30)
+#define ANALOG_RAD RES_SCALE (30)
+#define ANALOG_DIAM (ANALOG_RAD * 2)
 		float ratio = (float)DeadZoneLeftStick[0] / MAX_DEADZONE;
 		int solved_ratio;
 		DRECT main_body, deadzone;
-		RECT backdrop;
 		POINT analog_pt;
 		int axisX = 0;
 		float axisX_adjusted = 0.0f;
 		int axisY = 0;
 		float axisY_adjusted = 0.0f;
 
-		backdrop.corner.x = 0;
-		backdrop.corner.y = RES_SCALE (110) + NDOS_NUM (HEIGHT_STANDARD) + IF_HD (1);
-		backdrop.extent.width = CanvasWidth;
-		backdrop.extent.height = RES_SCALE (63);
-
-		SetContextForeGroundColor (buildColorRgba (0, 0, 0, 191));
-
-		DrawFilledRectangle (&backdrop);
-
 		main_body.corner.x = RES_SCALE (130);
-		main_body.corner.y = RES_SCALE (111) + NDOS_NUM (HEIGHT_STANDARD);
-		main_body.extent.width = ANALOG_BODY;
-		main_body.extent.height = ANALOG_BODY;
+		main_body.corner.y = RES_SCALE (111) + NDOS_NUM (RES_SCALE (30));
+		main_body.extent.width = ANALOG_DIAM;
+		main_body.extent.height = ANALOG_DIAM;
 
-		SetContextForeGroundColor (BRIGHT_BLUE_COLOR);
+		SetContextForeGroundColor (buildColorRgba (0, 0, 0, 128));
+		DrawEllipse (
+				main_body.corner.x + ANALOG_RAD,
+				main_body.corner.y + ANALOG_RAD,
+				ANALOG_RAD, ANALOG_RAD,
+				0, TRUE, FALSE);
+
+		SetContextForeGroundColor (WIDGET_DISABLED_COLOR);
 		DrawOval (&main_body, 0, TRUE);
 
-		solved_ratio = (int)(ANALOG_BODY * ratio);
+		solved_ratio = (int)(ANALOG_DIAM * ratio);
 
 		deadzone.corner.x = main_body.corner.x +
-				(ANALOG_BODY - solved_ratio) / 2 + IF_HD (2);
+				(ANALOG_DIAM - solved_ratio) / 2 + IF_HD (2);
 		deadzone.corner.y = main_body.corner.y +
-				(ANALOG_BODY - solved_ratio) / 2 + IF_HD (2);
+				(ANALOG_DIAM - solved_ratio) / 2 + IF_HD (2);
 		deadzone.extent.width = solved_ratio;
 		deadzone.extent.height = deadzone.extent.width;
 
-		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
 		DrawOval (&deadzone, 0, FALSE);
 
 		axisX = VControl_GetJoyAxis (0, SDL_CONTROLLER_AXIS_LEFTX, TRUE);
@@ -446,10 +443,10 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 		axisX_adjusted = (float)axisX / MAX_DEADZONE;
 		axisY_adjusted = (float)axisY / MAX_DEADZONE;
 
-		analog_pt.x = main_body.corner.x + (ANALOG_BODY / 2) +
-				(((ANALOG_BODY / 2) - RES_SCALE (2)) * axisX_adjusted);
-		analog_pt.y = main_body.corner.y + (ANALOG_BODY / 2) +
-				(((ANALOG_BODY / 2) - RES_SCALE (2)) * axisY_adjusted);
+		analog_pt.x = main_body.corner.x + ANALOG_RAD +
+				((ANALOG_RAD - RES_SCALE (2)) * axisX_adjusted);
+		analog_pt.y = main_body.corner.y + ANALOG_RAD +
+				((ANALOG_RAD - RES_SCALE (2)) * axisY_adjusted);
 		SetContextForeGroundColor (BRIGHT_RED_COLOR);
 		DrawPoint (&analog_pt);
 	}
