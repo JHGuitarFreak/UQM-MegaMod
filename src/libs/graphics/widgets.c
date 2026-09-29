@@ -294,7 +294,7 @@ Widget_DrawDeadzone (int player, int stick)
 
 	// Auto-Thrust circle
 	range = (AXIS_MAX - cur_dzone) * (AXIS_MAX - cur_dzone);
-	undead_zone = cur_dzone + sqrtf (range * 0.50f);
+	undead_zone = cur_dzone + sqrtf (range * THRUST_ZONE);
 	undead_ratio = (float)undead_zone / AXIS_MAX;
 	undead_radius = RADIUS * undead_ratio;
 	undeadzone = MAKE_EXTENT (undead_radius, undead_radius);

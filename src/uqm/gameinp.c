@@ -787,7 +787,7 @@ GetDirectionalJoystickInput (int direction, int player)
 		if (optDirJoy[player] > 2 && (diff > 6 && diff < 10))
 		{
 			float range = (AXIS_MAX - dzone) * (AXIS_MAX - dzone);
-			int undead_zone = dzone + sqrtf (range * 0.50f);
+			int undead_zone = dzone + sqrtf (range * THRUST_ZONE);
 
 			if (magnitude >= undead_zone)
 				InputState |= BATTLE_THRUST;
