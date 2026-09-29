@@ -269,13 +269,13 @@ Widget_DrawDeadzone (int player, int stick)
 
 	if (stick == LEFT_STICK)
 	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX, TRUE);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY, TRUE);
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY);
 	}
 	else
 	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX, TRUE);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY, TRUE);
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY);
 	}
 
 	magnitude = sqrtf ((float)(axisX * axisX + axisY * axisY));

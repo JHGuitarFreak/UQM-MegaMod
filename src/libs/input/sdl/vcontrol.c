@@ -1733,7 +1733,7 @@ VControl_DumpGesture (char *buf, int n, VCONTROL_GESTURE *g)
 }
 
 int
-VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis, int raw)
+VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 {
 #ifdef HAVE_JOYSTICK
 	SDL_JoystickID instance_id;
@@ -1752,7 +1752,6 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis, int raw)
 		{
 			joystick *j = &current->gamepad;
 			int raw_value;
-			int threshold;
 			int logical_port = -1;
 
 			if (!j->stick || j->numaxes <= axis)
@@ -1776,11 +1775,6 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis, int raw)
 					break;
 				}
 			}
-
-			threshold = VControl_GetAxisThreshold (logical_port, axis);
-
-			if (!raw && (raw_value > -threshold && raw_value < threshold))
-				return 0;
 
 			return raw_value;
 		}

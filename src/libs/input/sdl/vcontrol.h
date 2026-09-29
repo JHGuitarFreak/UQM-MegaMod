@@ -100,7 +100,7 @@ void VControl_ProcessKeyUp (sdl_key_t symbol);
 void VControl_ProcessJoyButtonDown (int port, int button);
 void VControl_ProcessJoyButtonUp (int port, int button);
 void VControl_ProcessJoyAxis (int port, int axis, int value);
-int VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis, int raw);
+int VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis);
 SDL_JoystickID VControl_GetControllerAssignment (int player);
 
 void VControl_ProcessMouseButtonDown (int button);
