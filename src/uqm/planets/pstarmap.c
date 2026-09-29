@@ -778,44 +778,6 @@ DrawFuelCircle (BOOLEAN secondary)
 	}
 }
 
-// Taleden code of drawing ellipse. Unused because not precise enough
-/*static void
-DrawFuelEllipse ()
-{
-	Color OldColor;
-	POINT center, sol, sis;
-	double ry, dist, angle;
-	double halfFuel = GLOBAL_SIS (FuelOnBoard) / 2;
-
-	sol = (POINT){ SOL_X, SOL_Y };
-	sis = (POINT){ LOGX_TO_UNIVERSE (GLOBAL_SIS (log_x)),
-			LOGY_TO_UNIVERSE (GLOBAL_SIS (log_y)) };
-
-	dist = FuelRequiredTo (sol) / 2;
-
-	if (dist >= halfFuel)
-		return;
-	ry = sqrt (pow (halfFuel, 2) - pow (dist, 2));
-	angle = atan2 (sis.y - sol.y, sis.x - sol.x) * 180.0 / M_PI;
-	center = MAKE_POINT ((sis.x + sol.x) / 2, (sis.y + sol.y) / 2);
-
-	// convert starmap coords to screen coords
-	center.x = UNIVERSE_TO_DISPX (center.x);
-	center.y = UNIVERSE_TO_DISPY (center.y);
-
-	halfFuel = UNIVERSE_TO_DISPX (halfFuel) - UNIVERSE_TO_DISPX (0);
-	if (halfFuel < 0)
-		halfFuel = -halfFuel;
-	ry = UNIVERSE_TO_DISPY (ry) - UNIVERSE_TO_DISPY (0);
-	if (ry < 0)
-		ry = -ry;
-
-	// draw
-	OldColor = SetContextForeGroundColor (STARMAP_SECONDARY_RANGE_COLOR);
-	DrawRotatedEllipse (center.x, center.y, halfFuel, ry, angle, 1, 0);
-	SetContextForeGroundColor (OldColor);
-}*/
-
 BOOLEAN
 isHomeworld (BYTE Index)
 {

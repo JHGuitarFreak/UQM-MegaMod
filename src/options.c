@@ -176,6 +176,7 @@ char baseContentPath[PATH_MAX];
 ADDON_COUNT addonList;
 
 BOOLEAN DirJoyActive = FALSE;
+BOOLEAN inDeadZoneMenu = FALSE;
 
 extern uio_Repository *repository;
 extern uio_DirHandle *rootDir;

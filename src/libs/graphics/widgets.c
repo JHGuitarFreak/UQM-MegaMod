@@ -225,6 +225,172 @@ Widget_DrawToolTips (int numlines, const char **tips)
 	SetContextForeGroundColor (oldtext);
 }
 
+#define PLAYER_1 0
+#define PLAYER_2 1
+#define LEFT_STICK 0
+#define RIGHT_STICK 1
+
+void
+Widget_DrawDeadzone (int player, int stick)
+{
+#define RADIUS RES_SCALE (30)
+#define DIAMETER (RADIUS << 1)
+#define RADIUS_2 (RADIUS * RADIUS)
+	float ratio, undead_ratio, magnitude, dx, dy, range;
+	int solved_ratio, undead_zone, undead_radius, cur_dzone;
+	EXTENT main_circle, deadzone, undeadzone;
+	POINT center, analog_pt;
+	int axisX, axisY;
+	float axisX_adjusted, axisY_adjusted;
+	TEXT axis_text;
+	char buf[32];
+	SIZE leading;
+	LINE line;
+
+	if (stick == LEFT_STICK)
+		cur_dzone = DeadZoneLeftStick[player];
+	else
+		cur_dzone = DeadZoneRightStick[player];
+
+	ratio = (float)cur_dzone / AXIS_MAX;
+
+	// Main visualizer location
+	center.x = CanvasWidth / 2;
+	center.y = RES_SCALE (89) + RADIUS + NDOS_NUM (RES_SCALE (20));
+	main_circle = MAKE_EXTENT (RADIUS, RADIUS);
+
+	// Background
+	SetContextForeGroundColor (buildColorRgba (0, 0, 0, 128));
+	DrawCircle (center, main_circle, TRUE, FALSE);
+
+	// Outer ring
+	SetContextForeGroundColor (WIDGET_DISABLED_COLOR);
+	DrawCircle (center, main_circle, FALSE, FALSE);
+
+	if (stick == LEFT_STICK)
+	{
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX, TRUE);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY, TRUE);
+	}
+	else
+	{
+		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX, TRUE);
+		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY, TRUE);
+	}
+
+	magnitude = sqrtf ((float)(axisX * axisX + axisY * axisY));
+
+	// Deadzone circle
+	solved_ratio = (int)(RADIUS * ratio);
+	deadzone.width = solved_ratio;
+	deadzone.height = deadzone.width;
+
+	if (magnitude >= cur_dzone)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
+
+	DrawCircle (center, deadzone, FALSE, TRUE);
+
+	// Auto-Thrust circle
+	range = (AXIS_MAX - cur_dzone) * (AXIS_MAX - cur_dzone);
+	undead_zone = cur_dzone + sqrtf (range * 0.50f);
+	undead_ratio = (float)undead_zone / AXIS_MAX;
+	undead_radius = RADIUS * undead_ratio;
+	undeadzone = MAKE_EXTENT (undead_radius, undead_radius);
+
+	if (magnitude >= undead_zone)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (WIDGET_BONUS_COLOR);
+
+	DrawCircle (center, undeadzone, FALSE, TRUE);
+
+	// Analog position indicator
+	axisX_adjusted = (float)axisX / AXIS_MAX;
+	axisY_adjusted = (float)axisY / AXIS_MAX;
+	dx = RADIUS * axisX_adjusted;
+	dy = RADIUS * axisY_adjusted;
+	range = dx * dx + dy * dy;
+	if (range > (float)RADIUS_2)
+	{
+		float scale = (float)RADIUS / sqrtf (range);
+		dx *= scale;
+		dy *= scale;
+	}
+	analog_pt.x = center.x + dx;
+	analog_pt.y = center.y + dy;
+	SetContextForeGroundColor (DULL_RED_COLOR);
+
+	line.first = center;
+	line.second = analog_pt;
+
+	DrawLine (&line, 1);
+
+	SetContextForeGroundColor (BRIGHT_RED_COLOR);
+	if (IS_HD)
+	{
+		RECT r;
+		r.corner = analog_pt;
+		r.extent = MAKE_EXTENT (3, 3);
+		r.corner.x -= 1;
+		r.corner.y -= 1;
+		DrawFilledRectangle (&r);
+	}
+	else
+		DrawPoint (&analog_pt);
+
+	// Plain text stats
+	GetContextFontLeading (&leading);
+	axis_text.baseline.x = center.x - (RADIUS * 2) - RES_SCALE (10);
+	axis_text.baseline.y = center.y - leading;
+	axis_text.CharCount = ~0;
+	axis_text.pStr = buf;
+
+	// X-Axis
+	axis_text.align = ALIGN_RIGHT;
+	snprintf (buf, sizeof buf, "X-Axis:");
+	font_DrawText (&axis_text);
+	axis_text.align = ALIGN_LEFT;
+	snprintf (buf, sizeof buf, " %d", axisX);
+	font_DrawText (&axis_text);
+
+	// Y-Axis
+	axis_text.baseline.y += leading;
+	axis_text.align = ALIGN_RIGHT;
+	snprintf (buf, sizeof buf, "Y-Axis:");
+	font_DrawText (&axis_text);
+	axis_text.align = ALIGN_LEFT;
+	snprintf (buf, sizeof buf, " %d", axisY);
+	font_DrawText (&axis_text);
+
+	// Deadzone
+	if (magnitude >= cur_dzone)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
+	axis_text.baseline.y += leading;
+	axis_text.align = ALIGN_RIGHT;
+	snprintf (buf, sizeof buf, "Deadzone:");
+	font_DrawText (&axis_text);
+	axis_text.align = ALIGN_LEFT;
+	snprintf (buf, sizeof buf, " %d", cur_dzone);
+	font_DrawText (&axis_text);
+
+	// Auto-Thrust
+	if (magnitude >= undead_zone)
+		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
+	else
+		SetContextForeGroundColor (WIDGET_BONUS_COLOR);
+	axis_text.baseline.y += leading;
+	axis_text.align = ALIGN_RIGHT;
+	snprintf (buf, sizeof buf, "Auto-Thrust:");
+	font_DrawText (&axis_text);
+	axis_text.align = ALIGN_LEFT;
+	snprintf (buf, sizeof buf, " %d", undead_zone);
+	font_DrawText (&axis_text);
+}
+
 void
 Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 {	// Main menu function that draws backgroung and all widgets
@@ -399,57 +565,27 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 	if (self->index == MENU_DEADZONES)
 	{
-#define ANALOG_RAD RES_SCALE (30)
-#define ANALOG_DIAM (ANALOG_RAD * 2)
-		float ratio = (float)DeadZoneLeftStick[0] / MAX_DEADZONE;
-		int solved_ratio;
-		DRECT main_body, deadzone;
-		POINT analog_pt;
-		int axisX = 0;
-		float axisX_adjusted = 0.0f;
-		int axisY = 0;
-		float axisY_adjusted = 0.0f;
+		if (!inDeadZoneMenu)
+			inDeadZoneMenu = TRUE;
 
-		main_body.corner.x = RES_SCALE (130);
-		main_body.corner.y = RES_SCALE (111) + NDOS_NUM (RES_SCALE (30));
-		main_body.extent.width = ANALOG_DIAM;
-		main_body.extent.height = ANALOG_DIAM;
-
-		SetContextForeGroundColor (buildColorRgba (0, 0, 0, 128));
-		DrawEllipse (
-				main_body.corner.x + ANALOG_RAD,
-				main_body.corner.y + ANALOG_RAD,
-				ANALOG_RAD, ANALOG_RAD,
-				0, TRUE, FALSE);
-
-		SetContextForeGroundColor (WIDGET_DISABLED_COLOR);
-		DrawOval (&main_body, 0, TRUE);
-
-		solved_ratio = (int)(ANALOG_DIAM * ratio);
-
-		deadzone.corner.x = main_body.corner.x +
-				(ANALOG_DIAM - solved_ratio) / 2 + IF_HD (2);
-		deadzone.corner.y = main_body.corner.y +
-				(ANALOG_DIAM - solved_ratio) / 2 + IF_HD (2);
-		deadzone.extent.width = solved_ratio;
-		deadzone.extent.height = deadzone.extent.width;
-
-		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
-		DrawOval (&deadzone, 0, FALSE);
-
-		axisX = VControl_GetJoyAxis (0, SDL_CONTROLLER_AXIS_LEFTX, TRUE);
-		axisY = VControl_GetJoyAxis (0, SDL_CONTROLLER_AXIS_LEFTY, TRUE);
-
-		axisX_adjusted = (float)axisX / MAX_DEADZONE;
-		axisY_adjusted = (float)axisY / MAX_DEADZONE;
-
-		analog_pt.x = main_body.corner.x + ANALOG_RAD +
-				((ANALOG_RAD - RES_SCALE (2)) * axisX_adjusted);
-		analog_pt.y = main_body.corner.y + ANALOG_RAD +
-				((ANALOG_RAD - RES_SCALE (2)) * axisY_adjusted);
-		SetContextForeGroundColor (BRIGHT_RED_COLOR);
-		DrawPoint (&analog_pt);
+		switch (self->highlighted)
+		{
+		case 0:
+			Widget_DrawDeadzone (PLAYER_1, LEFT_STICK);
+			break;
+		case 1:
+			Widget_DrawDeadzone (PLAYER_1, RIGHT_STICK);
+			break;
+		case 3:
+			Widget_DrawDeadzone (PLAYER_2, LEFT_STICK);
+			break;
+		case 4:
+			Widget_DrawDeadzone (PLAYER_2, RIGHT_STICK);
+			break;
+		}
 	}
+	else if (inDeadZoneMenu)
+		inDeadZoneMenu = FALSE;
 
 	SetContextFontEffect (oldFontEffect);
 	if (oldfont)

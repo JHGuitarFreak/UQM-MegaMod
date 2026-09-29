@@ -982,19 +982,7 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 }
 
 void
-DrawRotatedEllipse (int cx, int cy, int rx, int ry, int angle_deg, int filled, int dotted)
+DrawCircle (POINT pt, EXTENT ext, BOOLEAN filled, BOOLEAN dotted)
 {
-	// based on https://zingl.github.io/Bresenham.pdf section 4.3
-	double rx2 = (double)rx * rx;
-	double ry2 = (double)ry * ry;
-	double theta = (angle_deg % 90) * M_PI / 180.0;
-	double st = sin (theta);
-	double ct = cos (theta);
-	double xd2 = rx2 * ct * ct + ry2 * st * st;
-	double xd = sqrt (xd2);
-	int shear = (int)(((rx2 - ry2) * st * ct) / xd + 0.5);
-
-	rx = (int)(xd + 0.5);
-	ry = (int)(sqrt ((rx2 * ry2) / xd2) + 0.5);
-	DrawEllipse (cx, cy, rx, ry, shear, filled, dotted);
+	DrawEllipse (pt.x, pt.y, ext.width, ext.height, 0, filled, dotted);
 }

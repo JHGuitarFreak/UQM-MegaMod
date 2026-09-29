@@ -515,12 +515,11 @@ static WIDGET *editdeadzone_widgets[] = {
 	(WIDGET *)(&sliders[SLIDER_DEADZONE_03]), // Player 2 Right Stick Deadzone
 
 	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacers for deadzone visualizer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
 	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
-
-	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
-	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
-	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
-	(WIDGET *)(&labels[LABEL_SPACER]), // Spacer
 	NULL };
 
 static const struct
@@ -2054,13 +2053,13 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 static inline int
 deadzoneToSlider (int deadzone)
 {
-	return (deadzone * 100) / MAX_DEADZONE;
+	return (deadzone * 100) / AXIS_MAX;
 }
 
 static inline int
 sliderToDeadzone (int value)
 {
-	return (value * MAX_DEADZONE) / 100;
+	return (value * AXIS_MAX) / 100;
 }
 
 static void

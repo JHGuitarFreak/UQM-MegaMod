@@ -977,7 +977,7 @@ static void getDeadzoneConfigValue (struct int_option *option,
 	option->value = res_GetInteger (config_val);
 	option->set = true;
 
-	if (option->value > MAX_DEADZONE || option->value < 0)
+	if (option->value > AXIS_MAX || option->value < 0)
 		option->value = DEFAULT_DZONE;
 }
 

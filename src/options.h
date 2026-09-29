@@ -136,7 +136,7 @@ extern bool ShipGTFO;
 extern OPT_ENABLABLE optBattleMouse;
 extern int optScreenShots;
 
-#define MAX_DEADZONE SINT16_MAX
+#define AXIS_MAX SINT16_MAX
 #define DEFAULT_DZONE 6881
 extern int DeadZoneLeftStick[2];
 extern int DeadZoneRightStick[2];
@@ -166,6 +166,7 @@ extern char *configDirPath;
 extern const char **optAddons;
 
 extern BOOLEAN DirJoyActive;
+extern BOOLEAN inDeadZoneMenu;
 
 // addon availability
 typedef struct

@@ -1311,6 +1311,9 @@ VControl_HandleEvent (const SDL_Event *e)
 
 #ifdef HAVE_JOYSTICK
 		case SDL_CONTROLLERAXISMOTION:
+			if (inDeadZoneMenu)
+				break;
+
 			VControl_ProcessJoyAxis (e->caxis.which, e->caxis.axis,
 					e->caxis.value);
 			if ((e->caxis.value > 15000) || (e->caxis.value < -15000))

@@ -788,9 +788,9 @@ GetDirectionalJoystickInput (int direction, int player)
 			if (optDirJoy[player] == 3 || optDirJoy[player] == 4)
 				dzone = DeadZoneRightStick[player];
 
-			undead_zone = ((float)(MAX_DEADZONE - dzone) * 0.65) + dzone;
+			undead_zone = ((float)(AXIS_MAX - dzone) * 0.65) + dzone;
 
-			if (dzone >= (MAX_DEADZONE * 0.35))
+			if (dzone >= (AXIS_MAX * 0.35))
 				undead_zone = 0;
 
 			if (abs (axisX) > undead_zone || abs (axisY) > undead_zone)
