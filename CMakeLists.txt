@@ -392,10 +392,17 @@ if (UQM_DEBUG AND NOT ANDROID)
 endif ()
 
 if (IS_WINDOWS)
-	set_target_properties (UrQuanMasters PROPERTIES
-			WIN32_EXECUTABLE FALSE
-			LINK_FLAGS "-mconsole"
-	)
+	if (UQM_DEBUG)
+		set_target_properties (UrQuanMasters PROPERTIES
+				WIN32_EXECUTABLE FALSE
+				LINK_FLAGS "-mconsole"
+		)
+	else ()
+		set_target_properties (UrQuanMasters PROPERTIES
+				WIN32_EXECUTABLE TRUE
+				LINK_FLAGS "-mwindows"
+		)
+	endif ()
 endif ()
 
 set (UQM_COMPILE_OPTIONS
