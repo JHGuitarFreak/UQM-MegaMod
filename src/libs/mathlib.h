@@ -28,7 +28,7 @@ extern "C" {
 #include "math/random.h"
 
 extern COUNT square_root (DWORD value);
-extern uint32_t crc32b (const UNICODE *str);
+extern uint32_t crc32b (const char *str);
 extern float FastInvSqrt (float number);
 
 inline static float
