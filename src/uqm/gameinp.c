@@ -690,7 +690,7 @@ TestSpeechSound (STRING snd)
 	PlaySpeechEffect ((SOUND)snd, NotPositional (), NULL, 0);
 }
 
-// directional joystick input code, taken from the android port of UQM
+// Relative directional joystick input code, taken from the android port of UQM
 // https://github.com/pelya/commandergenius
 // https://libsdl-android.sourceforge.io/
 
@@ -699,19 +699,13 @@ TestSpeechSound (STRING snd)
 // http://www.dspguru.com/dsp/tricks/fixed-point-atan2-with-self-normalization
 // Precision is said to be 0.07 rads
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#define ATAN2I_PI 65536
+#define ATAN2I_x2 (ATAN2I_PI * 2)
+#define ATAN2I_d4 (ATAN2I_PI / 4)
+#define SHIP_DIRECTIONS 16
 
-enum
-{
-	atan2i_coeff_1 = ((int)(M_PI * 65536.0 / 4)),
-	atan2i_coeff_2 = (3 * atan2i_coeff_1),
-	atan2i_PI = (int)(M_PI * 65536.0),
-	SHIP_DIRECTIONS = 16
-};
-
-static inline int atan2i (int y, int x)
+int
+atan2i (int y, int x)
 {
 	int angle;
 	int abs_y = abs (y);
@@ -720,14 +714,11 @@ static inline int atan2i (int y, int x)
 		abs_y = 1;
 
 	if (x >= 0)
-		angle = atan2i_coeff_1 - atan2i_coeff_1 * (x - abs_y) / (x + abs_y);
+		angle = ATAN2I_d4 - ATAN2I_d4 * (x - abs_y) / (x + abs_y);
 	else
-		angle = atan2i_coeff_2 - atan2i_coeff_1 * (x + abs_y) / (abs_y - x);
+		angle = (ATAN2I_PI - ATAN2I_d4) - ATAN2I_d4 * (x + abs_y) / (abs_y - x);
 
-	if (y < 0)
-		return(-angle); // negate if in quad III or IV
-	else
-		return(angle);
+	return (y < 0) ? -angle : angle;
 }
 
 BATTLE_INPUT_STATE
@@ -735,11 +726,10 @@ GetDirectionalJoystickInput (int direction, int player)
 {
 	int axisX = 0;
 	int axisY = 0;
-	float magnitude = 0.0f;
-	int dzone = DEFAULT_DZONE;
 	int stick = -1;
+	int magnitude = 0;
+	int dzone = DEFAULT_DZONE;
 	BATTLE_INPUT_STATE InputState = 0;
-	SDL_JoystickID instance_id = -1;
 
 	if (!DirJoyActive || !optDirJoy[player])
 		return InputState;
@@ -758,31 +748,27 @@ GetDirectionalJoystickInput (int direction, int player)
 	if (VControl_GetJoyAxes (player, stick, &axisX, &axisY) == -1)
 		return InputState;
 
-	magnitude = (float)(axisX * axisX + axisY * axisY);
+	magnitude = axisX * axisX + axisY * axisY;
 
 	// Process analog stick input
 	if (magnitude >= (dzone * dzone))
 	{
-		int angle = atan2i (axisY, axisX);
 		int diff;
+		int angle = atan2i (axisY, axisX);
 
 		// Convert to 16 directions used by Melee
-		angle += atan2i_PI / SHIP_DIRECTIONS;
+		angle += ATAN2I_x2 / SHIP_DIRECTIONS;
 		if (angle < 0)
-			angle += atan2i_PI * 2;
-		if (angle > atan2i_PI * 2)
-			angle -= atan2i_PI * 2;
-		angle = angle * SHIP_DIRECTIONS / atan2i_PI / 2;
+			angle += ATAN2I_x2;
+		if (angle > ATAN2I_x2)
+			angle -= ATAN2I_x2;
+		angle = angle * SHIP_DIRECTIONS / ATAN2I_x2;
 
 		diff = angle - direction - SHIP_DIRECTIONS / 4;
-		while (diff >= SHIP_DIRECTIONS)
-			diff -= SHIP_DIRECTIONS;
-		while (diff < 0)
-			diff += SHIP_DIRECTIONS;
-
-		if (diff < SHIP_DIRECTIONS / 2)
+		diff &= SHIP_DIRECTIONS - 1;
+		if (diff < (SHIP_DIRECTIONS / 2))
 			InputState |= BATTLE_LEFT;
-		if (diff > SHIP_DIRECTIONS / 2)
+		if (diff > (SHIP_DIRECTIONS / 2))
 			InputState |= BATTLE_RIGHT;
 
 		// Thrust when facing the intended direction
