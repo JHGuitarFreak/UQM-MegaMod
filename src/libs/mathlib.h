@@ -29,6 +29,7 @@ extern "C" {
 
 extern COUNT square_root (DWORD value);
 extern uint32_t crc32b (const UNICODE *str);
+extern float FastInvSqrt (float number);
 
 inline static float
 scaleThing (float original, float thingToScale)

@@ -735,6 +735,9 @@ GetDirectionalJoystickInput (int direction, int player)
 {
 	int axisX = 0;
 	int axisY = 0;
+	float magnitude = 0.0f;
+	int dzone = DEFAULT_DZONE;
+	int stick = -1;
 	BATTLE_INPUT_STATE InputState = 0;
 	SDL_JoystickID instance_id = -1;
 
@@ -743,17 +746,22 @@ GetDirectionalJoystickInput (int direction, int player)
 
 	if (optDirJoy [player] == 1 || optDirJoy[player] == 3)
 	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY);
+		stick = 0;
+		dzone = DeadZoneLeftStick[player];
 	}
 	if (optDirJoy[player] == 2 || optDirJoy[player] == 4)
 	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY);
+		stick = 1;
+		dzone = DeadZoneRightStick[player];
 	}
 
+	if (VControl_GetJoyAxes (player, stick, &axisX, &axisY) == -1)
+		return InputState;
+
+	magnitude = (float)(axisX * axisX + axisY * axisY);
+
 	// Process analog stick input
-	if (axisX != 0 || axisY != 0)
+	if (magnitude >= (dzone * dzone))
 	{
 		int angle = atan2i (axisY, axisX);
 		int diff;
@@ -780,20 +788,10 @@ GetDirectionalJoystickInput (int direction, int player)
 		// Thrust when facing the intended direction
 		if (optDirJoy[player] > 2 && (diff > 6 && diff < 10))
 		{
-			int undead_zone;
-			int dzone = DEFAULT_DZONE;
+			int range = AXIS_MAX - dzone;
+			int undead_zone = dzone + ((float)range * THRUST_ZONE);
 
-			if (optDirJoy[player] == 1 || optDirJoy[player] == 2)
-				dzone = DeadZoneLeftStick[player];
-			if (optDirJoy[player] == 3 || optDirJoy[player] == 4)
-				dzone = DeadZoneRightStick[player];
-
-			undead_zone = ((float)(MAX_DEADZONE - dzone) * 0.65) + dzone;
-
-			if (dzone >= (MAX_DEADZONE * 0.35))
-				undead_zone = 0;
-
-			if (abs (axisX) > undead_zone || abs (axisY) > undead_zone)
+			if (magnitude >= (undead_zone * undead_zone))
 				InputState |= BATTLE_THRUST;
 		}
 	}

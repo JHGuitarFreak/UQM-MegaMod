@@ -102,6 +102,7 @@ void VControl_ProcessJoyButtonUp (int port, int button);
 void VControl_ProcessJoyAxis (int port, int axis, int value);
 int VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis);
 SDL_JoystickID VControl_GetControllerAssignment (int player);
+int VControl_GetJoyAxes (int port, int stick, int *axis_x, int *axis_y);
 
 void VControl_ProcessMouseButtonDown (int button);
 void VControl_ProcessMouseButtonUp (int button);

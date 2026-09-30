@@ -74,6 +74,7 @@ typedef struct _widget_menu_screen {
 	struct _widget **child;
 	int highlighted;
 	RECT *widget_rects;
+	int index;
 } WIDGET_MENU_SCREEN;
 
 typedef struct {
@@ -137,6 +138,7 @@ typedef struct _widget_slider {
 	const char *tooltip[3];
 	void (*onChange)(struct _widget_slider *self);
 	RECT hover_rect;
+	int index;
 } WIDGET_SLIDER;
 
 typedef enum {

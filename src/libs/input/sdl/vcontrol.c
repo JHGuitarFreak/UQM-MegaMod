@@ -1311,6 +1311,9 @@ VControl_HandleEvent (const SDL_Event *e)
 
 #ifdef HAVE_JOYSTICK
 		case SDL_CONTROLLERAXISMOTION:
+			if (inDeadZoneMenu)
+				break;
+
 			VControl_ProcessJoyAxis (e->caxis.which, e->caxis.axis,
 					e->caxis.value);
 			if ((e->caxis.value > 15000) || (e->caxis.value < -15000))
@@ -1749,7 +1752,6 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 		{
 			joystick *j = &current->gamepad;
 			int raw_value;
-			int threshold;
 			int logical_port = -1;
 
 			if (!j->stick || j->numaxes <= axis)
@@ -1774,11 +1776,6 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 				}
 			}
 
-			threshold = VControl_GetAxisThreshold (logical_port, axis);
-
-			if (raw_value > -threshold && raw_value < threshold)
-				return 0;
-
 			return raw_value;
 		}
 		current = current->next;
@@ -1789,6 +1786,35 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 	(void)axis;
 	return 0;
 #endif /* HAVE_JOYSTICK */
+}
+
+int
+VControl_GetJoyAxes (int port, int stick, int *axis_x, int *axis_y)
+{
+	int which_axis_x, which_axis_y;
+
+	if (port > 1 || port < 0 || stick > 1 || stick < 0 ||
+			axis_x == NULL || axis_y == NULL)
+		return -1;
+
+	switch (stick)
+	{
+	case 0:
+		which_axis_x = SDL_CONTROLLER_AXIS_LEFTX;
+		which_axis_y = SDL_CONTROLLER_AXIS_LEFTY;
+		break;
+	case 1:
+		which_axis_x = SDL_CONTROLLER_AXIS_RIGHTX;
+		which_axis_y = SDL_CONTROLLER_AXIS_RIGHTY;
+		break;
+	default:
+		return -1;
+	}
+
+	*axis_x = VControl_GetJoyAxis (port, which_axis_x);
+	*axis_y = VControl_GetJoyAxis (port, which_axis_y);
+
+	return 0;
 }
 
 SDL_JoystickID VControl_GetControllerAssignment (int player)

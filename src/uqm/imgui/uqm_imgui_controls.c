@@ -321,7 +321,7 @@ DeadzoneControlsTab (void)
 	Spacer ();
 
 	{
-		float value = (float)DeadZoneLeftStick[0] / MAX_DEADZONE * 100.0f;
+		float value = (float)DeadZoneLeftStick[0] / AXIS_MAX * 100.0f;
 
 		ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
 		if (ImGui_Button (ImMakeID (
@@ -336,7 +336,7 @@ DeadzoneControlsTab (void)
 
 		if (ImGui_SliderFloat ("##LeftStickP1", &value, 0.0, 100.0))
 		{
-			DeadZoneLeftStick[0] = (value * MAX_DEADZONE) / 100;
+			DeadZoneLeftStick[0] = (value * AXIS_MAX) / 100;
 
 			res_PutInteger ("mm.deadZoneLeftP1", DeadZoneLeftStick[0]);
 			mmcfg_changed = true;
@@ -346,7 +346,7 @@ DeadzoneControlsTab (void)
 	Spacer ();
 
 	{
-		float value = (float)DeadZoneRightStick[0] / MAX_DEADZONE * 100.0f;
+		float value = (float)DeadZoneRightStick[0] / AXIS_MAX * 100.0f;
 
 		ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
 		if (ImGui_Button (ImMakeID (
@@ -361,7 +361,7 @@ DeadzoneControlsTab (void)
 
 		if (ImGui_SliderFloat ("##RightStickP1", &value, 0.0, 100.0))
 		{
-			DeadZoneRightStick[0] = (value * MAX_DEADZONE) / 100;
+			DeadZoneRightStick[0] = (value * AXIS_MAX) / 100;
 
 			res_PutInteger ("mm.deadZoneRightP1", DeadZoneRightStick[0]);
 			mmcfg_changed = true;
@@ -375,7 +375,7 @@ DeadzoneControlsTab (void)
 	Spacer ();
 
 	{
-		float value = (float)DeadZoneLeftStick[1] / MAX_DEADZONE * 100.0f;
+		float value = (float)DeadZoneLeftStick[1] / AXIS_MAX * 100.0f;
 
 		ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
 		if (ImGui_Button (ImMakeID (
@@ -388,7 +388,7 @@ DeadzoneControlsTab (void)
 		ImGui_SameLine ();
 		if (ImGui_SliderFloat ("##LeftStickP2", &value, 0.0, 100.0))
 		{
-			DeadZoneLeftStick[1] = (value * MAX_DEADZONE) / 100;
+			DeadZoneLeftStick[1] = (value * AXIS_MAX) / 100;
 
 			res_PutInteger ("mm.deadZoneLeftP2", DeadZoneLeftStick[1]);
 			mmcfg_changed = true;
@@ -398,7 +398,7 @@ DeadzoneControlsTab (void)
 	Spacer ();
 
 	{
-		float value = (float)DeadZoneRightStick[1] / MAX_DEADZONE * 100.0f;
+		float value = (float)DeadZoneRightStick[1] / AXIS_MAX * 100.0f;
 
 		ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
 		if (ImGui_Button (ImMakeID (
@@ -411,7 +411,7 @@ DeadzoneControlsTab (void)
 		ImGui_SameLine ();
 		if (ImGui_SliderFloat ("##RightStickP2", &value, 0.0, 100.0))
 		{
-			DeadZoneRightStick[1] = (value * MAX_DEADZONE) / 100;
+			DeadZoneRightStick[1] = (value * AXIS_MAX) / 100;
 
 			res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 			mmcfg_changed = true;

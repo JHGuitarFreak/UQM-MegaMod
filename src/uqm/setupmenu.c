@@ -515,6 +515,10 @@ static WIDGET *editdeadzone_widgets[] = {
 	(WIDGET *)(&sliders[SLIDER_DEADZONE_03]), // Player 2 Right Stick Deadzone
 
 	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacers for deadzone visualizer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
 	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
 	NULL };
 
@@ -2049,13 +2053,13 @@ gamma_DrawValue (WIDGET_SLIDER *self, int x, int y)
 static inline int
 deadzoneToSlider (int deadzone)
 {
-	return (deadzone * 100) / MAX_DEADZONE;
+	return (deadzone * 100) / AXIS_MAX;
 }
 
 static inline int
 sliderToDeadzone (int value)
 {
-	return (value * MAX_DEADZONE) / 100;
+	return (value * AXIS_MAX) / 100;
 }
 
 static void
@@ -2374,6 +2378,7 @@ init_widgets (void)
 		menus[i].child = menu_defs[i].widgets;
 		menus[i].highlighted = 0;
 		menus[i].widget_rects = NULL;
+		menus[i].index = i;
 	}
 	if (menu_defs[i].widgets != NULL)
 	{
@@ -2514,6 +2519,7 @@ init_widgets (void)
 		sliders[i].tooltip[1] = "";
 		sliders[i].tooltip[2] = "";
 		sliders[i].onChange = NULL;
+		sliders[i].index = i;
 	}
 	sliders[SLIDER_MUSVOLUME ].onChange = adjustMusic;
 	sliders[SLIDER_SFXVOLUME ].onChange = adjustSFX;
