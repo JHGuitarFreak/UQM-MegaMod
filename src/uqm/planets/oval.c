@@ -982,7 +982,7 @@ DrawEllipse (int cx, int cy, int rx, int ry, int shear, int filled, int dotted)
 }
 
 void
-DrawCircle (POINT pt, EXTENT ext, BOOLEAN filled, BOOLEAN dotted)
+DrawCircle (POINT pt, int radius, BOOLEAN filled, BOOLEAN dotted)
 {
-	DrawEllipse (pt.x, pt.y, ext.width, ext.height, 0, filled, dotted);
+	DrawEllipse (pt.x, pt.y, radius, radius, 0, filled, dotted);
 }

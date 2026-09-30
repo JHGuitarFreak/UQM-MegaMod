@@ -426,7 +426,7 @@ extern FRAME GetStarBackFround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
 extern void DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
 extern void DrawFilledOval (DRECT *pRect);
-extern void DrawCircle (POINT pt, EXTENT ext, BOOLEAN filled, BOOLEAN dotted);
+extern void DrawCircle (POINT pt, int radius, BOOLEAN filled, BOOLEAN dotted);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons,
 		UWORD rand_val);
 #define NUMPLANETS_PDESC ((BYTE)-2)
