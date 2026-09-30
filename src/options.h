@@ -138,7 +138,7 @@ extern int optScreenShots;
 
 #define AXIS_MAX SINT16_MAX
 #define DEFAULT_DZONE 6881
-#define THRUST_ZONE 0.80f
+#define THRUST_ZONE 0.88f
 extern int DeadZoneLeftStick[2];
 extern int DeadZoneRightStick[2];
 
