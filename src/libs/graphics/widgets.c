@@ -236,12 +236,10 @@ Widget_DrawDeadzone (int player, int stick)
 #define RADIUS RES_SCALE (30)
 #define DIAMETER (RADIUS << 1)
 #define RADIUS_2 (RADIUS * RADIUS)
-	float ratio, undead_ratio, magnitude, dx, dy, range;
-	int solved_ratio, undead_zone, undead_radius, cur_dzone;
-	EXTENT main_circle, deadzone, undeadzone;
+	float ratio, magnitude, range, axisX_ratio, axisY_ratio, dx, dy;
+	int cur_dzone, dzone_radius, undead_zone, undead_radius;
 	POINT center, analog_pt;
 	int axisX, axisY;
-	float axisX_adjusted, axisY_adjusted;
 	TEXT axis_text;
 	char buf[32];
 	SIZE leading;
@@ -255,76 +253,62 @@ Widget_DrawDeadzone (int player, int stick)
 	ratio = (float)cur_dzone / AXIS_MAX;
 
 	// Main visualizer location
-	center.x = CanvasWidth / 2;
+	center.x = CanvasWidth >> 1;
 	center.y = RES_SCALE (89) + RADIUS + NDOS_NUM (RES_SCALE (20));
-	main_circle = MAKE_EXTENT (RADIUS, RADIUS);
 
 	// Background
-	SetContextForeGroundColor (buildColorRgba (0, 0, 0, 128));
-	DrawCircle (center, main_circle, TRUE, FALSE);
+	SetContextForeGroundColor (TRANSPARENT_BLACK);
+	DrawCircle (center, RADIUS, TRUE, FALSE);
 
 	// Outer ring
 	SetContextForeGroundColor (WIDGET_DISABLED_COLOR);
-	DrawCircle (center, main_circle, FALSE, FALSE);
+	DrawCircle (center, RADIUS, FALSE, FALSE);
 
-	if (stick == LEFT_STICK)
-	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTX);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_LEFTY);
-	}
-	else
-	{
-		axisX = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTX);
-		axisY = VControl_GetJoyAxis (player, SDL_CONTROLLER_AXIS_RIGHTY);
-	}
+	if (VControl_GetJoyAxes (player, stick, &axisX, &axisY) == -1)
+		return;
 
-	magnitude = sqrtf ((float)(axisX * axisX + axisY * axisY));
+	magnitude = (float)(axisX * axisX + axisY * axisY);
 
 	// Deadzone circle
-	solved_ratio = (int)(RADIUS * ratio);
-	deadzone.width = solved_ratio;
-	deadzone.height = deadzone.width;
+	dzone_radius = (int)(RADIUS * ratio);
 
-	if (magnitude >= cur_dzone)
+	if (magnitude >= (cur_dzone * cur_dzone))
 		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 	else
 		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
 
-	DrawCircle (center, deadzone, FALSE, TRUE);
+	DrawCircle (center, dzone_radius, FALSE, TRUE);
 
 	// Auto-Thrust circle
-	range = (AXIS_MAX - cur_dzone) * (AXIS_MAX - cur_dzone);
-	undead_zone = cur_dzone + sqrtf (range * THRUST_ZONE);
-	undead_ratio = (float)undead_zone / AXIS_MAX;
-	undead_radius = RADIUS * undead_ratio;
-	undeadzone = MAKE_EXTENT (undead_radius, undead_radius);
+	range = AXIS_MAX - cur_dzone;
+	undead_zone = cur_dzone + ((float)range * THRUST_ZONE);
+	undead_radius = RADIUS * ((float)undead_zone / AXIS_MAX);
 
-	if (magnitude >= undead_zone)
+	if (magnitude >= (undead_zone * undead_zone))
 		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 	else
 		SetContextForeGroundColor (WIDGET_BONUS_COLOR);
 
-	DrawCircle (center, undeadzone, FALSE, TRUE);
+	DrawCircle (center, undead_radius, FALSE, TRUE);
 
 	// Analog position indicator
-	axisX_adjusted = (float)axisX / AXIS_MAX;
-	axisY_adjusted = (float)axisY / AXIS_MAX;
-	dx = RADIUS * axisX_adjusted;
-	dy = RADIUS * axisY_adjusted;
+	axisX_ratio = (float)axisX / AXIS_MAX;
+	axisY_ratio = (float)axisY / AXIS_MAX;
+	dx = RADIUS * axisX_ratio;
+	dy = RADIUS * axisY_ratio;
 	range = dx * dx + dy * dy;
 	if (range > (float)RADIUS_2)
 	{
-		float scale = (float)RADIUS / sqrtf (range);
-		dx *= scale;
-		dy *= scale;
+		float inv_sqrt = FastInvSqrt (range);
+		dx *= RADIUS * inv_sqrt;
+		dy *= RADIUS * inv_sqrt;
 	}
 	analog_pt.x = center.x + dx;
 	analog_pt.y = center.y + dy;
-	SetContextForeGroundColor (DULL_RED_COLOR);
 
+	SetContextForeGroundColor (DULL_RED_COLOR);
 	line.first = center;
 	line.second = analog_pt;
-
 	DrawLine (&line, 1);
 
 	SetContextForeGroundColor (BRIGHT_RED_COLOR);
@@ -365,7 +349,7 @@ Widget_DrawDeadzone (int player, int stick)
 	font_DrawText (&axis_text);
 
 	// Deadzone
-	if (magnitude >= cur_dzone)
+	if (magnitude >= (cur_dzone * cur_dzone))
 		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 	else
 		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
@@ -378,7 +362,7 @@ Widget_DrawDeadzone (int player, int stick)
 	font_DrawText (&axis_text);
 
 	// Auto-Thrust
-	if (magnitude >= undead_zone)
+	if (magnitude >= (undead_zone * undead_zone))
 		SetContextForeGroundColor (BRIGHT_GREEN_COLOR);
 	else
 		SetContextForeGroundColor (WIDGET_BONUS_COLOR);
@@ -565,24 +549,41 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 	if (self->index == MENU_DEADZONES)
 	{
+		WIDGET *c = self->child[self->highlighted];
+		int player, stick;
+		int index = -1;
+
 		if (!inDeadZoneMenu)
 			inDeadZoneMenu = TRUE;
 
-		switch (self->highlighted)
+		if (c->tag == WIDGET_TYPE_SLIDER)
+			index = ((WIDGET_SLIDER *)c)->index;
+
+		switch (index)
 		{
-		case 0:
-			Widget_DrawDeadzone (PLAYER_1, LEFT_STICK);
+		case SLIDER_DEADZONE_00:
+			player = PLAYER_1;
+			stick = LEFT_STICK;
 			break;
-		case 1:
-			Widget_DrawDeadzone (PLAYER_1, RIGHT_STICK);
+		case SLIDER_DEADZONE_01:
+			player = PLAYER_1;
+			stick = RIGHT_STICK;
 			break;
-		case 3:
-			Widget_DrawDeadzone (PLAYER_2, LEFT_STICK);
+		case SLIDER_DEADZONE_02:
+			player = PLAYER_2;
+			stick = LEFT_STICK;
 			break;
-		case 4:
-			Widget_DrawDeadzone (PLAYER_2, RIGHT_STICK);
+		case SLIDER_DEADZONE_03:
+			player = PLAYER_2;
+			stick = RIGHT_STICK;
 			break;
+		default:
+			player = -1;
+			stick = -1;
 		}
+
+		if (player != -1 && stick != -1)
+			Widget_DrawDeadzone (player, stick);
 	}
 	else if (inDeadZoneMenu)
 		inDeadZoneMenu = FALSE;
