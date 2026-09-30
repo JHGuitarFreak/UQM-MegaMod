@@ -236,8 +236,8 @@ Widget_DrawDeadzone (int player, int stick)
 #define RADIUS RES_SCALE (30)
 #define DIAMETER (RADIUS << 1)
 #define RADIUS_2 (RADIUS * RADIUS)
-	float ratio, magnitude, range, axisX_ratio, axisY_ratio, dx, dy;
-	int cur_dzone, dzone_radius, undead_zone, undead_radius;
+	float ratio, range, axisX_ratio, axisY_ratio, dx, dy;
+	int cur_dzone, magnitude, dzone_radius, undead_zone, undead_radius;
 	POINT center, analog_pt;
 	int axisX, axisY;
 	TEXT axis_text;
@@ -267,7 +267,7 @@ Widget_DrawDeadzone (int player, int stick)
 	if (VControl_GetJoyAxes (player, stick, &axisX, &axisY) == -1)
 		return;
 
-	magnitude = (float)(axisX * axisX + axisY * axisY);
+	magnitude = axisX * axisX + axisY * axisY;
 
 	// Deadzone circle
 	dzone_radius = (int)(RADIUS * ratio);
