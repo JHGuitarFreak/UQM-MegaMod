@@ -2519,6 +2519,7 @@ init_widgets (void)
 		sliders[i].tooltip[1] = "";
 		sliders[i].tooltip[2] = "";
 		sliders[i].onChange = NULL;
+		sliders[i].index = i;
 	}
 	sliders[SLIDER_MUSVOLUME ].onChange = adjustMusic;
 	sliders[SLIDER_SFXVOLUME ].onChange = adjustSFX;

@@ -138,6 +138,7 @@ typedef struct _widget_slider {
 	const char *tooltip[3];
 	void (*onChange)(struct _widget_slider *self);
 	RECT hover_rect;
+	int index;
 } WIDGET_SLIDER;
 
 typedef enum {
