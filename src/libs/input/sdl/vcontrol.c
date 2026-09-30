@@ -1788,6 +1788,35 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 #endif /* HAVE_JOYSTICK */
 }
 
+int
+VControl_GetJoyAxes (int port, int stick, int *axis_x, int *axis_y)
+{
+	int which_axis_x, which_axis_y;
+
+	if (port > 1 || port < 0 || stick > 1 || stick < 0 ||
+			axis_x == NULL || axis_y == NULL)
+		return -1;
+
+	switch (stick)
+	{
+	case 0:
+		which_axis_x = SDL_CONTROLLER_AXIS_LEFTX;
+		which_axis_y = SDL_CONTROLLER_AXIS_LEFTY;
+		break;
+	case 1:
+		which_axis_x = SDL_CONTROLLER_AXIS_RIGHTX;
+		which_axis_y = SDL_CONTROLLER_AXIS_RIGHTY;
+		break;
+	default:
+		return -1;
+	}
+
+	*axis_x = VControl_GetJoyAxis (port, which_axis_x);
+	*axis_y = VControl_GetJoyAxis (port, which_axis_y);
+
+	return 0;
+}
+
 SDL_JoystickID VControl_GetControllerAssignment (int player)
 {
 	if (player >= 0 && player < 2)
