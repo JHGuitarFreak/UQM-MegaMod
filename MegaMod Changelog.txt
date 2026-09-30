@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Legacy and Vanilla save's scan records used to fill out visited stars
 - Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 - Option to save screenshots as a PNG and/or copy them to the clipboard
+- Added a deadzone visualizer in the Deadzone Options page in the Setup Menu
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander
@@ -21,12 +22,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 ### Fixed
 - DeCleansing mod fixed when loading saves
 - Fixed vanilla UQM save scan records on load
+- Relative analog input for gamepads no longer has dead spots in the diagonals
 
 ### Dev
 - Slight optimixation in lander.c and more readable code
 - New function GetBatchCount() to check amount of GFX batches
 - Optimized lander interactions with hazards while God Mode enabled
 - Moved game state initialization fully into initprops.lua
+- Optimized deadzone and auto-thrust detection zones for relative analog input
 
 ## [v0.8.5]
 
