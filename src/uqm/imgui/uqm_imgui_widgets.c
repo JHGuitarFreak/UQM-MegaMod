@@ -628,6 +628,140 @@ ImGui_DrawFilledRect (IM_RECT *rect)
 }
 
 void
+UQM_DrawDeadzone (const char *label, int player, int stick)
+{
+#define RADIUS SCALE_IT (80.0f)
+#define DIAMETER (RADIUS * 2.0f)
+#define RADIUS_2 (RADIUS * RADIUS)
+	int cur_dzone, magnitude;
+	float ratio, range, axisX_ratio, axisY_ratio, dx, dy, dzone_radius;
+	float undead_zone, undead_radius;
+	ImDrawList *dlist;
+	ImVec2 center, min, analog_pt;
+	int axisX, axisY;
+	ImU32 color;
+
+	if (VControl_GetJoyAxes (player, stick, &axisX, &axisY) == -1)
+	{
+		ImVec4 iv4color = ColorToIV4 (BRIGHT_RED_COLOR);
+		ImGui_TextColored (iv4color, "Couldn't get joy axes: "
+				"player %d stick %d", player, stick);
+									// Couldn't get joy axes...
+		return;
+	}
+
+	// Grab the radial position of the axes
+	magnitude = axisX * axisX + axisY * axisY;
+
+	if (stick == 0)
+		cur_dzone = DeadZoneLeftStick[player];
+	else
+		cur_dzone = DeadZoneRightStick[player];
+	ratio = (float)cur_dzone / AXIS_MAX;
+
+	// Calculate the deadzone radius
+	dzone_radius = RADIUS * ratio;
+
+	// Calculate the radius of the Auto-Thrust zone
+	range = AXIS_MAX - cur_dzone;
+	undead_zone = (float)cur_dzone + (range * THRUST_ZONE);
+	undead_radius = RADIUS * (undead_zone / AXIS_MAX);
+
+	// Clamp the analog position dot/line to the inside of the diameter
+	axisX_ratio = (float)axisX / AXIS_MAX;
+	axisY_ratio = (float)axisY / AXIS_MAX;
+	dx = RADIUS * axisX_ratio;
+	dy = RADIUS * axisY_ratio;
+	range = dx * dx + dy * dy;
+	if (range > RADIUS_2)
+	{
+		float inv_sqrt = FastInvSqrt (range);
+		dx *= RADIUS * inv_sqrt;
+		dy *= RADIUS * inv_sqrt;
+	}
+
+	//if (ImGui_BeginTable ("##DeadzoneVisualizerTable", 2,
+	//		ImGuiTableFlags_SizingFixedSame))
+	//{
+	//	ImVec4 coloriv4;
+
+	//	ImGui_TableNextRow ();
+	//	ImGui_TableNextColumn ();
+
+	//	ImGui_Dummy (MAKE_IV2 (0, RADIUS / 2));
+
+	//	coloriv4 = ColorToIV4 (BRIGHT_RED_COLOR);
+	//	ImGui_TextColored (coloriv4, "X-Axis: %d", axisX); // X-Axis
+	//	ImGui_TextColored (coloriv4, "Y-Axis: %d", axisY); // Y-Axis
+
+	//	if (magnitude >= (cur_dzone * cur_dzone))
+	//		coloriv4 = ColorToIV4 (BRIGHT_GREEN_COLOR);
+	//	else
+	//		coloriv4 = ColorToIV4 (WIDGET_ACTIVE_COLOR);
+	//	ImGui_TextColored (coloriv4, "Deadzone: %d", cur_dzone);
+	//								// Deadzone
+
+	//	if (magnitude >= (undead_zone * undead_zone))
+	//		coloriv4 = ColorToIV4 (BRIGHT_GREEN_COLOR);
+	//	else
+	//		coloriv4 = ColorToIV4 (WIDGET_BONUS_COLOR);
+	//	ImGui_TextColored (coloriv4, "Auto-Thrust: %d", (int)undead_zone);
+	//								// Auto-Thrust
+
+		//ImGui_TableNextColumn ();
+
+		// Make an invisible button for positioning
+		ImGui_InvisibleButton (label, MAKE_IV2 (DIAMETER, DIAMETER), 0);
+
+		dlist = ImGui_GetWindowDrawList ();
+		min = ImGui_GetItemRectMin ();
+
+		// Get the center of the invisible button using the radius
+		center.x = min.x + RADIUS;
+		center.y = min.y + RADIUS;
+
+		// Set the analog positioning dot location
+		analog_pt.x = center.x + dx;
+		analog_pt.y = center.y + dy;
+
+		// Outer circle
+		color = ColorToU32 (TRANSPARENT_BLACK);
+		ImDrawList_AddCircleFilled (dlist, center, RADIUS, color, 0);
+
+		// Background
+		color = ColorToU32 (WIDGET_DISABLED_COLOR);
+		ImDrawList_AddCircleEx (dlist, center, RADIUS, color, 0,
+				SCALE_IT (2.0f));
+
+		// Deadzone circle
+		if (magnitude >= (cur_dzone * cur_dzone))
+			color = ColorToU32 (BRIGHT_GREEN_COLOR);
+		else
+			color = ColorToU32 (WIDGET_ACTIVE_COLOR);
+		ImDrawList_AddCircleEx (dlist, center, dzone_radius, color, 0,
+				SCALE_IT (1.0f));
+
+		// Auto-Thrust circle
+		if (magnitude >= (undead_zone * undead_zone))
+			color = ColorToU32 (BRIGHT_GREEN_COLOR);
+		else
+			color = ColorToU32 (WIDGET_BONUS_COLOR);
+		ImDrawList_AddCircleEx (dlist, center, undead_radius, color, 0,
+				SCALE_IT (1.0f));
+
+		// Analog position indicator
+		color = ColorToU32 (DULL_RED_COLOR);
+		ImDrawList_AddLineEx (dlist, center, analog_pt, color,
+				SCALE_IT (1.0f));
+		color = ColorToU32 (BRIGHT_RED_COLOR);
+		ImDrawList_AddCircleFilled (dlist, analog_pt,
+				SCALE_IT (2.0f), color, 0);
+
+		//ImGui_EndTable ();
+	//}
+}
+
+void
 UQM_AutoChild (const char *str_id)
 {
 	ImGui_BeginChild (str_id, ZERO_F,

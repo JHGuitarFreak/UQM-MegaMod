@@ -323,7 +323,7 @@ DeadzoneControlsTab (void)
 	{
 		float value = (float)DeadZoneLeftStick[0] / AXIS_MAX * 100.0f;
 
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
+		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
 		if (ImGui_Button (ImMakeID (
 				ImStr (GEN_SETT_STR_BASE + 5), "LSP1"))) // Reset##LSP1
 		{
@@ -348,7 +348,7 @@ DeadzoneControlsTab (void)
 	{
 		float value = (float)DeadZoneRightStick[0] / AXIS_MAX * 100.0f;
 
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
+		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
 		if (ImGui_Button (ImMakeID (
 				ImStr (GEN_SETT_STR_BASE + 5), "RSP1"))) // Reset##LSP2
 		{
@@ -368,7 +368,25 @@ DeadzoneControlsTab (void)
 		}
 	}
 
-	ImGui_NewLine ();
+	Spacer ();
+
+	if (ImGui_BeginTable ("##DeadzoneTableP1", 2,
+			ImGuiTableFlags_SizingFixedSame))
+	{
+		ImGui_TableNextRow ();
+		ImGui_TableNextColumn ();
+
+		UQM_DrawDeadzone ("##DZLSP1", 0, 0);
+
+		ImGui_TableNextColumn ();
+
+		ImGui_Dummy (MAKE_IV2 (0.0f, style->ItemSpacing.x));
+		ImGui_SameLine ();
+
+		UQM_DrawDeadzone ("##DZRSP1", 0, 1);
+
+		ImGui_EndTable ();
+	}
 
 	ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 2); // - Player 2 -
 
@@ -377,7 +395,7 @@ DeadzoneControlsTab (void)
 	{
 		float value = (float)DeadZoneLeftStick[1] / AXIS_MAX * 100.0f;
 
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
+		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 28)); // Left Stick
 		if (ImGui_Button (ImMakeID (
 				ImStr (GEN_SETT_STR_BASE + 5), "LSP2"))) // Reset##LSP1
 		{
@@ -400,7 +418,7 @@ DeadzoneControlsTab (void)
 	{
 		float value = (float)DeadZoneRightStick[1] / AXIS_MAX * 100.0f;
 
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
+		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 29)); // Right Stick
 		if (ImGui_Button (ImMakeID (
 				ImStr (GEN_SETT_STR_BASE + 5), "RSP2"))) // Reset##RSP2
 		{
@@ -416,6 +434,26 @@ DeadzoneControlsTab (void)
 			res_PutInteger ("mm.deadZoneRightP2", DeadZoneRightStick[1]);
 			mmcfg_changed = true;
 		}
+	}
+
+	Spacer ();
+
+	if (ImGui_BeginTable ("##DeadzoneTableP2", 2,
+			ImGuiTableFlags_SizingFixedSame))
+	{
+		ImGui_TableNextRow ();
+		ImGui_TableNextColumn ();
+
+		UQM_DrawDeadzone ("##DZLSP2", 1, 0);
+
+		ImGui_TableNextColumn ();
+
+		ImGui_Dummy (MAKE_IV2 (0.0f, style->ItemSpacing.x));
+		ImGui_SameLine ();
+
+		UQM_DrawDeadzone ("##DZRSP2", 1, 1);
+
+		ImGui_EndTable ();
 	}
 
 	ImGui_EndTabItem (); // Deadzones
@@ -488,7 +526,7 @@ ShowFlightRebindPopup (void)
 	{
 		ImGui_TextColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (GEN_CON_STR_BASE + 23)); // Waiting for input...
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 24));
+		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 24));
 				// Press any key, button, or move an axis
 	}
 	else if (RSPtr->has_error)
@@ -770,7 +808,7 @@ ShowMenuRebindPopup (void)
 	{
 		ImGui_TextColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (GEN_CON_STR_BASE + 23)); // Waiting for input...
-		ImGui_Text (ImStr (GEN_CON_STR_BASE + 24));
+		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 24));
 	}			// Press any key, button, or move an axis
 	else if (RSPtr->has_error)
 	{

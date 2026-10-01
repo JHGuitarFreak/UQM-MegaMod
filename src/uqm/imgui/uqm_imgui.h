@@ -305,6 +305,8 @@ typedef struct im_rect
 } IM_RECT;
 void ImGui_DrawFilledRect (IM_RECT *rect);
 
+void UQM_DrawDeadzone (const char *label, int player, int stick);
+
 void UQM_AutoChild (const char *str_id);
 
 void UQM_GameStateCheckBox (const char *gs_name);
