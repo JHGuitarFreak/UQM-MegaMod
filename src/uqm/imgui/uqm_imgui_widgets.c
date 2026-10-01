@@ -724,11 +724,11 @@ UQM_DrawDeadzone (const char *label, int player, int stick)
 		analog_pt.x = center.x + dx;
 		analog_pt.y = center.y + dy;
 
-		// Outer circle
+		// Background
 		color = ColorToU32 (TRANSPARENT_BLACK);
 		ImDrawList_AddCircleFilled (dlist, center, RADIUS, color, 0);
 
-		// Background
+		// Outer circle
 		color = ColorToU32 (WIDGET_DISABLED_COLOR);
 		ImDrawList_AddCircleEx (dlist, center, RADIUS, color, 0,
 				SCALE_IT (2.0f));
