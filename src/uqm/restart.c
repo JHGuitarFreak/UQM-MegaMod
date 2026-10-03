@@ -340,7 +340,7 @@ DoDiffChooser (MENU_STATE *pMS)
 #endif
 		}
 
-		SleepThread (ONE_SECOND / 30);
+		SleepThread (ONE_SECOND / 60);
 	}
 
 	if (response)
@@ -735,7 +735,7 @@ DoRestart (MENU_STATE *pMS)
 		}
 #endif
 	}
-	SleepThreadUntil (TimeIn + ONE_SECOND / 30);
+	SleepThreadUntil (TimeIn + ONE_SECOND / 60);
 
 	if (!MusicInitialized && optMainMenuMusic)
 	{
