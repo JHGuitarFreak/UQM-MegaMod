@@ -401,4 +401,7 @@ ReloadGameContent (void)
 		TaskSwitch ();
 		InitGameKernel ();
 	}
+
+	if (optRequiresReload)
+		optRequiresReload = FALSE;
 }

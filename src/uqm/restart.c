@@ -855,9 +855,6 @@ RestartMenu (MENU_STATE *pMS)
 		TextCache[i] = 0;
 	}
 
-	if (optRequiresReload)
-		Reload ();
-
 	if (GLOBAL (CurrentActivity) == (ACTIVITY)~0)
 		return (FALSE); // timed out
 
