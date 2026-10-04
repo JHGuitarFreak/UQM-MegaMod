@@ -640,6 +640,7 @@ UQM_DrawDeadzone (const char *label, int player, int stick)
 	ImVec2 center, min, analog_pt;
 	int axisX, axisY;
 	ImU32 color;
+	ImVec4 coloriv4;
 
 	if (VControl_GetJoyAxes (player, stick, &axisX, &axisY) == -1)
 	{
@@ -680,85 +681,84 @@ UQM_DrawDeadzone (const char *label, int player, int stick)
 		dy *= RADIUS * inv_sqrt;
 	}
 
-	//if (ImGui_BeginTable ("##DeadzoneVisualizerTable", 2,
-	//		ImGuiTableFlags_SizingFixedSame))
-	//{
-	//	ImVec4 coloriv4;
+	ImGui_Dummy (MAKE_IV2 (style->ItemSpacing.x, 0));
 
-	//	ImGui_TableNextRow ();
-	//	ImGui_TableNextColumn ();
+	ImGui_SameLine ();
 
-	//	ImGui_Dummy (MAKE_IV2 (0, RADIUS / 2));
+	ImGui_BeginGroup ();
 
-	//	coloriv4 = ColorToIV4 (BRIGHT_RED_COLOR);
-	//	ImGui_TextColored (coloriv4, "X-Axis: %d", axisX); // X-Axis
-	//	ImGui_TextColored (coloriv4, "Y-Axis: %d", axisY); // Y-Axis
+	ImGui_Dummy (MAKE_IV2 (0, (RADIUS / 2) - ImGui_CalcTextSize ("BALLS").y));
 
-	//	if (magnitude >= (cur_dzone * cur_dzone))
-	//		coloriv4 = ColorToIV4 (BRIGHT_GREEN_COLOR);
-	//	else
-	//		coloriv4 = ColorToIV4 (WIDGET_ACTIVE_COLOR);
-	//	ImGui_TextColored (coloriv4, "Deadzone: %d", cur_dzone);
-	//								// Deadzone
+	ImGui_Text ("Player %d -- Axis %d", player + 1, stick + 1);
 
-	//	if (magnitude >= (undead_zone * undead_zone))
-	//		coloriv4 = ColorToIV4 (BRIGHT_GREEN_COLOR);
-	//	else
-	//		coloriv4 = ColorToIV4 (WIDGET_BONUS_COLOR);
-	//	ImGui_TextColored (coloriv4, "Auto-Thrust: %d", (int)undead_zone);
-	//								// Auto-Thrust
+	coloriv4 = ColorToIV4 (BRIGHT_RED_COLOR);
+	ImGui_TextColored (coloriv4, "X-Axis: %d", axisX); // X-Axis
+	ImGui_TextColored (coloriv4, "Y-Axis: %d", axisY); // Y-Axis
 
-		//ImGui_TableNextColumn ();
+	if (magnitude >= (cur_dzone * cur_dzone))
+		coloriv4 = ColorToIV4 (BRIGHT_GREEN_COLOR);
+	else
+		coloriv4 = ColorToIV4 (WIDGET_ACTIVE_COLOR);
+	ImGui_TextColored (coloriv4, "Deadzone: %d", cur_dzone);
+								// Deadzone
 
-		// Make an invisible button for positioning
-		ImGui_InvisibleButton (label, MAKE_IV2 (DIAMETER, DIAMETER), 0);
+	if (magnitude >= (undead_zone * undead_zone))
+		coloriv4 = ColorToIV4 (BRIGHT_GREEN_COLOR);
+	else
+		coloriv4 = ColorToIV4 (WIDGET_BONUS_COLOR);
+	ImGui_TextColored (coloriv4, "Auto-Thrust: %d", (int)undead_zone);
+								// Auto-Thrust
 
-		dlist = ImGui_GetWindowDrawList ();
-		min = ImGui_GetItemRectMin ();
+	ImGui_EndGroup ();
 
-		// Get the center of the invisible button using the radius
-		center.x = min.x + RADIUS;
-		center.y = min.y + RADIUS;
+	ImGui_SameLine ();
 
-		// Set the analog positioning dot location
-		analog_pt.x = center.x + dx;
-		analog_pt.y = center.y + dy;
+	// Make an invisible button for positioning
+	ImGui_InvisibleButton (label, MAKE_IV2 (DIAMETER, DIAMETER), 0);
 
-		// Background
-		color = ColorToU32 (TRANSPARENT_BLACK);
-		ImDrawList_AddCircleFilled (dlist, center, RADIUS, color, 0);
+	dlist = ImGui_GetWindowDrawList ();
+	min = ImGui_GetItemRectMin ();
 
-		// Outer circle
-		color = ColorToU32 (WIDGET_DISABLED_COLOR);
-		ImDrawList_AddCircleEx (dlist, center, RADIUS, color, 0,
-				SCALE_IT (2.0f));
+	// Get the center of the invisible button using the radius
+	center.x = min.x + RADIUS;
+	center.y = min.y + RADIUS;
 
-		// Deadzone circle
-		if (magnitude >= (cur_dzone * cur_dzone))
-			color = ColorToU32 (BRIGHT_GREEN_COLOR);
-		else
-			color = ColorToU32 (WIDGET_ACTIVE_COLOR);
-		ImDrawList_AddCircleEx (dlist, center, dzone_radius, color, 0,
-				SCALE_IT (1.0f));
+	// Set the analog positioning dot location
+	analog_pt.x = center.x + dx;
+	analog_pt.y = center.y + dy;
 
-		// Auto-Thrust circle
-		if (magnitude >= (undead_zone * undead_zone))
-			color = ColorToU32 (BRIGHT_GREEN_COLOR);
-		else
-			color = ColorToU32 (WIDGET_BONUS_COLOR);
-		ImDrawList_AddCircleEx (dlist, center, undead_radius, color, 0,
-				SCALE_IT (1.0f));
+	// Background
+	color = ColorToU32 (TRANSPARENT_BLACK);
+	ImDrawList_AddCircleFilled (dlist, center, RADIUS, color, 0);
 
-		// Analog position indicator
-		color = ColorToU32 (DULL_RED_COLOR);
-		ImDrawList_AddLineEx (dlist, center, analog_pt, color,
-				SCALE_IT (1.0f));
-		color = ColorToU32 (BRIGHT_RED_COLOR);
-		ImDrawList_AddCircleFilled (dlist, analog_pt,
-				SCALE_IT (2.0f), color, 0);
+	// Outer circle
+	color = ColorToU32 (WIDGET_DISABLED_COLOR);
+	ImDrawList_AddCircleEx (dlist, center, RADIUS, color, 0,
+			SCALE_IT (2.0f));
 
-		//ImGui_EndTable ();
-	//}
+	// Deadzone circle
+	if (magnitude >= (cur_dzone * cur_dzone))
+		color = ColorToU32 (BRIGHT_GREEN_COLOR);
+	else
+		color = ColorToU32 (WIDGET_ACTIVE_COLOR);
+	ImDrawList_AddCircleEx (dlist, center, dzone_radius, color, 0,
+			SCALE_IT (1.0f));
+
+	// Auto-Thrust circle
+	if (magnitude >= (undead_zone * undead_zone))
+		color = ColorToU32 (BRIGHT_GREEN_COLOR);
+	else
+		color = ColorToU32 (WIDGET_BONUS_COLOR);
+	ImDrawList_AddCircleEx (dlist, center, undead_radius, color, 0,
+			SCALE_IT (1.0f));
+
+	// Analog position indicator
+	color = ColorToU32 (DULL_RED_COLOR);
+	ImDrawList_AddLineEx (dlist, center, analog_pt, color,
+			SCALE_IT (1.0f));
+	color = ColorToU32 (BRIGHT_RED_COLOR);
+	ImDrawList_AddCircleFilled (dlist, analog_pt,
+			SCALE_IT (2.0f), color, 0);
 }
 
 void

@@ -316,6 +316,8 @@ DeadzoneControlsTab (void)
 
 	ImGui_NewLine ();
 
+	ImGui_BeginGroup ();
+
 	ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 1); // - Player 1 -
 
 	Spacer ();
@@ -368,25 +370,15 @@ DeadzoneControlsTab (void)
 		}
 	}
 
+	ImGui_EndGroup ();
+
 	Spacer ();
 
-	if (ImGui_BeginTable ("##DeadzoneTableP1", 2,
-			ImGuiTableFlags_SizingFixedSame))
-	{
-		ImGui_TableNextRow ();
-		ImGui_TableNextColumn ();
+	UQM_DrawDeadzone ("##DZLSP1", 0, 0);
+	ImGui_SameLine ();
+	UQM_DrawDeadzone ("##DZRSP1", 0, 1);
 
-		UQM_DrawDeadzone ("##DZLSP1", 0, 0);
-
-		ImGui_TableNextColumn ();
-
-		ImGui_Dummy (MAKE_IV2 (0.0f, style->ItemSpacing.x));
-		ImGui_SameLine ();
-
-		UQM_DrawDeadzone ("##DZRSP1", 0, 1);
-
-		ImGui_EndTable ();
-	}
+	ImGui_BeginGroup ();
 
 	ImGui_Text (ImStr (GEN_CON_STR_BASE + 27), 2); // - Player 2 -
 
@@ -436,25 +428,13 @@ DeadzoneControlsTab (void)
 		}
 	}
 
+	ImGui_EndGroup ();
+
 	Spacer ();
 
-	if (ImGui_BeginTable ("##DeadzoneTableP2", 2,
-			ImGuiTableFlags_SizingFixedSame))
-	{
-		ImGui_TableNextRow ();
-		ImGui_TableNextColumn ();
-
-		UQM_DrawDeadzone ("##DZLSP2", 1, 0);
-
-		ImGui_TableNextColumn ();
-
-		ImGui_Dummy (MAKE_IV2 (0.0f, style->ItemSpacing.x));
-		ImGui_SameLine ();
-
-		UQM_DrawDeadzone ("##DZRSP2", 1, 1);
-
-		ImGui_EndTable ();
-	}
+	UQM_DrawDeadzone ("##DZLSP2", 1, 0);
+	ImGui_SameLine ();
+	UQM_DrawDeadzone ("##DZRSP2", 1, 1);
 
 	ImGui_EndTabItem (); // Deadzones
 }
