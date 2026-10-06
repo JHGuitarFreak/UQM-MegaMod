@@ -486,16 +486,16 @@ dukv_RenderFrame (THIS_PTR)
 
 			dst = (uint16 *)This->callbacks.GetCanvasLine (This, cnvs_y);
 
-			frame_x = (cnvs_y * frame_h) / cnvs_h;
-			src_row = decbuf + ((frame_x >> 1) * frame_w);
-			bottom_half = (int)(frame_x & 1);
+			frame_y = (cnvs_y * frame_h) / cnvs_h;
+			src_row = decbuf + ((frame_y >> 1) * frame_w);
+			bottom_half = (int)(frame_y & 1);
 
 			for (cnvs_x = 0; cnvs_x < cnvs_w; ++cnvs_x)
 			{
 				uint32 pair;
 
-				frame_y = (cnvs_x * frame_w) / cnvs_w;
-				pair = src_row[frame_y];
+				frame_x = (cnvs_x * frame_w) / cnvs_w;
+				pair = src_row[frame_x];
 
 				if (bottom_half)
 					dst[cnvs_x] = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
@@ -515,16 +515,16 @@ dukv_RenderFrame (THIS_PTR)
 
 			dst = (uint8 *)This->callbacks.GetCanvasLine (This, cnvs_y);
 
-			frame_x = (cnvs_y * frame_h) / cnvs_h;
-			src_row = decbuf + ((frame_x >> 1) * frame_w);
-			bottom_half = (int)(frame_x & 1);
+			frame_y = (cnvs_y * frame_h) / cnvs_h;
+			src_row = decbuf + ((frame_y >> 1) * frame_w);
+			bottom_half = (int)(frame_y & 1);
 
 			for (cnvs_x = 0; cnvs_x < cnvs_w; ++cnvs_x)
 			{
 				uint32 pair;
 
-				frame_y = (cnvs_x * frame_w) / cnvs_w;
-				pair = src_row[frame_y];
+				frame_x = (cnvs_x * frame_w) / cnvs_w;
+				pair = src_row[frame_x];
 
 				if (bottom_half)
 					*(uint32 *)dst[cnvs_x] =
@@ -547,16 +547,16 @@ dukv_RenderFrame (THIS_PTR)
 
 			dst = (uint32 *)This->callbacks.GetCanvasLine (This, cnvs_y);
 
-			frame_x = (cnvs_y * frame_h) / cnvs_h;
-			src_row = decbuf + ((frame_x >> 1) * frame_w);
-			bottom_half = (int)(frame_x & 1);
+			frame_y = (cnvs_y * frame_h) / cnvs_h;
+			src_row = decbuf + ((frame_y >> 1) * frame_w);
+			bottom_half = (int)(frame_y & 1);
 
 			for (cnvs_x = 0; cnvs_x < cnvs_w; ++cnvs_x)
 			{
 				uint32 pair;
 
-				frame_y = (cnvs_x * frame_w) / cnvs_w;
-				pair = src_row[frame_y];
+				frame_x = (cnvs_x * frame_w) / cnvs_w;
+				pair = src_row[frame_x];
 
 				if (bottom_half)
 					dst[cnvs_x] = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
