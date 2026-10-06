@@ -80,7 +80,7 @@ void draw_adv_menu (void)
 	// Risky Click
 	if (!IN_MAIN_MENU)
 	{
-		ImGui_Text (ImStr (GEN_ADV_STR_BASE + 3)); // Enable Risky Options
+		ImGui_TextUnformatted (ImStr (GEN_ADV_STR_BASE + 3)); // Enable Risky Options
 		ImGui_Checkbox ("##RiskyOptions", &risky_options);
 		ImGui_TextWrappedColored (ColorToIV4 (BRIGHT_RED_COLOR),
 				ImStr (TIP_WARN_STR_BASE + 5)); // Risky Warning
@@ -179,7 +179,7 @@ void draw_adv_menu (void)
 	{	// Custom Seed
 		int custom_seed = optCustomSeed;
 
-		ImGui_Text (ImStr (GEN_ADV_STR_BASE + 13));
+		ImGui_TextUnformatted (ImStr (GEN_ADV_STR_BASE + 13));
 		ImGui_InputInt ("##CustomSeed", &custom_seed);
 		if (ImGui_IsItemDeactivatedAfterEdit ()
 				&& SANE_SEED (custom_seed))

@@ -362,6 +362,8 @@ renderpixel_overlay (SDL_Surface *surface, int x, int y, Uint32 pixel,
 	g = alpha_blend (sg, overlay_blend (sg, g), factor);
 	b = alpha_blend (sb, overlay_blend (sb, b), factor);
 	*p = PACK_PIXEL_RGB (fmt, r, g, b);
+
+	(void)a; /* satisfy compiler (unused parameter) */
 }
 
 static void

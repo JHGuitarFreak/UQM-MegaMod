@@ -896,9 +896,9 @@ DrawRaceStrings (BYTE NewRaceItem)
 		HFLEETINFO hStarShip;
 		FLEET_INFO *FleetPtr;
 		UNICODE buf[30];
-		COUNT shipCost, shipPoints, shipCrew, maxCrew;
+		COUNT shipCost, shipPoints, shipCrew = 0, maxCrew = 0;
 		RECT r;
-		STRING captain;
+		STRING captain = NULL;
 
 		ManipulateShips (NewRaceItem);
 
@@ -940,8 +940,8 @@ DrawRaceStrings (BYTE NewRaceItem)
 				t.align = ALIGN_CENTER;
 				t.pStr = (UNICODE *)GetStringAddress (captain);
 				t.CharCount = GetStringLength (captain);
-				font_DrawShadowedText (&t, WEST_SHADOW, CAPTAIN_NAME_TEXT_COLOR,
-						SHP_SHADOW_COLOR);
+				font_DrawShadowedText (&t, WEST_SHADOW,
+						CAPTAIN_NAME_TEXT_COLOR, SHP_SHADOW_COLOR);
 			}
 			else
 			{

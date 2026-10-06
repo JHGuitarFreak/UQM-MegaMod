@@ -98,7 +98,7 @@ draw_settings_menu (void)
 	Spacer ();
 
 	// UI Scale
-	ImGui_Text (ImStr (GEN_SETT_STR_BASE + 4));
+	ImGui_TextUnformatted (ImStr (GEN_SETT_STR_BASE + 4));
 
 	if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // Reset
 			"FontScaleMain")))
@@ -412,7 +412,7 @@ UQM_ImGui_Tabs (TabState *state)
 
 		ImGui_BeginStyledChild ("##ExitModal", ZERO_F, CARD_FLAGS, 0, NULL);
 
-		ImGui_Text (ImStr (NAV_TAB_STR_BASE + 8)); // Are you sure...
+		ImGui_TextUnformatted (ImStr (NAV_TAB_STR_BASE + 8)); // Are you sure...
 		ImGui_NewLine ();
 		ImGui_Separator ();
 		Spacer ();
@@ -466,7 +466,7 @@ UQM_ImGui_Tabs (TabState *state)
 
 		if (subtab_names[active_tab] == NULL)
 		{
-			ImGui_Text (ImStr (NAV_TAB_STR_BASE + 5));
+			ImGui_TextUnformatted (ImStr (NAV_TAB_STR_BASE + 5));
 			ImGui_EndChild ();
 			return;
 		}
@@ -549,7 +549,7 @@ UQM_ImGui_Tabs (TabState *state)
 	case 2:
 		if (IN_MAIN_MENU)
 		{
-			ImGui_Text (no_main_menu);
+			ImGui_TextUnformatted (no_main_menu);
 			break;
 		}
 		else
@@ -566,7 +566,7 @@ UQM_ImGui_Tabs (TabState *state)
 	case 3:
 		if (IN_MAIN_MENU)
 		{
-			ImGui_Text (no_main_menu);
+			ImGui_TextUnformatted (no_main_menu);
 			break;
 		}
 		else

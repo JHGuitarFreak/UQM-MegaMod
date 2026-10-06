@@ -99,7 +99,7 @@ void draw_cheats_menu (void)
 	ImGui_SeparatorText (ImStr (ENH_CHT_STR_BASE + 15));
 
 	// Lander Capacity
-	ImGui_Text (ImStr (ENH_CHT_STR_BASE + 16));
+	ImGui_TextUnformatted (ImStr (ENH_CHT_STR_BASE + 16));
 
 	ImGui_Checkbox ("##ChangeLanderCapacity", &changeLanderCapacity);
 

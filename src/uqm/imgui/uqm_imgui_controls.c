@@ -450,7 +450,6 @@ DeadzoneControlsTab (void)
 static void
 ShowFlightRebindPopup (void)
 {
-	char popup_title[128];
 	char keybuf[40], valbuf[40];
 	REBIND_STATE *RSPtr = &rebind_state;
 
@@ -471,7 +470,7 @@ ShowFlightRebindPopup (void)
 
 	if (RSPtr->template_id < 0 || RSPtr->template_id > 5)
 	{
-		ImGui_TextColored (ColorToIV4 (BRIGHT_RED_COLOR),
+		ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_RED_COLOR),
 				ImStr (GEN_CON_STR_BASE + 20));
 
 		if (ImGui_Button (ImStr (GEN_CON_STR_BASE + 17))) // Cancel
@@ -486,12 +485,9 @@ ShowFlightRebindPopup (void)
 		return;
 	}
 
-	snprintf (popup_title, sizeof (popup_title),
-			ImStr (GEN_CON_STR_BASE + 21), // Action: %s | Binding %d of %d
+	ImGui_Text (ImStr (GEN_CON_STR_BASE + 21), // Action: %s | Binding %d of %d
 			pretty_flight_actions[RSPtr->action], RSPtr->binding + 1,
 			MAX_FLIGHT_ALTERNATES);
-
-	ImGui_Text ("%s", popup_title);
 
 	Spacer ();
 
@@ -501,7 +497,7 @@ ShowFlightRebindPopup (void)
 
 	if (RSPtr->has_error && RSPtr->error_message[0] != '\0')
 	{
-		ImGui_TextColored (DangerGradient (),
+		ImGui_TextColoredUnformatted (DangerGradient (),
 				ImStr (GEN_CON_STR_BASE + 22)); // Illegal bind detected!
 		ImGui_NewLine ();
 
@@ -512,14 +508,14 @@ ShowFlightRebindPopup (void)
 
 	if (RSPtr->new_g.type == VCONTROL_NONE && !RSPtr->has_error)
 	{
-		ImGui_TextColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
+		ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (GEN_CON_STR_BASE + 23)); // Waiting for input...
 		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 24));
 				// Press any key, button, or move an axis
 	}
 	else if (RSPtr->has_error)
 	{
-		ImGui_TextColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
+		ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (GEN_CON_STR_BASE + 25));
 	}				// Please choose a different key, button, or axis...
 
@@ -744,7 +740,6 @@ static void
 ShowMenuRebindPopup (void)
 {
 	VCONTROL_GESTURE new_g;
-	char popup_title[128];
 	REBIND_STATE *RSPtr = &rebind_state;
 
 	if (!RSPtr->active)
@@ -762,12 +757,9 @@ ShowMenuRebindPopup (void)
 		return;
 	}
 
-	snprintf (popup_title, sizeof (popup_title),
-			ImStr (GEN_CON_STR_BASE + 21), // Action: %s | Binding %d of %d
+	ImGui_Text (ImStr (GEN_CON_STR_BASE + 21), // Action: %s | Binding %d of %d
 			pretty_menu_actions[RSPtr->action], RSPtr->binding + 1,
 			MAX_MENU_ALTERNATES);
-
-	ImGui_Text ("%s", popup_title);
 
 	Spacer ();
 
@@ -777,7 +769,7 @@ ShowMenuRebindPopup (void)
 
 	if (RSPtr->has_error && RSPtr->error_message[0] != '\0')
 	{
-		ImGui_TextColored (DangerGradient (),
+		ImGui_TextColoredUnformatted (DangerGradient (),
 				ImStr (GEN_CON_STR_BASE + 22)); // Illegal bind detected!
 		ImGui_NewLine ();
 
@@ -794,13 +786,13 @@ ShowMenuRebindPopup (void)
 
 	if (RSPtr->new_g.type == VCONTROL_NONE && !RSPtr->has_error)
 	{
-		ImGui_TextColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
+		ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (GEN_CON_STR_BASE + 23)); // Waiting for input...
 		ImGui_TextUnformatted (ImStr (GEN_CON_STR_BASE + 24));
 	}			// Press any key, button, or move an axis
 	else if (RSPtr->has_error)
 	{
-		ImGui_TextColored (ColorToIV4 (BRIGHT_YELLOW_COLOR),
+		ImGui_TextColoredUnformatted (ColorToIV4 (BRIGHT_YELLOW_COLOR),
 				ImStr (GEN_CON_STR_BASE + 25));
 	}				// Please choose a different key, button, or axis...
 

@@ -283,8 +283,8 @@ GamestatesTab00 (void)
 			}
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 12));
-								// PKUNK_MISSION Tooltip
+				ImGui_SetTooltipUnformatted (ImStr (TIP_WARN_STR_BASE + 12));
+											// PKUNK_MISSION Tooltip
 			}
 		}
 
@@ -325,8 +325,8 @@ GamestatesTab00 (void)
 			}
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 13));
-								// THRADD_MISSION Tooltip
+				ImGui_SetTooltipUnformatted (ImStr (TIP_WARN_STR_BASE + 13));
+											// THRADD_MISSION Tooltip
 			}
 		}
 
@@ -348,8 +348,8 @@ GamestatesTab00 (void)
 			}
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 14));
-								// ZOQFOT_DISTRESS Tooltip
+				ImGui_SetTooltipUnformatted (ImStr (TIP_WARN_STR_BASE + 14));
+											// ZOQFOT_DISTRESS Tooltip
 			}
 		}
 
@@ -524,8 +524,8 @@ GamestatesTab01 (void)
 			ImGui_EndGroup ();
 			if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 			{
-				ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 15));
-								// ZOQFOT_DISTRESS Tooltip
+				ImGui_SetTooltipUnformatted (ImStr (TIP_WARN_STR_BASE + 15));
+											// ZOQFOT_DISTRESS Tooltip
 			}
 			if (ImGui_Checkbox ("##BAD_REASON_1", &bad_reason_1))
 			{

@@ -42,7 +42,7 @@ void draw_audio_menu (void)
 	{	// Music Volume
 		int volume = musicVolumeScale * 100;
 
-		ImGui_Text (ImStr (GEN_AUD_STR_BASE + 5)); // Music Volume
+		ImGui_TextUnformatted (ImStr (GEN_AUD_STR_BASE + 5)); // Music Volume
 		if (ImGui_SliderInt ("##MusicVolume", &volume, 0, 100))
 		{
 			musicVolumeScale = volume / 100.0f;
@@ -56,7 +56,7 @@ void draw_audio_menu (void)
 	{	// SFX Volume
 		int volume = sfxVolumeScale * 100;
 
-		ImGui_Text (ImStr (GEN_AUD_STR_BASE + 6)); // SFX Volume
+		ImGui_TextUnformatted (ImStr (GEN_AUD_STR_BASE + 6)); // SFX Volume
 		if (ImGui_SliderInt ("##SFXVolume", &volume, 0, 100))
 		{
 			sfxVolumeScale = volume / 100.0f;
@@ -70,7 +70,7 @@ void draw_audio_menu (void)
 	{	// Speech Volume
 		int volume = speechVolumeScale * 100;
 
-		ImGui_Text (ImStr (GEN_AUD_STR_BASE + 7)); // Speech Volume
+		ImGui_TextUnformatted (ImStr (GEN_AUD_STR_BASE + 7)); // Speech Volume
 		if (ImGui_SliderInt ("##SpeechVolume", &volume, 0, 100))
 		{
 			speechVolumeScale = volume / 100.0f;

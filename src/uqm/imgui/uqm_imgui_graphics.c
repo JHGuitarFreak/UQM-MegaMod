@@ -102,7 +102,7 @@ void draw_graphics_menu (void)
 		{	// Custom Resolution
 			int cust_res[2] = { SavedWidth, SavedHeight };
 
-			ImGui_Text (ImStr (GEN_GFX_STR_BASE + 7)); // Custom Resolution
+			ImGui_TextUnformatted (ImStr (GEN_GFX_STR_BASE + 7)); // Custom Resolution
 			ImGui_InputInt2 ("##CustomResolution", cust_res, 0);
 			if (ImGui_IsItemDeactivatedAfterEdit ()
 				&& cust_res[0] >= 320 && cust_res[1] >= 200)
@@ -153,7 +153,7 @@ void draw_graphics_menu (void)
 		Spacer ();
 
 		{	// Gamma
-			ImGui_Text (ImStr (GEN_GFX_STR_BASE + 10)); // Gamma
+			ImGui_TextUnformatted (ImStr (GEN_GFX_STR_BASE + 10)); // Gamma
 			if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // Reset
 					ImStr (GEN_GFX_STR_BASE + 10)))) // Gamma
 			{

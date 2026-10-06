@@ -120,7 +120,7 @@ void draw_visual_menu (void)
 	ImGui_SeparatorText (ImStr (GEN_ENG_STR_BASE + 26));
 
 	// Nebulae & Nebulae Brightness
-	ImGui_Text (ImStr (ENH_VIS_STR_BASE + 13));
+	ImGui_TextUnformatted (ImStr (ENH_VIS_STR_BASE + 13));
 
 	if (UQM_ImGui_CheckBox ("##Nebulae", &optNebulae, "mm.nebulae", false))
 	{

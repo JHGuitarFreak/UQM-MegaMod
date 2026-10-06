@@ -78,7 +78,7 @@ void draw_status_menu (void)
 	{	// Current R.U.
 		DWORD curr_ru = GLOBAL_SIS (ResUnits);
 
-		ImGui_Text (ImStr (DBG_STS_STR_BASE + 6)); // Current R.U.
+		ImGui_TextUnformatted (ImStr (DBG_STS_STR_BASE + 6)); // Current R.U.
 		ImGui_InputScalar ("##CurrentRU", ImGuiDataType_U32, &curr_ru);
 		if (ImGui_IsItemDeactivatedAfterEdit ()
 				&& curr_ru > 0 && curr_ru < (DWORD)~0)
@@ -92,7 +92,7 @@ void draw_status_menu (void)
 				GET_CGAME_STATE (MELNORME_CREDIT0),
 				GET_CGAME_STATE (MELNORME_CREDIT1));
 
-		ImGui_Text (ImStr (DBG_STS_STR_BASE + 7)); // Current Credits
+		ImGui_TextUnformatted (ImStr (DBG_STS_STR_BASE + 7)); // Current Credits
 		ImGui_InputIntEx ("##CurrentCredits", &Credits, 0, 0, 0);
 		if (ImGui_IsItemDeactivatedAfterEdit ()
 				&& Credits < (COUNT)~0 && Credits > 0)
@@ -235,7 +235,7 @@ void draw_status_menu (void)
 			ImGui_TableNextColumn ();
 
 			ImGui_AlignTextToFramePadding ();
-			ImGui_Text (elements[8]); // Free Space
+			ImGui_TextUnformatted (elements[8]); // Free Space
 
 			ImGui_TableNextColumn ();
 
@@ -250,7 +250,7 @@ void draw_status_menu (void)
 			ImGui_TableNextColumn ();
 
 			ImGui_AlignTextToFramePadding ();
-			ImGui_Text (elements[9]); // Bio-Data
+			ImGui_TextUnformatted (elements[9]); // Bio-Data
 
 			ImGui_TableNextColumn ();
 			ImGui_InputIntEx ("##BioData", &BioData, 0, 0, 0);
@@ -331,8 +331,9 @@ void draw_status_menu (void)
 						(bool *)&FleetPtr->can_build);
 				if (ImGui_IsItemHovered (ImGuiHoveredFlags_DelayNone))
 				{
-					ImGui_SetTooltip (ImStr (TIP_WARN_STR_BASE + 11));
-									// Build Ship Tooltip
+					ImGui_SetTooltipUnformatted (
+							ImStr (TIP_WARN_STR_BASE + 11));
+							// Build Ship Tooltip
 				}
 
 				ImGui_TableNextColumn ();
@@ -383,7 +384,7 @@ void draw_status_menu (void)
 				universe.x / 10, universe.x % 10,
 				universe.y / 10, universe.y % 10);
 
-			ImGui_Text (ImStr (DBG_STS_STR_BASE + 13)); // Coordinates
+			ImGui_TextUnformatted (ImStr (DBG_STS_STR_BASE + 13)); // Coordinates
 			ImGui_BeginDisabled (true);
 			ImGui_InputText ("##Coordinates", buf, sizeof (buf), 0);
 			ImGui_EndDisabled ();
@@ -403,7 +404,7 @@ void draw_status_menu (void)
 				if (CurStarDescPtr != NULL)
 					GetClusterName (CurStarDescPtr, buf);
 				else
-					snprintf (buf, sizeof buf,
+					snprintf (buf, sizeof buf, "%s",
 							ImStr (DBG_STS_STR_BASE + 14)); // Unknown
 				break;
 			case IN_HYPERSPACE:
@@ -411,7 +412,7 @@ void draw_status_menu (void)
 				{
 					snprintf (buf, sizeof buf, "%s",
 						GAME_STRING (NAVIGATION_STRING_BASE));
-					// "HyperSpace"
+						// "HyperSpace"
 				}
 				else
 				{
@@ -421,7 +422,7 @@ void draw_status_menu (void)
 
 					snprintf (buf, sizeof buf, "%s",
 						GAME_STRING (NAVIGATION_STRING_BASE + 1));
-					// "QuasiSpace"
+						// "QuasiSpace"
 
 					if (Log.x == ARILOU_HOME_X && Log.y == ARILOU_HOME_Y)
 					{
@@ -433,7 +434,7 @@ void draw_status_menu (void)
 				break;
 			}
 
-			ImGui_Text (ImStr (DBG_STS_STR_BASE + 15)); // Location
+			ImGui_TextUnformatted (ImStr (DBG_STS_STR_BASE + 15)); // Location
 			ImGui_BeginDisabled (true);
 			ImGui_InputText ("##Location", buf, sizeof (buf), 0);
 			ImGui_EndDisabled ();
@@ -445,7 +446,7 @@ void draw_status_menu (void)
 			snprintf ((char *)&CaptainsName, sizeof (CaptainsName),
 				"%s", GLOBAL_SIS (CommanderName));
 
-			ImGui_Text (ImStr (DBG_STS_STR_BASE + 16)); // Captain's Name
+			ImGui_TextUnformatted (ImStr (DBG_STS_STR_BASE + 16)); // Captain's Name
 			ImGui_InputText ("##CaptainsName", CaptainsName,
 				sizeof (CaptainsName), 0);
 			if (ImGui_IsItemDeactivatedAfterEdit ()
@@ -465,7 +466,7 @@ void draw_status_menu (void)
 			snprintf ((char *)&SISName, sizeof (SISName),
 				"%s", GLOBAL_SIS (ShipName));
 
-			ImGui_Text (ImStr (DBG_STS_STR_BASE + 17)); // Flagship Name
+			ImGui_TextUnformatted (ImStr (DBG_STS_STR_BASE + 17)); // Flagship Name
 			ImGui_InputText ("##SISName", SISName, sizeof (SISName), 0);
 			if (ImGui_IsItemDeactivatedAfterEdit ()
 				&& strlen (SISName) < SIS_NAME_SIZE)
@@ -485,7 +486,7 @@ void draw_status_menu (void)
 				landers_cached = true;
 			}
 
-			ImGui_Text (ImStr (DBG_STS_STR_BASE + 18)); // Landers
+			ImGui_TextUnformatted (ImStr (DBG_STS_STR_BASE + 18)); // Landers
 			ImGui_InputInt ("##Landers", &cached_landers);
 			if (ImGui_IsItemDeactivatedAfterEdit ())
 			{
@@ -941,7 +942,7 @@ draw_events_menu (void)
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text (ImStr (DBG_EVT_STR_BASE + 7)); // Refresh delay: 
+		ImGui_TextUnformatted (ImStr (DBG_EVT_STR_BASE + 7)); // Refresh delay: 
 		ImGui_SameLine ();
 		ImGui_SliderInt (ImStr (DBG_EVT_STR_BASE + 8), &delay, 1, 10);
 
@@ -1157,14 +1158,14 @@ void draw_stars_menu (void)
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text (ImStr (DBG_STA_STR_BASE + 3)); // Filter by Presence
+		ImGui_TextUnformatted (ImStr (DBG_STA_STR_BASE + 3)); // Filter by Presence
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##FilterPresence", &by_presence);
 
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text (ImStr (DBG_STA_STR_BASE + 4)); // Show only Type
+		ImGui_TextUnformatted (ImStr (DBG_STA_STR_BASE + 4)); // Show only Type
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##FilterTypeBool", &filter_type_bool);
 		ImGui_SameLine ();
@@ -1174,7 +1175,7 @@ void draw_stars_menu (void)
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text (ImStr (DBG_STA_STR_BASE + 5)); // Show only Colour
+		ImGui_TextUnformatted (ImStr (DBG_STA_STR_BASE + 5)); // Show only Colour
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##FilterColourBool", &filter_colour_bool);
 		ImGui_SameLine ();
@@ -1184,14 +1185,14 @@ void draw_stars_menu (void)
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text (ImStr (DBG_STA_STR_BASE + 6)); // Current Star System
+		ImGui_TextUnformatted (ImStr (DBG_STA_STR_BASE + 6)); // Current Star System
 		ImGui_SameLine ();
 		ImGui_Checkbox ("##CurStar", &by_cur_star);
 
 		Spacer ();
 
 		ImGui_AlignTextToFramePadding ();
-		ImGui_Text (ImStr (DBG_STA_STR_BASE + 7)); // X/Y Range
+		ImGui_TextUnformatted (ImStr (DBG_STA_STR_BASE + 7)); // X/Y Range
 		ImGui_SameLine ();
 		ImGui_SliderIntRange ("##XRange", &min_x, &max_x, 0, 9999, "%d", 0, 0);
 		ImGui_SameLine ();

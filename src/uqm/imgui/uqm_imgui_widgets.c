@@ -812,7 +812,7 @@ UQM_ToolTip (int var)
 		return;
 
 	ImGui_BeginTooltip ();
-	ImGui_Text (ImStr (var));
+	ImGui_TextUnformatted (ImStr (var));
 	ImGui_EndTooltip ();
 }
 

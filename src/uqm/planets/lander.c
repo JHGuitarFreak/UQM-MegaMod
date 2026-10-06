@@ -967,8 +967,8 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 				NotPositional (), NULL, GAME_SOUND_PRIORITY);
 
 		pPSD->NumFrames = AlarmTextIndex;
-		sprintf (pPSD->AmountBuf, GAME_STRING (ELEMENTS_STRING_BASE 
-				+ 133));
+		snprintf (pPSD->AmountBuf, sizeof pPSD->AmountBuf, "%s",
+				GAME_STRING (ELEMENTS_STRING_BASE + 133)); // Cargo Full
 
 		pPSD->MineralText[0].baseline.x = (MapSurface.width >> 1)
 			+ (ElementControl->EndPoint.x - LanderControl->EndPoint.x);
@@ -1043,8 +1043,8 @@ pickupNode (PLANETSIDE_DESC *pPSD, COUNT NumRetrieved,
 					NotPositional (), NULL, GAME_SOUND_PRIORITY);
 
 			pPSD->NumFrames = AlarmTextIndex;
-			sprintf (pPSD->AmountBuf, GAME_STRING (ELEMENTS_STRING_BASE 
-					+ 134));
+			snprintf (pPSD->AmountBuf, sizeof pPSD->AmountBuf, "%s",
+					GAME_STRING (ELEMENTS_STRING_BASE + 134)); // Data Full
 
 			pPSD->MineralText[0].baseline.x = (MapSurface.width >> 1)
 				+ (ElementControl->EndPoint.x - LanderControl->EndPoint.x);
