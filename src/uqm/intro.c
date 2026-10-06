@@ -447,12 +447,12 @@ ShowPresentationFile (const char *name)
 
 typedef struct
 {
-	SPECIES_ID sID;		// The ship SPECIES_ID, a second index
-	char ditty[256];	// The ditty string (file name)
-	char race[256];		// The race's name string e.g. EARTHLING
-	char ship[256];		// The ship's name string e.g. CRUISER
-	COUNT spinline;		// The line on which race/ship strings occur
-	COUNT width;		// The SD pixel width of the race name
+	SPECIES_ID sID;  // The ship SPECIES_ID, a second index
+	char ditty[256]; // The ditty string (file name)
+	char race[256];  // The race's name string e.g. EARTHLING
+	char ship[256];  // The ship's name string e.g. CRUISER
+	COUNT spinline;  // The line on which race/ship strings occur
+	COUNT width;     // The SD pixel width of the race name
 } SHIPMAP;
 
 static const SHIPMAP ship_map[] = {
