@@ -462,106 +462,77 @@ dukv_PixelConv (uint16 pix, const TFB_PixelFormat* fmt)
 static void
 dukv_RenderFrame (THIS_PTR)
 {
-	TFB_DuckVideoDecoder* dukv = (TFB_DuckVideoDecoder*) This;
-	const TFB_PixelFormat* fmt = This->format;
-	uint32 h, x, y, pair;
-	uint32* dec = dukv->decbuf;
-	uint32 bufInc = 0;
-	int scale = 4;
+	TFB_DuckVideoDecoder *dukv = (TFB_DuckVideoDecoder *)This;
+	const TFB_PixelFormat *fmt = This->format;
+	uint32 x, y, canvas_w, canvas_h;
+	uint32 frame_w, frame_h, packed_rows;
+	uint32 *decbuf, fmt_bpp;
 
-	h = dukv->decoder.h / 2;
+	fmt_bpp = fmt->BytesPerPixel;
+	if (fmt_bpp < 2 || fmt_bpp > 4)
+		return;
 
-	// separate bpp versions for speed
-	switch (fmt->BytesPerPixel) {
-		case 2:
-			for (y = 0; y < h; ++y) {
-				uint16 *dst0, *dst1;
+	decbuf = dukv->decbuf;
+	canvas_w = dukv->decoder.w;
+	canvas_h = dukv->decoder.h;
+	if (canvas_w == 0 || canvas_h == 0)
+		return;
 
-				dst0 = (uint16*) This->callbacks.GetCanvasLine (
-						This, y * 2 + IF_HD (1));
-				dst1 = (uint16*) This->callbacks.GetCanvasLine (
-						This, y * 2 + 1);
+	frame_w = dukv->wb * 4;
+	frame_h = dukv->hb * 4;
+	packed_rows = frame_h >> 1;
+	if (frame_w == 0 || packed_rows == 0)
+		return;
 
-				if (IS_HD && y % scale != 0)
-					dec -= dukv->decoder.w;
+	for (y = 0; y < canvas_h; ++y)
+	{
+		uint8 *dst;
+		uint32 *src, src_y, x_fixed, x_step;
+		bool bottom_half;
 
-				for (x = 0; x < dukv->decoder.w; ++x, RES_BOOL (++dec, (uint32*)++bufInc), ++dst0, ++dst1)
-				{
-					/*if (IS_HD)
-						++bufInc;
-					else
-						++dec;*/
+		dst = (uint8 *)This->callbacks.GetCanvasLine (This, y);
 
-					if (bufInc % scale == 0 && IS_HD)
-						dec++;
+		src_y = (y * frame_h) / canvas_h;
+		src = decbuf + ((src_y >> 1) * frame_w);
+		bottom_half = (src_y & 1) != 0;
 
-					pair = *dec;
-					*dst0 = dukv_PixelConv ((uint16)(pair >> 16), fmt);
-					*dst1 = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
-				} 
-			}
-			break;
-		case 3:
-			for (y = 0; y < h; ++y) {
-				uint8 *dst0, *dst1;
+		x_step = (frame_w << 16) / canvas_w;
+		x_fixed = 0;
 
-				dst0 = (uint8*) This->callbacks.GetCanvasLine (
-						This, y * 2 + IF_HD (1));
-				dst1 = (uint8*) This->callbacks.GetCanvasLine (
-						This, y * 2 + 1);
+		for (x = 0; x < canvas_w; ++x)
+		{
+			uint32 pair, pix, src_x;
 
-				if (IS_HD && y % scale != 0)
-					dec -= dukv->decoder.w;
+			src_x = x_fixed >> 16;
 
-				for (x = 0; x < dukv->decoder.w; ++x, RES_BOOL (++dec, (uint32*)++bufInc), dst0 += 3, dst1 += 3)
-				{
-					/*if (IS_HD)
-						++bufInc;
-					else
-						++dec;*/
+			if (src_x >= frame_w)
+				src_x = frame_w - 1;
 
-					if (bufInc % scale == 0 && IS_HD)
-						dec++;
+			pair = src[src_x];
 
-					pair = *dec;
-					*(uint32*)dst0 =
-							dukv_PixelConv ((uint16)(pair >> 16), fmt);
-					*(uint32*)dst1 =
-							dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
-				}
-			}
-			break;
-		case 4:
-			for (y = 0; y < h; ++y)
+			if (bottom_half)
+				pix = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
+			else
+				pix = dukv_PixelConv ((uint16)(pair >> 16), fmt);
+
+			switch (fmt_bpp)
 			{
-				uint32 *dst0, *dst1;
-
-				dst0 = (uint32*) This->callbacks.GetCanvasLine (
-						This, y * 2);
-				dst1 = (uint32*) This->callbacks.GetCanvasLine (
-						This, y * 2 + 1);
-
-				if (IS_HD && y % scale != 0)
-					dec -= RES_DESCALE (dukv->decoder.w);
-
-				for (x = 0; x < dukv->decoder.w; ++x, RES_BOOL (++dec, (uint32*)++bufInc), ++dst0, ++dst1)
-				{
-					/*if (IS_HD)
-						++bufInc;
-					else
-						++dec;*/
-
-					if (bufInc % scale == 0 && IS_HD)
-						dec++;
-
-					pair = *dec;
-					*dst0 = dukv_PixelConv ((uint16)(pair >> 16), fmt);
-					*dst1 = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
-				}
+			case 2:
+				*(uint16 *)dst = (uint16)pix;
+				break;
+			case 3:
+				dst[0] = (uint8)(pix);
+				dst[1] = (uint8)(pix >> 8);
+				dst[2] = (uint8)(pix >> 16);
+				break;
+			case 4:
+				*(uint32 *)dst = pix;
+				break;
 			}
-			break;
-		default:
-			break;
+
+			dst += fmt_bpp;
+			x_fixed += x_step;
+		}
 	}
 }
 
@@ -737,7 +708,7 @@ dukv_DecodeNext (THIS_PTR)
 	This->callbacks.EndFrame (This);
 
 	if (!This->audio_synced)
-	   This->callbacks.SetTimer (This, (uint32) (1000.0f / DUCK_GENERAL_FPS));
+		This->callbacks.SetTimer (This, (uint32) (1000.0f / DUCK_GENERAL_FPS));
 
 	return 1;
 }
