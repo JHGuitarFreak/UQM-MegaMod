@@ -464,109 +464,75 @@ dukv_RenderFrame (THIS_PTR)
 {
 	TFB_DuckVideoDecoder *dukv = (TFB_DuckVideoDecoder *)This;
 	const TFB_PixelFormat *fmt = This->format;
-	uint32 frame_x, frame_y, frame_w, frame_h;
-	uint32 cnvs_x, cnvs_y, cnvs_w, cnvs_h;
-	uint32* decbuf = dukv->decbuf;
+	uint32 x, y, canvas_w, canvas_h;
+	uint32 frame_w, frame_h, packed_rows;
+	uint32 *decbuf, fmt_bpp;
+
+	fmt_bpp = fmt->BytesPerPixel;
+	if (fmt_bpp < 2 || fmt_bpp > 4)
+		return;
+
+	decbuf = dukv->decbuf;
+	canvas_w = dukv->decoder.w;
+	canvas_h = dukv->decoder.h;
+	if (canvas_w == 0 || canvas_h == 0)
+		return;
 
 	frame_w = dukv->wb * 4;
 	frame_h = dukv->hb * 4;
-	cnvs_w = dukv->decoder.w;
-	cnvs_h = dukv->decoder.h;
+	packed_rows = frame_h >> 1;
+	if (frame_w == 0 || packed_rows == 0)
+		return;
 
-	// separate bpp versions for speed
-	switch (fmt->BytesPerPixel)
+	for (y = 0; y < canvas_h; ++y)
 	{
-	case 2:
-	{
-		for (cnvs_y = 0; cnvs_y < cnvs_h; ++cnvs_y)
+		uint8 *dst;
+		uint32 *src, src_y, x_fixed, x_step;
+		bool bottom_half;
+
+		dst = (uint8 *)This->callbacks.GetCanvasLine (This, y);
+
+		src_y = (y * frame_h) / canvas_h;
+		src = decbuf + ((src_y >> 1) * frame_w);
+		bottom_half = (src_y & 1) != 0;
+
+		x_step = (frame_w << 16) / canvas_w;
+		x_fixed = 0;
+
+		for (x = 0; x < canvas_w; ++x)
 		{
-			uint16 *dst;
-			uint32 *src_row;
-			int bottom_half;
+			uint32 pair, pix, src_x;
 
-			dst = (uint16 *)This->callbacks.GetCanvasLine (This, cnvs_y);
+			src_x = x_fixed >> 16;
 
-			frame_y = (cnvs_y * frame_h) / cnvs_h;
-			src_row = decbuf + ((frame_y >> 1) * frame_w);
-			bottom_half = (int)(frame_y & 1);
+			if (src_x >= frame_w)
+				src_x = frame_w - 1;
 
-			for (cnvs_x = 0; cnvs_x < cnvs_w; ++cnvs_x)
+			pair = src[src_x];
+
+			if (bottom_half)
+				pix = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
+			else
+				pix = dukv_PixelConv ((uint16)(pair >> 16), fmt);
+
+			switch (fmt_bpp)
 			{
-				uint32 pair;
-
-				frame_x = (cnvs_x * frame_w) / cnvs_w;
-				pair = src_row[frame_x];
-
-				if (bottom_half)
-					dst[cnvs_x] = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
-				else
-					dst[cnvs_x] = dukv_PixelConv ((uint16)(pair >> 16), fmt);
+			case 2:
+				*(uint16 *)dst = (uint16)pix;
+				break;
+			case 3:
+				dst[0] = (uint8)(pix);
+				dst[1] = (uint8)(pix >> 8);
+				dst[2] = (uint8)(pix >> 16);
+				break;
+			case 4:
+				*(uint32 *)dst = pix;
+				break;
 			}
+
+			dst += fmt_bpp;
+			x_fixed += x_step;
 		}
-		break;
-	}
-	case 3:
-	{
-		for (cnvs_y = 0; cnvs_y < cnvs_h; ++cnvs_y)
-		{
-			uint8 *dst;
-			uint32 *src_row;
-			int bottom_half;
-
-			dst = (uint8 *)This->callbacks.GetCanvasLine (This, cnvs_y);
-
-			frame_y = (cnvs_y * frame_h) / cnvs_h;
-			src_row = decbuf + ((frame_y >> 1) * frame_w);
-			bottom_half = (int)(frame_y & 1);
-
-			for (cnvs_x = 0; cnvs_x < cnvs_w; ++cnvs_x)
-			{
-				uint32 pair;
-
-				frame_x = (cnvs_x * frame_w) / cnvs_w;
-				pair = src_row[frame_x];
-
-				if (bottom_half)
-					*(uint32 *)dst[cnvs_x] =
-							dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
-				else
-					*(uint32 *)dst[cnvs_x] =
-							dukv_PixelConv ((uint16)(pair >> 16), fmt);
-
-				dst += 3;
-			}
-		}
-		break;
-	}
-	case 4:
-	{
-		for (cnvs_y = 0; cnvs_y < cnvs_h; ++cnvs_y)
-		{
-			uint32 *dst, *src_row;
-			int bottom_half;
-
-			dst = (uint32 *)This->callbacks.GetCanvasLine (This, cnvs_y);
-
-			frame_y = (cnvs_y * frame_h) / cnvs_h;
-			src_row = decbuf + ((frame_y >> 1) * frame_w);
-			bottom_half = (int)(frame_y & 1);
-
-			for (cnvs_x = 0; cnvs_x < cnvs_w; ++cnvs_x)
-			{
-				uint32 pair;
-
-				frame_x = (cnvs_x * frame_w) / cnvs_w;
-				pair = src_row[frame_x];
-
-				if (bottom_half)
-					dst[cnvs_x] = dukv_PixelConv ((uint16)(pair & 0xffff), fmt);
-				else
-					dst[cnvs_x] = dukv_PixelConv ((uint16)(pair >> 16), fmt);
-			}
-		}
-		break;
-	}
-	default: break;
 	}
 }
 
@@ -742,7 +708,7 @@ dukv_DecodeNext (THIS_PTR)
 	This->callbacks.EndFrame (This);
 
 	if (!This->audio_synced)
-	   This->callbacks.SetTimer (This, (uint32) (1000.0f / DUCK_GENERAL_FPS));
+		This->callbacks.SetTimer (This, (uint32) (1000.0f / DUCK_GENERAL_FPS));
 
 	return 1;
 }
