@@ -520,7 +520,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 		if (self->widget_rects)
 		{
-			RECT rect = { 0, 0, 0, 0 };
+			RECT rect = { {0, 0}, {0, 0} };
 			switch (c->tag)
 			{
 			case WIDGET_TYPE_CHOICE:
@@ -587,7 +587,7 @@ Widget_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 			if (player != -1 && stick != -1)
 			{
-				RECT r = { (COORD)~0, (COORD)~0, 0, 0 };
+				RECT r = { {(COORD)~0, (COORD)~0}, {0, 0} };
 
 				if (((WIDGET_SLIDER *)c)->tag == WIDGET_TYPE_SLIDER &&
 						((WIDGET_SLIDER *)c)->index == SLIDER_DEADZONE_03)

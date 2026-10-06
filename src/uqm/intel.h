@@ -108,10 +108,10 @@ antiCheatAlt (void)
 {
 	return !(PlayerControl[0] & COMPUTER_CONTROL
 			&& PlayerControl[1] & COMPUTER_CONTROL)
-			&& ((PlayerControl[0] & COMPUTER_CONTROL)
+			&& (((PlayerControl[0] & COMPUTER_CONTROL)
 				&& PlayerControl[1] & HUMAN_CONTROL)
 			|| ((PlayerControl[1] & COMPUTER_CONTROL)
-				&& PlayerControl[0] & HUMAN_CONTROL);
+				&& PlayerControl[0] & HUMAN_CONTROL));
 }
 
 static inline BOOLEAN

@@ -18,7 +18,7 @@
 #include "uqm_imgui.h"
 
 char *jrnl_buf = NULL;
-char jrnl_name[15];
+char jrnl_name[19];
 BOOLEAN jrnl_dirty = FALSE;
 
 void draw_qol_menu (void)
@@ -321,7 +321,7 @@ LoadJournal (COUNT which_game)
 		}
 		else
 		{
-			log_add (log_Error, "%s filesize error: %d", jrnl_name, file_size);
+			log_add (log_Error, "%s filesize error: %ld", jrnl_name, file_size);
 		}
 		uio_fclose (fp);
 	}

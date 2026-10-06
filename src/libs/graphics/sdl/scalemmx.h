@@ -779,7 +779,7 @@ SCALE_(Blend_bilinear) (const Uint32* row0, const Uint32* row1,
 	
 	: /* nothing */
 	: /*0*/"m" (*row0), /*1*/"m" (*row1), /*2*/"r" (dst_p),
-			/*3*/"r" ((unsigned long)dlen) /* 'long' is for proper reg alloc on amd64 */
+			/*3*/"r" ((size_t)dlen) /* size_t == pointer width on all targets */
 	: "memory"
 	);
 }

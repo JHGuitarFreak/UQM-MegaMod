@@ -662,7 +662,6 @@ GamestatesTab01 (void)
 			char buf[40];
 			static bool selected[MAX_RBW];
 			int cur_selected = 0;
-			ImVec2 align = { 0.7f, 0.1f };
 			int rbw_count = GET_CGAME_STATE (MELNORME_RAINBOW_COUNT);
 			int bitmask = MAKE_WORD (
 				GET_CGAME_STATE (RAINBOW_WORLD0),

@@ -881,7 +881,6 @@ KeyAtlas (int menu_index, FRAME k_atlas)
 {
 	VCONTROL_GESTURE g = curr_bindings[menu_index].binding[0];
 	int i = VControl_code2index (g.gesture.key);
-	const char *key = VControl_code2name (g.gesture.key);
 
 	return SetAbsFrameIndex (k_atlas, i);
 }
@@ -1117,36 +1116,36 @@ MouseInRect (RECT r)
 	return pointWithinRect (r, MouseContext);
 }
 
-static void
-MouseThing (BYTE *NewState, CONTEXT context, RECT *rect, BYTE num_rects)
-{
-	BYTE i;
-	int cursor = CURSOR_POINTER;
-	BYTE hovered_item;
-
-	if (!SetMouseContext (context))
-		return;
-
-	hovered_item = *NewState;
-
-	for (i = 0; i < num_rects; i++)
-	{
-		if (MouseInRect (rect[i]))
-		{
-			hovered_item = i;
-			cursor = CURSOR_POINTER_HILITE;
-			break;
-		}
-	}
-
-	UQM_SetCursor (cursor);
-
-	if (hovered_item != *NewState)
-	{
-		*NewState = hovered_item;
-		PlayMenuSound (MENU_SOUND_MOVE);
-	}
-}
+//static void
+//MouseThing (BYTE *NewState, CONTEXT context, RECT *rect, BYTE num_rects)
+//{
+//	BYTE i;
+//	int cursor = CURSOR_POINTER;
+//	BYTE hovered_item;
+//
+//	if (!SetMouseContext (context))
+//		return;
+//
+//	hovered_item = *NewState;
+//
+//	for (i = 0; i < num_rects; i++)
+//	{
+//		if (MouseInRect (rect[i]))
+//		{
+//			hovered_item = i;
+//			cursor = CURSOR_POINTER_HILITE;
+//			break;
+//		}
+//	}
+//
+//	UQM_SetCursor (cursor);
+//
+//	if (hovered_item != *NewState)
+//	{
+//		*NewState = hovered_item;
+//		PlayMenuSound (MENU_SOUND_MOVE);
+//	}
+//}
 
 void
 DebugMouseCursor (CONTEXT context)

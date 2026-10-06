@@ -116,8 +116,6 @@ ScanCursorLocation (void)
 static BOOLEAN
 ScanMouseInput (void)
 {
-	BOOLEAN cursorMoved = FALSE;
-
 	if (!optMouseInput)
 		return FALSE;
 

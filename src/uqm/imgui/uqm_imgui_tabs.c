@@ -164,7 +164,7 @@ draw_settings_menu (void)
 	// Open Addons Folder...
 	if (ImGui_Button (ImStr (GEN_SETT_STR_BASE + 6)))
 	{
-		char buf[PATH_MAX];
+		char buf[PATH_MAX+10];
 		snprintf (buf, sizeof buf, "file:///%s", baseContentPath);
 		SDL_OpenURL (buf);
 	}
@@ -172,7 +172,7 @@ draw_settings_menu (void)
 	// Open Config Folder...
 	if (ImGui_Button (ImStr (GEN_SETT_STR_BASE + 7)))
 	{
-		char buf[PATH_MAX];
+		char buf[PATH_MAX+10];
 		snprintf (buf, sizeof buf, "file:///%s", configDirPath);
 		SDL_OpenURL (buf);
 	}
@@ -281,7 +281,6 @@ UQM_ImGui_Tabs (TabState *state)
 	static float temp_width = 0;
 	static float temp_height = 0;
 	float scale = SCALE_20F;
-	static float nav_width = 0;
 	ImVec2 text_size;
 	ImVec2 button_size = ZERO_F;
 	static float button_room = 0.0f;
@@ -313,9 +312,6 @@ UQM_ImGui_Tabs (TabState *state)
 
 	// Without this the border doesn't draw correctly around the navbar
 	DrawBorderAroundLastItem ();
-
-	nav_width = (ImGui_GetContentRegionAvail ().x * 0.8528f) /
-			style->FontScaleMain;
 
 	// Begin NavBar
 	ImGui_BeginChild ("NavBar", MAKE_IV2 (0.0f, temp_height), IGCF_B, 0);

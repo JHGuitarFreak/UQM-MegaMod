@@ -1887,11 +1887,11 @@ DoEdit (MELEE_STATE *pMS)
 #ifdef NETPLAY
 	netInput ();
 #endif
-	if ((pMS->row < NUM_MELEE_ROWS || pMS->currentShip == MELEE_NONE)
+	if (((pMS->row < NUM_MELEE_ROWS || pMS->currentShip == MELEE_NONE)
 			&& (PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| (PulsedInputState.menu[KEY_MENU_RIGHT]
 			&& (pMS->col == NUM_MELEE_COLUMNS - 1
-			|| pMS->row == NUM_MELEE_ROWS))) ||
+			|| pMS->row == NUM_MELEE_ROWS)))) ||
 			HoveringOverOption (&option_item))
 	{
 		// Done editing the teams.

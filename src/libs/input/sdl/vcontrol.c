@@ -1750,31 +1750,22 @@ VControl_GetJoyAxis (int port, SDL_GameControllerAxis axis)
 	{
 		if (current->instance_id == instance_id)
 		{
+			SDL_GameController *controller;
 			joystick *j = &current->gamepad;
 			int raw_value;
-			int logical_port = -1;
 
 			if (!j->stick || j->numaxes <= axis)
 				return 0;
 
-			SDL_GameController *controller = j->stick;
+			controller = j->stick;
 
-			if (axis >= SDL_CONTROLLER_AXIS_LEFTX
-				&& axis <= SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+			if (axis >= SDL_CONTROLLER_AXIS_LEFTX &&
+				axis <= SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
 			{
 				raw_value = SDL_GameControllerGetAxis (controller, axis);
 			}
 			else
 				return 0;
-
-			for (int i = 0; i < 2; i++)
-			{
-				if (controller_assignments[i] == instance_id)
-				{
-					logical_port = i;
-					break;
-				}
-			}
 
 			return raw_value;
 		}

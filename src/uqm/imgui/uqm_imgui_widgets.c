@@ -423,7 +423,6 @@ UQM_GetStrArray (int index)
 	char *copy, *token;
 	int count = 0;
 	char **array = NULL;
-	static char buf[PATH_MAX];
 
 	copy = strdup (ImStr (index));
 
@@ -484,7 +483,6 @@ UQM_BitRegister (const char *gamestate, int size)
 	char buf[40];
 	static bool selected[32];
 	int bitmask = D_GET_CGAME_STATE (gamestate);
-	ImVec2 align = { 0.7f, 0.1f };
 
 	snprintf (buf, sizeof buf, "##Child%s", gamestate);
 	ImGui_BeginChild (buf, ZERO_F, CARD_FLAGS, ImGuiWindowFlags_MenuBar);

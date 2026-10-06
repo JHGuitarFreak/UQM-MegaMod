@@ -101,7 +101,7 @@ MCD_DrawMenuScreen (WIDGET *_self, int x, int y)
 
 		if (self->widget_rects)
 		{
-			RECT rect = { 0, 0, 0, 0 };
+			RECT rect = { {0, 0}, {0, 0} };
 			switch (c->tag)
 			{
 			case WIDGET_TYPE_BUTTON:

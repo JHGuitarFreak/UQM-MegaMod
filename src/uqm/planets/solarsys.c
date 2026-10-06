@@ -553,7 +553,6 @@ ExitImmediateArea (void)
 {
 	COUNT index;
 	SIZE facing;
-	POINT delta = { 0, 0 };
 	POINT target = { 0, 0 };
 	POINT scrLoc = GLOBAL (ShipStamp.origin);
 	COORD buffer = RES_SCALE (2);
@@ -3849,7 +3848,7 @@ DoIpFlight (SOLARSYS_STATE *pSS)
 	}
 	else if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{
-		static TimeCount TimeOutIP, TimeOutClock, LastMouseTime;
+		static TimeCount TimeOutIP, TimeOutClock;
 		TimeCount Now = GetTimeCounter ();
 
 		assert (pSS->InIpFlight);

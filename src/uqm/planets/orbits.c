@@ -786,7 +786,7 @@ PickClosestHabitable (SOLARSYS_STATE *solarSys)
 
 	if (pPlanet->radius < hRangeMin || pPlanet->radius > hRangeMax)
 	{
-		SIZE min, max;
+		SIZE min = 0, max = 0;
 
 		if (pPlanet->radius < hRangeMin)
 		{

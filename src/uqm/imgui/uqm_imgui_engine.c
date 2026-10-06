@@ -17,12 +17,6 @@
 
 #include "uqm_imgui.h"
 
-static int
-ToCons (int opt)
-{
-	return (opt ? OPT_3DO : OPT_PC);
-}
-
 void
 draw_engine_menu (void)
 {

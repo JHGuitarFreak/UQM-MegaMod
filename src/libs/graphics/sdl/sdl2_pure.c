@@ -578,7 +578,7 @@ static void
 TFB_SDL2_Scaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 {
 	SDL_Texture *texture = SDL2_Screens[screen].texture;
-	SDL_Rect srcRect, *pSrcRect = NULL;
+	SDL_Rect srcRect;
 
 	if (SDL2_Screens[screen].dirty)
 	{

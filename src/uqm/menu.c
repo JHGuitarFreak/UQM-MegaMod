@@ -508,8 +508,8 @@ DoMenuChooser (MENU_STATE *pMS, BYTE BaseState)
 	{
 		NewState = NextMenuState (BaseState, NewState);
 	}
-	else if (useAltMenu && PulsedInputState.menu[KEY_MENU_SELECT]
-		|| MouseButton (MOUSE_LFT))
+	else if (useAltMenu && (PulsedInputState.menu[KEY_MENU_SELECT]
+			|| MouseButton (MOUSE_LFT)))
 	{
 		NewState = ConvertAlternateMenu (BaseState, NewState);
 		if (NewState == ALT_MANIFEST)

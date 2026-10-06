@@ -1962,8 +1962,8 @@ SeedUniverse (void)
 		while ((SDPtr = FindStar (SDPtr, &universe, XOFFS, YOFFS)))
 		{
 			FRAME star_frame;
-			BYTE star_type = SDPtr->Type;
-			BYTE star_color = STAR_COLOR (star_type);
+			BYTE star_type = STAR_TYPE (SDPtr->Type);
+			BYTE star_color = STAR_COLOR (SDPtr->Type);
 
 			lx = UNIVERSE_TO_LOGX (SDPtr->star_pt.x) - GLOBAL_SIS (log_x);
 			ly = UNIVERSE_TO_LOGY (SDPtr->star_pt.y) - GLOBAL_SIS (log_y);
@@ -1973,21 +1973,19 @@ SeedUniverse (void)
 				if ((GET_GAME_STATE (ARILOU_SPACE_SIDE) > 1))
 				{/* QS */
 					star_frame = SetAbsFrameIndex (hyperstars[1],
-							frameCounter + (
-							(STAR_COLOR (star_type) == YELLOW_BODY) ? 40 : 8));
+							frameCounter +
+								((star_color == YELLOW_BODY) ? 40 : 8));
 				}
 				else
 				{/* HS */
 					star_frame = SetAbsFrameIndex (hyperstars[1],
-							STAR_TYPE (star_type) * NUM_FRAMES +
-							frameCounter);
+							star_type * NUM_FRAMES + frameCounter);
 				}
 			}
 			else
 			{/* non-animated */
-				star_frame = SetAbsFrameIndex (
-							hyperstars[1], STAR_TYPE (star_type) * 
-							NUM_STAR_COLORS	+ STAR_COLOR (star_type));	
+				star_frame = SetAbsFrameIndex ( hyperstars[1],
+						star_type * NUM_STAR_COLORS + star_color);
 			}
 
 			if (star_frame == NULL)

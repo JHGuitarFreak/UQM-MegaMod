@@ -675,7 +675,7 @@ InitOutfitRects (void)
 		OutfitRectsTop[j].extent.width = RES_SCALE (11);
 		OutfitRectsTop[j].extent.height = RES_SCALE (13);
 
-		OutfitRectsSide[j] = (RECT){ 0, 0, 0, 0 };
+		OutfitRectsSide[j] = (RECT){ {0, 0}, {0, 0} };
 	}
 }
 

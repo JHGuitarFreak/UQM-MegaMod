@@ -366,98 +366,98 @@ initialize_pump_up (ELEMENT *ShipPtr, HELEMENT PumpUpArray[])
 	return (1);
 }
 
-static void
-confuse_preprocess_april (ELEMENT *ElementPtr)
-{
-	static const Color colorTable[] =
-	{
-		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x00, 0x00), 0x7a),
-		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x15, 0x00), 0x7a),
-		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x1F, 0x00), 0x7a),
-		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x00), 0x7a),
-		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x15), 0x7a),
-		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x15, 0x1F), 0x7a),
-		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x00, 0x1F), 0x7a),
-		BUILD_COLOR(MAKE_RGB15_INIT(0x15, 0x00, 0x1F), 0x7a),
-	};
-	const size_t colorTabCount = ARRAY_SIZE(colorTable);
-
-	if (!(ElementPtr->state_flags & NONSOLID))
-	{
-		ElementPtr->next.image.frame = SetAbsFrameIndex (
-				ElementPtr->current.image.frame,
-				(GetFrameIndex (ElementPtr->current.image.frame) + 1) & 7);
-		ElementPtr->state_flags |= CHANGING;
-	}
-	else if (ElementPtr->hTarget == 0)
-	{
-		ElementPtr->life_span = 0;
-		ElementPtr->state_flags |= DISAPPEARING;
-	}
-	else
-	{
-		ELEMENT *eptr;
-
-		LockElement (ElementPtr->hTarget, &eptr);
-
-		ElementPtr->next.location = eptr->next.location;
-
-		if (ElementPtr->turn_wait)
-		{
-			HELEMENT hEffect;
-			STARSHIP *StarShipPtr;
-
-			if (GetFrameIndex (ElementPtr->next.image.frame =
-					IncFrameIndex (ElementPtr->current.image.frame)) == 0)
-				ElementPtr->next.image.frame =
-						SetRelFrameIndex (ElementPtr->next.image.frame, -8);
-
-			GetElementStarShip (eptr, &StarShipPtr);
-			StarShipPtr->ship_input_state =
-					(StarShipPtr->ship_input_state
-					& ~(LEFT | RIGHT | SPECIAL))
-					| ElementPtr->turn_wait;
-
-			if (ElementPtr->life_span > 1)
-			{
-				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
-					STAMPFILL_PRIM);
-				SetPrimColor(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
-					colorTable[ElementPtr->colorCycleIndex]);
-				ElementPtr->colorCycleIndex++;
-
-				if (ElementPtr->colorCycleIndex == colorTabCount)
-					ElementPtr->colorCycleIndex = 0;
-			}
-			else
-			{
-				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
-					STAMP_PRIM);
-				BattleSong (TRUE);
-			}
-
-			hEffect = AllocElement ();
-			if (hEffect)
-			{
-				LockElement (hEffect, &eptr);
-				eptr->playerNr = ElementPtr->playerNr;
-				eptr->state_flags = FINITE_LIFE | NONSOLID | CHANGING;
-				eptr->life_span = 1;
-				eptr->current = eptr->next = ElementPtr->next;
-				eptr->preprocess_func = confuse_preprocess_april;
-
-				GetElementStarShip (ElementPtr, &StarShipPtr);
-				SetElementStarShip (eptr, StarShipPtr);
-				eptr->hTarget = ElementPtr->hTarget;
-				
-				UnlockElement (hEffect);
-				PutElement (hEffect);
-			}
-		}			
-
-		UnlockElement (ElementPtr->hTarget);
-	}
-}
+//static void
+//confuse_preprocess_april (ELEMENT *ElementPtr)
+//{
+//	static const Color colorTable[] =
+//	{
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x00, 0x00), 0x7a),
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x15, 0x00), 0x7a),
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x1F, 0x1F, 0x00), 0x7a),
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x00), 0x7a),
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x1F, 0x15), 0x7a),
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x15, 0x1F), 0x7a),
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x00, 0x00, 0x1F), 0x7a),
+//		BUILD_COLOR(MAKE_RGB15_INIT(0x15, 0x00, 0x1F), 0x7a),
+//	};
+//	const size_t colorTabCount = ARRAY_SIZE(colorTable);
+//
+//	if (!(ElementPtr->state_flags & NONSOLID))
+//	{
+//		ElementPtr->next.image.frame = SetAbsFrameIndex (
+//				ElementPtr->current.image.frame,
+//				(GetFrameIndex (ElementPtr->current.image.frame) + 1) & 7);
+//		ElementPtr->state_flags |= CHANGING;
+//	}
+//	else if (ElementPtr->hTarget == 0)
+//	{
+//		ElementPtr->life_span = 0;
+//		ElementPtr->state_flags |= DISAPPEARING;
+//	}
+//	else
+//	{
+//		ELEMENT *eptr;
+//
+//		LockElement (ElementPtr->hTarget, &eptr);
+//
+//		ElementPtr->next.location = eptr->next.location;
+//
+//		if (ElementPtr->turn_wait)
+//		{
+//			HELEMENT hEffect;
+//			STARSHIP *StarShipPtr;
+//
+//			if (GetFrameIndex (ElementPtr->next.image.frame =
+//					IncFrameIndex (ElementPtr->current.image.frame)) == 0)
+//				ElementPtr->next.image.frame =
+//						SetRelFrameIndex (ElementPtr->next.image.frame, -8);
+//
+//			GetElementStarShip (eptr, &StarShipPtr);
+//			StarShipPtr->ship_input_state =
+//					(StarShipPtr->ship_input_state
+//					& ~(LEFT | RIGHT | SPECIAL))
+//					| ElementPtr->turn_wait;
+//
+//			if (ElementPtr->life_span > 1)
+//			{
+//				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+//					STAMPFILL_PRIM);
+//				SetPrimColor(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+//					colorTable[ElementPtr->colorCycleIndex]);
+//				ElementPtr->colorCycleIndex++;
+//
+//				if (ElementPtr->colorCycleIndex == colorTabCount)
+//					ElementPtr->colorCycleIndex = 0;
+//			}
+//			else
+//			{
+//				SetPrimType(&(GLOBAL(DisplayArray))[eptr->PrimIndex],
+//					STAMP_PRIM);
+//				BattleSong (TRUE);
+//			}
+//
+//			hEffect = AllocElement ();
+//			if (hEffect)
+//			{
+//				LockElement (hEffect, &eptr);
+//				eptr->playerNr = ElementPtr->playerNr;
+//				eptr->state_flags = FINITE_LIFE | NONSOLID | CHANGING;
+//				eptr->life_span = 1;
+//				eptr->current = eptr->next = ElementPtr->next;
+//				eptr->preprocess_func = confuse_preprocess_april;
+//
+//				GetElementStarShip (ElementPtr, &StarShipPtr);
+//				SetElementStarShip (eptr, StarShipPtr);
+//				eptr->hTarget = ElementPtr->hTarget;
+//				
+//				UnlockElement (hEffect);
+//				PutElement (hEffect);
+//			}
+//		}			
+//
+//		UnlockElement (ElementPtr->hTarget);
+//	}
+//}
 
 static void
 confuse_preprocess (ELEMENT* ElementPtr)

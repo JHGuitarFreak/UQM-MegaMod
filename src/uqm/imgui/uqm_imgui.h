@@ -129,7 +129,7 @@ void UQM_LoadImGuiSettings (void);
 
 // ImGui Journal
 extern char *jrnl_buf;
-extern char jrnl_name[15];
+extern char jrnl_name[19];
 extern BOOLEAN jrnl_dirty;
 #define FLOPPY_SIZE 1474560
 extern void SaveJournal (COUNT which_game);

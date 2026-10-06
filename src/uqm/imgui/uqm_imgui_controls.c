@@ -64,18 +64,26 @@ static const char **pretty_flight_actions = NULL;
 static void
 GetKeyNameButtonWidth (float *width)
 {
-	int i;
-	static float button_width = 0;
-	static bool once = false;
+	int i = 0;
+	float button_width = 0.0f;
 
-	for (i = 0; i < keynames[i].code != 0; i++)
+	while (1)
 	{
-		const char *keyname = keynames[i].name;
-		float name_width = ImGui_CalcTextSize (keyname).x +
+		const char *keyname;
+		float name_width;
+		int test = keynames[i].code;
+
+		if (!test)
+			break;
+
+		keyname = keynames[i].name;
+		name_width = ImGui_CalcTextSize (keyname).x +
 				style->FramePadding.x * 2.0f;
 
 		if (button_width < name_width)
 			button_width = name_width;
+
+		++i;
 	}
 
 	*width = button_width;
@@ -1282,9 +1290,8 @@ CheckMenuBindingConflict (int action, VCONTROL_GESTURE *g_compare)
 
 		if (VControl_GestureEqual (g, g_compare))
 		{
-			char *conflict_action = rebind_state.conflict_action;
-
-			snprintf (conflict_action, sizeof conflict_action, "%s",
+			snprintf (rebind_state.conflict_action,
+					sizeof (rebind_state.conflict_action), "%s",
 					pretty_menu_actions[action]);
 			return TRUE;
 		}
@@ -1308,16 +1315,16 @@ CheckFlightBindingConflict (int template_id, int action,
 
 		if (VControl_GestureEqual (g, g_compare))
 		{
-			char *conflict_action = rebind_state.conflict_action;
-
 			if (template_id == temp_compare)
 			{
-				snprintf (conflict_action, sizeof conflict_action, "%s",
+				snprintf (rebind_state.conflict_action,
+						sizeof rebind_state.conflict_action, "%s",
 						pretty_flight_actions[action]);
 			}
 			else
 			{
-				snprintf (conflict_action, sizeof conflict_action, "%s",
+				snprintf (rebind_state.conflict_action,
+						sizeof rebind_state.conflict_action, "%s",
 						pretty_flight_actions[action]);
 			}
 			return TRUE;
