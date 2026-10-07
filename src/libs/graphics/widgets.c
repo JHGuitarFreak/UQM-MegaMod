@@ -1077,7 +1077,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 	TEXT t;
 	RECT r;
 	int i, home_x, start_slot;
-	int col_size[2] = { 0 };
+	int col_size[WIDGET_CONTROL_COLUMNS] = { 0 };
 	int num_pages = self->num_pages;
 	int offset = RES_SCALE (5);
 	RECT *hover = &self->hover_rect;
@@ -1105,9 +1105,9 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 
 	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
-	start_slot = self->current_page * 2;
+	start_slot = self->current_page * WIDGET_CONTROL_COLUMNS;
 
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < WIDGET_CONTROL_COLUMNS; i++)
 	{
 		int slot = start_slot + i;
 		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));
@@ -1197,7 +1197,7 @@ Widget_DrawControlEntry (WIDGET *_self, int x, int y)
 				r.corner.x += r.extent.width + rect_gap;
 
 			SetContextForeGroundColor (i == self->current_page ?
-				WIDGET_ENABLED_COLOR : WIDGET_DISABLED_COLOR);
+					WIDGET_ENABLED_COLOR : WIDGET_DISABLED_COLOR);
 			DrawFilledRectangle (&r);
 		}
 
@@ -1230,7 +1230,7 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 	TEXT t;
 	RECT r;
 	int i, home_x, start_slot;
-	int col_size[2] = { 0 };
+	int col_size[WIDGET_CONTROL_COLUMNS] = { 0 };
 	int num_pages = self->num_pages;
 	int offset = RES_SCALE (22);
 	RECT *hover = &self->hover_rect;
@@ -1257,9 +1257,9 @@ Widget_DrawMenuControlEntry (WIDGET *_self, int x, int y)
 
 	home_x = (t.baseline.x << 1) - offset;
 	t.align = ALIGN_CENTER;
-	start_slot = self->current_page * 2;
+	start_slot = self->current_page * WIDGET_CONTROL_COLUMNS;
 
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < WIDGET_CONTROL_COLUMNS; i++)
 	{
 		int slot = start_slot + i;
 		t.baseline.x = home_x + ((i % 3) * (CanvasWidth / 3));

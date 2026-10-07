@@ -2107,7 +2107,8 @@ rebind_control (WIDGET_CONTROLENTRY *widget)
 {
 	int templat = choices[CHOICE_KBLAYOUT].selected;
 	int control = widget->controlindex;
-	int index = widget->highlighted;
+	int index = widget->highlighted +
+			(widget->current_page * WIDGET_CONTROL_COLUMNS);
 
 	FlushInput ();
 	DrawLabelAsWindow (&labels[LABEL_PRESSTOEDIT], NULL);
@@ -2121,7 +2122,8 @@ clear_control (WIDGET_CONTROLENTRY *widget)
 {
 	int templat = choices[CHOICE_KBLAYOUT].selected;
 	int control = widget->controlindex;
-	int index = widget->highlighted;
+	int index = widget->highlighted +
+			(widget->current_page * WIDGET_CONTROL_COLUMNS);
 
 	RemoveInputState (templat, control, index);
 	populate_editkeys (templat);
@@ -2242,7 +2244,7 @@ rebind_menu_control (WIDGET_MENUCONTROLENTRY *widget)
 	int index = widget->controlindex;
 	int active = widget->highlighted;
 	int page = widget->current_page;
-	int slot = (page * 2) + active;
+	int slot = (page * WIDGET_CONTROL_COLUMNS) + active;
 	int *vec = (int *)&menu_vec[index];
 
 	FlushInput ();
@@ -2292,7 +2294,7 @@ clear_menu_control (WIDGET_MENUCONTROLENTRY *widget)
 	int index = widget->controlindex;
 	int active = widget->highlighted;
 	int page = widget->current_page;
-	int slot = (page * 2) + active;
+	int slot = (page * WIDGET_CONTROL_COLUMNS) + active;
 	int *target = (int *)&menu_vec[index];
 	VCONTROL_GESTURE *g = &curr_bindings[index].binding[slot];
 

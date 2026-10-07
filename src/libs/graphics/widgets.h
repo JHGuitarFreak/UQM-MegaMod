@@ -48,6 +48,7 @@ typedef enum {
 
 #define WIDGET_TEXTENTRY_WIDTH    31
 #define WIDGET_CONTROLENTRY_WIDTH 16
+#define WIDGET_CONTROL_COLUMNS 2
 
 typedef struct _widget {
 	WIDGET_TYPE tag;
