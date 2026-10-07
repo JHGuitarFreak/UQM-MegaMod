@@ -981,14 +981,17 @@ GetWindowScale (void)
 	RECT r;
 	float window_aspect;
 	float target_aspect;
+	int win_w, win_h;
+
+	SDL_GetWindowSize (window, &win_w, &win_h);
 
 	switch (optKeepAspectRatio)
 	{
 	case 0:
 		r.corner.x = 0;
 		r.corner.y = 0;
-		r.extent.width = WindowWidth;
-		r.extent.height = WindowHeight;
+		r.extent.width = win_w;
+		r.extent.height = win_h;
 		return r;
 	case 2:
 		target_aspect = 4.0f / 3.0f;
@@ -999,21 +1002,21 @@ GetWindowScale (void)
 		break;
 	}
 
-	window_aspect = (float)WindowWidth / (float)WindowHeight;
+	window_aspect = (float)win_w / (float)win_h;
 
 	if (window_aspect > target_aspect)
 	{
-		r.extent.height = WindowHeight;
-		r.extent.width = (int)(WindowHeight * target_aspect);
-		r.corner.x = (WindowWidth - r.extent.width) / 2;
+		r.extent.height = win_h;
+		r.extent.width = (int)(win_h * target_aspect);
+		r.corner.x = (win_w - r.extent.width) / 2;
 		r.corner.y = 0;
 	}
 	else
 	{
-		r.extent.width = WindowWidth;
-		r.extent.height = (int)(WindowWidth / target_aspect);
+		r.extent.width = win_w;
+		r.extent.height = (int)(win_w / target_aspect);
 		r.corner.x = 0;
-		r.corner.y = (WindowHeight - r.extent.height) / 2;
+		r.corner.y = (win_h - r.extent.height) / 2;
 	}
 
 	return r;
