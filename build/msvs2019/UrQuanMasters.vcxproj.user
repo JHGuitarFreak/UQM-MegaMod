@@ -8,11 +8,24 @@
     </LocalDebuggerCommandArguments>
     <LocalDebuggerCommandArgumentsHistory>--log=debug.log --noclassic|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments />
+    <LocalDebuggerCommandArgumentsHistory>--log=debug.log --noclassic|</LocalDebuggerCommandArgumentsHistory>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)..\..\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommand>$(TargetFileName)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments />
   </PropertyGroup>
 </Project>
