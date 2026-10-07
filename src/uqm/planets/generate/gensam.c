@@ -192,8 +192,8 @@ GenerateSaMatra_generatePlanets (SOLARSYS_STATE *solarSys)
 
 		pPlanet->data_index = GenerateHabitableWorld ();
 
-		if (!GET_GAME_STATE (KOHR_AH_FRENZY)
-				&& (RaceDead (ARILOU_SHIP) || StarSeed))
+		if (!(GET_GAME_STATE (KOHR_AH_FRENZY) && RaceDead (ARILOU_SHIP))
+				|| StarSeed)
 		{
 			pPlanet->data_index |= PLANET_SHIELDED;
 		}
