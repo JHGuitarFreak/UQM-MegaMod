@@ -245,45 +245,47 @@ DrawBorderPadding (DWORD videoWidth)
 {
 	RECT r;
 	CONTEXT OldContext;
-	Color oldColor;
-	COORD border_size = RES_SCALE (16);
+	UWORD safe_x =
+			(videoWidth && videoWidth < 280 ? SAFE_NEG (4) * 2 : SAFE_X);
+
+	if (!safe_x)
+		return;
 
 	OldContext = SetContext (ScreenContext);
 
-	oldColor = SetContextForeGroundColor (BUILD_SHADE_RGBA (0x0C));
+	if (videoWidth)
+		SetContextForeGroundColor (BUILD_SHADE_RGBA (0x0C));
+	else
+		SetContextForeGroundColor (BLACK_COLOR);
 
-
-	// Left bar
+	// Top bar
 	r.corner = MAKE_POINT (0, 0);
-	r.extent.width = border_size;
-	r.extent.height = CanvasHeight;
+	r.extent.width = CanvasWidth;
+	r.extent.height = SAFE_Y;
 	DrawFilledRectangle (&r);
 
 	// Right bar
-	r.corner.x = CanvasWidth - border_size;
-	r.extent.width = border_size;
+	r.corner.x = r.extent.width - safe_x;
+	r.extent.width = safe_x;
 	r.extent.height = CanvasHeight;
 	DrawFilledRectangle (&r);
 
-	if (!IS_DOS)
-	{
-		// Top bar
-		r.corner = MAKE_POINT (0, 0);
-		r.extent.width = CanvasWidth;
-		r.extent.height = border_size;
-		DrawFilledRectangle (&r);
+	// Bottom bar
+	r.corner.x = 0;
+	r.corner.y = CanvasHeight - SAFE_Y;
+	r.extent.width = CanvasWidth;
+	r.extent.height = SAFE_Y;
+	DrawFilledRectangle (&r);
 
-		// Bottom bar
-		r.corner.x = 0;
-		r.corner.y = CanvasHeight - border_size;
-		r.extent.width = CanvasWidth;
-		r.extent.height = border_size;
-		DrawFilledRectangle (&r);
-	}
+	// Left bar
+	r.corner = MAKE_POINT (0, 0);
+	r.extent.width = safe_x;
+	r.extent.height = CanvasHeight;
+	DrawFilledRectangle (&r);
 
-	SetContextForeGroundColor (oldColor);
 	SetContext (OldContext);
 }
+
 
 void
 DrawRadarBorder (void)
