@@ -2371,7 +2371,7 @@ OnStarNameFrame (TEXTENTRY_STATE *pTES)
 BOOLEAN
 coords_only (UNICODE *s)
 {
-	BYTE i, count = 0;
+	BYTE i;
 	BYTE countD = 0, countC = 0;
 	BYTE j = (BYTE)strlen (s);
 	//const char *pattern = "^\d*(\.\d+)?:\d*(\.\d+)?$";
@@ -2379,19 +2379,11 @@ coords_only (UNICODE *s)
 	for (i = 0; i < j; i++)
 	{
 		if (s[i] == '.')
-		{
-			count++;
 			countD++;
-		}
 		else if (s[i] == ':')
-		{
-			count++;
 			countC++;
-		}
 		else if (isdigit (s[i]) == 0)
 			return FALSE;
-		else
-			count++;
 	}
 	return i == j && countD <= 2 && countC == 1;
 }
@@ -2541,7 +2533,6 @@ DoMoveCursor (MENU_STATE *pMS)
 #define STEP_ACCEL_DELAY (ONE_SECOND / 120)
 	static UNICODE last_buf[CURSOR_INFO_BUFSIZE];
 	DWORD TimeIn = GetTimeCounter ();
-	static COUNT moveRepeats;
 	BOOLEAN isMove = FALSE;
 	BOOLEAN zoom_in_key, zoom_out_key;
 	int cursor = CURSOR_POINTER;
@@ -2760,11 +2751,6 @@ DoMoveCursor (MENU_STATE *pMS)
 
 		SleepThreadUntil (TimeIn + MIN_ACCEL_DELAY);
 	}
-
-	if (isMove)
-		++moveRepeats;
-	else
-		moveRepeats = 0;
 
 	if (MouseInContext (SpaceContext))
 	{

@@ -156,24 +156,20 @@ _check_for_pulse (int *current, int *cached, int *old, DWORD *accel,
 static void
 _check_gestalt (DWORD NewTime)
 {
-	BOOLEAN CurrentGestalt;
 	int i, j;
 	OldGestalt = CachedGestalt;
 
 	CachedGestalt = 0;
-	CurrentGestalt = 0;
 	for (i = 0; i < NUM_TEMPLATES; i++)
 	{
 		for (j = 0; j < NUM_KEYS; j++)
 		{
 			CachedGestalt |= ImmediateInputState.key[i][j];
-			CurrentGestalt |= PulsedInputState.key[i][j];
 		}
 	}
-	for (i = 0; i < NUM_MENU_KEYS; i++)
+	for (i = 0; i < NUM_MENU_KEYS; i++) 
 	{
 		CachedGestalt |= ImmediateInputState.menu[i];
-		CurrentGestalt |= PulsedInputState.menu[i];
 	}
 
 	if (OldGestalt && CachedGestalt)

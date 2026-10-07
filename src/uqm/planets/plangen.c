@@ -1163,7 +1163,6 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 	POINT pt;
 	Color *pix;
 	Color clear;
-	int x, y;
 	Color *pixels;
 	SBYTE *elevs;
 	int shLevel;
@@ -1190,9 +1189,9 @@ RenderPlanetSphere (PLANET_ORBIT *Orbit, FRAME MaskFrame, int offset,
 
 	elevs = Orbit->lpTopoData;
 	
-	for (pt.y = 0, y = -radius; pt.y <= tworadius; ++pt.y, ++y)
+	for (pt.y = 0; pt.y <= tworadius; ++pt.y)
 	{
-		for (pt.x = 0, x = -radius; pt.x <= tworadius; ++pt.x, ++x, ++pix)
+		for (pt.x = 0; pt.x <= tworadius; ++pt.x, ++pix)
 		{
 			Color c;
 			DWORD diffus = Orbit->light_diff[pt.y][pt.x];
@@ -1392,7 +1391,6 @@ void
 Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset,
 		COUNT rotwidth, COUNT height)
 {
-	int x, y;
 	Color *c, *pixels, *shade;
 	Color clear;
 	POINT pt;
@@ -1406,9 +1404,9 @@ Render3DOPlanetSphere (PLANET_ORBIT* Orbit, FRAME MaskFrame, int offset,
 	pixels = Orbit->TopoColors + offset;
 	clear = BUILD_COLOR_RGBA (0, 0, 0, 0);
 
-	for (pt.y = 0, y = -radius; pt.y <= tworadius; ++pt.y, ++y)
+	for (pt.y = 0; pt.y <= tworadius; ++pt.y)
 	{
-		for (pt.x = 0, x = -radius; pt.x <= tworadius; ++pt.x, ++x, ++c,
+		for (pt.x = 0; pt.x <= tworadius; ++pt.x, ++c,
 				++shade)
 		{
 			MAP3D_POINT* ppt = &Orbit->map_rotate[pt.y][pt.x];

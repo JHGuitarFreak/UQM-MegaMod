@@ -181,7 +181,7 @@ _count_lines (TEXT *pText)
 static COORD
 add_text (int status, TEXT *pTextIn)
 {
-	COUNT maxchars, numchars;
+	COUNT maxchars;
 	TEXT locText;
 	TEXT *pText;
 	SIZE leading;
@@ -293,7 +293,6 @@ add_text (int status, TEXT *pTextIn)
 		pText->baseline.y -= leading;
 	}
 
-	numchars = 0;
 	pStr = pText->pStr;
 
 	if (status > 0 && (CommData.AlienTextValign &
@@ -318,7 +317,6 @@ add_text (int status, TEXT *pTextIn)
 		maxchars -= pText->CharCount;
 		if (maxchars != 0)
 			--maxchars;
-		numchars += pText->CharCount;
 		
 		if (status <= 0)
 		{
