@@ -60,7 +60,7 @@ typedef struct stdio_Handle {
 
 #ifdef WIN32
 struct stdio_EntriesIterator {
-	long dirHandle;
+	intptr_t dirHandle;
 	struct _finddata_t findData;
 	int status;
 };
@@ -101,7 +101,7 @@ int stdio_readEntries(stdio_EntriesIterator **iterator,
 		char *buf, size_t len);
 void stdio_closeEntries(stdio_EntriesIterator *iterator);
 #ifdef WIN32
-stdio_EntriesIterator *stdio_EntriesIterator_new(long dirHandle);
+stdio_EntriesIterator *stdio_EntriesIterator_new(intptr_t dirHandle);
 #else
 stdio_EntriesIterator *stdio_EntriesIterator_new(DIR *dirHandle);
 #endif

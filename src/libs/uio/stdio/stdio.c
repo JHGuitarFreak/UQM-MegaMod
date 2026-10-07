@@ -672,7 +672,7 @@ stdio_closeEntries(stdio_EntriesIterator *iterator) {
 
 #ifdef WIN32
 stdio_EntriesIterator *
-stdio_EntriesIterator_new(long dirHandle) {
+stdio_EntriesIterator_new(intptr_t dirHandle) {
 	stdio_EntriesIterator *result;
 
 	result = stdio_EntriesIterator_alloc();
