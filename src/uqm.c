@@ -469,15 +469,16 @@ int main(int argc, char** argv)
 
 	if (options.runMode == runMode_version)
 	{
- 		printf ("%d.%d.%d %s\n", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
+		printf ("%d.%d.%d %s\n", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 				UQM_PATCH_VERSION,
-				(resolutionFactor ? "HD " UQM_EXTRA_VERSION : UQM_EXTRA_VERSION));
+				(resolutionFactor ? "HD " UQM_EXTRA_VERSION :
+					UQM_EXTRA_VERSION));
 		log_showBox (false, false);
 		return EXIT_SUCCESS;
 	}
 	
 	log_add (log_User, "The Ur-Quan Masters v%d.%d.%d %s (compiled %s %s)\n"
-	        "This software comes with ABSOLUTELY NO WARRANTY;\n"
+			"This software comes with ABSOLUTELY NO WARRANTY;\n"
 			"for details see the included 'COPYING' file.\n",
 			UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
 			UQM_PATCH_VERSION,
@@ -493,35 +494,30 @@ int main(int argc, char** argv)
 
 	 // Compiler info to help with future debugging.
 #ifdef _MSC_VER
-		printf("MSC_VER: %d\n", _MSC_VER);
-		printf("MSC_FULL_VER: %d\n", _MSC_FULL_VER);
-		printf("MSC_BUILD: %d\n\n", _MSC_BUILD);
-		log_add(log_Info, "MSC_VER: %d\n", _MSC_VER);
-		log_add(log_Info, "MSC_FULL_VER: %d\n", _MSC_FULL_VER);
-		log_add(log_Info, "MSC_BUILD: %d\n", _MSC_BUILD);
+		log_add (log_Info, "MSC_VER: %d", _MSC_VER);
+		log_add (log_Info, "MSC_FULL_VER: %d", _MSC_FULL_VER);
+		log_add (log_Info, "MSC_BUILD: %d", _MSC_BUILD);
 #endif // _MSC_VER
 
 #ifdef __GNUC__
-		printf("GCC_VERSION: %d.%d.%d\n\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-		log_add(log_Info, "GCC_VERSION: %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		log_add (log_Info, "GCC_VERSION: %d.%d.%d",
+				__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #endif // __GNUC__
 
 #ifdef __clang__
-		printf("CLANG_VERSION: %d.%d.%d\n\n", __clang_major__, __clang_minor__, __clang_patchlevel__);
-		log_add(log_Info, "CLANG_VERSION: %d.%d.%d\n", __clang_major__, __clang_minor__, __clang_patchlevel__);
+		log_add (log_Info, "CLANG_VERSION: %d.%d.%d",
+				__clang_major__, __clang_minor__, __clang_patchlevel__);
 #endif // __clang__
 
-#ifdef __MINGW32__
-		printf("MINGW32_VERSION: %d.%d\n\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
-		log_add(log_Info, "MINGW32_VERSION: %d.%d\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
-#endif // __MINGW32__
+#if defined(__MINGW64__)
+		log_add (log_Info, "MINGW64_VERSION: %d.%d",
+				__MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
+#elif defined(__MINGW32__)
+		log_add (log_Info, "MINGW32_VERSION: %d.%d",
+				__MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
+#endif
 
-#ifdef __MINGW64__
-		printf("MINGW64_VERSION: %d.%d\n\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
-		log_add(log_Info, "MINGW64_VERSION: %d.%d\n", __MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION);
-#endif // __MINGW64__
-
-		printf("Build Time: %s %s\n\n", __DATE__, __TIME__);
+		log_add (log_Info, "Build Time: %s %s\n", __DATE__, __TIME__);
 
 	if (errBuffer[0] != '\0')
 	{	// Have some saved error to log
@@ -780,8 +776,8 @@ int main(int argc, char** argv)
 	InitColorMaps ();
 	init_communication ();
 	/* TODO: Once threading is gone, restore initAudio here.
-	   initAudio calls AssignTask, which currently blocks on
-	   ProcessThreadLifecycles... */
+	 *   initAudio calls AssignTask, which currently blocks on
+	 *   ProcessThreadLifecycles... */
 	// initAudio (snddriver, soundflags);
 	// Make sure that the compiler treats multidim arrays the way we expect
 	assert (sizeof (int [NUM_TEMPLATES * NUM_KEYS]) ==
@@ -1015,8 +1011,12 @@ getUserConfigOptions (struct options_struct *options)
 	getBoolConfigValue (&options->scanlines, "config.scanlines");
 	getBoolConfigValue (&options->showFps, "config.showfps");
 
-	if (res_IsInteger ("config.keepaspectratio") && !options->keepAspectRatio.set)
-		options->keepAspectRatio.value = res_GetInteger ("config.keepaspectratio");
+	if (res_IsInteger ("config.keepaspectratio")
+			&& !options->keepAspectRatio.set)
+	{
+		options->keepAspectRatio.value =
+				res_GetInteger ("config.keepaspectratio");
+	}
 
 	getGammaConfigValue (&options->gamma, "config.gamma");
 
@@ -2088,8 +2088,10 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 					saveError ("\nDifficulty has to be 0, 1, 2, or 3.\n");
 					badArg = true;
 				}
-				else {
-					options->optDiffChooser.value = options->optDifficulty.value = temp;
+				else
+				{
+					options->optDiffChooser.value =
+							options->optDifficulty.value = temp;
 					if (temp > 2)
 						options->optDifficulty.value = 0;
 					options->optDifficulty.set = true;
@@ -2643,24 +2645,25 @@ usage (FILE *out, const struct options_struct *defaults)
 
 	log_add (log_User, "  --kohrstahp : Stops Kohr-Ah advancing. "
 			"(default: %s)", boolOptString (&defaults->cheatMode));
-	log_add(log_User, "  --precursormode : =1 Infinite ship battery. =2 No damage"
-			"=3 Infinite ship battery and no damage (default: 0)");
+	log_add(log_User, "  --precursormode : =1 Infinite ship battery. =2 No "
+			"damage =3 Infinite ship battery and no damage (default: 0)");
 	log_add (log_User, "  --timedilation : =1 Time is slowed down times 6. "
 			"=2 Time is sped up times 5 (default: 0)");
 	log_add (log_User, "  --bubblewarp : Instantaneous travel to any point on "
 			"the Starmap. (default: %s)",
 			boolOptString (&defaults->bubbleWarp));
-	log_add (log_User, "  --unlockships : Allows you to purchase ships that you"
-			"can't normally acquire in the main game. (default: %s)",
+	log_add (log_User, "  --unlockships : Allows you to purchase ships that "
+			"you can't normally acquire in the main game. (default: %s)",
 			boolOptString (&defaults->unlockShips));
 	log_add (log_User, "  --headstart : Gives you an extra storage bay full of"
-			"minerals, Fwiffo, and the Moonbase during a new game (default: %s)",
+			"minerals, Fwiffo, and the Moonbase during a new game "
+			"(default: %s)",
 			boolOptString (&defaults->headStart));
 	log_add (log_User, "  --autobuttons : Automatically detect gamepad "
 			"button type to display (default: %s)",
 			boolOptString (&defaults->autoButtons));
-	log_add (log_User, "  --infiniteru : Gives you infinite R.U. as long as the"
-			"cheat is on (default: %s)",
+	log_add (log_User, "  --infiniteru : Gives you infinite R.U. as long as "
+			"the cheat is on (default: %s)",
 			boolOptString (&defaults->infiniteRU));
 	log_add (log_User, "  --skipintro : Skips the intro and Logo fmv "
 			"(default: %s)",

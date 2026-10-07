@@ -284,18 +284,11 @@ while (--ac > 0)
 
 	SplashScreen (BackgroundInitKernel);
 
-#ifdef DEBUG
-	printf ("Set Seed Type: %s\n", SeedStr ());
-	printf ("Set Seed: %d\n", optCustomSeed);
-	printf ("Set Difficulty: %s\n", DIF_STR (optDifficulty));
-	printf ("Set Extended: %s\n", BOOL_STR (optExtended));
-	printf ("Set Nomad: %s\n\n", NOMAD_STR (optNomad));
-#endif
-	log_add (log_Info, "Set Seed Type: %s\n", SeedStr ());
-	log_add (log_Info, "Set Seed: %d\n", optCustomSeed);
-	log_add (log_Info, "Set Difficulty: %s\n", DIF_STR (optDifficulty));
-	log_add (log_Info, "Set Extended: %s\n", BOOL_STR (optExtended));
-	log_add (log_Info, "Set Nomad: %s\n\n", NOMAD_STR (optNomad));
+	log_add (log_Info, "\nSet Seed Type: %s", SeedStr ());
+	log_add (log_Info, "Set Seed: %d", optCustomSeed);
+	log_add (log_Info, "Set Difficulty: %s", DIF_STR (optDifficulty));
+	log_add (log_Info, "Set Extended: %s", BOOL_STR (optExtended));
+	log_add (log_Info, "Set Nomad: %s\n", NOMAD_STR (optNomad));
 
 //	OpenJournal ();
 	while (StartGame ())
@@ -318,23 +311,13 @@ while (--ac > 0)
 		// Debug info when starting a new game
 		if (LastActivity == (CHECK_LOAD | CHECK_RESTART))
 		{
-#ifdef DEBUG
-			printf ("New Game Seed Type: %s\n", SeedStr ());
-			printf ("New Game Seed: %d\n", GLOBAL_SIS (Seed));
-			printf ("New Game Difficulty: %s\n",
+			log_add (log_Info, "\nNew Game Seed Type: %s", SeedStr ());
+			log_add (log_Info, "New Game Seed: %d", GLOBAL_SIS (Seed));
+			log_add (log_Info, "New Game Difficulty: %s",
 					DIF_STR (GLOBAL_SIS (Difficulty)));
-			printf ("New Game Extended: %s\n",
+			log_add (log_Info, "New Game Extended: %s",
 					BOOL_STR (GLOBAL_SIS (Extended)));
-			printf ("New Game Nomad: %s\n\n",
-					NOMAD_STR (GLOBAL_SIS (Nomad)));
-#endif
-			log_add (log_Info, "New Game Seed Type: %s\n", SeedStr ());
-			log_add (log_Info, "New Game Seed: %d\n", GLOBAL_SIS (Seed));
-			log_add (log_Info, "New Game Difficulty: %s\n",
-					DIF_STR (GLOBAL_SIS (Difficulty)));
-			log_add (log_Info, "New Game Extended: %s\n",
-					BOOL_STR (GLOBAL_SIS (Extended)));
-			log_add (log_Info, "New Game Nomad: %s\n\n",
+			log_add (log_Info, "New Game Nomad: %s\n",
 					NOMAD_STR (GLOBAL_SIS (Nomad)));
 		}
 
