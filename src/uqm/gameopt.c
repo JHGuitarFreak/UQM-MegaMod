@@ -1505,14 +1505,15 @@ TruncateSaveName (UNICODE* buf, COORD maxWidth, BOOLEAN naming)
 
 	if (r.extent.width > maxWidth)
 	{
-		size_t stringLength = strlen (t.pStr);
+		size_t str_len = strlen (t.pStr);
 		const char ellipses[] = "...";
+		const size_t ellipses_len = sizeof (ellipses);
 
 		do
 		{	// Shorten the save name down so it will fit the width of the
 			// save name box
-			strncpy (&buf[--stringLength - sizeof(ellipses)], ellipses,
-					sizeof(ellipses));
+			utf8StringCopy (&buf[--str_len - ellipses_len],
+					ellipses_len, ellipses);
 			r = font_GetTextRect(&t);
 		} while (r.extent.width > maxWidth);
 

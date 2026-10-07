@@ -2533,7 +2533,6 @@ DoMoveCursor (MENU_STATE *pMS)
 #define STEP_ACCEL_DELAY (ONE_SECOND / 120)
 	static UNICODE last_buf[CURSOR_INFO_BUFSIZE];
 	DWORD TimeIn = GetTimeCounter ();
-	BOOLEAN isMove = FALSE;
 	BOOLEAN zoom_in_key, zoom_out_key;
 	int cursor = CURSOR_POINTER;
 
@@ -2746,7 +2745,6 @@ DoMoveCursor (MENU_STATE *pMS)
 			UpdateCursorLocation (sx, sy, NULL);
 			UpdateCursorInfo (last_buf);
 			UpdateFuelRequirement ();
-			isMove = TRUE;
 		}
 
 		SleepThreadUntil (TimeIn + MIN_ACCEL_DELAY);

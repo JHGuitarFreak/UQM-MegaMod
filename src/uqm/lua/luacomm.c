@@ -234,7 +234,7 @@ luaUqm_comm_stringInterpolate (const char *str)
 		// Call the Lua function.
 		if (lua_pcall (luaUqm_commState, 0, 1, 0) != 0) {
 			log_add (log_Error, "[script] luaUqm_stringInterpolate(): A "
-					"script error occurred in interpolation %d in string "
+					"script error occurred in interpolation %ld in string "
 					"'%s': %s.", interI, str,
 					lua_tostring (luaUqm_commState, -1));
 			lua_pop (luaUqm_commState, 1);
@@ -248,7 +248,7 @@ luaUqm_comm_stringInterpolate (const char *str)
 		if (part == NULL) {
 			// Not a string and not convertable to a string.
 			log_add (log_Error, "[script] luaUqm_stringInterpolate(): Value "
-					"returned by interpolation %d has type %s, which can not "
+					"returned by interpolation %ld has type %s, which can not "
 					"be converted to a string, in string " "'%s'.",
 					interI, lua_typename(luaUqm_commState,
 					lua_type(luaUqm_commState, -1)), str);

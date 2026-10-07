@@ -215,8 +215,10 @@ DrawDiffChooser (MENU_STATE *pMS, BYTE answer, BOOLEAN confirm)
 static BOOLEAN
 DoDiffChooser (MENU_STATE *pMS)
 {
+#ifndef DEBUG
 	static TimeCount LastInputTime;
 	static TimeCount InactTimeOut;
+#endif
 	RECT oldRect;
 	STAMP s;
 	CONTEXT oldContext;
@@ -224,8 +226,10 @@ DoDiffChooser (MENU_STATE *pMS)
 	BOOLEAN done = FALSE;
 	BYTE a = 1;
 
+#ifndef DEBUG
 	InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
 	LastInputTime = GetTimeCounter ();
+#endif
 
 	oldContext = SetContext (ScreenContext);
 	GetContextClipRect (&oldRect);
@@ -294,9 +298,9 @@ DoDiffChooser (MENU_STATE *pMS)
 			}
 
 			PlayMenuSound (MENU_SOUND_MOVE);
-
+#ifndef DEBUG
 			LastInputTime = GetTimeCounter ();
-
+#endif
 		}
 		else
 		{
@@ -327,8 +331,9 @@ DoDiffChooser (MENU_STATE *pMS)
 
 					PlayMenuSound (MENU_SOUND_MOVE);
 				}
-
+#ifndef DEBUG
 				LastInputTime = GetTimeCounter ();
+#endif
 			}
 #ifndef DEBUG
 			else if (GetTimeCounter () - LastInputTime > InactTimeOut)
@@ -506,8 +511,10 @@ RestartMessage (void)
 static BOOLEAN
 DoRestart (MENU_STATE *pMS)
 {
+#ifndef DEBUG
 	static TimeCount LastInputTime;
 	static TimeCount InactTimeOut;
+#endif
 	TimeCount TimeIn = GetTimeCounter ();
 
 	/* Cancel any presses of the Pause key. */
@@ -540,9 +547,9 @@ DoRestart (MENU_STATE *pMS)
 		InitMenuMusic ();
 		InitPulseText ();
 		ResetMusicResume ();
-
+#ifndef DEBUG
 		InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
-
+#endif
 		pMS->flashContext = Flash_createOverlay (ScreenContext,
 				NULL, NULL);
 		Flash_setMergeFactors (pMS->flashContext, -3, 3, 16);
@@ -555,8 +562,9 @@ DoRestart (MENU_STATE *pMS)
 
 		DrawRestartMenu (pMS, pMS->CurState, NULL);
 		Flash_start (pMS->flashContext);
-
+#ifndef DEBUG
 		LastInputTime = GetTimeCounter ();
+#endif
 		pMS->Initialized = TRUE;
 
 		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
@@ -597,8 +605,10 @@ DoRestart (MENU_STATE *pMS)
 						 (3 * ONE_SECOND) / 16);
 					if (!DoDiffChooser (pMS))
 					{
+#ifndef DEBUG
 						// if we timed out - don't start second credit roll
 						LastInputTime = GetTimeCounter ();
+#endif
 						if (GLOBAL (CurrentActivity) != (ACTIVITY)~0)// just declined
 							Flash_continue (pMS->flashContext);
 						return TRUE;
@@ -631,10 +641,10 @@ DoRestart (MENU_STATE *pMS)
 
 				if (optRequiresReload)
 					return FALSE;
-
+#ifndef DEBUG
 				LastInputTime = GetTimeCounter ();
 				InactTimeOut = (optMainMenuMusic ? 60 : 20) * ONE_SECOND;
-
+#endif
 				SetTransitionSource (NULL);
 				BatchGraphics ();
 				DrawRestartMenuGraphic (pMS);
@@ -685,13 +695,16 @@ DoRestart (MENU_STATE *pMS)
 			UnbatchGraphics ();
 			pMS->CurState = NewState;
 		}
-
+#ifndef DEBUG
 		LastInputTime = GetTimeCounter ();
+#endif
 	}
 	else if (PulsedInputState.menu[KEY_MENU_LEFT] ||
 			PulsedInputState.menu[KEY_MENU_RIGHT])
 	{	// Does nothing, but counts as input for timeout purposes
+#ifndef DEBUG
 		LastInputTime = GetTimeCounter ();
+#endif
 	}
 	else
 	{
@@ -721,8 +734,9 @@ DoRestart (MENU_STATE *pMS)
 				pMS->CurState = hovered_item;
 				PlayMenuSound (MENU_SOUND_MOVE);
 			}
-
+#ifndef DEBUG
 			LastInputTime = GetTimeCounter ();
+#endif
 		}
 #ifndef DEBUG
 		else
