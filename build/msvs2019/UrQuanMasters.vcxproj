@@ -143,6 +143,7 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <AdditionalIncludeDirectories>..\..\src;..\..\src\regex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <PostBuildEvent>
       <Command>xcopy /Y "$(TargetPath)" "$(LocalDebuggerWorkingDirectory)"
@@ -243,7 +244,8 @@ editbin /REBASE:BASE=0x400000 /DYNAMICBASE:NO "$(LocalDebuggerWorkingDirectory)$
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CompileAs>Default</CompileAs>
       <UseFullPaths>false</UseFullPaths>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Midl>
       <TypeLibraryName>.\Debug\UrQuanMasters.tlb</TypeLibraryName>
