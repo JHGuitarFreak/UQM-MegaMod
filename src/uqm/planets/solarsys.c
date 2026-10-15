@@ -830,6 +830,98 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 	(*system->genFuncs->generateMoons) (system, planet);
 }
 
+double
+PerlinDot (int *g, double x, double y, double z)
+{
+	return g[0] * x + g[1] * y + g[2] * z;
+}
+
+double
+PerlinMix (double a, double b, double t)
+{
+	return (1.0 - t) * a + t * b;
+}
+
+double
+PerlinFade (double t)
+{
+	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+}
+
+void
+PerlinInit (BYTE *perm, RandomContext *rng)
+{
+	int i;
+	int p[256];
+
+	for (i = 0; i < 256; i++)
+		p[i] = floor (RandomContext_Random (rng) * 256);
+
+	for (i = 0; i < 512; i++)
+		perm[i] = p[i & 255];
+}
+
+double
+PerlinNoise (BYTE *perm, int x, int y, int z)
+{
+	int X, Y, Z;
+	double u, v, w;
+	int gi000, gi001, gi010, gi011, gi100, gi101, gi110, gi111;
+	double n000, n100, n010, n110, n001, n101, n011, n111;
+	double nx00, nx01, nx10, nx11, nxy0, nxy1, nxyz;
+	int grad3[12][3] =
+	{
+		{  1,  1,  0 }, { -1, 1,  0 }, {  1, -1,  0 },
+		{ -1, -1,  0 }, {  1, 0,  1 }, { -1,  0,  1 },
+		{  1,  0, -1 }, { -1, 0, -1 }, {  0,  1,  1 },
+		{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
+	};
+
+	X = floor (x);
+	Y = floor (y);
+	Z = floor (z);
+	x = x - X;
+	y = y - Y;
+	z = z - Z;
+	X &= 255;
+	Y &= 255;
+	Z &= 255;
+	gi000 = perm[X + perm[Y + perm[Z]]] % 12;
+	gi001 = perm[X + perm[Y + perm[Z + 1]]] % 12;
+	gi010 = perm[X + perm[Y + 1 + perm[Z]]] % 12;
+	gi011 = perm[X + perm[Y + 1 + perm[Z + 1]]] % 12;
+	gi100 = perm[X + 1 + perm[Y + perm[Z]]] % 12;
+	gi101 = perm[X + 1 + perm[Y + perm[Z + 1]]] % 12;
+	gi110 = perm[X + 1 + perm[Y + 1 + perm[Z]]] % 12;
+	gi111 = perm[X + 1 + perm[Y + 1 + perm[Z + 1]]] % 12;
+	n000 = PerlinDot (grad3[gi000], x, y, z);
+	n100 = PerlinDot (grad3[gi100], x - 1, y, z);
+	n010 = PerlinDot (grad3[gi010], x, y - 1, z);
+	n110 = PerlinDot (grad3[gi110], x - 1, y - 1, z);
+	n001 = PerlinDot (grad3[gi001], x, y, z - 1);
+	n101 = PerlinDot (grad3[gi101], x - 1, y, z - 1);
+	n011 = PerlinDot (grad3[gi011], x, y - 1, z - 1);
+	n111 = PerlinDot (grad3[gi111], x - 1, y - 1, z - 1);
+	u = PerlinFade ((double)x);
+	v = PerlinFade ((double)y);
+	w = PerlinFade ((double)z);
+	nx00 = PerlinMix (n000, n100, u);
+	nx01 = PerlinMix (n001, n101, u);
+	nx10 = PerlinMix (n010, n110, u);
+	nx11 = PerlinMix (n011, n111, u);
+	nxy0 = PerlinMix (nx00, nx10, v);
+	nxy1 = PerlinMix (nx01, nx11, v);
+	nxyz = PerlinMix (nxy0, nxy1, w);
+
+	return nxyz;
+}
+
+double
+ClassicalNoise (BYTE *perm, double x, double y, double z)
+{
+	return 0.5 * PerlinNoise (perm, x, y, z) + 0.5;
+}
+
 FRAME
 LoadNebulaeFrame (POINT location)
 {
