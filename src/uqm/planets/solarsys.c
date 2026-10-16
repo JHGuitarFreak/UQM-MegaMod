@@ -862,7 +862,7 @@ PerlinInit (BYTE *perm, RandomContext *rng)
 }
 
 double
-PerlinNoise (BYTE *perm, int x, int y, int z)
+Perlin (BYTE *perm, double x, double y, double z)
 {
 	int X, Y, Z;
 	double u, v, w;
@@ -877,9 +877,9 @@ PerlinNoise (BYTE *perm, int x, int y, int z)
 		{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
 	};
 
-	X = floor (x);
-	Y = floor (y);
-	Z = floor (z);
+	X = (int)floor (x);
+	Y = (int)floor (y);
+	Z = (int)floor (z);
 	x = x - X;
 	y = y - Y;
 	z = z - Z;
@@ -917,9 +917,23 @@ PerlinNoise (BYTE *perm, int x, int y, int z)
 }
 
 double
-ClassicalNoise (BYTE *perm, double x, double y, double z)
+PerlinNoise (BYTE *perm, double x, double y, double z)
 {
-	return 0.5 * PerlinNoise (perm, x, y, z) + 0.5;
+	return 0.5 * Perlin (perm, x, y, z) + 0.5;
+}
+
+static double
+NebulaRecursiveField (BYTE *perm, double x, double y, int depth, double divisor)
+{
+	double displace;
+
+	if (depth == 0)
+		return PerlinNoise (perm, x / divisor, y / divisor, 0.0);
+
+	displace = NebulaRecursiveField (perm, x, y, depth - 1, divisor / 2.0);
+
+	return PerlinNoise (perm, x / divisor + displace, y / divisor + displace, 0.0);
+}
 }
 
 FRAME
