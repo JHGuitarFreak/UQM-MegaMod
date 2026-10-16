@@ -861,6 +861,14 @@ PerlinInit (BYTE *perm, RandomContext *rng)
 		perm[i] = p[i & 255];
 }
 
+int grad3[12][3] =
+	{
+		{  1,  1,  0 }, { -1, 1,  0 }, {  1, -1,  0 },
+		{ -1, -1,  0 }, {  1, 0,  1 }, { -1,  0,  1 },
+		{  1,  0, -1 }, { -1, 0, -1 }, {  0,  1,  1 },
+		{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
+	};
+
 double
 Perlin (BYTE *perm, double x, double y, double z)
 {
@@ -869,13 +877,6 @@ Perlin (BYTE *perm, double x, double y, double z)
 	int gi000, gi001, gi010, gi011, gi100, gi101, gi110, gi111;
 	double n000, n100, n010, n110, n001, n101, n011, n111;
 	double nx00, nx01, nx10, nx11, nxy0, nxy1, nxyz;
-	int grad3[12][3] =
-	{
-		{  1,  1,  0 }, { -1, 1,  0 }, {  1, -1,  0 },
-		{ -1, -1,  0 }, {  1, 0,  1 }, { -1,  0,  1 },
-		{  1,  0, -1 }, { -1, 0, -1 }, {  0,  1,  1 },
-		{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
-	};
 
 	X = (int)floor (x);
 	Y = (int)floor (y);
