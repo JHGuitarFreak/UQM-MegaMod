@@ -974,7 +974,7 @@ alpha_blend (Uint8 dc, Uint8 sc, int alpha)
 
 Color
 NebulaNext (Color canvas, BYTE *perm, double r, double g, double b,
-	double x, double y, double intensity, double falloff)
+		double x, double y, double intensity, double falloff)
 {
 	Color c;
 
@@ -987,6 +987,39 @@ NebulaNext (Color canvas, BYTE *perm, double r, double g, double b,
 
 	return canvas;
 }
+
+void
+NebulaRenderer (Color *canvas, int width, int height, RandomContext *rng)
+{
+	Color *c;
+	int i, count;
+	double scale;
+	BYTE perm[512];
+
+	PerlinInit (perm, rng);
+
+	scale = dmax (width, height) / 4.0;
+
+	count = 1;
+	while ((double)RandomContext_Random (rng) < 0.5)
+		count++;
+
+	for (i = 0; i < count; i++)
+	{
+		double r = (double)RandomContext_Random (rng);
+		double g = (double)RandomContext_Random (rng);
+		double b = (double)RandomContext_Random (rng);
+		double intensity = (double)RandomContext_Random (rng) * 0.2 + 1.0;
+		double falloff = (double)RandomContext_Random (rng) * 3.0 + 3.0;
+
+		for (c = canvas; c < canvas + width * height; c++)
+		{
+			double x = ((c - canvas) % width) / scale;
+			double y = ((c - canvas) / width) / scale;
+
+			*c = NebulaNext (*c, perm, r, g, b, x, y, intensity, falloff);
+		}
+	}
 }
 
 FRAME
