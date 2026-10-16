@@ -922,7 +922,7 @@ PerlinNoise (BYTE *perm, double x, double y, double z)
 	return 0.5 * Perlin (perm, x, y, z) + 0.5;
 }
 
-static double
+double
 NebulaRecursiveField (BYTE *perm, double x, double y, int depth, double divisor)
 {
 	double displace;
@@ -933,6 +933,34 @@ NebulaRecursiveField (BYTE *perm, double x, double y, int depth, double divisor)
 	displace = NebulaRecursiveField (perm, x, y, depth - 1, divisor / 2.0);
 
 	return PerlinNoise (perm, x / divisor + displace, y / divisor + displace, 0.0);
+}
+
+#if !defined (_MSC_VER)
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
+Color NebulaRGBA (double r, double g, double b, double a)
+{
+	Color c;
+
+	c.r = floor (r * 255);
+	c.g = floor (g * 255);
+	c.b = floor (b * 255);
+	c.a = a;
+
+	return c;
+}
+
+Color
+NebulaField (BYTE *perm, double r, double g, double b, double x, double y,
+		double intensity, double falloff)
+{
+	double i = min(1, NebulaRecursiveField (perm, x, y, 5, 2) * intensity);
+
+	i = pow (i, falloff);
+
+	return NebulaRGBA (r, g, b, i);
 }
 }
 
