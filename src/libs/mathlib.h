@@ -37,6 +37,17 @@ scaleThing (float original, float thingToScale)
 	return (original / thingToScale);
 }
 
+inline static double
+dmin (double a, double b)
+{
+	return a < b ? a : b;
+}
+
+inline static double
+dmax (double a, double b)
+{
+	return a > b ? a : b;
+}
 
 #if defined(__cplusplus)
 }
