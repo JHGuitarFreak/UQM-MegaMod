@@ -944,7 +944,7 @@ NebulaRGBA (double r, double g, double b, double a)
 	c.r = floor (r * 255);
 	c.g = floor (g * 255);
 	c.b = floor (b * 255);
-	c.a = a;
+	c.a = floor (a * 255);
 
 	return c;
 }
