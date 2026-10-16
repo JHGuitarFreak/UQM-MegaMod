@@ -960,6 +960,33 @@ NebulaField (BYTE *perm, double r, double g, double b, double x, double y,
 
 	return NebulaRGBA (r, g, b, i);
 }
+
+// copied alpha_blend from primitives.c for testing
+Uint8
+alpha_blend (Uint8 dc, Uint8 sc, int alpha)
+{
+	if (alpha == 0xff)
+		return sc;
+	else
+		return (((sc - dc) * alpha) >> 8) + dc;
+
+}
+
+Color
+NebulaNext (Color canvas, BYTE *perm, double r, double g, double b,
+	double x, double y, double intensity, double falloff)
+{
+	Color c;
+
+	c = NebulaField (perm, r, g, b, x, y, intensity, falloff);
+
+	canvas.r = alpha_blend (canvas.r, c.r, c.a);
+	canvas.g = alpha_blend (canvas.g, c.g, c.a);
+	canvas.b = alpha_blend (canvas.b, c.b, c.a);
+	canvas.a = alpha_blend (canvas.a, 255, c.a);
+
+	return canvas;
+}
 }
 
 FRAME
