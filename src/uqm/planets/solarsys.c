@@ -938,8 +938,6 @@ NebulaRecursiveField (BYTE *perm, double x, double y, int depth, double divisor)
 
 Color
 NebulaRGBA (double r, double g, double b, double a)
-
-Color NebulaRGBA (double r, double g, double b, double a)
 {
 	Color c;
 
