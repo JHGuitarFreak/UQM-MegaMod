@@ -855,7 +855,11 @@ PerlinInit (BYTE *perm, RandomContext *rng)
 	int p[256];
 
 	for (i = 0; i < 256; i++)
-		p[i] = floor (RandomContext_Random (rng) * 256);
+	{
+		p[i] = RandomContext_Random (rng) % 256;
+
+		//printf ("p[%d] %d\n", i, p[i]);
+	}
 
 	for (i = 0; i < 512; i++)
 		perm[i] = p[i & 255];
@@ -988,6 +992,12 @@ NebulaNext (Color canvas, BYTE *perm, double r, double g, double b,
 	return canvas;
 }
 
+double
+RandomHelper (RandomContext *rng)
+{	// To get a decimal range between 0 and 1
+	return (double)RandomContext_Random (rng) / (double)SeedM;
+}
+
 void
 NebulaRenderer (Color *canvas, int width, int height, RandomContext *rng)
 {
@@ -996,21 +1006,27 @@ NebulaRenderer (Color *canvas, int width, int height, RandomContext *rng)
 	double scale;
 	BYTE perm[512];
 
-	PerlinInit (perm, rng);
-
 	scale = dmax (width, height) / 4.0;
 
-	count = 1;
-	while ((double)RandomContext_Random (rng) < 0.5)
+	count = 4;
+	while (RandomHelper (rng) < 0.5)
 		count++;
 
 	for (i = 0; i < count; i++)
 	{
-		double r = (double)RandomContext_Random (rng);
-		double g = (double)RandomContext_Random (rng);
-		double b = (double)RandomContext_Random (rng);
-		double intensity = (double)RandomContext_Random (rng) * 0.2 + 1.0;
-		double falloff = (double)RandomContext_Random (rng) * 3.0 + 3.0;
+		double r, g, b;
+
+		PerlinInit (perm, rng);
+
+		r = RandomHelper (rng);
+		g = RandomHelper (rng);
+		b = RandomHelper (rng);
+		printf ("r %f, g %f, b %f\n", r, g, b);
+
+
+		double intensity = RandomHelper (rng) * 0.2 + 1.0;
+		double falloff = RandomHelper (rng) * 3.0 + 3.0;
+		printf ("intensity %f, falloff %f\n", intensity, falloff);
 
 		for (c = canvas; c < canvas + width * height; c++)
 		{
@@ -1023,12 +1039,56 @@ NebulaRenderer (Color *canvas, int width, int height, RandomContext *rng)
 }
 
 FRAME
+CreateNebulaFrame (COORD neb_seed, SIZE width, SIZE height)
+{
+	Color *canvas;
+	DRAWABLE drawable;
+	FRAME neb_frame;
+	RandomContext *NebGenRNG;
+
+	canvas = (Color *)HMalloc (width * height * sizeof (Color));
+	if (canvas == NULL)
+		return NULL;
+	memset (canvas, 0, width * height * sizeof (Color));
+
+	NebGenRNG = RandomContext_New ();
+	if (NebGenRNG == NULL)
+	{
+		HFree (canvas);
+		return NULL;
+	}
+
+	RandomContext_SeedRandom (NebGenRNG, neb_seed);
+	NebulaRenderer (canvas, width, height, NebGenRNG);
+
+	drawable = CreateDrawable (WANT_PIXMAP | WANT_ALPHA, width, height, 1);
+	if (drawable == NULL)
+	{
+		HFree (canvas);
+		return NULL;
+	}
+
+	neb_frame = CaptureDrawable (drawable);
+	if (neb_frame == NULL)
+	{
+		DestroyDrawable (drawable);
+		HFree (canvas);
+		return NULL;
+	}
+
+	WriteFramePixelColors (neb_frame, canvas, width, height);
+	HFree (canvas);
+
+	RandomContext_Delete (NebGenRNG);
+
+	return neb_frame;
+}
+
+FRAME
 LoadNebulaeFrame (POINT location)
 {
-	UNICODE path[PATH_MAX];
-	STRING nebulaRes;
 	COUNT nebulaCount;
-	POINT neb_seed;
+	COORD neb_seed;
 	const POINT solPoint = plot_map[SOL_DEFINED].star_pt;
 
 	// Kruzen: Either loading from main menu or option is disabled or
@@ -1042,34 +1102,25 @@ LoadNebulaeFrame (POINT location)
 
 	if (!PrimeSeed)
 	{
-		DWORD rand_val;
+		DWORD rand_val = MAKE_DWORD (location.y, location.x);
 
-		rand_val = RandomContext_FastRandom (
-				MAKE_DWORD (location.y, location.x));
-
-		neb_seed.x = LOWORD (rand_val);
-		neb_seed.y = HIWORD (rand_val);
+		rand_val = RandomContext_FastRandom (rand_val);
+		neb_seed = HIWORD (rand_val);
 	}
 	else
 	{
-		neb_seed.x = location.x;
-		neb_seed.y = location.y;
+		neb_seed = location.y;
 	}
-		
-	nebulaRes = CaptureStringTable (
-			LoadStringTable (NEBULA_RESOURCES));
-	nebulaCount = GetStringTableCount (nebulaRes);
-	sprintf (path, "%s",
-			GET_STRING (nebulaRes, neb_seed.x % nebulaCount));
-	DestroyStringTable (ReleaseStringTable (nebulaRes));
 
-	if ((neb_seed.y % (nebulaCount + 6)) > nebulaCount
-				&& !classicPackPresent && !inHyperSpace ())
+	nebulaCount = 44;
+
+	if ((neb_seed % (nebulaCount + 6)) > nebulaCount
+			&& !classicPackPresent && !inHyperSpace ())
 	{
 		return NULL;
 	}
 
-	return CaptureDrawable (LoadGraphicFile (path));
+	return CreateNebulaFrame (neb_seed, SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT);
 }
 
 static void
