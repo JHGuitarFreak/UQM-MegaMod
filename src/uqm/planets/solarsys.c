@@ -1034,7 +1034,7 @@ NebulaRenderer (Color *canvas, int width, int height)
 		NebState[layer].r = RandomHelper ();
 		NebState[layer].g = RandomHelper ();
 		NebState[layer].b = RandomHelper ();
-		NebState[layer].intensity = RandomHelper () * 0.2 + 1.0;
+		NebState[layer].intensity = RandomHelper () * 0.35 + 1.0;
 		NebState[layer].falloff = RandomHelper () * 3.0 + 3.0;
 	}
 
