@@ -832,6 +832,15 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 
 // Begin Nebula Gen
 
+typedef struct
+{
+	float r, g, b;
+	float intensity, falloff;
+	BYTE perm[512];
+} NEBULA_STATE;
+
+#define MAX_NEB_LAYERS 8
+static NEBULA_STATE NebState[MAX_NEB_LAYERS];
 static RandomContext *NebGenRNG;
 static const int grad3[12][3] =
 {
@@ -840,6 +849,23 @@ static const int grad3[12][3] =
 	{  1,  0, -1 }, { -1, 0, -1 }, {  0,  1,  1 },
 	{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
 };
+
+// copied alpha_blend from primitives.c for testing
+static Uint8
+alpha_blend (Uint8 dc, Uint8 sc, int alpha)
+{
+	if (alpha == 0xff)
+		return sc;
+	else
+		return (((sc - dc) * alpha) >> 8) + dc;
+
+}
+
+static float
+RandomHelper (void)
+{	// To get a decimal range between 0 and 1
+	return (float)RandomContext_Random (NebGenRNG) / (float)SeedM;
+}
 
 static inline float
 PerlinDot (const int *g, float x, float y, float z)
@@ -938,28 +964,6 @@ NebulaRecursiveField (const BYTE *perm, float x, float y, int depth,
 	return Perlin (perm, x / div + displace, y / div + displace, 0.0);
 }
 
-#define MAX_NEB_LAYERS 8
-
-typedef struct
-{
-	float r, g, b;
-	float intensity, falloff;
-	BYTE perm[512];
-} NEBULA_STATE;
-
-static NEBULA_STATE NebState[MAX_NEB_LAYERS];
-
-// copied alpha_blend from primitives.c for testing
-static Uint8
-alpha_blend (Uint8 dc, Uint8 sc, int alpha)
-{
-	if (alpha == 0xff)
-		return sc;
-	else
-		return (((sc - dc) * alpha) >> 8) + dc;
-
-}
-
 static Color
 NebulaNext (const NEBULA_STATE *ns, Color canvas, float x, float y)
 {
@@ -983,12 +987,6 @@ NebulaNext (const NEBULA_STATE *ns, Color canvas, float x, float y)
 	canvas.a = alpha_blend (canvas.a, 255, c.a);
 
 	return canvas;
-}
-
-static float
-RandomHelper (void)
-{	// To get a decimal range between 0 and 1
-	return (float)RandomContext_Random (NebGenRNG) / (float)SeedM;
 }
 
 static void
