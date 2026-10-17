@@ -866,18 +866,6 @@ RandomHelper (void)
 	return (float)RandomContext_Random (NebGenRNG) / (float)SeedM;
 }
 
-static inline float
-PerlinMix (float a, float b, float t)
-{
-	return (1.0 - t) * a + t * b;
-}
-
-static inline float
-PerlinFade (float t)
-{
-	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
-}
-
 static float
 Perlin (const BYTE *perm, float x, float y)
 {
@@ -893,19 +881,22 @@ Perlin (const BYTE *perm, float x, float y)
 	y = y - Y;
 	X &= 255;
 	Y &= 255;
-	gi000 = perm[X + perm[Y + perm[0]]] % 12;
-	gi010 = perm[X + perm[Y + 1 + perm[0]]] % 12;
-	gi100 = perm[X + 1 + perm[Y + perm[0]]] % 12;
+	gi000 = perm[X +     perm[Y +     perm[0]]] % 12;
+	gi010 = perm[X +     perm[Y + 1 + perm[0]]] % 12;
+	gi100 = perm[X + 1 + perm[Y +     perm[0]]] % 12;
 	gi110 = perm[X + 1 + perm[Y + 1 + perm[0]]] % 12;
-	n000 = grad2[gi000][0] * x + grad2[gi000][1] * y;
-	n100 = grad2[gi100][0] * (x - 1) + grad2[gi100][1] * y;
-	n010 = grad2[gi010][0] * x + grad2[gi010][1] * (y - 1);
+	// Dot
+	n000 = grad2[gi000][0] *  x      + grad2[gi000][1] *  y;
+	n100 = grad2[gi100][0] * (x - 1) + grad2[gi100][1] *  y;
+	n010 = grad2[gi010][0] *  x      + grad2[gi010][1] * (y - 1);
 	n110 = grad2[gi110][0] * (x - 1) + grad2[gi110][1] * (y - 1);
-	u = PerlinFade (x);
-	v = PerlinFade (y);
-	nx00 = PerlinMix (n000, n100, u);
-	nx10 = PerlinMix (n010, n110, u);
-	nxy0 = PerlinMix (nx00, nx10, v);
+	// Fade
+	u = x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
+	v = y * y * y * (y * (y * 6.0 - 15.0) + 10.0);
+	// Mix
+	nx00 = (1.0 - u) * n000 + u * n100;
+	nx10 = (1.0 - u) * n010 + u * n110;
+	nxy0 = (1.0 - v) * nx00 + v * nx10;
 
 	return (0.5 * nxy0 + 0.5);
 }
