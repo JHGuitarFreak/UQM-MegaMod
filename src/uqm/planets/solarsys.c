@@ -922,12 +922,14 @@ NebulaNext (const NEBULA_STATE *ns, Color canvas, float x, float y)
 	Color c;
 
 	i = dmin (1, NebulaRecursiveField (ns->perm, x, y, 4, 2) * ns->intensity);
-	i = pow (i, ns->falloff);
+
+	if (!(i == 0.0f || i == 1.0f))
+		i = pow (i, ns->falloff);
 
 	c.r = (int)(ns->r * 255);
 	c.g = (int)(ns->g * 255);
 	c.b = (int)(ns->b * 255);
-	c.a = (int)(i * 255);
+	c.a = (int)(    i * 255);
 	
 	if (c.a == 0)
 		return canvas;
