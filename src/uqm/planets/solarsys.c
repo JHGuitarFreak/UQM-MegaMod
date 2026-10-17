@@ -946,7 +946,7 @@ static void
 NebulaRenderer (Color *canvas, int width, int height)
 {
 	Color *c;
-	int count, layer;
+	int count, layer, x, y;
 	float scale;
 
 	scale = dmax (width, height) / 4.0;
@@ -965,20 +965,30 @@ NebulaRenderer (Color *canvas, int width, int height)
 		for (i = 0; i < 512; i++)
 			NebState[layer].perm[i] = p[i & 255];
 
-		NebState[layer].r = RandomHelper ();
-		NebState[layer].g = RandomHelper ();
-		NebState[layer].b = RandomHelper ();
+		NebState[layer].r =         RandomHelper ();
+		NebState[layer].g =         RandomHelper ();
+		NebState[layer].b =         RandomHelper ();
 		NebState[layer].intensity = RandomHelper () * 0.35 + 1.0;
-		NebState[layer].falloff = RandomHelper () * 3.0 + 3.0;
+		NebState[layer].falloff =   RandomHelper () * 3.0 + 3.0;
+
+		//printf ("Layer %d/%d, R %f, G %f, B %f, Intensity %f, Falloff %f\n",
+		//		layer + 1, count,
+		//		NebState[layer].r, NebState[layer].g, NebState[layer].b,
+		//		NebState[layer].intensity, NebState[layer].falloff);
 	}
 
-	for (c = canvas; c < canvas + width * height; c++)
+	for (y = 0; y < height; y++)
 	{
-		float x = ((c - canvas) % width) / scale;
-		float y = ((c - canvas) / width) / scale;
+		Color *row = &canvas[y * width];
 
-		for (layer = 0; layer < count; layer++)
-			*c = NebulaNext (&NebState[layer], *c, x, y);
+		for (x = 0; x < width; x++)
+		{
+			float fx = x / scale;
+			float fy = y / scale;
+
+			for (layer = 0; layer < count; layer++)
+				row[x] = NebulaNext (&NebState[layer], row[x], fx, fy);
+		}
 	}
 }
 
