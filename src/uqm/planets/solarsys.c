@@ -830,33 +830,44 @@ GenerateMoons (SOLARSYS_STATE *system, PLANET_DESC *planet)
 	(*system->genFuncs->generateMoons) (system, planet);
 }
 
-double
-PerlinDot (int *g, double x, double y, double z)
+// Begin Nebula Gen
+
+static RandomContext *NebGenRNG;
+static const int grad3[12][3] =
+{
+	{  1,  1,  0 }, { -1, 1,  0 }, {  1, -1,  0 },
+	{ -1, -1,  0 }, {  1, 0,  1 }, { -1,  0,  1 },
+	{  1,  0, -1 }, { -1, 0, -1 }, {  0,  1,  1 },
+	{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
+};
+
+static double
+PerlinDot (const int *g, double x, double y, double z)
 {
 	return g[0] * x + g[1] * y + g[2] * z;
 }
 
-double
+static double
 PerlinMix (double a, double b, double t)
 {
 	return (1.0 - t) * a + t * b;
 }
 
-double
+static double
 PerlinFade (double t)
 {
 	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-void
-PerlinInit (BYTE *perm, RandomContext *rng)
+static void
+PerlinInit (BYTE *perm)
 {
 	int i;
 	int p[256];
 
 	for (i = 0; i < 256; i++)
 	{
-		p[i] = RandomContext_Random (rng) % 256;
+		p[i] = RandomContext_Random (NebGenRNG) % 256;
 
 		//printf ("p[%d] %d\n", i, p[i]);
 	}
@@ -865,16 +876,8 @@ PerlinInit (BYTE *perm, RandomContext *rng)
 		perm[i] = p[i & 255];
 }
 
-static int grad3[12][3] =
-	{
-		{  1,  1,  0 }, { -1, 1,  0 }, {  1, -1,  0 },
-		{ -1, -1,  0 }, {  1, 0,  1 }, { -1,  0,  1 },
-		{  1,  0, -1 }, { -1, 0, -1 }, {  0,  1,  1 },
-		{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
-	};
-
-double
-Perlin (BYTE *perm, double x, double y, double z)
+static double
+Perlin (const BYTE *perm, double x, double y, double z)
 {
 	int X, Y, Z;
 	double u, v, w;
@@ -921,14 +924,14 @@ Perlin (BYTE *perm, double x, double y, double z)
 	return nxyz;
 }
 
-double
-PerlinNoise (BYTE *perm, double x, double y, double z)
+static double
+PerlinNoise (const BYTE *perm, double x, double y, double z)
 {
 	return 0.5 * Perlin (perm, x, y, z) + 0.5;
 }
 
-double
-NebulaRecursiveField (BYTE *perm, double x, double y, int depth, double divisor)
+static double
+NebulaRecursiveField (const BYTE *perm, double x, double y, int depth, double divisor)
 {
 	double displace;
 
@@ -940,7 +943,7 @@ NebulaRecursiveField (BYTE *perm, double x, double y, int depth, double divisor)
 	return PerlinNoise (perm, x / divisor + displace, y / divisor + displace, 0.0);
 }
 
-Color
+static Color
 NebulaRGBA (double r, double g, double b, double a)
 {
 	Color c;
@@ -953,20 +956,30 @@ NebulaRGBA (double r, double g, double b, double a)
 	return c;
 }
 
-Color
-NebulaField (BYTE *perm, double r, double g, double b, double x, double y,
-		double intensity, double falloff)
+#define MAX_NEB_LAYERS 8
+
+typedef struct
+{
+	double r, g, b;
+	double intensity, falloff;
+	BYTE perm[512];
+} NEBULA_STATE;
+
+static NEBULA_STATE NebState[MAX_NEB_LAYERS];
+
+static Color
+NebulaField (const NEBULA_STATE *ns, double x, double y)
 {
 	double i;
 	
-	i = dmin (1, NebulaRecursiveField (perm, x, y, 5, 2) * intensity);
-	i = pow (i, falloff);
+	i = dmin (1, NebulaRecursiveField (ns->perm, x, y, 5, 2) * ns->intensity);
+	i = pow (i, ns->falloff);
 
-	return NebulaRGBA (r, g, b, i);
+	return NebulaRGBA (ns->r, ns->g, ns->b, i);
 }
 
 // copied alpha_blend from primitives.c for testing
-Uint8
+static Uint8
 alpha_blend (Uint8 dc, Uint8 sc, int alpha)
 {
 	if (alpha == 0xff)
@@ -976,13 +989,12 @@ alpha_blend (Uint8 dc, Uint8 sc, int alpha)
 
 }
 
-Color
-NebulaNext (Color canvas, BYTE *perm, double r, double g, double b,
-		double x, double y, double intensity, double falloff)
+static Color
+NebulaNext (Color canvas, const NEBULA_STATE *ns, double x, double y)
 {
 	Color c;
 
-	c = NebulaField (perm, r, g, b, x, y, intensity, falloff);
+	c = NebulaField (ns, x, y);
 
 	canvas.r = alpha_blend (canvas.r, c.r, c.a);
 	canvas.g = alpha_blend (canvas.g, c.g, c.a);
@@ -992,59 +1004,54 @@ NebulaNext (Color canvas, BYTE *perm, double r, double g, double b,
 	return canvas;
 }
 
-double
-RandomHelper (RandomContext *rng)
+static double
+RandomHelper (void)
 {	// To get a decimal range between 0 and 1
-	return (double)RandomContext_Random (rng) / (double)SeedM;
+	return (double)RandomContext_Random (NebGenRNG) / (double)SeedM;
 }
 
-void
-NebulaRenderer (Color *canvas, int width, int height, RandomContext *rng)
+static void
+NebulaRenderer (Color *canvas, int width, int height)
 {
 	Color *c;
-	int i, count;
+	int count, layer;
 	double scale;
-	BYTE perm[512];
 
 	scale = dmax (width, height) / 4.0;
 
-	count = 4;
-	while (RandomHelper (rng) < 0.5)
+	count = 3;
+	while (RandomHelper () < 0.5 && count < MAX_NEB_LAYERS)
 		count++;
 
-	for (i = 0; i < count; i++)
+	for (layer = 0; layer < count; layer++)
 	{
-		double r, g, b;
+		PerlinInit (NebState[layer].perm);
 
-		PerlinInit (perm, rng);
+		NebState[layer].r = RandomHelper ();
+		NebState[layer].g = RandomHelper ();
+		NebState[layer].b = RandomHelper ();
+		NebState[layer].intensity = RandomHelper () * 0.2 + 1.0;
+		NebState[layer].falloff = RandomHelper () * 3.0 + 3.0;
+	}
 
-		r = RandomHelper (rng);
-		g = RandomHelper (rng);
-		b = RandomHelper (rng);
-		printf ("r %f, g %f, b %f\n", r, g, b);
+	for (c = canvas; c < canvas + width * height; c++)
+	{
+		double x = ((c - canvas) % width) / scale;
+		double y = ((c - canvas) / width) / scale;
 
-
-		double intensity = RandomHelper (rng) * 0.2 + 1.0;
-		double falloff = RandomHelper (rng) * 3.0 + 3.0;
-		printf ("intensity %f, falloff %f\n", intensity, falloff);
-
-		for (c = canvas; c < canvas + width * height; c++)
+		for (layer = 0; layer < count; layer++)
 		{
-			double x = ((c - canvas) % width) / scale;
-			double y = ((c - canvas) / width) / scale;
-
-			*c = NebulaNext (*c, perm, r, g, b, x, y, intensity, falloff);
+			*c = NebulaNext (*c, &NebState[layer], x, y);
 		}
 	}
 }
 
-FRAME
+static FRAME
 CreateNebulaFrame (COORD neb_seed, SIZE width, SIZE height)
 {
 	Color *canvas;
 	DRAWABLE drawable;
 	FRAME neb_frame;
-	RandomContext *NebGenRNG;
 
 	canvas = (Color *)HMalloc (width * height * sizeof (Color));
 	if (canvas == NULL)
@@ -1059,7 +1066,7 @@ CreateNebulaFrame (COORD neb_seed, SIZE width, SIZE height)
 	}
 
 	RandomContext_SeedRandom (NebGenRNG, neb_seed);
-	NebulaRenderer (canvas, width, height, NebGenRNG);
+	NebulaRenderer (canvas, width, height);
 
 	drawable = CreateDrawable (WANT_PIXMAP | WANT_ALPHA, width, height, 1);
 	if (drawable == NULL)
@@ -1084,7 +1091,7 @@ CreateNebulaFrame (COORD neb_seed, SIZE width, SIZE height)
 	return neb_frame;
 }
 
-FRAME
+static FRAME
 LoadNebulaeFrame (POINT location)
 {
 	COUNT nebulaCount;
