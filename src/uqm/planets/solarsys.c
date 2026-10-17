@@ -938,19 +938,6 @@ NebulaRecursiveField (const BYTE *perm, float x, float y, int depth,
 	return Perlin (perm, x / div + displace, y / div + displace, 0.0);
 }
 
-static Color
-NebulaRGBA (float r, float g, float b, float a)
-{
-	Color c;
-
-	c.r = floor (r * 255);
-	c.g = floor (g * 255);
-	c.b = floor (b * 255);
-	c.a = floor (a * 255);
-
-	return c;
-}
-
 #define MAX_NEB_LAYERS 8
 
 typedef struct
@@ -961,17 +948,6 @@ typedef struct
 } NEBULA_STATE;
 
 static NEBULA_STATE NebState[MAX_NEB_LAYERS];
-
-static Color
-NebulaField (const NEBULA_STATE *ns, float x, float y)
-{
-	float i;
-	
-	i = dmin (1, NebulaRecursiveField (ns->perm, x, y, 4, 2) * ns->intensity);
-	i = pow (i, ns->falloff);
-
-	return NebulaRGBA (ns->r, ns->g, ns->b, i);
-}
 
 // copied alpha_blend from primitives.c for testing
 static Uint8
@@ -985,11 +961,18 @@ alpha_blend (Uint8 dc, Uint8 sc, int alpha)
 }
 
 static Color
-NebulaNext (Color canvas, const NEBULA_STATE *ns, float x, float y)
+NebulaNext (const NEBULA_STATE *ns, Color canvas, float x, float y)
 {
+	float i;
 	Color c;
 
-	c = NebulaField (ns, x, y);
+	i = dmin (1, NebulaRecursiveField (ns->perm, x, y, 4, 2) * ns->intensity);
+	i = pow (i, ns->falloff);
+
+	c.r = (int)(ns->r * 255);
+	c.g = (int)(ns->g * 255);
+	c.b = (int)(ns->b * 255);
+	c.a = (int)(i * 255);
 	
 	if (c.a == 0)
 		return canvas;
@@ -1039,7 +1022,7 @@ NebulaRenderer (Color *canvas, int width, int height)
 
 		for (layer = 0; layer < count; layer++)
 		{
-			*c = NebulaNext (*c, &NebState[layer], x, y);
+			*c = NebulaNext (&NebState[layer], *c, x, y);
 		}
 	}
 }
