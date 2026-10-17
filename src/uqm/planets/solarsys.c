@@ -842,12 +842,11 @@ typedef struct
 #define MAX_NEB_LAYERS 8
 static NEBULA_STATE NebState[MAX_NEB_LAYERS];
 static RandomContext *NebGenRNG;
-static const int grad3[12][3] =
+static const int grad2[12][2] =
 {
-	{  1,  1,  0 }, { -1, 1,  0 }, {  1, -1,  0 },
-	{ -1, -1,  0 }, {  1, 0,  1 }, { -1,  0,  1 },
-	{  1,  0, -1 }, { -1, 0, -1 }, {  0,  1,  1 },
-	{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
+	{  1,  1 }, { -1,  1 }, {  1, -1 }, { -1, -1 },
+	{  1,  0 }, { -1,  0 }, {  1,  0 }, { -1,  0 },
+	{  0,  1 }, {  0, -1 }, {  0,  1 }, {  0, -1 }
 };
 
 // copied alpha_blend from primitives.c for testing
@@ -868,9 +867,9 @@ RandomHelper (void)
 }
 
 static inline float
-PerlinDot (const int *g, float x, float y, float z)
+PerlinDot (const int *g, float x, float y)
 {
-	return g[0] * x + g[1] * y + g[2] * z;
+	return g[0] * x + g[1] * y;
 }
 
 static inline float
@@ -885,69 +884,36 @@ PerlinFade (float t)
 	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-static void
-PerlinInit (BYTE *perm)
-{
-	int i;
-	int p[256];
-
-	for (i = 0; i < 256; i++)
-	{
-		p[i] = RandomContext_Random (NebGenRNG) % 256;
-
-		//printf ("p[%d] %d\n", i, p[i]);
-	}
-
-	for (i = 0; i < 512; i++)
-		perm[i] = p[i & 255];
-}
-
 static float
-Perlin (const BYTE *perm, float x, float y, float z)
+Perlin (const BYTE *perm, float x, float y)
 {
-	int X, Y, Z;
-	float u, v, w;
-	int gi000, gi001, gi010, gi011, gi100, gi101, gi110, gi111;
-	float n000, n100, n010, n110, n001, n101, n011, n111;
-	float nx00, nx01, nx10, nx11, nxy0, nxy1, nxyz;
+	int X, Y;
+	float u, v;
+	int gi000, gi010, gi100, gi110;
+	float n000, n100, n010, n110;
+	float nx00, nx10, nxy0;
 
 	X = (int)x;
 	Y = (int)y;
-	Z = (int)z;
 	x = x - X;
 	y = y - Y;
-	z = z - Z;
 	X &= 255;
 	Y &= 255;
-	Z &= 255;
-	gi000 = perm[X + perm[Y + perm[Z]]] % 12;
-	gi001 = perm[X + perm[Y + perm[Z + 1]]] % 12;
-	gi010 = perm[X + perm[Y + 1 + perm[Z]]] % 12;
-	gi011 = perm[X + perm[Y + 1 + perm[Z + 1]]] % 12;
-	gi100 = perm[X + 1 + perm[Y + perm[Z]]] % 12;
-	gi101 = perm[X + 1 + perm[Y + perm[Z + 1]]] % 12;
-	gi110 = perm[X + 1 + perm[Y + 1 + perm[Z]]] % 12;
-	gi111 = perm[X + 1 + perm[Y + 1 + perm[Z + 1]]] % 12;
-	n000 = PerlinDot (grad3[gi000], x, y, z);
-	n100 = PerlinDot (grad3[gi100], x - 1, y, z);
-	n010 = PerlinDot (grad3[gi010], x, y - 1, z);
-	n110 = PerlinDot (grad3[gi110], x - 1, y - 1, z);
-	n001 = PerlinDot (grad3[gi001], x, y, z - 1);
-	n101 = PerlinDot (grad3[gi101], x - 1, y, z - 1);
-	n011 = PerlinDot (grad3[gi011], x, y - 1, z - 1);
-	n111 = PerlinDot (grad3[gi111], x - 1, y - 1, z - 1);
-	u = PerlinFade ((float)x);
-	v = PerlinFade ((float)y);
-	w = PerlinFade ((float)z);
+	gi000 = perm[X + perm[Y + perm[0]]] % 12;
+	gi010 = perm[X + perm[Y + 1 + perm[0]]] % 12;
+	gi100 = perm[X + 1 + perm[Y + perm[0]]] % 12;
+	gi110 = perm[X + 1 + perm[Y + 1 + perm[0]]] % 12;
+	n000 = PerlinDot (grad2[gi000], x, y);
+	n100 = PerlinDot (grad2[gi100], x - 1, y);
+	n010 = PerlinDot (grad2[gi010], x, y - 1);
+	n110 = PerlinDot (grad2[gi110], x - 1, y - 1);
+	u = PerlinFade (x);
+	v = PerlinFade (y);
 	nx00 = PerlinMix (n000, n100, u);
-	nx01 = PerlinMix (n001, n101, u);
 	nx10 = PerlinMix (n010, n110, u);
-	nx11 = PerlinMix (n011, n111, u);
 	nxy0 = PerlinMix (nx00, nx10, v);
-	nxy1 = PerlinMix (nx01, nx11, v);
-	nxyz = PerlinMix (nxy0, nxy1, w);
 
-	return (0.5 * nxyz + 0.5);
+	return (0.5 * nxy0 + 0.5);
 }
 
 static float
@@ -957,11 +923,11 @@ NebulaRecursiveField (const BYTE *perm, float x, float y, int depth,
 	float displace;
 
 	if (depth == 0)
-		return Perlin (perm, x / div, y / div, 0.0);
+		return Perlin (perm, x / div, y / div);
 
 	displace = NebulaRecursiveField (perm, x, y, depth - 1, div / 2.0);
 
-	return Perlin (perm, x / div + displace, y / div + displace, 0.0);
+	return Perlin (perm, x / div + displace, y / div + displace);
 }
 
 static Color
@@ -1004,7 +970,13 @@ NebulaRenderer (Color *canvas, int width, int height)
 
 	for (layer = 0; layer < count; layer++)
 	{
-		PerlinInit (NebState[layer].perm);
+		int i, p[256];
+
+		// Initialize perm for each layer, this is what gives colour variety
+		for (i = 0; i < 256; i++)
+			p[i] = RandomContext_Random (NebGenRNG) % 256;
+		for (i = 0; i < 512; i++)
+			NebState[layer].perm[i] = p[i & 255];
 
 		NebState[layer].r = RandomHelper ();
 		NebState[layer].g = RandomHelper ();
@@ -1019,9 +991,7 @@ NebulaRenderer (Color *canvas, int width, int height)
 		float y = ((c - canvas) / width) / scale;
 
 		for (layer = 0; layer < count; layer++)
-		{
 			*c = NebulaNext (&NebState[layer], *c, x, y);
-		}
 	}
 }
 
