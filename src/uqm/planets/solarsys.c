@@ -867,12 +867,6 @@ RandomHelper (void)
 }
 
 static inline float
-PerlinDot (const int *g, float x, float y)
-{
-	return g[0] * x + g[1] * y;
-}
-
-static inline float
 PerlinMix (float a, float b, float t)
 {
 	return (1.0 - t) * a + t * b;
@@ -903,10 +897,10 @@ Perlin (const BYTE *perm, float x, float y)
 	gi010 = perm[X + perm[Y + 1 + perm[0]]] % 12;
 	gi100 = perm[X + 1 + perm[Y + perm[0]]] % 12;
 	gi110 = perm[X + 1 + perm[Y + 1 + perm[0]]] % 12;
-	n000 = PerlinDot (grad2[gi000], x, y);
-	n100 = PerlinDot (grad2[gi100], x - 1, y);
-	n010 = PerlinDot (grad2[gi010], x, y - 1);
-	n110 = PerlinDot (grad2[gi110], x - 1, y - 1);
+	n000 = grad2[gi000][0] * x + grad2[gi000][1] * y;
+	n100 = grad2[gi100][0] * (x - 1) + grad2[gi100][1] * y;
+	n010 = grad2[gi010][0] * x + grad2[gi010][1] * (y - 1);
+	n110 = grad2[gi110][0] * (x - 1) + grad2[gi110][1] * (y - 1);
 	u = PerlinFade (x);
 	v = PerlinFade (y);
 	nx00 = PerlinMix (n000, n100, u);
