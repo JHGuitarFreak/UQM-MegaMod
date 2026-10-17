@@ -921,13 +921,7 @@ Perlin (const BYTE *perm, float x, float y, float z)
 	nxy1 = PerlinMix (nx01, nx11, v);
 	nxyz = PerlinMix (nxy0, nxy1, w);
 
-	return nxyz;
-}
-
-static float
-PerlinNoise (const BYTE *perm, float x, float y, float z)
-{
-	return 0.5 * Perlin (perm, x, y, z) + 0.5;
+	return (0.5 * nxyz + 0.5);
 }
 
 static float
@@ -937,11 +931,11 @@ NebulaRecursiveField (const BYTE *perm, float x, float y, int depth,
 	float displace;
 
 	if (depth == 0)
-		return PerlinNoise (perm, x / div, y / div, 0.0);
+		return Perlin (perm, x / div, y / div, 0.0);
 
 	displace = NebulaRecursiveField (perm, x, y, depth - 1, div / 2.0);
 
-	return PerlinNoise (perm, x / div + displace, y / div + displace, 0.0);
+	return Perlin (perm, x / div + displace, y / div + displace, 0.0);
 }
 
 static Color
