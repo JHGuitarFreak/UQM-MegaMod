@@ -841,20 +841,20 @@ static const int grad3[12][3] =
 	{  0, -1,  1 }, {  0, 1, -1 }, {  0, -1, -1 }
 };
 
-static double
-PerlinDot (const int *g, double x, double y, double z)
+static inline float
+PerlinDot (const int *g, float x, float y, float z)
 {
 	return g[0] * x + g[1] * y + g[2] * z;
 }
 
-static double
-PerlinMix (double a, double b, double t)
+static inline float
+PerlinMix (float a, float b, float t)
 {
 	return (1.0 - t) * a + t * b;
 }
 
-static double
-PerlinFade (double t)
+static inline float
+PerlinFade (float t)
 {
 	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
@@ -876,18 +876,18 @@ PerlinInit (BYTE *perm)
 		perm[i] = p[i & 255];
 }
 
-static double
-Perlin (const BYTE *perm, double x, double y, double z)
+static float
+Perlin (const BYTE *perm, float x, float y, float z)
 {
 	int X, Y, Z;
-	double u, v, w;
+	float u, v, w;
 	int gi000, gi001, gi010, gi011, gi100, gi101, gi110, gi111;
-	double n000, n100, n010, n110, n001, n101, n011, n111;
-	double nx00, nx01, nx10, nx11, nxy0, nxy1, nxyz;
+	float n000, n100, n010, n110, n001, n101, n011, n111;
+	float nx00, nx01, nx10, nx11, nxy0, nxy1, nxyz;
 
-	X = (int)floor (x);
-	Y = (int)floor (y);
-	Z = (int)floor (z);
+	X = (int)x;
+	Y = (int)y;
+	Z = (int)z;
 	x = x - X;
 	y = y - Y;
 	z = z - Z;
@@ -910,9 +910,9 @@ Perlin (const BYTE *perm, double x, double y, double z)
 	n101 = PerlinDot (grad3[gi101], x - 1, y, z - 1);
 	n011 = PerlinDot (grad3[gi011], x, y - 1, z - 1);
 	n111 = PerlinDot (grad3[gi111], x - 1, y - 1, z - 1);
-	u = PerlinFade ((double)x);
-	v = PerlinFade ((double)y);
-	w = PerlinFade ((double)z);
+	u = PerlinFade ((float)x);
+	v = PerlinFade ((float)y);
+	w = PerlinFade ((float)z);
 	nx00 = PerlinMix (n000, n100, u);
 	nx01 = PerlinMix (n001, n101, u);
 	nx10 = PerlinMix (n010, n110, u);
@@ -924,27 +924,28 @@ Perlin (const BYTE *perm, double x, double y, double z)
 	return nxyz;
 }
 
-static double
-PerlinNoise (const BYTE *perm, double x, double y, double z)
+static float
+PerlinNoise (const BYTE *perm, float x, float y, float z)
 {
 	return 0.5 * Perlin (perm, x, y, z) + 0.5;
 }
 
-static double
-NebulaRecursiveField (const BYTE *perm, double x, double y, int depth, double divisor)
+static float
+NebulaRecursiveField (const BYTE *perm, float x, float y, int depth,
+		float div)
 {
-	double displace;
+	float displace;
 
 	if (depth == 0)
-		return PerlinNoise (perm, x / divisor, y / divisor, 0.0);
+		return PerlinNoise (perm, x / div, y / div, 0.0);
 
-	displace = NebulaRecursiveField (perm, x, y, depth - 1, divisor / 2.0);
+	displace = NebulaRecursiveField (perm, x, y, depth - 1, div / 2.0);
 
-	return PerlinNoise (perm, x / divisor + displace, y / divisor + displace, 0.0);
+	return PerlinNoise (perm, x / div + displace, y / div + displace, 0.0);
 }
 
 static Color
-NebulaRGBA (double r, double g, double b, double a)
+NebulaRGBA (float r, float g, float b, float a)
 {
 	Color c;
 
@@ -960,19 +961,19 @@ NebulaRGBA (double r, double g, double b, double a)
 
 typedef struct
 {
-	double r, g, b;
-	double intensity, falloff;
+	float r, g, b;
+	float intensity, falloff;
 	BYTE perm[512];
 } NEBULA_STATE;
 
 static NEBULA_STATE NebState[MAX_NEB_LAYERS];
 
 static Color
-NebulaField (const NEBULA_STATE *ns, double x, double y)
+NebulaField (const NEBULA_STATE *ns, float x, float y)
 {
-	double i;
+	float i;
 	
-	i = dmin (1, NebulaRecursiveField (ns->perm, x, y, 5, 2) * ns->intensity);
+	i = dmin (1, NebulaRecursiveField (ns->perm, x, y, 4, 2) * ns->intensity);
 	i = pow (i, ns->falloff);
 
 	return NebulaRGBA (ns->r, ns->g, ns->b, i);
@@ -990,11 +991,14 @@ alpha_blend (Uint8 dc, Uint8 sc, int alpha)
 }
 
 static Color
-NebulaNext (Color canvas, const NEBULA_STATE *ns, double x, double y)
+NebulaNext (Color canvas, const NEBULA_STATE *ns, float x, float y)
 {
 	Color c;
 
 	c = NebulaField (ns, x, y);
+	
+	if (c.a == 0)
+		return canvas;
 
 	canvas.r = alpha_blend (canvas.r, c.r, c.a);
 	canvas.g = alpha_blend (canvas.g, c.g, c.a);
@@ -1004,10 +1008,10 @@ NebulaNext (Color canvas, const NEBULA_STATE *ns, double x, double y)
 	return canvas;
 }
 
-static double
+static float
 RandomHelper (void)
 {	// To get a decimal range between 0 and 1
-	return (double)RandomContext_Random (NebGenRNG) / (double)SeedM;
+	return (float)RandomContext_Random (NebGenRNG) / (float)SeedM;
 }
 
 static void
@@ -1015,7 +1019,7 @@ NebulaRenderer (Color *canvas, int width, int height)
 {
 	Color *c;
 	int count, layer;
-	double scale;
+	float scale;
 
 	scale = dmax (width, height) / 4.0;
 
@@ -1036,8 +1040,8 @@ NebulaRenderer (Color *canvas, int width, int height)
 
 	for (c = canvas; c < canvas + width * height; c++)
 	{
-		double x = ((c - canvas) % width) / scale;
-		double y = ((c - canvas) / width) / scale;
+		float x = ((c - canvas) % width) / scale;
+		float y = ((c - canvas) / width) / scale;
 
 		for (layer = 0; layer < count; layer++)
 		{
