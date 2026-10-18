@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Option to save screenshots as a PNG and/or copy them to the clipboard
 - Added a deadzone visualizer in the Deadzone Options page in the Setup Menu
 - Added an Accessibility menu entry to the Setup Menu
-- Added a "High Visibility Orbits" option to the Accessibility menu which makes orbit lines solid and brightens them
+- Added a "High Visibility Orbits" option to the Accessibility menu which brightens the orbit lines
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander
