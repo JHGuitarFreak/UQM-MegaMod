@@ -125,6 +125,7 @@ BOOLEAN RedrawSolarSys = FALSE;
 BOOLEAN texturedPlanetsCheck;
 int planetStyleCheck;
 BOOLEAN nebulaeCheck;
+BOOLEAN hiVisCheck;
 int flagshipColorCheck;
 
 SIZE EncounterRace;
@@ -967,6 +968,7 @@ LoadIPData (void)
 	texturedPlanetsCheck = (BOOLEAN)optTexturedPlanets;
 	planetStyleCheck = optPlanetStyle;
 	nebulaeCheck = (BOOLEAN)optNebulae;
+	hiVisCheck = (BOOLEAN)optHighVisOrbits;
 	flagshipColorCheck = optFlagshipColor;
 }
 
@@ -1183,9 +1185,13 @@ LoadSolarSys (void)
 #define NUM_TEMP_RANGES 5
 	Color orbit_temp_array[NUM_TEMP_RANGES] = { ORBIT_TEMP_COLORS };
 
-	if (NebulaFrame)
+	if (NebulaFrame || optHighVisOrbits)
 	{
 		BYTE brightness = (optNebulaeVolume + 1) * 5;
+
+		if (optHighVisOrbits)
+			brightness = 255;
+
 		for (i = 0; i < NUM_TEMP_RANGES; i++)
 		{
 			IncreaseBrightness (&orbit_temp_array[i].r, brightness);
@@ -1742,10 +1748,12 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 
 	dr = RECT_TO_DRECT (r);
 	SetContextForeGroundColor (planet->temp_color);
+
 	if (!optUnscaledStarSystem)
 		DrawOval (&dr, RES_BOOL (1, 6), FALSE);
 	else
 		DrawOval (&dr, 1, FALSE);
+
 }
 
 static SIZE
@@ -2510,16 +2518,22 @@ UpdateSolarSys (void)
 	DestroyDrawable (ReleaseDrawable (NebulaFrame));
 	NebulaFrame = LoadNebulaeFrame (CurStarDescPtr->star_pt);
 
-	if (NebulaFrame || nebulaeCheck != (BOOLEAN)optNebulae)
+	if ((NebulaFrame || nebulaeCheck != (BOOLEAN)optNebulae) ||
+		(optHighVisOrbits || hiVisCheck != (BOOLEAN)optHighVisOrbits))
 	{
 		int i, j;
 		PLANET_DESC *pCurDesc, *pMoonDesc;
-		BYTE brightness = (optNebulaeVolume + 1) * 5;
+		BYTE brightness = 0;
 		Color orbit_color_array[NUM_TEMP_RANGES] = { ORBIT_TEMP_COLORS };
 
 		pCurDesc = pSolarSysState->PlanetDesc;
 
-		if (NebulaFrame)
+		if (optHighVisOrbits)
+			brightness = 255;
+		else if (NebulaFrame)
+			brightness = (optNebulaeVolume + 1) * 5;
+
+		if (brightness > 0)
 		{
 			for (i = 0; i < NUM_TEMP_RANGES; i++)
 			{
@@ -2553,6 +2567,7 @@ UpdateSolarSys (void)
 			do_transition = OPT_3DO;
 
 		nebulaeCheck = (BOOLEAN)optNebulae;
+		hiVisCheck = (BOOLEAN)optHighVisOrbits;
 	}
 
 	DestroyDrawable (ReleaseDrawable (StarsFrame));

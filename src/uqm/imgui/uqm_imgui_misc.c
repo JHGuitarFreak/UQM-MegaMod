@@ -69,8 +69,12 @@ void draw_access_menu (void)
 	ImGui_SeparatorText (ImStr (ENH_ACS_STR_BASE));
 
 	// High Visibility Orbits
-	UQM_ImGui_CheckBox (ImStr (ENH_ACS_STR_BASE + 1), &optHighVisOrbits,
-			"mm.highVisOrbits", false);
+	if (UQM_ImGui_CheckBox (ImStr (ENH_ACS_STR_BASE + 1), &optHighVisOrbits,
+			"mm.highVisOrbits", false))
+	{
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
+	}
 
 	ImGui_EndChild (); // ##AccessColumn
 }
