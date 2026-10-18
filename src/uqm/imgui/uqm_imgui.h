@@ -75,6 +75,7 @@ void draw_visual_menu (void);
 void draw_cheats_menu (void);
 void draw_qol_menu (void);
 void draw_adv_menu (void);
+void draw_access_menu (void);
 
 void draw_journal_menu (float height);
 
