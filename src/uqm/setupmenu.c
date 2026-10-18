@@ -525,8 +525,9 @@ static WIDGET *editdeadzone_widgets[] = {
 	NULL };
 
 static WIDGET *accessibility_widgets[] = {
-	(WIDGET *)(&labels [LABEL_IP          ]), // IP Label
-	(WIDGET *)(&choices[CHOICE_HIVISORBITS]), // Solid, brightened orbits
+	(WIDGET *)(&labels [LABEL_IP           ]), // IP Label
+	(WIDGET *)(&choices[CHOICE_HIVISORBITS ]), // Brightened orbits
+	(WIDGET *)(&choices[CHOICE_HIVISPLANETS]), // Circled Planets
 
 	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
 	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
@@ -1655,14 +1656,15 @@ PropagateResults (void)
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
-	opts.shipSeed =      choices[CHOICE_SHIPSEED   ].selected;
-	opts.shipStore =     choices[CHOICE_SHIPSTORE  ].selected;
-	opts.captainNames =  choices[CHOICE_CAPTNAMES  ].selected;
-	opts.dosMenus =      choices[CHOICE_DOSMENUS   ].selected;
-	opts.mouseInput =    choices[CHOICE_MOUSEINPUT ].selected;
-	opts.battleMouse =   choices[CHOICE_BATMOUSE   ].selected;
-	opts.screenShots =   choices[CHOICE_SCRSHOTS   ].selected;
-	opts.highVisOrbits = choices[CHOICE_HIVISORBITS].selected;
+	opts.shipSeed =       choices[CHOICE_SHIPSEED    ].selected;
+	opts.shipStore =      choices[CHOICE_SHIPSTORE   ].selected;
+	opts.captainNames =   choices[CHOICE_CAPTNAMES   ].selected;
+	opts.dosMenus =       choices[CHOICE_DOSMENUS    ].selected;
+	opts.mouseInput =     choices[CHOICE_MOUSEINPUT  ].selected;
+	opts.battleMouse =    choices[CHOICE_BATMOUSE    ].selected;
+	opts.screenShots =    choices[CHOICE_SCRSHOTS    ].selected;
+	opts.highVisOrbits =  choices[CHOICE_HIVISORBITS ].selected;
+	opts.highVisPlanets = choices[CHOICE_HIVISPLANETS].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -3176,6 +3178,7 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->battleMouse = optBattleMouse;
 	opts->screenShots = optScreenShots;
 	opts->highVisOrbits = optHighVisOrbits;
+	opts->highVisPlanets = optHighVisPlanets;
 
 	// QoL
 	opts->scatterElements = optScatterElements;
@@ -3501,6 +3504,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutIntOpt (&optScreenShots, (int*)&opts->screenShots, "mm.screenShots", FALSE);
 
 	PutBoolOpt (&optHighVisOrbits, &opts->highVisOrbits, "mm.highVisOrbits", FALSE);
+	PutBoolOpt (&optHighVisPlanets, &opts->highVisPlanets, "mm.highVisPlanets", FALSE);
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
 

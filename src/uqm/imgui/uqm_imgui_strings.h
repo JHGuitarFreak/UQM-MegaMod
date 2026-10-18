@@ -45,14 +45,14 @@ extern STRING ImGuiStrings;
 #define ENH_QOL_STR_COUNT  10
 #define ENH_VIS_STR_COUNT  21
 #define ENH_CHT_STR_COUNT  18
-#define ENH_ACS_STR_COUNT  20
+#define ENH_ACS_STR_COUNT   3
 
 // Journal
 #define JOURNAL_STR_COUNT   1
 
 // Debug
 #define DBG_STS_STR_COUNT  21
-#define DBG_DVC_STR_COUNT  4
+#define DBG_DVC_STR_COUNT   4
 #define DBG_GMS_STR_COUNT  17
 #define DBG_EVT_STR_COUNT  15
 #define DBG_STA_STR_COUNT  17

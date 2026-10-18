@@ -76,6 +76,14 @@ void draw_access_menu (void)
 			RedrawSolarSys = TRUE;
 	}
 
+	// High Visibility Planets
+	if (UQM_ImGui_CheckBox (ImStr (ENH_ACS_STR_BASE + 2), &optHighVisPlanets,
+			"mm.highVisPlanets", false))
+	{
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
+	}
+
 	ImGui_EndChild (); // ##AccessColumn
 }
 

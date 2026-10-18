@@ -136,6 +136,7 @@ extern bool ShipGTFO;
 extern OPT_ENABLABLE optBattleMouse;
 extern int optScreenShots;
 extern OPT_ENABLABLE optHighVisOrbits;
+extern OPT_ENABLABLE optHighVisPlanets;
 
 #define AXIS_MAX SINT16_MAX
 #define DEFAULT_DZONE 6881

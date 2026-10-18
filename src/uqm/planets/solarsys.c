@@ -3250,6 +3250,41 @@ DrawOuterPlanets (SIZE radius)
 				SetPlanetColorMap (pCurDesc);
 				DrawStamp (&pCurDesc->image);
 			}
+
+			if (optHighVisPlanets)
+			{
+				EXTENT ext;
+				DRECT dr;
+				POINT hotspot;
+				Color c;
+
+				if (optTexturedPlanets)
+				{
+					ext.width = RES_SCALE (PBodySize[pCurDesc->size]);
+					ext.height = ext.width;
+				}
+				else
+				{
+					RECT pr;
+					GetFrameRect (pCurDesc->image.frame, &pr);
+					ext = pr.extent;
+				}
+
+				hotspot = pCurDesc->image.origin;
+				dr.corner.x = hotspot.x - (ext.width >> 1) - RES_SCALE (2);
+				dr.corner.y = hotspot.y - (ext.height >> 1) - RES_SCALE (2);
+				dr.extent.width = ext.width + RES_SCALE (4);
+				dr.extent.height = ext.height + RES_SCALE (4);
+
+				c = pCurDesc->temp_color;
+
+				IncreaseBrightness (&c.r, 255);
+				IncreaseBrightness (&c.g, 255);
+				IncreaseBrightness (&c.b, 255);
+
+				SetContextForeGroundColor (c);
+				DrawOval (&dr, 0, FALSE);
+			}
 		}
 		if (index == pSolarSysState->LastPlanetIndex)
 			break;

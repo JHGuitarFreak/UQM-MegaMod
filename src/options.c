@@ -152,6 +152,7 @@ bool ShipGTFO = false;
 OPT_ENABLABLE optBattleMouse;
 int optScreenShots;
 OPT_ENABLABLE optHighVisOrbits;
+OPT_ENABLABLE optHighVisPlanets;
 
 OPT_ENABLABLE opt3doMusic;
 OPT_ENABLABLE optRemixMusic;

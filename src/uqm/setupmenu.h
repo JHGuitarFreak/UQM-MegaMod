@@ -315,6 +315,7 @@ enum {
 	CHOICE_BATMOUSE,
 	CHOICE_SCRSHOTS,
 	CHOICE_HIVISORBITS,
+	CHOICE_HIVISPLANETS,
 
 	CHOICE_COUNT
 };
@@ -497,7 +498,7 @@ typedef struct globalopts_struct {
 			unscaledStarSystem, slaughterMode, advancedAutoPilot,
 			meleeToolTips, scatterElements, showUpgrades, fleetPointSys,
 			shipSeed, shipStore, captainNames, dosMenus, battleMouse,
-			highVisOrbits;
+			highVisOrbits, highVisPlanets;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;
