@@ -1812,4 +1812,3 @@ setNodeNotRetrieved (PLANET_INFO *planetInfo, BYTE scanType, BYTE nodeNr)
 {
 	planetInfo->ScanRetrieveMask[scanType] &= ~((DWORD) 1 << nodeNr);
 }
-

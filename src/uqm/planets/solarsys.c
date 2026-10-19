@@ -1193,11 +1193,7 @@ LoadSolarSys (void)
 			brightness = 255;
 
 		for (i = 0; i < NUM_TEMP_RANGES; i++)
-		{
-			IncreaseBrightness (&orbit_temp_array[i].r, brightness);
-			IncreaseBrightness (&orbit_temp_array[i].g, brightness);
-			IncreaseBrightness (&orbit_temp_array[i].b, brightness);
-		}
+			IncreaseBrightness (&orbit_temp_array[i], brightness);
 	}
 
 	RandomContext_SeedRandom (SysGenRNG,
@@ -2536,11 +2532,7 @@ UpdateSolarSys (void)
 		if (brightness > 0)
 		{
 			for (i = 0; i < NUM_TEMP_RANGES; i++)
-			{
-				IncreaseBrightness (&orbit_color_array[i].r, brightness);
-				IncreaseBrightness (&orbit_color_array[i].g, brightness);
-				IncreaseBrightness (&orbit_color_array[i].b, brightness);
-			}
+				IncreaseBrightness (&orbit_color_array[i], brightness);
 		}
 
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
@@ -3277,10 +3269,7 @@ DrawOuterPlanets (SIZE radius)
 				dr.extent.height = ext.height + RES_SCALE (4);
 
 				c = pCurDesc->temp_color;
-
-				IncreaseBrightness (&c.r, 255);
-				IncreaseBrightness (&c.g, 255);
-				IncreaseBrightness (&c.b, 255);
+				IncreaseBrightness (&c, 255);
 
 				SetContextForeGroundColor (c);
 				DrawOval (&dr, 0, FALSE);
