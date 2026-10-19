@@ -608,6 +608,8 @@ FreePlanet (void)
 	pSolarSysState->SysInfo.PlanetInfo.DiscoveryString = 0;
 	FreeLanderFont (&pSolarSysState->SysInfo.PlanetInfo);
 
+	pSolarSysState->InOrbit = FALSE;
+
 	// Need to make sure our own CONTEXTs are not active because
 	// we will destroy them now
 	SetContext (SpaceContext);
