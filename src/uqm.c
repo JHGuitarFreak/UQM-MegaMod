@@ -2870,8 +2870,8 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --hivisorbits : brightens orbit lines to make them "
 			"more visible (default: %s)",
 			boolOptString (&defaults->highVisOrbits));
-	log_add (log_User, "  --hivisplanets : Draws a brightened circle around "
-			"planets in interplanetary view to make them more visible"
+	log_add (log_User, "  --hivisplanets : Dims solar system background and "
+			"puts gaps in the orbit lines around planets"
 			" (default: %s)",
 			boolOptString (&defaults->highVisPlanets));
 

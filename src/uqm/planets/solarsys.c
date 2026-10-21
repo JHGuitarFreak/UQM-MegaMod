@@ -1745,11 +1745,32 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 	dr = RECT_TO_DRECT (r);
 	SetContextForeGroundColor (planet->temp_color);
 
+	if (optHighVisPlanets && planet->image.frame)
+	{
+		RECT pr;
+		EXTENT ext;
+		BYTE gap_radius;
+		POINT hotspot, gap_center;
+
+		GetFrameRect (planet->image.frame, &pr);
+		ext = pr.extent;
+		hotspot = planet->image.origin;
+		gap_center.x = hotspot.x + pr.corner.x + (ext.width >> 1);
+		gap_center.y = hotspot.y + pr.corner.y + (ext.height >> 1);
+		gap_radius = (ext.width >> 1) + RES_SCALE (3);
+
+		//DrawCircle (gap_center, gap_radius, 0, 0);
+		// For visualizing where the gap should be
+
+		SetOvalGap (gap_center, gap_radius);
+	}
+
 	if (!optUnscaledStarSystem)
 		DrawOval (&dr, RES_BOOL (1, 6), FALSE);
 	else
 		DrawOval (&dr, 1, FALSE);
 
+	FreeOvalGap ();
 }
 
 static SIZE
@@ -3242,38 +3263,6 @@ DrawOuterPlanets (SIZE radius)
 				SetPlanetColorMap (pCurDesc);
 				DrawStamp (&pCurDesc->image);
 			}
-
-			if (optHighVisPlanets)
-			{
-				EXTENT ext;
-				DRECT dr;
-				POINT hotspot;
-				Color c;
-
-				if (optTexturedPlanets)
-				{
-					ext.width = RES_SCALE (PBodySize[pCurDesc->size]);
-					ext.height = ext.width;
-				}
-				else
-				{
-					RECT pr;
-					GetFrameRect (pCurDesc->image.frame, &pr);
-					ext = pr.extent;
-				}
-
-				hotspot = pCurDesc->image.origin;
-				dr.corner.x = hotspot.x - (ext.width >> 1) - RES_SCALE (2);
-				dr.corner.y = hotspot.y - (ext.height >> 1) - RES_SCALE (2);
-				dr.extent.width = ext.width + RES_SCALE (4);
-				dr.extent.height = ext.height + RES_SCALE (4);
-
-				c = pCurDesc->temp_color;
-				IncreaseBrightness (&c, 255);
-
-				SetContextForeGroundColor (c);
-				DrawOval (&dr, 0, FALSE);
-			}
 		}
 		if (index == pSolarSysState->LastPlanetIndex)
 			break;
@@ -3445,6 +3434,21 @@ CreateStarBackGround (RandomContext *SysRNG, FRAME nebula, FRAME junk)
 	num_brt_drawn = NUM_BRT_DRAWN + (hdScaled ? 0 : 60);
 	DrawBackgroundStars (NUM_BRT_PIECES, num_brt_drawn, start_index,
 			SysRNG, junk);
+
+	if (optHighVisPlanets)
+	{
+		RECT r;
+		Color oldColor;
+		Color c = BUILD_COLOR_RGBA (0, 0, 0, 128);
+
+		oldColor = SetContextForeGroundColor (c);
+
+		r.corner = MAKE_POINT (0, 0);
+		r.extent = MAKE_EXTENT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT);
+		DrawFilledRectangle (&r);
+
+		SetContextForeGroundColor (oldColor);
+	}
 
 	DrawNebula (nebula);
 

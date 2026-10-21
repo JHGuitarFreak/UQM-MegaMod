@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added a deadzone visualizer in the Deadzone Options page in the Setup Menu
 - Added an Accessibility menu entry to the Setup Menu
 - Added a "High Visibility Orbits" option to the Accessibility menu which brightens the orbit lines
-- Added a "High Visibility Planets" option to the accessibility menu which draws a bright circle around planets
+- Added a "High Visibility Planets" option to the accessibility menu which dims the solar system background and put gaps in the orbit lines around planets
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander

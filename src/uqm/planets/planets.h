@@ -425,6 +425,8 @@ extern void DrawStarBackGround (void);
 extern FRAME GetStarBackFround (void);
 extern void XFormIPLoc (POINT *pIn, POINT *pOut, BOOLEAN ToDisplay);
 extern void DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled);
+extern void SetOvalGap (POINT center, BYTE radius);
+extern void FreeOvalGap (void);
 extern void DrawFilledOval (DRECT *pRect);
 extern void DrawCircle (POINT pt, int radius, BOOLEAN filled, BOOLEAN dotted);
 extern void ComputeSpeed(PLANET_DESC *planet, BOOLEAN GeneratingMoons,
