@@ -847,6 +847,12 @@ CreateSphereTiltMap (int angle, COUNT height, COUNT radius)
 			else
 				newx = xadj + ((newx - xadj) / sin (ya));
 
+			if (newx == floor (newx) && newy == floor (newy))
+			{
+				newx += 0.5;
+				newy += 0.5;
+			}
+
 			create_aa_points (ppt, newx, newy, height);
 		}
 	}
