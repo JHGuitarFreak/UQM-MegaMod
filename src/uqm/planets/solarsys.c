@@ -1757,7 +1757,22 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 		hotspot = planet->image.origin;
 		gap_center.x = hotspot.x + pr.corner.x + (ext.width >> 1);
 		gap_center.y = hotspot.y + pr.corner.y + (ext.height >> 1);
-		gap_radius = (ext.width >> 1) + RES_SCALE (3);
+
+		if (playerInInnerSystem ())
+		{
+			PLANET_DESC *pCurDesc = pSolarSysState->PlanetDesc;
+			int num_planets = pCurDesc->NumPlanets - 1;
+
+			if ((planet - pCurDesc) < MAX_GEN_PLANETS)
+			{
+				gap_center.x = SIS_SCREEN_WIDTH >> 1;
+				gap_center.y = SIS_SCREEN_HEIGHT >> 1;
+			}
+
+			gap_radius = (ext.width >> 1) + RES_SCALE (4);
+		}
+		else
+			gap_radius = (ext.width >> 1) + RES_SCALE (3);
 
 		//DrawCircle (gap_center, gap_radius, 0, 0);
 		// For visualizing where the gap should be
