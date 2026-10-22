@@ -541,6 +541,7 @@ UQM_ImGui_Tabs (TabState *state)
 		case 0: draw_qol_menu (); break;
 		case 1: draw_visual_menu (); break;
 		case 2: draw_cheats_menu (); break;
+		case 3: draw_access_menu (); break;
 		default:
 			ImGui_Text (subtab_not, *active_subtab[active_tab]);
 			break;

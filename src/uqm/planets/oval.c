@@ -28,13 +28,15 @@
 #include "planets.h"
 #include "uqm/setup.h"
 
-
 #ifndef MIN
 #define MIN(a,b) (((a)<(b)) ? (a) : (b))
 #endif
 #ifndef MAX
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #endif
+
+static SDWORD gap_cx, gap_cy, gap_r2;
+static BOOLEAN gap_active = FALSE;
 
 #define NUM_QUADS 4
 #define OFFSCREEN_PRIM NUM_PRIMS
@@ -74,24 +76,63 @@ TruncateDPoint (DPOINT *p)
 	if (p->y < -32768) { p->y = 0; }
 }
 
+static BOOLEAN
+PointInGap (SDWORD x, SDWORD y)
+{
+	SDWORD dx, dy;
+	if (!gap_active)
+		return FALSE;
+	dx = x - gap_cx;
+	dy = y - gap_cy;
+	return (dx * dx + dy * dy) <= gap_r2;
+}
+
+void
+SetOvalGap (POINT center, BYTE radius)
+{
+	gap_cx = center.x;
+	gap_cy = center.y;
+	gap_r2 = radius * radius;
+	gap_active = (radius > 0);
+}
+
+void
+FreeOvalGap (void)
+{
+	gap_cx = 0;
+	gap_cy = 0;
+	gap_r2 = 0;
+	gap_active = FALSE;
+}
+
 // Kruzen: This function checks how much of an oval is on screen (by me).
-// Check occurs in several steps of increasing complexity to sort off easy cases early.
-// Step 1: Check of the rectangle diagonal (top left and bottom right corners) -> if both are on screen, then the entire oval is on screen;
-// Step 2: Check of the inner rectangle diagonal (top left and bottom right corners are centers of II and IV quads). If both are offscreen,
+// Check occurs in several steps of increasing complexity to sort off easy
+// cases early.
+// Step 1: Check of the rectangle diagonal (top left and bottom right corners)
+//         -> if both are on screen, then the entire oval is on screen;
+// Step 2: Check of the inner rectangle diagonal (top left and bottom right
+//         corners are centers of II and IV quads). If both are offscreen,
 // then the oval is offscreen too 100%;
-// Step 3: Divide main rectangle into 4 quadrants and perform the next steps for every quadrant;
-// Step 4: Check if the quad is off screen entirely (by checking if max possible X coord is less than 0 and so on);
-// Step 5: Check if atleast one of curve edges of corresponding quad is on screen;
-// Step 6: Check the opposite corners of the screen. Corners should form a diagonal that potentially can cross the curve. Run their coordinates
-// through ellipse equation. If radius > 1 - point is outside of the ellipse, and if < 1 - inside. In case if one point is inside and the other is
-// outside - then the diagonal crosses the curve somewhere on the screen, therefore the curve is visible. Otherwise, if both points are 
-// inside/outside, then the curve is not on screen.
+// Step 3: Divide main rectangle into 4 quadrants and perform the next steps
+//         for every quadrant;
+// Step 4: Check if the quad is off screen entirely (by checking if max
+//         possible X coord is less than 0 and so on);
+// Step 5: Check if atleast one of curve edges of corresponding quad is on
+//         screen;
+// Step 6: Check the opposite corners of the screen. Corners should form a
+//         diagonal that potentially can cross the curve. Run their coordinates
+//         through ellipse equation. If radius > 1 - point is outside of the
+//         ellipse, and if < 1 - inside. In case if one point is inside and
+//         the other is outside - then the diagonal crosses the curve somewhere
+//         on the screen, therefore the curve is visible. Otherwise, if both
+//         points are inside/outside, then the curve is not on screen.
 static BYTE
 CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 {
 	DPOINT mp;// Middle point
 	BYTE quad_visible = 0;
-	SDWORD x0, x1, y0, y1; // Coords of top left and bottom right corners of inner rect
+	SDWORD x0, x1, y0, y1;
+			// ^ Coords of top left and bottom right corners of inner rect
 	double asquared, bsquared;
 	double a, b, x, y, r0, r1;
 
@@ -298,27 +339,101 @@ CheckOvalCollision (DPOINT *p0, DPOINT *p1)
 //	return quad_visible;
 //}
 
+static void
+OvalHelper (BYTE quad_visible, PRIMITIVE *prim, COUNT StartPrim,
+		BYTE prim_type, SDWORD apx, SDWORD bmy, SDWORD amx, SDWORD bpy)
+{
+	BYTE render = 0;
+
+	if ((quad_visible & FULL_VISIBILITY) && !gap_active)
+	{
+		DrawBatch (prim, StartPrim, 0);
+		return;
+	}
+
+	if (quad_visible & FIRST_QUAD)
+	{
+		if (PointOnScreen (apx, bmy) && !PointInGap (apx, bmy))
+		{
+			SetPrimType (&prim[0], prim_type);
+			render++;
+		}
+		else
+			SetPrimType (&prim[0], OFFSCREEN_PRIM);
+	}
+
+	if (quad_visible & SECOND_QUAD)
+	{
+		if (PointOnScreen (amx, bmy) && !PointInGap (amx, bmy))
+		{
+			SetPrimType (&prim[1], prim_type);
+			render++;
+		}
+		else
+			SetPrimType (&prim[1], OFFSCREEN_PRIM);
+	}
+
+	if (quad_visible & THIRD_QUAD)
+	{
+		if (PointOnScreen (amx, bpy) && !PointInGap (amx, bpy))
+		{
+			SetPrimType (&prim[2], prim_type);
+			render++;
+		}
+		else
+			SetPrimType (&prim[2], OFFSCREEN_PRIM);
+	}
+
+	if (quad_visible & FOURTH_QUAD)
+	{
+		if (PointOnScreen (apx, bpy) && !PointInGap (apx, bpy))
+		{
+			SetPrimType (&prim[3], prim_type);
+			render++;
+		}
+		else
+			SetPrimType (&prim[3], OFFSCREEN_PRIM);
+	}
+
+	if (render > 0)
+		DrawBatch (prim, StartPrim, 0);
+}
+
+static void
+SetOvalPrim (PRIMITIVE *prim, BYTE prim_type, COORD x, COORD y)
+{
+	if (prim_type == POINT_PRIM)
+	{
+		prim->Object.Point.x = x;
+		prim->Object.Point.y = y;
+		return;
+	}
+
+	prim->Object.Stamp.origin.x = x;
+	prim->Object.Stamp.origin.y = y;
+}
+
 void
 DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 {
 	COUNT off;
 	COORD x, y;
 	SIZE A, B;
-	SQWORD Asquared, TwoAsquared,
-			Bsquared, TwoBsquared;
+	SQWORD Asquared, TwoAsquared, Bsquared, TwoBsquared;
 	SQWORD d, dx, dy;
 	BYTE quad_visible;
 	PRIMITIVE prim[NUM_QUADS];
 	COUNT StartPrim;
 	DPOINT p0, p1;
 	BOOLEAN use_pointprim = (!scaled && num_off_pixels <= 1);
-	BYTE render;
+	BYTE prim_type = use_pointprim ? POINT_PRIM : STAMPFILL_PRIM;
 	
 	p0.x = pRect->corner.x;
 	p0.y = pRect->corner.y;
 	p1.x = p0.x + pRect->extent.width - 1;
 	p1.y = p0.y + pRect->extent.height - 1;
-	// Kruzen: adapted from the original code. If rect is defined incorrectly - make it flat as a pancake and draw a line.
+	// Kruzen: adapted from the original code. If rect is defined incorrectly
+	// - make it flat as a pancake and draw a line.
 	if (p1.x <= p0.x || p1.y <= p0.y)
 	{
 		LINE corners;
@@ -352,9 +467,8 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 		if (quad_visible & (1 << x))
 		{
 			SetPrimNextLink (&prim[x], StartPrim);
-			SetPrimType (&prim[x], use_pointprim ? POINT_PRIM : STAMPFILL_PRIM);
-			prim[x].Object.Stamp.frame =
-						DecFrameIndex (stars_in_space);
+			SetPrimType (&prim[x], prim_type);
+			prim[x].Object.Stamp.frame = DecFrameIndex (stars_in_space);
 			SetPrimColor (&prim[x], _get_context_fg_color ());
 			SetPrimFlags (&prim[x], 0);
 			StartPrim = x;
@@ -387,336 +501,79 @@ DrawOval (DRECT *pRect, BYTE num_off_pixels, BOOLEAN scaled)
 	A += pRect->corner.x;
 	B += pRect->corner.y;
 
-	// Kruzen: a check for prim being on screen is added
-	if (use_pointprim)
+	while (dx < dy)
 	{
-		while (dx < dy)
+		if (off-- == 0)
 		{
-			if (off-- == 0)
-			{
-				render = 0;
-				prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
-				prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
-				prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
-				prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
+			SDWORD apx = A + x;
+			SDWORD bmy = B - y;
+			SDWORD amx = A - x;
+			SDWORD bpy = B + y;
 
-				if (quad_visible & FULL_VISIBILITY)
-				{
-					DrawBatch (prim, StartPrim, 0);
-				}
-				else
-				{
-					if (quad_visible & FIRST_QUAD)
-					{
-						if (PointOnScreen (A + x, B - y))
-						{
-							SetPrimType (&prim[0], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[0], OFFSCREEN_PRIM);
-					}
+			SetOvalPrim (&prim[0], prim_type, apx, bmy);
+			SetOvalPrim (&prim[1], prim_type, amx, bmy);
+			SetOvalPrim (&prim[2], prim_type, amx, bpy);
+			SetOvalPrim (&prim[3], prim_type, apx, bpy);
 
-					if (quad_visible & SECOND_QUAD)
-					{
-						if (PointOnScreen (A - x, B - y))
-						{
-							SetPrimType (&prim[1], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[1], OFFSCREEN_PRIM);
-					}
+			OvalHelper (quad_visible, prim, StartPrim, prim_type,
+					apx, bmy, amx, bpy);
 
-					if (quad_visible & THIRD_QUAD)
-					{
-						if (PointOnScreen (A - x, B + y))
-						{
-							SetPrimType (&prim[2], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[2], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & FOURTH_QUAD)
-					{
-						if (PointOnScreen (A + x, B + y))
-						{
-							SetPrimType (&prim[3], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[3], OFFSCREEN_PRIM);
-					}				
-
-					if (render > 0)
-						DrawBatch (prim, StartPrim, 0);
-				}
-				off = num_off_pixels;
-			}
-
-			if (d > 0)
-			{
-				--y;
-				dy -= TwoAsquared;
-				d -= dy;
-			}
-
-			++x;
-			dx += TwoBsquared;
-			d += Bsquared + dx;
+			off = num_off_pixels;
 		}
-	}
-	else
-	{
-		while (dx < dy)
+
+		if (d > 0)
 		{
-			if (off-- == 0)
-			{// Kruzen: Use correct struct for these. I have no idea how that worked before
-				render = 0;
-				prim[0].Object.Stamp.origin.x = prim[3].Object.Stamp.origin.x = A + x;
-				prim[0].Object.Stamp.origin.y = prim[1].Object.Stamp.origin.y = B - y;
-				prim[1].Object.Stamp.origin.x = prim[2].Object.Stamp.origin.x = A - x;
-				prim[2].Object.Stamp.origin.y = prim[3].Object.Stamp.origin.y = B + y;
-
-				if (quad_visible & FULL_VISIBILITY)
-				{
-					DrawBatch (prim, StartPrim, 0);
-				}
-				else
-				{
-					if (quad_visible & FIRST_QUAD)
-					{
-						if (PointOnScreen (A + x, B - y))
-						{
-							SetPrimType (&prim[0], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[0], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & SECOND_QUAD)
-					{
-						if (PointOnScreen (A - x, B - y))
-						{
-							SetPrimType (&prim[1], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[1], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & THIRD_QUAD)
-					{
-						if (PointOnScreen (A - x, B + y))
-						{
-							SetPrimType (&prim[2], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[2], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & FOURTH_QUAD)
-					{
-						if (PointOnScreen (A + x, B + y))
-						{
-							SetPrimType (&prim[3], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[3], OFFSCREEN_PRIM);
-					}				
-
-					if (render > 0)
-						DrawBatch (prim, StartPrim, 0);
-				}
-				off = num_off_pixels;
-			}
-
-			if (d > 0)
-			{
-				--y;
-				dy -= TwoAsquared;
-				d -= dy;
-			}
-
-			++x;
-			dx += TwoBsquared;
-			d += Bsquared + dx;
+			--y;
+			dy -= TwoAsquared;
+			d -= dy;
 		}
+
+		++x;
+		dx += TwoBsquared;
+		d += Bsquared + dx;
 	}
 
 	d += ((((Asquared - Bsquared) * 3) >> 1) - (dx + dy)) >> 1;
 
-	if (use_pointprim)
+	while (y >= 0)
 	{
-		while (y >= 0)
+		if (off-- == 0)
 		{
-			if (off-- == 0)
-			{
-				render = 0;
-				prim[0].Object.Point.x = prim[3].Object.Point.x = A + x;
-				prim[0].Object.Point.y = prim[1].Object.Point.y = B - y;
-				prim[1].Object.Point.x = prim[2].Object.Point.x = A - x;
-				prim[2].Object.Point.y = prim[3].Object.Point.y = B + y;
+			SDWORD apx = A + x;
+			SDWORD bmy = B - y;
+			SDWORD amx = A - x;
+			SDWORD bpy = B + y;
 
-				if (quad_visible & FULL_VISIBILITY)
-				{
-					DrawBatch (prim, StartPrim, 0);
-				}
-				else
-				{
-					if (quad_visible & FIRST_QUAD)
-					{
-						if (PointOnScreen (A + x, B - y))
-						{
-							SetPrimType (&prim[0], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[0], OFFSCREEN_PRIM);
-					}
+			SetOvalPrim (&prim[0], prim_type, apx, bmy);
+			SetOvalPrim (&prim[1], prim_type, amx, bmy);
+			SetOvalPrim (&prim[2], prim_type, amx, bpy);
+			SetOvalPrim (&prim[3], prim_type, apx, bpy);
 
-					if (quad_visible & SECOND_QUAD)
-					{
-						if (PointOnScreen (A - x, B - y))
-						{
-							SetPrimType (&prim[1], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[1], OFFSCREEN_PRIM);
-					}
+			OvalHelper (quad_visible, prim, StartPrim, prim_type,
+					apx, bmy, amx, bpy);
 
-					if (quad_visible & THIRD_QUAD)
-					{
-						if (PointOnScreen (A - x, B + y))
-						{
-							SetPrimType (&prim[2], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[2], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & FOURTH_QUAD)
-					{
-						if (PointOnScreen (A + x, B + y))
-						{
-							SetPrimType (&prim[3], POINT_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[3], OFFSCREEN_PRIM);
-					}				
-
-					if (render > 0)
-						DrawBatch (prim, StartPrim, 0);
-				}
-				off = num_off_pixels;
-			}
-
-			if (d < 0)
-			{
-				++x;
-				dx += TwoBsquared;
-				d += dx;
-			}
-
-			--y;
-			dy -= TwoAsquared;
-			d += Asquared - dy;
+			off = num_off_pixels;
 		}
-	}
-	else
-	{
-		while (y >= 0)
+
+		if (d < 0)
 		{
-			if (off-- == 0)
-			{
-				render = 0;
-				prim[0].Object.Stamp.origin.x = prim[3].Object.Stamp.origin.x = A + x;
-				prim[0].Object.Stamp.origin.y = prim[1].Object.Stamp.origin.y = B - y;
-				prim[1].Object.Stamp.origin.x = prim[2].Object.Stamp.origin.x = A - x;
-				prim[2].Object.Stamp.origin.y = prim[3].Object.Stamp.origin.y = B + y;
-
-				if (quad_visible & FULL_VISIBILITY)
-				{
-					DrawBatch (prim, StartPrim, 0);
-				}
-				else
-				{
-					if (quad_visible & FIRST_QUAD)
-					{
-						if (PointOnScreen (A + x, B - y))
-						{
-							SetPrimType (&prim[0], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[0], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & SECOND_QUAD)
-					{
-						if (PointOnScreen (A - x, B - y))
-						{
-							SetPrimType (&prim[1], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[1], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & THIRD_QUAD)
-					{
-						if (PointOnScreen (A - x, B + y))
-						{
-							SetPrimType (&prim[2], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[2], OFFSCREEN_PRIM);
-					}
-
-					if (quad_visible & FOURTH_QUAD)
-					{
-						if (PointOnScreen (A + x, B + y))
-						{
-							SetPrimType (&prim[3], STAMPFILL_PRIM);
-							render++;
-						}
-						else
-							SetPrimType (&prim[3], OFFSCREEN_PRIM);
-					}				
-
-					if (render > 0)
-						DrawBatch (prim, StartPrim, 0);
-				}
-				off = num_off_pixels;
-			}
-
-			if (d < 0)
-			{
-				++x;
-				dx += TwoBsquared;
-				d += dx;
-			}
-
-			--y;
-			dy -= TwoAsquared;
-			d += Asquared - dy;
+			++x;
+			dx += TwoBsquared;
+			d += dx;
 		}
+
+		--y;
+		dy -= TwoAsquared;
+		d += Asquared - dy;
 	}
 }
 
 void
 DrawFilledOval (DRECT *pRect)
-{// Kruzen: originally there was standard rect, but drawing fuel circle in HD on max zoom causes overflow (Width ~65k)
- // So unless we want to expand standard rect to support 4 bytes per dimension - use this
+{// Kruzen: originally there was standard rect, but drawing fuel circle in HD
+ // on max zoom causes overflow (Width ~65k)
+ // So unless we want to expand standard rect to support 4 bytes
+ // per dimension - use this
 	COORD x, y;
 	SIZE A, B;
 	SQWORD Asquared, TwoAsquared,
@@ -732,7 +589,8 @@ DrawFilledOval (DRECT *pRect)
 	p0.y = pRect->corner.y;
 	p1.x = p0.x + pRect->extent.width - 1;
 	p1.y = p0.y + pRect->extent.height - 1;
-	// Kruzen: adapted from the original code. If rect is defined incorrectly - make it flat as a pancake and draw a line.
+	// Kruzen: adapted from the original code. If rect is defined incorrectly
+	// - make it flat as a pancake and draw a line.
 	if (p1.x <= p0.x || p1.y <= p0.y)
 	{
 		LINE corners;

@@ -145,8 +145,12 @@ void draw_visual_menu (void)
 	Spacer ();
 
 	// Orbiting Planets
-	UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 14),
-			&optOrbitingPlanets, "mm.orbitingPlanets", false);
+	if (UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 14),
+			&optOrbitingPlanets, "mm.orbitingPlanets", false))
+	{
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
+	}
 
 	// Textured Planets
 	if (UQM_ImGui_CheckBox (ImStr (ENH_VIS_STR_BASE + 15), &optTexturedPlanets,

@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Implemented Dear ImGui using Dear Bindings for use as a tertiary in-game menu activated by pressing the Backquote/Tilde key
 - Option to save screenshots as a PNG and/or copy them to the clipboard
 - Added a deadzone visualizer in the Deadzone Options page in the Setup Menu
+- Added an Accessibility menu entry to the Setup Menu
+- Added a "High Visibility Orbits" option to the Accessibility menu which brightens the orbit lines
+- Added a "High Visibility Planets" option to the accessibility menu which dims the solar system background and put gaps in the orbit lines around planets
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander

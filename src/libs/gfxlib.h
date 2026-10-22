@@ -162,7 +162,7 @@ buildColorRgba (BYTE r, BYTE g, BYTE b, BYTE a)
 		buildColorRgba ((r), (g), (b), 0xFF)
 
 static inline void
-IncreaseBrightness (BYTE *ch, BYTE value)
+BrightenChannel (BYTE *ch, BYTE value)
 {
 	int c;
 	if (*ch < 128)
@@ -177,6 +177,14 @@ IncreaseBrightness (BYTE *ch, BYTE value)
 		*ch = (BYTE)c;
 	else
 		*ch = (BYTE)(((c - *ch) * value) >> 8) + *ch;
+}
+
+static inline void
+IncreaseBrightness (Color *c, BYTE value)
+{
+	BrightenChannel (&c->r, value);
+	BrightenChannel (&c->g, value);
+	BrightenChannel (&c->b, value);
 }
 
 static inline BOOLEAN

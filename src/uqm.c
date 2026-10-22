@@ -219,6 +219,8 @@ struct options_struct
 	DECL_CONFIG_OPTION(int,   mouseInput);
 	DECL_CONFIG_OPTION(bool,  battleMouse);
 	DECL_CONFIG_OPTION(int,   screenShots);
+	DECL_CONFIG_OPTION(bool,  highVisOrbits);
+	DECL_CONFIG_OPTION(bool,  highVisPlanets);
 
 #define INIT_CONFIG_OPTION(name, val) \
 	{ val, false }
@@ -438,6 +440,8 @@ int main(int argc, char** argv)
 		INIT_CONFIG_OPTION(  mouseInput,        0 ),
 		INIT_CONFIG_OPTION(  battleMouse,       false ),
 		INIT_CONFIG_OPTION(  screenShots,       0 ),
+		INIT_CONFIG_OPTION(  highVisOrbits,     false ),
+		INIT_CONFIG_OPTION(  highVisPlanets,    false ),
 	};
 	struct options_struct defaults = options;
 	int optionsResult;
@@ -675,6 +679,8 @@ int main(int argc, char** argv)
 	optMouseInput = options.mouseInput.value;
 	optBattleMouse = options.battleMouse.value;
 	optScreenShots = options.screenShots.value;
+	optHighVisOrbits = options.highVisOrbits.value;
+	optHighVisPlanets = options.highVisPlanets.value;
 
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 
@@ -1276,6 +1282,9 @@ getUserConfigOptions (struct options_struct *options)
 		options->screenShots.value = res_GetInteger ("mm.screenShots");
 	}
 
+	getBoolConfigValue (&options->highVisOrbits, "mm.highVisOrbits");
+	getBoolConfigValue (&options->highVisPlanets, "mm.highVisPlanets");
+
 	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
 
 	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
@@ -1372,6 +1381,8 @@ enum
 	MOUSE_OPT,
 	BATMOUSE_OPT,
 	SCRSHOTS_OPT,
+	HIVISORBITS_OPT,
+	HIVISPLANETS_OPT,
 #ifdef NETPLAY
 	NETHOST1_OPT,
 	NETPORT1_OPT,
@@ -1496,6 +1507,8 @@ static struct option longOptions[] =
 	{"mouseinput", 1, NULL, MOUSE_OPT},
 	{"battlemouse", 0, NULL, BATMOUSE_OPT},
 	{"screenshots", 1, NULL, SCRSHOTS_OPT},
+	{"hivisorbits", 0, NULL, HIVISORBITS_OPT},
+	{"hivisplanets", 0, NULL, HIVISPLANETS_OPT},
 #ifdef NETPLAY
 	{"nethost1", 1, NULL, NETHOST1_OPT},
 	{"netport1", 1, NULL, NETPORT1_OPT},
@@ -2453,6 +2466,12 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				break;
 			}
+			case HIVISORBITS_OPT:
+				setBoolOption (&options->highVisOrbits, true);
+				break;
+			case HIVISPLANETS_OPT:
+				setBoolOption (&options->highVisPlanets, true);
+				break;
 #ifdef NETPLAY
 			case NETHOST1_OPT:
 				netplayOptions.peer[0].isServer = false;
@@ -2848,6 +2867,13 @@ usage (FILE *out, const struct options_struct *defaults)
 	log_add (log_User, "  --battlemouse : Use relative mouse controls for "
 			"Super Melee (default: %s)",
 			boolOptString (&defaults->battleMouse));
+	log_add (log_User, "  --hivisorbits : brightens orbit lines to make them "
+			"more visible (default: %s)",
+			boolOptString (&defaults->highVisOrbits));
+	log_add (log_User, "  --hivisplanets : Dims solar system background and "
+			"puts gaps in the orbit lines around planets"
+			" (default: %s)",
+			boolOptString (&defaults->highVisPlanets));
 
 	log_setOutput (old);
 }

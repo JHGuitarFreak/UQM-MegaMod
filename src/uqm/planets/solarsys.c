@@ -125,6 +125,7 @@ BOOLEAN RedrawSolarSys = FALSE;
 BOOLEAN texturedPlanetsCheck;
 int planetStyleCheck;
 BOOLEAN nebulaeCheck;
+BOOLEAN hiVisCheck;
 int flagshipColorCheck;
 
 SIZE EncounterRace;
@@ -967,6 +968,7 @@ LoadIPData (void)
 	texturedPlanetsCheck = (BOOLEAN)optTexturedPlanets;
 	planetStyleCheck = optPlanetStyle;
 	nebulaeCheck = (BOOLEAN)optNebulae;
+	hiVisCheck = (BOOLEAN)optHighVisOrbits;
 	flagshipColorCheck = optFlagshipColor;
 }
 
@@ -1183,15 +1185,15 @@ LoadSolarSys (void)
 #define NUM_TEMP_RANGES 5
 	Color orbit_temp_array[NUM_TEMP_RANGES] = { ORBIT_TEMP_COLORS };
 
-	if (NebulaFrame)
+	if (NebulaFrame || optHighVisOrbits)
 	{
 		BYTE brightness = (optNebulaeVolume + 1) * 5;
+
+		if (optHighVisOrbits)
+			brightness = 255;
+
 		for (i = 0; i < NUM_TEMP_RANGES; i++)
-		{
-			IncreaseBrightness (&orbit_temp_array[i].r, brightness);
-			IncreaseBrightness (&orbit_temp_array[i].g, brightness);
-			IncreaseBrightness (&orbit_temp_array[i].b, brightness);
-		}
+			IncreaseBrightness (&orbit_temp_array[i], brightness);
 	}
 
 	RandomContext_SeedRandom (SysGenRNG,
@@ -1742,10 +1744,48 @@ DrawOrbit (PLANET_DESC *planet, int sizeNumer, int dyNumer, int denom)
 
 	dr = RECT_TO_DRECT (r);
 	SetContextForeGroundColor (planet->temp_color);
+
+	if (optHighVisPlanets && planet->image.frame)
+	{
+		RECT pr;
+		EXTENT ext;
+		BYTE gap_radius;
+		POINT hotspot, gap_center;
+
+		GetFrameRect (planet->image.frame, &pr);
+		ext = pr.extent;
+		hotspot = planet->image.origin;
+		gap_center.x = hotspot.x + pr.corner.x + (ext.width >> 1);
+		gap_center.y = hotspot.y + pr.corner.y + (ext.height >> 1);
+
+		if (playerInInnerSystem ())
+		{
+			PLANET_DESC *pCurDesc = pSolarSysState->PlanetDesc;
+			int num_planets = pCurDesc->NumPlanets - 1;
+
+			if ((planet - pCurDesc) < MAX_GEN_PLANETS)
+			{
+				gap_center.x = SIS_SCREEN_WIDTH >> 1;
+				gap_center.y = SIS_SCREEN_HEIGHT >> 1;
+			}
+
+			gap_radius = (ext.width >> 1) + RES_SCALE (4);
+		}
+		else
+			gap_radius = (ext.width >> 1) + RES_SCALE (3);
+
+		//DrawCircle (gap_center, gap_radius, 0, 0);
+		// For visualizing where the gap should be
+
+		SetOvalGap (gap_center, gap_radius);
+	}
+
 	if (!optUnscaledStarSystem)
 		DrawOval (&dr, RES_BOOL (1, 6), FALSE);
 	else
 		DrawOval (&dr, 1, FALSE);
+
+	FreeOvalGap ();
 }
 
 static SIZE
@@ -2510,23 +2550,25 @@ UpdateSolarSys (void)
 	DestroyDrawable (ReleaseDrawable (NebulaFrame));
 	NebulaFrame = LoadNebulaeFrame (CurStarDescPtr->star_pt);
 
-	if (NebulaFrame || nebulaeCheck != (BOOLEAN)optNebulae)
+	if ((NebulaFrame || nebulaeCheck != (BOOLEAN)optNebulae) ||
+		(optHighVisOrbits || hiVisCheck != (BOOLEAN)optHighVisOrbits))
 	{
 		int i, j;
 		PLANET_DESC *pCurDesc, *pMoonDesc;
-		BYTE brightness = (optNebulaeVolume + 1) * 5;
+		BYTE brightness = 0;
 		Color orbit_color_array[NUM_TEMP_RANGES] = { ORBIT_TEMP_COLORS };
 
 		pCurDesc = pSolarSysState->PlanetDesc;
 
-		if (NebulaFrame)
+		if (optHighVisOrbits)
+			brightness = 255;
+		else if (NebulaFrame)
+			brightness = (optNebulaeVolume + 1) * 5;
+
+		if (brightness > 0)
 		{
 			for (i = 0; i < NUM_TEMP_RANGES; i++)
-			{
-				IncreaseBrightness (&orbit_color_array[i].r, brightness);
-				IncreaseBrightness (&orbit_color_array[i].g, brightness);
-				IncreaseBrightness (&orbit_color_array[i].b, brightness);
-			}
+				IncreaseBrightness (&orbit_color_array[i], brightness);
 		}
 
 		for (i = 0, pCurDesc = pSolarSysState->PlanetDesc;
@@ -2553,6 +2595,7 @@ UpdateSolarSys (void)
 			do_transition = OPT_3DO;
 
 		nebulaeCheck = (BOOLEAN)optNebulae;
+		hiVisCheck = (BOOLEAN)optHighVisOrbits;
 	}
 
 	DestroyDrawable (ReleaseDrawable (StarsFrame));
@@ -3161,6 +3204,16 @@ DrawInnerPlanets (PLANET_DESC *planet)
 	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	s.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 
+	// Draw the moon orbits when orbiting and hivis is enabled
+	if (optOrbitingPlanets && optHighVisPlanets)
+	{
+		for (i = planet->NumPlanets, moon = pSolarSysState->MoonDesc;
+			i; --i, ++moon)
+		{
+			DrawOrbit (moon, 2, 1, 2);
+		}
+	}
+
 	if (optTexturedPlanets)
 	{	// Draw the planet image
 		RotatePlanets (TRUE);
@@ -3212,7 +3265,23 @@ DrawOuterPlanets (SIZE radius)
 	
 	CalcSunSize (&pSolarSysState->SunDesc[0], radius);
 	if (optOrbitingPlanets)
+	{
 		sortPlanetPositions ();
+
+		if (optHighVisPlanets)
+		{
+			int i;
+			PLANET_DESC *pCurDesc;
+			PLANET_DESC *pBaseDesc = pSolarSysState->pBaseDesc;
+
+			for (i = pBaseDesc->pPrevDesc->NumPlanets, pCurDesc = pBaseDesc;
+					i; --i, ++pCurDesc)
+			{
+				DrawOrbit (pCurDesc, DISPLAY_FACTOR,
+					RES_SCALE (DISPLAY_FACTOR_US / 4), radius);
+			}
+		}
+	}
 	
 	index = pSolarSysState->FirstPlanetIndex;
 	for (;;)
@@ -3282,14 +3351,17 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	}
 
 	// Draw the planet orbits or moon orbits
-	for (i = pBaseDesc->pPrevDesc->NumPlanets, pCurDesc = pBaseDesc;
-			i; --i, ++pCurDesc)
+	if (!optOrbitingPlanets || !optHighVisPlanets)
 	{
-		if (IsInnerSystem)
-			DrawOrbit (pCurDesc, 2, 1, 2);
-		else
-			DrawOrbit (pCurDesc, DISPLAY_FACTOR,
+		for (i = pBaseDesc->pPrevDesc->NumPlanets, pCurDesc = pBaseDesc;
+			i; --i, ++pCurDesc)
+		{
+			if (IsInnerSystem)
+				DrawOrbit (pCurDesc, 2, 1, 2);
+			else
+				DrawOrbit (pCurDesc, DISPLAY_FACTOR,
 					RES_SCALE (DISPLAY_FACTOR_US / 4), radius);
+		}
 	}
 
 	if (!optOrbitingPlanets && !optTexturedPlanets)
@@ -3406,6 +3478,21 @@ CreateStarBackGround (RandomContext *SysRNG, FRAME nebula, FRAME junk)
 	num_brt_drawn = NUM_BRT_DRAWN + (hdScaled ? 0 : 60);
 	DrawBackgroundStars (NUM_BRT_PIECES, num_brt_drawn, start_index,
 			SysRNG, junk);
+
+	if (optHighVisPlanets)
+	{
+		RECT r;
+		Color oldColor;
+		Color c = BUILD_COLOR_RGBA (0, 0, 0, 128);
+
+		oldColor = SetContextForeGroundColor (c);
+
+		r.corner = MAKE_POINT (0, 0);
+		r.extent = MAKE_EXTENT (SIS_SCREEN_WIDTH, SIS_SCREEN_HEIGHT);
+		DrawFilledRectangle (&r);
+
+		SetContextForeGroundColor (oldColor);
+	}
 
 	DrawNebula (nebula);
 

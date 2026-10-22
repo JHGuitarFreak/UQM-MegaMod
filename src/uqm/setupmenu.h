@@ -314,6 +314,8 @@ enum {
 	CHOICE_MOUSEINPUT,
 	CHOICE_BATMOUSE,
 	CHOICE_SCRSHOTS,
+	CHOICE_HIVISORBITS,
+	CHOICE_HIVISPLANETS,
 
 	CHOICE_COUNT
 };
@@ -334,6 +336,7 @@ enum {
 	MENU_UPGRADES,
 	MENU_EDITMENUKEYS,
 	MENU_DEADZONES,
+	MENU_ACCESSIBILITY,
 	
 	MENU_COUNT
 };
@@ -374,6 +377,7 @@ enum {
 	BTN_CANCELMENUBINDS,
 	BTN_LOADDEFMENUBINDS,
 	BTN_EDIT_DEADZONES,
+	BTN_ACCESSIBILITY_MENU,
 
 	BUTTON_COUNT
 };
@@ -493,7 +497,8 @@ typedef struct globalopts_struct {
 			noHQEncounters, deCleansing, meleeObstacles, showVisitedStars,
 			unscaledStarSystem, slaughterMode, advancedAutoPilot,
 			meleeToolTips, scatterElements, showUpgrades, fleetPointSys,
-			shipSeed, shipStore, captainNames, dosMenus, battleMouse;
+			shipSeed, shipStore, captainNames, dosMenus, battleMouse,
+			highVisOrbits, highVisPlanets;
 	OPT_CONSOLETYPE menu, text, scroll, intro, shield, scrTrans,
 			landerHold, tintPlanSphere, planetStyle, scanStyle,
 			scopeStyle, landerStyle, flagshipColor, hyperSpaceColor;

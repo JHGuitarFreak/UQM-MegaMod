@@ -60,6 +60,33 @@ void draw_qol_menu (void)
 	ImGui_EndChild (); // ##QoLColumn
 }
 
+void draw_access_menu (void)
+{	// Accessibility Options
+	ImGui_BeginStyledChild ("##AcessColumn", content_col_size,
+			CHILD_FLAGS, 0, NULL);
+
+	// Accessibility Options
+	ImGui_SeparatorText (ImStr (ENH_ACS_STR_BASE));
+
+	// High Visibility Orbits
+	if (UQM_ImGui_CheckBox (ImStr (ENH_ACS_STR_BASE + 1), &optHighVisOrbits,
+			"mm.highVisOrbits", false))
+	{
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
+	}
+
+	// High Visibility Planets
+	if (UQM_ImGui_CheckBox (ImStr (ENH_ACS_STR_BASE + 2), &optHighVisPlanets,
+			"mm.highVisPlanets", false))
+	{
+		if (playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
+	}
+
+	ImGui_EndChild (); // ##AccessColumn
+}
+
 void draw_adv_menu (void)
 {
 	static const char **difficulties = NULL;

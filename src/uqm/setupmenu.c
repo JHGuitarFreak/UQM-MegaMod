@@ -162,6 +162,7 @@ static void change_template (WIDGET_CHOICE *self, int oldval);
 static void rebind_control (WIDGET_CONTROLENTRY *widget);
 static void clear_control (WIDGET_CONTROLENTRY *widget);
 static int do_deadzones (WIDGET *self, int event);
+static int do_accessibility (WIDGET *self, int event);
 
 /* The space for our widgets */
 static WIDGET_MENU_SCREEN      menus         [MENU_COUNT        ];
@@ -182,20 +183,21 @@ static HANDLER button_handlers[BUTTON_COUNT] = {
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
 	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
 	do_cheats, do_editmenukeys, do_savemenubinds, do_cancelmenubinds,
-	do_loaddefmenubinds, do_deadzones };
+	do_loaddefmenubinds, do_deadzones, do_accessibility };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
 static WIDGET *main_widgets[] = {
-	(WIDGET *)(&buttons[BTN_GFXMENU  ]), // Graphics
-	(WIDGET *)(&buttons[BTN_ENGMENU  ]), // PC/3DO
-	(WIDGET *)(&buttons[BTN_VISMENU  ]), // Visuals
-	(WIDGET *)(&buttons[BTN_SNDMENU  ]), // Sound
-	(WIDGET *)(&buttons[BTN_MUSMENU  ]), // Music
-	(WIDGET *)(&buttons[BTN_KEYMENU  ]), // Controls
-	(WIDGET *)(&buttons[BTN_QOLMENU  ]), // Quality of Life
-	(WIDGET *)(&buttons[BTN_ADVMENU  ]), // Advanced
-	(WIDGET *)(&buttons[BTN_CHTMENU  ]), // Cheats
+	(WIDGET *)(&buttons[BTN_GFXMENU           ]), // Graphics
+	(WIDGET *)(&buttons[BTN_ENGMENU           ]), // PC/3DO
+	(WIDGET *)(&buttons[BTN_VISMENU           ]), // Visuals
+	(WIDGET *)(&buttons[BTN_SNDMENU           ]), // Sound
+	(WIDGET *)(&buttons[BTN_MUSMENU           ]), // Music
+	(WIDGET *)(&buttons[BTN_KEYMENU           ]), // Controls
+	(WIDGET *)(&buttons[BTN_QOLMENU           ]), // Quality of Life
+	(WIDGET *)(&buttons[BTN_ADVMENU           ]), // Advanced
+	(WIDGET *)(&buttons[BTN_CHTMENU           ]), // Cheats
+	(WIDGET *)(&buttons[BTN_ACCESSIBILITY_MENU]), // Accessibility Menu
 
 	(WIDGET *)(&labels [LABEL_SPACER ]), // Spacer
 	(WIDGET *)(&buttons[BTN_QUITSETUP]), // Quit Setup Menu
@@ -522,6 +524,15 @@ static WIDGET *editdeadzone_widgets[] = {
 	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
 	NULL };
 
+static WIDGET *accessibility_widgets[] = {
+	(WIDGET *)(&labels [LABEL_IP           ]), // IP Label
+	(WIDGET *)(&choices[CHOICE_HIVISORBITS ]), // Brightened orbits
+	(WIDGET *)(&choices[CHOICE_HIVISPLANETS]), // Circled Planets
+
+	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
+	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
+	NULL };
+
 static const struct
 {
 	WIDGET **widgets;
@@ -544,6 +555,7 @@ menu_defs[] =
 	{upgrades_widgets, 12},
 	{editmenukeys_widgets, 13},
 	{editdeadzone_widgets, 14},
+	{accessibility_widgets, 15},
 	{NULL, 0}
 };
 
@@ -799,6 +811,19 @@ do_deadzones (WIDGET *self, int event)
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[MENU_DEADZONES]);
+		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
+		return TRUE;
+	}
+	(void)self;
+	return FALSE;
+}
+
+static int
+do_accessibility (WIDGET *self, int event)
+{
+	if (event == WIDGET_EVENT_SELECT)
+	{
+		next = (WIDGET *)(&menus[MENU_ACCESSIBILITY]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -1631,13 +1656,15 @@ PropagateResults (void)
 		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
 	}
 
-	opts.shipSeed =     choices[CHOICE_SHIPSEED  ].selected;
-	opts.shipStore =    choices[CHOICE_SHIPSTORE ].selected;
-	opts.captainNames = choices[CHOICE_CAPTNAMES ].selected;
-	opts.dosMenus =     choices[CHOICE_DOSMENUS  ].selected;
-	opts.mouseInput =   choices[CHOICE_MOUSEINPUT].selected;
-	opts.battleMouse =  choices[CHOICE_BATMOUSE  ].selected;
-	opts.screenShots =  choices[CHOICE_SCRSHOTS  ].selected;
+	opts.shipSeed =       choices[CHOICE_SHIPSEED    ].selected;
+	opts.shipStore =      choices[CHOICE_SHIPSTORE   ].selected;
+	opts.captainNames =   choices[CHOICE_CAPTNAMES   ].selected;
+	opts.dosMenus =       choices[CHOICE_DOSMENUS    ].selected;
+	opts.mouseInput =     choices[CHOICE_MOUSEINPUT  ].selected;
+	opts.battleMouse =    choices[CHOICE_BATMOUSE    ].selected;
+	opts.screenShots =    choices[CHOICE_SCRSHOTS    ].selected;
+	opts.highVisOrbits =  choices[CHOICE_HIVISORBITS ].selected;
+	opts.highVisPlanets = choices[CHOICE_HIVISPLANETS].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -3150,6 +3177,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->mouseInput = optMouseInput;
 	opts->battleMouse = optBattleMouse;
 	opts->screenShots = optScreenShots;
+	opts->highVisOrbits = optHighVisOrbits;
+	opts->highVisPlanets = optHighVisPlanets;
 
 	// QoL
 	opts->scatterElements = optScatterElements;
@@ -3473,6 +3502,9 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optBattleMouse, &opts->battleMouse, "mm.battleMouse", FALSE);
 
 	PutIntOpt (&optScreenShots, (int*)&opts->screenShots, "mm.screenShots", FALSE);
+
+	PutBoolOpt (&optHighVisOrbits, &opts->highVisOrbits, "mm.highVisOrbits", FALSE);
+	PutBoolOpt (&optHighVisPlanets, &opts->highVisPlanets, "mm.highVisPlanets", FALSE);
 
 	res_PutString ("keys.version", MM_BASE_VERSION_S);
 
