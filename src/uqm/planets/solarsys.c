@@ -3189,6 +3189,16 @@ DrawInnerPlanets (PLANET_DESC *planet)
 	s.origin.x = RES_SCALE (ORIG_SIS_SCREEN_WIDTH >> 1);
 	s.origin.y = RES_SCALE (ORIG_SIS_SCREEN_HEIGHT >> 1);
 
+	// Draw the moon orbits when orbiting and hivis is enabled
+	if (optOrbitingPlanets && optHighVisPlanets)
+	{
+		for (i = planet->NumPlanets, moon = pSolarSysState->MoonDesc;
+			i; --i, ++moon)
+		{
+			DrawOrbit (moon, 2, 1, 2);
+		}
+	}
+
 	if (optTexturedPlanets)
 	{	// Draw the planet image
 		RotatePlanets (TRUE);
@@ -3240,7 +3250,23 @@ DrawOuterPlanets (SIZE radius)
 	
 	CalcSunSize (&pSolarSysState->SunDesc[0], radius);
 	if (optOrbitingPlanets)
+	{
 		sortPlanetPositions ();
+
+		if (optHighVisPlanets)
+		{
+			int i;
+			PLANET_DESC *pCurDesc;
+			PLANET_DESC *pBaseDesc = pSolarSysState->pBaseDesc;
+
+			for (i = pBaseDesc->pPrevDesc->NumPlanets, pCurDesc = pBaseDesc;
+					i; --i, ++pCurDesc)
+			{
+				DrawOrbit (pCurDesc, DISPLAY_FACTOR,
+					RES_SCALE (DISPLAY_FACTOR_US / 4), radius);
+			}
+		}
+	}
 	
 	index = pSolarSysState->FirstPlanetIndex;
 	for (;;)
@@ -3310,14 +3336,17 @@ DrawSystem (SIZE radius, BOOLEAN IsInnerSystem)
 	}
 
 	// Draw the planet orbits or moon orbits
-	for (i = pBaseDesc->pPrevDesc->NumPlanets, pCurDesc = pBaseDesc;
-			i; --i, ++pCurDesc)
+	if (!optOrbitingPlanets || !optHighVisPlanets)
 	{
-		if (IsInnerSystem)
-			DrawOrbit (pCurDesc, 2, 1, 2);
-		else
-			DrawOrbit (pCurDesc, DISPLAY_FACTOR,
+		for (i = pBaseDesc->pPrevDesc->NumPlanets, pCurDesc = pBaseDesc;
+			i; --i, ++pCurDesc)
+		{
+			if (IsInnerSystem)
+				DrawOrbit (pCurDesc, 2, 1, 2);
+			else
+				DrawOrbit (pCurDesc, DISPLAY_FACTOR,
 					RES_SCALE (DISPLAY_FACTOR_US / 4), radius);
+		}
 	}
 
 	if (!optOrbitingPlanets && !optTexturedPlanets)
