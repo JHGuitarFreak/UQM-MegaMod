@@ -989,7 +989,6 @@ SaveBackFrame (COUNT radius)
 #define VIEWING_TILT (85.0 * M_DEG2RAD)
 #define LARGE_GAS_GIANT_RADIUS_THRESHOLD 600
 #define RING_MAX_OUTER_WIDTH(a) ((a << 1) + (a >> 1))
-#define RING_SCRATCH_WIDTH (RING_MAX_OUTER_WIDTH (RADIUS) * 2 + 1)
 
 typedef struct
 {
@@ -2109,13 +2108,14 @@ ValidateMap (SBYTE *DepthArray, COUNT width, COUNT height)
 }
 
 static void
-planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
+planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit, COUNT radius)
 {
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 	COUNT spherespanx = height;
 	COUNT shieldradius = (height >> 1) * SHIELD_RADIUS / RADIUS;
 	COUNT shielddiam = (shieldradius << 1) + 1;
 	COUNT diameter = height + 1;
+	COUNT ring_diam = (RING_MAX_OUTER_WIDTH (radius) << 1) + 1;
 	COUNT i;
 
 	{// always needed
@@ -2137,7 +2137,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		Orbit->ScanColors = NULL;
 
 		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
-				* (RING_SCRATCH_WIDTH) * (RING_SCRATCH_WIDTH));
+				* (ring_diam) * (ring_diam));
 
 		Orbit->WorkFrame = 0;
 		Orbit->BackFrame = 0;
@@ -2868,7 +2868,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
 	
-	planet_orbit_init (width, height, !ForIP);
+	planet_orbit_init (width, height, !ForIP, radius);
 
 	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
 
@@ -3150,7 +3150,12 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			Orbit->BackFrame = SaveBackFrame (radius);
 	}
 	else if (PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO)
-			Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, VIEWING_TILT, radius);
+	{
+		if (Orbit->ObjectFrame)
+			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
+
+		Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, VIEWING_TILT, radius);
+	}
 
 	
 	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));

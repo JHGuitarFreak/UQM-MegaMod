@@ -2476,6 +2476,12 @@ FreePlanetDesc (PLANET_DESC *pPlanetDesc, SIZE diameter)
 	if (pPlanetDesc->size)
 		pPlanetDesc->size = 0;
 
+	if (pPlanetDesc->orbit.ObjectFrame)
+	{
+		DestroyDrawable (ReleaseDrawable (pPlanetDesc->orbit.ObjectFrame));
+		pPlanetDesc->orbit.ObjectFrame = 0;
+	}
+
 	if (pPlanetDesc->orbit.lpTopoData)
 		DestroyOrbitStruct (&pPlanetDesc->orbit, diameter);
 }
