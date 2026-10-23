@@ -1059,7 +1059,7 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 			BYTE   alpha = 0xFF;
 			int    px2py2 = (x * x) + (y * y);
 
-			t = -(x * Nx + y * Ny) / Nz;
+			t = -(x * Nx + (y - RES_SCALE (1)) * Ny) / Nz;
 			dist = sqrt (px2py2 + (t * t));
 
 			if (dist <= params->inner_r ||
