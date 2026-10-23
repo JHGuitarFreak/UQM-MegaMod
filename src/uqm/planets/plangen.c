@@ -987,7 +987,7 @@ SaveBackFrame (COUNT radius)
  * will give us a nice view of the rings rather than seeing them edge-on.
  */
 #define VIEWING_TILT (85.0 * M_DEG2RAD)
-#define LARGE_GAS_GIANT_RADIUS_THRESHOLD 600
+#define GAS_GIANT_RADIUS_THRESHOLD 600
 #define RING_MAX_OUTER_WIDTH(a) ((a << 1) + (a >> 1))
 
 typedef struct
@@ -1112,7 +1112,7 @@ CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
 {
 	FRAME RingFrame;
 	RingParams rp;
-	COUNT radius_thresh = LARGE_GAS_GIANT_RADIUS_THRESHOLD;
+	COUNT radius_thresh = GAS_GIANT_RADIUS_THRESHOLD;
 
 	if (abs (PlanetInfo->AxialTilt) <= 5)
 		return NULL;
