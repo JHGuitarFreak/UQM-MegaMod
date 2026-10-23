@@ -1056,7 +1056,7 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 		{
 			double t, dist, norm_dist, band_level, light_factor;
 			double lr, lg, lb;
-			BYTE   alpha = 0xFF;
+			BYTE   alpha = 0xDF;
 			int    px2py2 = (x * x) + (y * y);
 
 			t = -(x * Nx + (y - RES_SCALE (1)) * Ny) / Nz;
