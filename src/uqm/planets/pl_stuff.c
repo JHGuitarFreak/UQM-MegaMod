@@ -345,6 +345,26 @@ PrepareNextRotationFrameForIP (PLANET_DESC *pPlanetDesc, SIZE frameCounter)
 	// to DrawStamp won't re-blit the frame unless scale has changed.
 }
 
+static inline double
+ScreenYToViewingTilt (int screen_y)
+{
+	const double tilt_rest = 1.48353; // 85° in radians
+	const double tilt_far = 1.13446; // 65° in radians
+
+	// Max distance the planet travels from rest during zoom
+	const double max_dy = (double)(SCAN_SCREEN_HEIGHT * 6 / 10);
+	const double dy = abs (screen_y - PLANET_ORG_Y);
+
+	double t = 1.0 - (dy / max_dy);
+	if (t < 0.0) t = 0.0;
+	if (t > 1.0) t = 1.0;
+
+	// Use a slight curve so it reaches tilt_rest quickly at the end
+	t = t * t;
+
+	return tilt_far + t * (tilt_rest - tilt_far);
+}
+
 #define ZOOM_RATE  RES_SCALE (35)
 #define ZOOM_TIME  (ONE_SECOND * 6 / 5)
 
@@ -402,6 +422,29 @@ ZoomInPlanetSphere (void)
 				* (RES_SCALE (SCAN_SCREEN_HEIGHT) * 6 / 10) + 0.5);
 
 		SetContext (PlanetContext);
+
+		if (Orbit->ObjectFrame && Orbit->WorkFrame == NULL)
+		{
+			PLANET_INFO *PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
+			PLANET_DESC *pPlanetDesc = pSolarSysState->pOrbitalDesc;
+			POINT loc;
+			RECT clipR;
+			double tilt;
+
+			if (!(pPlanetDesc->data_index & PLANET_SHIELDED))
+			{
+				if (pPlanetDesc->pPrevDesc == &pSolarSysState->SunDesc[0])
+					loc = pPlanetDesc->location;
+				else
+					loc = pPlanetDesc->pPrevDesc->location;
+
+				GetContextClipRect (&clipR);
+				tilt = ScreenYToViewingTilt (pt.y);
+
+				DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
+				Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, tilt, pPlanetDesc->radius);
+			}
+		}
 
 		BatchGraphics ();
 		if (i > 0)

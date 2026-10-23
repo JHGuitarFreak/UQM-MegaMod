@@ -575,6 +575,24 @@ P3norm (POINT3 *res, POINT3 *vec)
 	P3mult (res, vec, 1/mag);
 }
 
+#define AMBIENT_LIGHT 0.1
+#define LIGHT_Z       1.2
+
+static inline POINT3
+CalcLightDirection (POINT loc)
+{
+	POINT3 light;
+	// lrad is the distance from the sun to the planet
+	const double lrad = sqrt ((loc.x * loc.x + loc.y * loc.y));
+	// light is the sun's position.  the z-coordinate is whatever
+	// looks good
+	light.x = -loc.x;
+	light.y = -loc.y;
+	light.z = LIGHT_Z * lrad;
+	P3norm (&light, &light);
+	return light;
+}
+
 // GenerateSphereMask builds a shadow map for the rotating planet
 //  loc indicates the planet's position relative to the sun
 static void
@@ -582,23 +600,13 @@ GenerateSphereMask (POINT loc, COUNT radius)
 {
 	POINT pt;
 	POINT3 light;
-	double lrad;
 	const DWORD step = 1 << DIFFUSE_BITS;
 	int y, x;
 	COUNT tworadius = radius << 1;
 	COUNT radius_thres = (radius + 1) * (radius + 1);
 	COUNT radius_2 = radius * radius;
 
-#define AMBIENT_LIGHT 0.1
-#define LIGHT_Z       1.2
-	// lrad is the distance from the sun to the planet
-	lrad = sqrt (loc.x * loc.x + loc.y * loc.y);
-	// light is the sun's position.  the z-coordinate is whatever
-	// looks good
-	light.x = -((double)loc.x);
-	light.y = -((double)loc.y);
-	light.z = LIGHT_Z * lrad;
-	P3norm (&light, &light);
+	light = CalcLightDirection (loc);
 	
 	for (pt.y = 0, y = -radius; pt.y <= tworadius; ++pt.y, y++)
 	{
@@ -970,6 +978,180 @@ SaveBackFrame (COUNT radius)
 		shieldradius + 1));
 
 	return BackFrame;
+}
+
+
+/* RenderRingMask
+ * Creates rings around gas giants.  For aesthetics, the default viewing tilt
+ * assumes that the orbital view stabilises at 5° above the equator, which
+ * will give us a nice view of the rings rather than seeing them edge-on.
+ */
+#define VIEWING_TILT (85.0 * M_DEG2RAD)
+#define LARGE_GAS_GIANT_RADIUS_THRESHOLD 600
+#define RING_MAX_OUTER_WIDTH(a) ((a << 1) + (a >> 1))
+#define RING_SCRATCH_WIDTH (RING_MAX_OUTER_WIDTH (RADIUS) * 2 + 1)
+
+typedef struct
+{
+	float inner_r;   /* inner radius in pixels */
+	float outer_r;   /* outer radius in pixels */
+	float opacity;   /* base alpha, 0.0-1.0 */
+	int   num_bands; /* 0 = solid, >0 = number of distinct bands */
+} RingParams;
+
+static BOOLEAN
+point_in_planet_shadow (double rx, double ry, double rz,
+		const POINT3 *light_dir, COUNT radius)
+{
+	const double PdotL = rx * light_dir->x + ry * light_dir->y + rz * light_dir->z;
+	const double PdotP = rx * rx + ry * ry + rz * rz;
+	const double disc = PdotL * PdotL - (PdotP - RADIUS_2 (radius));
+	if (disc < 0.0)
+		return FALSE;
+	const double s = -PdotL - sqrt (disc);
+	return (BOOLEAN)(s > 0.0);
+}
+
+static void
+RenderRingMask (FRAME DstFrame, const RingParams *params,
+	const POINT3 *light_dir, double axial_tilt, double viewing_tilt,
+	COUNT radius)
+{
+	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+	Color *pix = Orbit->ScratchArray;
+	const Color   clear = BUILD_COLOR_RGBA (0, 0, 0, 0);
+	const int     half_size = (int)params->outer_r;
+	const int     frame_size = half_size * 2 + 1;
+	BYTE *cbase;
+	double        Nx, Ny, Nz;
+	double        diffuse, shadow;
+	double        base_r, base_g, base_b;
+	int           x, y;
+
+	{
+		const double sa = sin (axial_tilt);
+		const double ca = cos (axial_tilt);
+		const double sv = sin (viewing_tilt);
+		const double cv = cos (viewing_tilt);
+		const double min_light_level = AMBIENT_LIGHT * 2.85;
+		double d;
+
+		Nx = sv * sa;
+		Ny = -sv * ca;
+		Nz = cv;
+
+		d = fabs (light_dir->x * Nx + light_dir->y * Ny + light_dir->z * Nz);
+		diffuse = (d < min_light_level) ? min_light_level : d;
+		shadow = diffuse * 0.35;
+	}
+
+	cbase = (BYTE *)GetColorMapAddress (pSolarSysState->OrbitalCMap) + 2;
+	base_r = (double)(cbase[0]);
+	base_g = (double)(cbase[1]);
+	base_b = (double)(cbase[2]);
+
+	for (y = -half_size; y <= half_size; ++y)
+	{
+		for (x = -half_size; x <= half_size; ++x, ++pix)
+		{
+			double t, dist, norm_dist, band_level, light_factor;
+			double lr, lg, lb;
+			BYTE   alpha = 0xFF;
+			int    px2py2 = (x * x) + (y * y);
+
+			t = -(x * Nx + y * Ny) / Nz;
+			dist = sqrt (px2py2 + (t * t));
+
+			if (dist <= params->inner_r ||
+				dist >= params->outer_r ||
+				(t < 0.0 && px2py2 < RADIUS_2 (radius)))
+			{
+				*pix = clear;
+				continue;
+			}
+
+			if (point_in_planet_shadow ((double)x, (double)y, t, light_dir, radius))
+				light_factor = shadow;
+			else
+				light_factor = diffuse;
+
+			norm_dist = (dist - params->inner_r) /
+					(params->outer_r - params->inner_r);
+
+			if (params->num_bands > 0)
+			{
+				double phase = fmod (norm_dist * params->num_bands, 1.0);
+				band_level = (phase < 0.5) ? phase * 2.0 : (1.0 - phase) * 2.0;
+				band_level = 0.4 + (0.6 * band_level);
+			}
+			else
+				band_level = 1.0;
+
+			if (dist < params->inner_r + 1.0)
+				alpha *= (dist - params->inner_r);
+			else if (dist > params->outer_r - 1.0)
+				alpha *= (params->outer_r - dist);
+
+			lr = base_r * band_level * light_factor;
+			lg = base_g * band_level * light_factor;
+			lb = base_b * band_level * light_factor;
+			if (lr > 0xFF) lr = 0xFF;
+			if (lg > 0xFF) lg = 0xFF;
+			if (lb > 0xFF) lb = 0xFF;
+
+			*pix = BUILD_COLOR_RGBA ((BYTE)lr, (BYTE)lg, (BYTE)lb, alpha);
+		}
+	}
+
+	WriteFramePixelColors (DstFrame, Orbit->ScratchArray, frame_size, frame_size);
+	SetFrameHot (DstFrame, MAKE_HOT_SPOT (half_size + 1, half_size + 1));
+}
+
+FRAME
+CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
+		COUNT radius)
+{
+	FRAME RingFrame;
+	RingParams rp;
+
+	if (abs (PlanetInfo->AxialTilt) <= 5)
+		return NULL;
+
+	switch (pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED)
+	{
+	case GRY_GAS_GIANT:
+	case CYA_GAS_GIANT:
+	case YEL_GAS_GIANT:
+		return NULL;
+	default:
+		break;
+	}
+
+	if (PlanetInfo->PlanetRadius >= LARGE_GAS_GIANT_RADIUS_THRESHOLD)
+	{	// "Large" ring system, e.g., Saturn
+		rp.inner_r = (float)radius * 1.163;
+		rp.outer_r = (float)RING_MAX_OUTER_WIDTH (radius);
+		rp.num_bands = 5;
+	}
+	else
+	{	// "Small" ring system, e.g., Uranus/Neptune
+		rp.inner_r = (float)radius * 1.49;
+		rp.outer_r = (float)RING_MAX_OUTER_WIDTH (radius)
+				- (RING_MAX_OUTER_WIDTH (radius) >> 2);
+		rp.num_bands = 3;
+	}
+	rp.opacity = 1.0f;
+
+	double axial_tilt = (M_DEG2RAD * PlanetInfo->AxialTilt);
+	POINT3 light_dir = CalcLightDirection (loc);
+
+	int scratch_size = (int)rp.outer_r * 2 + 1;
+	RingFrame = CaptureDrawable (CreateDrawable (
+			WANT_PIXMAP | WANT_ALPHA, scratch_size, scratch_size, 1));
+	RenderRingMask (RingFrame, &rp, &light_dir, axial_tilt,
+			viewing_tilt, radius);
+
+	return RingFrame;
 }
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
@@ -1955,7 +2137,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		Orbit->ScanColors = NULL;
 
 		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
-				* (shielddiam) * (shielddiam));
+				* (RING_SCRATCH_WIDTH) * (RING_SCRATCH_WIDTH));
 
 		Orbit->WorkFrame = 0;
 		Orbit->BackFrame = 0;
@@ -2967,6 +3149,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		if ((optNebulae || use3DOSpheres) && !ForIP && !useDosSpheres)
 			Orbit->BackFrame = SaveBackFrame (radius);
 	}
+	else if (PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO)
+			Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, VIEWING_TILT, radius);
 
 	
 	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));
