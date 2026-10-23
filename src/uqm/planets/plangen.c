@@ -1112,6 +1112,7 @@ CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
 {
 	FRAME RingFrame;
 	RingParams rp;
+	COUNT radius_thresh = LARGE_GAS_GIANT_RADIUS_THRESHOLD;
 
 	if (abs (PlanetInfo->AxialTilt) <= 5)
 		return NULL;
@@ -1126,7 +1127,10 @@ CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
 		break;
 	}
 
-	if (PlanetInfo->PlanetRadius >= LARGE_GAS_GIANT_RADIUS_THRESHOLD)
+	if (!playerInPlanetOrbit ())
+		radius_thresh <<= 1;
+
+	if (PlanetInfo->PlanetRadius >= radius_thresh)
 	{	// "Large" ring system, e.g., Saturn
 		rp.inner_r = (float)radius * 1.163;
 		rp.outer_r = (float)RING_MAX_OUTER_WIDTH (radius);
