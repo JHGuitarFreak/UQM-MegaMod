@@ -1180,18 +1180,18 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 		case CHMMR_ID:
 				return (POINT) { 577, 2509}; // Homeworld
 		case EARTHLING_ID:
-				return (POINT) {1806, 1476}; // War era map
+				return (POINT) {1762, 1431}; // War era map
 		case PKUNK_ID:
 			if (visit == YEHAT_DEFINED)
 				return (POINT) {4970,  400}; // Rejoin Yehat
 			else if (visit == WAR_ERA)
-				return (POINT) { 577,  463}; // War Era 'Unknown'
+				return (POINT) { 564,  437}; // War Era 'Unknown'
 			else
 				return (POINT) { 502,  401}; // Return homeworld
 		case SHOFIXTI_ID:
-				return (POINT) {2852,  242}; // War era map
+				return (POINT) {2869,  195}; // War era map
 		case SPATHI_ID:
-				return (POINT) {2416, 3687}; // War era map
+				return (POINT) {2443, 3645}; // War era map
 		case SUPOX_ID:
 			if (visit == SAMATRA_DEFINED)
 				return (POINT) {6479, 7541}; // Attack Kohr-Ah
@@ -1201,7 +1201,7 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 			if (visit == SAMATRA_DEFINED)
 				return (POINT) {4879, 7201}; // Attack Kohr-Ah
 			else if (visit == WAR_ERA)
-				return (POINT) {2808, 8522}; // War Era 'Unknown'
+				return (POINT) {2819, 8502}; // War Era 'Unknown'
 			else
 				return (POINT) {2535, 8358}; // Return homeworld
 		case UTWIG_ID:
@@ -1210,48 +1210,48 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 			else
 				return (POINT) {8534, 8797}; // Return homeworld
 		case VUX_ID:
-				return (POINT) {4333, 1520}; // War era map
+				return (POINT) {4330, 1536}; // War era map
 		case YEHAT_ID:
 			if (visit == YEHAT_DEFINED)
 				return (POINT) {5150,    0}; // Here there be rebels
 			else if (visit == WAR_ERA)
-				return (POINT) {4969,   75}; // War era map
+				return (POINT) {4947,   46}; // War era map
 			else
 				return (POINT) {4970,   40}; // Filthy Royalists
 		case DRUUGE_ID:
-				return (POINT) {9421, 2754}; // War Era 'Unknown'
+				return (POINT) {9465, 2741}; // War Era 'Unknown'
 		case ILWRATH_ID:
 			if (visit == THRADD_DEFINED)
 				return (POINT) {2500, 8070}; // Thraddash/Ilwrath zone
 			else if (visit == PKUNK_DEFINED)
 				return (POINT) {  48, 1700}; // Attacking Pkunk (unused?)
 			else if (visit == WAR_ERA)
-				return (POINT) {   0, 3589}; // War era map
+				return (POINT) { -90, 3560}; // War era map
 			else
 				return (POINT) { 215, 3630}; // Homeworld (extended lore)
 		case MYCON_ID:
 			if (visit == MYCON_TRAP_DEFINED)
 				return (POINT) {6858,  577}; // Goin to the party
 			else if (visit == WAR_ERA)
-				return (POINT) {6278, 2399}; // War era map
+				return (POINT) {6245, 2355}; // War era map
 			else
 				return (POINT) {6392, 2200}; // Going back home
 		case UMGAH_ID:
 			if (visit == SAMATRA_DEFINED)
 				return (POINT) {5288, 4892}; // Compelled to seek death
 			else
-				return (POINT) {1860, 6099}; // War era map
+				return (POINT) {1853, 6067}; // War era map
 		case SYREEN_ID:
 			if (visit == MYCON_TRAP_DEFINED)
 				return (POINT) {6858,  577}; // Goin to the party
 			else
 				return (POINT) {4125, 3770}; // Going back home
 		case ANDROSYNTH_ID:
-				return (POINT) {3676, 2619}; // War era map
+				return (POINT) {3682, 2599}; // War era map
 		case CHENJESU_ID:
-				return (POINT) { 701, 2137}; // War era map
+				return (POINT) { 709, 2174}; // War era map
 		case MMRNMHRM_ID:
-				return (POINT) { 672, 2930}; // War era map
+				return (POINT) { 693, 2950}; // War era map
 		default:
 			fprintf (stderr, "%s %d / plot %d combo.\n",
 					"DefaultFleetLocation called with bad fleet",
@@ -1264,40 +1264,57 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 COUNT
 WarEraStrength (SPECIES_ID SpeciesID)
 {
+	COUNT radius;
+
 	switch (SpeciesID)
 	{
 		case EARTHLING_ID:
-			return 460 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  434;
+			break;
 		case PKUNK_ID:
-			return 350 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  351;
+			break;
 		case SHOFIXTI_ID:
-			return 329 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  351;
+			break;
 		case SPATHI_ID:
-			return 1007 / SPHERE_RADIUS_INCREMENT * 2;
+			radius = 1014;
+			break;
 		case THRADDASH_ID:
-			return 723 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  744;
+			break;
 		case VUX_ID:
-			return 572 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  605;
+			break;
 		case YEHAT_ID:
-			return 1029 / SPHERE_RADIUS_INCREMENT * 2;
+			radius = 1053;
+			break;
 		case DRUUGE_ID:
-			return 745 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  807;
+			break;
 		case ILWRATH_ID:
-			return 470 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  521;
+			break;
 		case MYCON_ID:
-			return 591 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  544;
+			break;
 		case UMGAH_ID:
-			return 506 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  491;
+			break;
 		case ANDROSYNTH_ID:
-			return 504 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  491;
+			break;
 		case CHENJESU_ID:
-			return 657 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  653;
+			break;
 		case MMRNMHRM_ID:
-			return 482 / SPHERE_RADIUS_INCREMENT * 2;
+			radius =  491;
+			break;
 		default:
 			return 0;
 	}
-	return 0;
+
+	return radius / SPHERE_RADIUS_INCREMENT * 2;
 }
 
 // Provide the homeworld plot ID for the given species ID (from fleet).
