@@ -1160,6 +1160,11 @@ GenerateTexturedPlanets (void)
 					GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER
 				);
 
+		if (pCurDesc->orbit.SphereFrame || pCurDesc->orbit.ObjectFrame)
+		{	// Maybe this will fix the memory leak?
+			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
+		}
+
 		pCurDesc->orbit = pSolarSysState->Orbit;
 		PrepareNextRotationFrameForIP (pCurDesc, 0);
 		
