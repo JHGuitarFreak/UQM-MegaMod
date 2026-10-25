@@ -1838,79 +1838,79 @@ typedef struct {
 } PlotIdMap;
 
 // The PlotIdMap is sorted **by name** for the binary search function.
-static PlotIdMap plotIdMap[] = {
-	{"algolites",			ALGOLITES_DEFINED},		// Algol [IV]
-	{"androsynth",			ANDROSYNTH_DEFINED},	// Eta Vulpeculae
-	{"aqua helix",			AQUA_HELIX_DEFINED},	// Zeta Draconis
-	{"arilou",				ARILOU_DEFINED},		// 43.8 : 637.2
-	{"bomb",				BOMB_DEFINED},			// Zeta Hyades [VI-B]
-	{"burvixese",			BURVIXESE_DEFINED},		// Arcturus [I]
-	{"chmmr",				CHMMR_DEFINED},			// Procyon
-	{"destroyed starbase",	DESTROYED_STARBASE_DEFINED},
-	{"druuge",				DRUUGE_DEFINED},		// Zeta Persei [I]
-	{"egg case 0",			EGG_CASE0_DEFINED},		// Beta Copernicus [I]
-	{"egg case 1",			EGG_CASE1_DEFINED},
-	{"egg case 2",			EGG_CASE2_DEFINED},
-	{"excavation site",		EXCAVATION_SITE_DEFINED},	// ALPHA LALANDE I
-	{"ilwrath",				ILWRATH_DEFINED},		// .. / .. / 022.9, 366.6
-	{"kohrah 0",			KOHRAH0_DEFINED},
-	{"kohrah 1",			KOHRAH1_DEFINED},
-	{"kohrah 2",			KOHRAH2_DEFINED},
-	{"maidens",				MAIDENS_DEFINED},		// Alpha Cerenkov [I]
-	{"melnorme 0",			MELNORME0_DEFINED},
-	{"melnorme 1",			MELNORME1_DEFINED},		// Alpha Centauri (SOL)
-	{"melnorme 2",			MELNORME2_DEFINED},
-	{"melnorme 3",			MELNORME3_DEFINED},
-	{"melnorme 4",			MELNORME4_DEFINED},
-	{"melnorme 5",			MELNORME5_DEFINED},
-	{"melnorme 6",			MELNORME6_DEFINED},
-	{"melnorme 7",			MELNORME7_DEFINED},		// Alpha Apodis (Thraddash)
-	{"melnorme 8",			MELNORME8_DEFINED},
-	{"mother ark",			MOTHER_ARK_DEFINED},	//Delta Virginis (not said)
-	{"mycon",				MYCON_DEFINED},			// Brahe / 629.1, 220.8
-	{"mycon trap",			MYCON_TRAP_DEFINED},	// Organon [1] [I]
-	{"orz",					ORZ_DEFINED},			// Gamma Vulpeculae
-	{"pkunk",				PKUNK_DEFINED},			// Gamma Krueger [I]
-	{"rainbow 0",			RAINBOW0_DEFINED},		// Zeta Sextantis (Yehat)
-	{"rainbow 1",			RAINBOW1_DEFINED},		//
-	{"rainbow 2",			RAINBOW2_DEFINED},		//
-	{"rainbow 3",			RAINBOW3_DEFINED},		//
-	{"rainbow 4",			RAINBOW4_DEFINED},		// Slylandro (blue pair)
-	{"rainbow 5",			RAINBOW5_DEFINED},		// Epsilon Draconis (Thradd)
-	{"rainbow 6",			RAINBOW6_DEFINED},
-	{"rainbow 7",			RAINBOW7_DEFINED},		// Beta Leporis (Supox)
-	{"rainbow 8",			RAINBOW8_DEFINED},
-	{"rainbow 9",			RAINBOW9_DEFINED},		// GIANT rbw (Groombridge)
-													// Thraddash / Slylandro.
-	{"samatra",				SAMATRA_DEFINED},		// Delta Crateris
-	{"ship vault",			SHIP_VAULT_DEFINED},	// Epsilon Camelopardalis
-	{"shofixti",			SHOFIXTI_DEFINED},		// Delta Gorno
-	{"slylandro",			SLYLANDRO_DEFINED},		// Beta Corvi
-	{"sol",					SOL_DEFINED},
-	{"spathi",				SPATHI_DEFINED},		// Epsilon Gruis
-	{"spathi monument",		SPATHI_MONUMENT_DEFINED}, // Beta Herculis
-	{"start colony",		START_COLONY_DEFINED},  // Vela
-	{"sun device",			SUN_DEVICE_DEFINED},	// Beta Brahe
-	{"supox",				SUPOX_DEFINED},
-	{"syreen",				SYREEN_DEFINED},		// Betelgeuse
-	{"taalo protector",		TAALO_PROTECTOR_DEFINED}, // Delta Vulpeculae
-	{"talking pet",			TALKING_PET_DEFINED},	// Beta Orionis
-	{"thraddash",			THRADD_DEFINED},		// Delta Draconis
-	{"urquan 0",			URQUAN0_DEFINED},
-	{"urquan 1",			URQUAN1_DEFINED},
-	{"urquan 2",			URQUAN2_DEFINED},
-	{"urquan wreck",		URQUAN_WRECK_DEFINED},	// Alpha Pavonis
-	{"utwig",				UTWIG_DEFINED},			// Aquarii [constellation]
-	{"vux",					VUX_DEFINED},			// Luyten [star group]
-	{"vux beast",			VUX_BEAST_DEFINED},		// Delta Lyncis [I]
-	{"yehat",				YEHAT_DEFINED},			// .. / Serpentis
-	{"zoq colony 0",		ZOQ_COLONY0_DEFINED},
-	{"zoq colony 1",		ZOQ_COLONY1_DEFINED},
-	{"zoq colony 2",		ZOQ_COLONY2_DEFINED},
-	{"zoq colony 3",		ZOQ_COLONY3_DEFINED},
-	{"zoq scout",			ZOQ_SCOUT_DEFINED},		// Rigel
-	{"zoqfot",				ZOQFOT_DEFINED}			// Alpha Tucanae
-}; // Currently 70 total (correct number)
+static PlotIdMap plotIdMap[] =
+	{
+		{ "algolites",          ALGOLITES_DEFINED          }, // Algol [IV]
+		{ "androsynth",         ANDROSYNTH_DEFINED         }, // Eta Vulpeculae
+		{ "aqua helix",         AQUA_HELIX_DEFINED         }, // Zeta Draconis
+		{ "arilou",             ARILOU_DEFINED             }, // 43.8 : 637.2
+		{ "bomb",               BOMB_DEFINED               }, // Zeta Hyades [VI-B]
+		{ "burvixese",          BURVIXESE_DEFINED          }, // Arcturus [I]
+		{ "chmmr",              CHMMR_DEFINED              }, // Procyon
+		{ "destroyed starbase", DESTROYED_STARBASE_DEFINED },
+		{ "druuge",             DRUUGE_DEFINED             }, // Zeta Persei [I]
+		{ "egg case 0",         EGG_CASE0_DEFINED          }, // Beta Copernicus [I]
+		{ "egg case 1",         EGG_CASE1_DEFINED          },
+		{ "egg case 2",         EGG_CASE2_DEFINED          },
+		{ "excavation site",    EXCAVATION_SITE_DEFINED    }, // ALPHA LALANDE I
+		{ "ilwrath",            ILWRATH_DEFINED            }, // .. / .. / 022.9, 366.6
+		{ "kohrah 0",           KOHRAH0_DEFINED            },
+		{ "kohrah 1",           KOHRAH1_DEFINED            },
+		{ "kohrah 2",           KOHRAH2_DEFINED            },
+		{ "maidens",            MAIDENS_DEFINED            }, // Alpha Cerenkov [I]
+		{ "melnorme 0",         MELNORME0_DEFINED          },
+		{ "melnorme 1",         MELNORME1_DEFINED          }, // Alpha Centauri (SOL)
+		{ "melnorme 2",         MELNORME2_DEFINED          },
+		{ "melnorme 3",         MELNORME3_DEFINED          },
+		{ "melnorme 4",         MELNORME4_DEFINED          },
+		{ "melnorme 5",         MELNORME5_DEFINED          },
+		{ "melnorme 6",         MELNORME6_DEFINED          },
+		{ "melnorme 7",         MELNORME7_DEFINED          }, // Alpha Apodis (Thraddash)
+		{ "melnorme 8",         MELNORME8_DEFINED          },
+		{ "mother ark",         MOTHER_ARK_DEFINED         }, // Delta Virginis (not said)
+		{ "mycon",              MYCON_DEFINED              }, // Brahe / 629.1, 220.8
+		{ "mycon trap",         MYCON_TRAP_DEFINED         }, // Organon [1] [I]
+		{ "orz",                ORZ_DEFINED                }, // Gamma Vulpeculae
+		{ "pkunk",              PKUNK_DEFINED              }, // Gamma Krueger [I]
+		{ "rainbow 0",          RAINBOW0_DEFINED           }, // Zeta Sextantis (Yehat)
+		{ "rainbow 1",          RAINBOW1_DEFINED           }, //
+		{ "rainbow 2",          RAINBOW2_DEFINED           }, //
+		{ "rainbow 3",          RAINBOW3_DEFINED           }, //
+		{ "rainbow 4",          RAINBOW4_DEFINED           }, // Slylandro (blue pair)
+		{ "rainbow 5",          RAINBOW5_DEFINED           }, // Epsilon Draconis (Thradd)
+		{ "rainbow 6",          RAINBOW6_DEFINED           },
+		{ "rainbow 7",          RAINBOW7_DEFINED           }, // Beta Leporis (Supox)
+		{ "rainbow 8",          RAINBOW8_DEFINED           },
+		{ "rainbow 9",          RAINBOW9_DEFINED           }, // GIANT rbw (Groombridge)
+		{ "samatra",            SAMATRA_DEFINED            }, // Delta Crateris
+		{ "ship vault",         SHIP_VAULT_DEFINED         }, // Epsilon Camelopardalis
+		{ "shofixti",           SHOFIXTI_DEFINED           }, // Delta Gorno
+		{ "slylandro",          SLYLANDRO_DEFINED          }, // Beta Corvi
+		{ "sol",                SOL_DEFINED                },
+		{ "spathi",             SPATHI_DEFINED             }, // Epsilon Gruis
+		{ "spathi monument",    SPATHI_MONUMENT_DEFINED    }, // Beta Herculis
+		{ "start colony",       START_COLONY_DEFINED       }, // Vela
+		{ "sun device",         SUN_DEVICE_DEFINED         }, // Beta Brahe
+		{ "supox",              SUPOX_DEFINED              },
+		{ "syreen",             SYREEN_DEFINED             }, // Betelgeuse
+		{ "taalo protector",    TAALO_PROTECTOR_DEFINED    }, // Delta Vulpeculae
+		{ "talking pet",        TALKING_PET_DEFINED        }, // Beta Orionis
+		{ "thraddash",          THRADD_DEFINED             }, // Delta Draconis
+		{ "urquan 0",           URQUAN0_DEFINED            },
+		{ "urquan 1",           URQUAN1_DEFINED            },
+		{ "urquan 2",           URQUAN2_DEFINED            },
+		{ "urquan wreck",       URQUAN_WRECK_DEFINED       }, // Alpha Pavonis
+		{ "utwig",              UTWIG_DEFINED              }, // Aquarii [constellation]
+		{ "vux",                VUX_DEFINED                }, // Luyten [star group]
+		{ "vux beast",          VUX_BEAST_DEFINED          }, // Delta Lyncis [I]
+		{ "yehat",              YEHAT_DEFINED              }, // .. / Serpentis
+		{ "zoq colony 0",       ZOQ_COLONY0_DEFINED        },
+		{ "zoq colony 1",       ZOQ_COLONY1_DEFINED        },
+		{ "zoq colony 2",       ZOQ_COLONY2_DEFINED        },
+		{ "zoq colony 3",       ZOQ_COLONY3_DEFINED        },
+		{ "zoq scout",          ZOQ_SCOUT_DEFINED          }, // Rigel
+		{ "zoqfot",             ZOQFOT_DEFINED             }  // Alpha Tucanae
+	}; // Currently 70 total (correct number)
 
 static int
 PlotIdCompare (const void *id1, const void *id2)
