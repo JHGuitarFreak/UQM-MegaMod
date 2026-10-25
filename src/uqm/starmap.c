@@ -272,11 +272,11 @@ PLOT_LOCATION plot_map[NUM_PLOTS] = {0};
 //PLOT_LOCATION plot_map[NUM_PLOTS] = {[0 ... (NUM_PLOTS - 1)] =
 //		{{~0, ~0}, NULL, {[0 ... (NUM_PLOTS - 1)] = 0}}};
 
-#define VORTEX_SCALE 20		// From the starmap; scales vortex distances
-#define MIN_PORTAL 2000		// The min distance between portals (exits)
-#define MIN_VORTEX 150		// The min distance between vorticies in QS
-#define MIN_PORTAL_SOL 500	// The min distance between SOL and portal 0
-#define MAX_PORTAL_SOL 1000	// The max distance between SOL and portal 0
+#define VORTEX_SCALE 20     // From the starmap; scales vortex distances
+#define MIN_PORTAL 2000     // The min distance between portals (exits)
+#define MIN_VORTEX 150      // The min distance between vorticies in QS
+#define MIN_PORTAL_SOL 500  // The min distance between SOL and portal 0
+#define MAX_PORTAL_SOL 1000 // The max distance between SOL and portal 0
 
 // portal_map and portalmap_array work exactly like star_map and starmap_array
 // but for Quasispace.  We use this static one here for reference to initialize
@@ -657,39 +657,45 @@ InitPlot (PLOT_LOCATION *plotmap)
 	// Set up buffers around anyone with a zone of influence during the war
 	// or after the war where homeworlds inside the zone wouldn't make sense
 	// Orz are skipped, Androsynth takes care of them.
-	COUNT home_map[23][2] = {
-			{ARILOU_DEFINED, 300},
-			{SOL_DEFINED, 700},
-			{YEHAT_DEFINED, 700},
-			{SHOFIXTI_DEFINED, 700},
-			{CHMMR_DEFINED, 700},
-			{SYREEN_DEFINED, 700},
-			{EGG_CASE0_DEFINED, 700},
-			{MOTHER_ARK_DEFINED, 700},
+	COUNT home_map[23][2] =
+		{
+			{ ARILOU_DEFINED,     300 },
+			{ SOL_DEFINED,        700 },
+			{ YEHAT_DEFINED,      700 },
+			{ SHOFIXTI_DEFINED,   700 },
+			{ CHMMR_DEFINED,      700 },
+			{ SYREEN_DEFINED,     700 },
+			{ EGG_CASE0_DEFINED,  700 },
+			{ MOTHER_ARK_DEFINED, 700 },
 
-			{DRUUGE_DEFINED, 1300},
-			{PKUNK_DEFINED, 700},
-			{UTWIG_DEFINED, 700},
-			{SUPOX_DEFINED, 300},
-			{ZOQFOT_DEFINED, 700},
-			{BURVIXESE_DEFINED, 300},
-			{START_COLONY_DEFINED, 300},
+			{ DRUUGE_DEFINED,      1300 },
+			{ PKUNK_DEFINED,        700 },
+			{ UTWIG_DEFINED,        700 },
+			{ SUPOX_DEFINED,        300 },
+			{ ZOQFOT_DEFINED,       700 },
+			{ BURVIXESE_DEFINED,    300 },
+			{ START_COLONY_DEFINED, 300 },
 
-			{SAMATRA_DEFINED, 3000},
-			{ANDROSYNTH_DEFINED, 1000},
-			{ILWRATH_DEFINED, 1000},
-			{MYCON_DEFINED, 1000},
-			{SPATHI_DEFINED, 1000},
-			{THRADD_DEFINED, 1000},
-			{VUX_DEFINED, 1000},
-			{TALKING_PET_DEFINED, 1000}};
+			{ SAMATRA_DEFINED,     3000 },
+			{ ANDROSYNTH_DEFINED,  1000 },
+			{ ILWRATH_DEFINED,     1000 },
+			{ MYCON_DEFINED,       1000 },
+			{ SPATHI_DEFINED,      1000 },
+			{ THRADD_DEFINED,      1000 },
+			{ VUX_DEFINED,         1000 },
+			{ TALKING_PET_DEFINED, 1000 }
+		};
 	// Total 8 + 7 + 8 currently 23 homeworlds
 	// Set the homeworlds apart first (can be overwritten later)
 	for (i = 0; i < 22; i++)
+	{
 		for (j = i + 1; j < 23; j++)
+		{
 			SetPlotLength (plotmap, home_map[i][0], home_map[j][0],
 					(home_map[i][1] > home_map[j][1]) ?
 					home_map[i][1] : home_map[j][1], MAX_PLOT);
+		}
+	}
 
 	// Sets up Melnormes and Rainbow Worlds with minimal plot weight
 	// also their connections to other races.
@@ -983,138 +989,153 @@ NeedsHabitable (BYTE sIndex)
 void
 Plotify (STAR_DESC *starmap, STAR_DESC *star)
 {
+	extern const STAR_DESC starmap_array[];
+	COUNT i = 0;
+	BYTE star_size, star_color, star_owner, star_type;
+
 	if (!starmap || !star)
 	{
 		fprintf (stderr, "Plotify (starmap, star) called with NULL PTR.\n");
 		return;
 	}
-	extern const STAR_DESC starmap_array[];
-	COUNT i = 0;
 
 	while (star->Index != starmap_array[i].Index)
+	{
 		if (++i >= NUM_SOLAR_SYSTEMS)
 			return; // It doesn't have one
+	}
 
 	// Section 1: change the star to the right size for the plot
-	if (STAR_TYPE (starmap_array[i].Type) == SUPER_GIANT_STAR)
-		star->Type = MAKE_STAR (
-				SUPER_GIANT_STAR,
-				STAR_COLOR (star->Type),
-				STAR_OWNER (star->Type));
-	if (STAR_TYPE (starmap_array[i].Type) == GIANT_STAR)
-		star->Type = MAKE_STAR (
-				GIANT_STAR,
-				STAR_COLOR (star->Type),
-				STAR_OWNER (star->Type));
-	if (STAR_TYPE (starmap_array[i].Type) == DWARF_STAR)
-		star->Type = MAKE_STAR (
-				DWARF_STAR,
-				STAR_COLOR (star->Type),
-				STAR_OWNER (star->Type));
+	star_size = STAR_TYPE (starmap_array[i].Type);
+	star_color = STAR_COLOR (star->Type);
+	star_owner = STAR_OWNER (star->Type);
+	star->Type = MAKE_STAR (star_size, star_color, star_owner);
 
 	// Section 2: change colors of stars based on plot
 	// Specific homeworlds that work best with their correct color star (SOL)
 	if (NeedsHabitable (star->Index))
 	{
-		BYTE star_color = STAR_COLOR (star->Type);
 		DWORD rand_val = GetRandomSeedForStar (star);
+		BYTE rand_color;
 
-		if (STAR_TYPE (star->Type) == DWARF_STAR && star_color == RED_BODY)
+		star_type = STAR_TYPE (star->Type);
+		star_color = STAR_COLOR (star->Type);
+		star_owner = STAR_OWNER (star->Type);
+		rand_color = star_color;
+
+		if (star_type == DWARF_STAR && star_color == RED_BODY)
 		{
 			BYTE color_array[] = { BLUE_BODY, GREEN_BODY, ORANGE_BODY,
 					WHITE_BODY, YELLOW_BODY };
 
-			star->Type = MAKE_STAR (
-					STAR_TYPE (star->Type), color_array[rand_val % 5],
-					STAR_OWNER (star->Type));
+			rand_color = color_array[rand_val % 5];
 		}
-		else if (STAR_TYPE (star->Type) == GIANT_STAR
+		else if (star_type == GIANT_STAR
 				&& (star_color == BLUE_BODY || star_color == GREEN_BODY
 				|| star_color == WHITE_BODY))
 		{
 			BYTE color_array[] = { ORANGE_BODY, RED_BODY, YELLOW_BODY };
 
-			star->Type = MAKE_STAR (
-					STAR_TYPE (star->Type), color_array[rand_val % 3],
-					STAR_OWNER (star->Type));
+			rand_color = color_array[rand_val % 3];
 		}
+
+		if (rand_color != star_color)
+			star->Type = MAKE_STAR (star_type, rand_color, star_owner);
 	}
+
 	if (star->Index == SOL_DEFINED)
 		star->Type = starmap_array[i].Type;
+
 	// On world 44s, the Eye Of Dogar is Green, of course
 	// All other channels are false gods
 	if (star->Index == ILWRATH_DEFINED)
 	{
 		COUNT newcolor = (STAR_COLOR (star->Type) + optCustomSeed) % 5;
+
+		star_type = STAR_TYPE (star->Type);
+		star_owner = STAR_OWNER (star->Type);
+		star_color = newcolor >= GREEN_BODY ? newcolor + 1 : newcolor;
+
 		if (optCustomSeed % 44 == 0 || optCustomSeed % 100 == 44)
-				star->Type = starmap_array[i].Type;
-		else star->Type = MAKE_STAR (
-				STAR_TYPE (star->Type),
-				newcolor >= GREEN_BODY ? newcolor + 1 : newcolor,
-				STAR_OWNER (star->Type));
+			star->Type = starmap_array[i].Type;
+		else
+			star->Type = MAKE_STAR (star_type, star_color, star_owner);
 	}
+
 #if 0
 	// Shofixti can't be orange due to planet types
 	// Not needed any more, after altering shofixti code a bit
 	if (star->Index == SHOFIXTI_DEFINED)
 	{
 		COUNT newcolor = (STAR_COLOR (star->Type) + optCustomSeed) % 5;
-		star->Type = MAKE_STAR (
-			STAR_TYPE (star->Type),
-			newcolor >= ORANGE_BODY ? newcolor + 1 : newcolor,
-			STAR_OWNER (star->Type));
+
+		star_type = STAR_TYPE (star->Type);
+		star_owner = STAR_OWNER (star->Type);
+		star_color = newcolor >= ORANGE_BODY ? newcolor + 1 : newcolor;
+
+		star->Type = MAKE_STAR (star_type, star_color, star_owner);
 	}
 #endif
+
 	// Green, Blue, and White giants are too hot for spathis.
 	// This is an asthetic choice but a good one.
 	if (star->Index == SPATHI_DEFINED)
 	{
-		if (STAR_COLOR (star->Type) == WHITE_BODY)
-			star->Type = MAKE_STAR (
-					STAR_TYPE (star->Type),
-					YELLOW_BODY,
-					STAR_OWNER (star->Type));
-		if (STAR_COLOR (star->Type) == BLUE_BODY)
-			star->Type = MAKE_STAR (
-					STAR_TYPE (star->Type),
-					ORANGE_BODY,
-					STAR_OWNER (star->Type));
-		if (STAR_COLOR (star->Type) == GREEN_BODY)
-			star->Type = MAKE_STAR (
-					STAR_TYPE (star->Type),
-					RED_BODY,
-					STAR_OWNER (star->Type));
+		star_type = STAR_TYPE (star->Type);
+		star_owner = STAR_OWNER (star->Type);
+		star_color = STAR_COLOR (star->Type);
+
+		if (star_color == WHITE_BODY)
+			star_color = YELLOW_BODY;
+		if (star_color == BLUE_BODY)
+			star_color = ORANGE_BODY;
+		if (star_color == GREEN_BODY)
+			star_color = RED_BODY;
+
+		if (star_color != STAR_COLOR (star->Type))
+			star->Type = MAKE_STAR (star_type, star_color, star_owner);
 	}
+
 	// Supox will NOT be the same color as rainbow world
 	// This swaps yellow/blue, red/white, and green/orange
 	if (star->Index == SUPOX_DEFINED)
 	{
+		BYTE star_temp;
 		int j = 0;
+
 		while (RAINBOW0_DEFINED != starmap[j].Index)
+		{
 			if (++j >= NUM_SOLAR_SYSTEMS)
 				return; // It doesn't have one
+		}
+
+		star_owner = STAR_OWNER (star->Type);
+		star_temp = STAR_COLOR (starmap[j].Type);
+
 		// This will either increment or decriment based on even/odd
 		// and then % 6 to put back into star_color.
-		star->Type = MAKE_STAR
-				(DWARF_STAR,
-				(STAR_COLOR (starmap[j].Type) + 6 +
-					STAR_COLOR (starmap[j].Type) % 2 -
-					(STAR_COLOR (starmap[j].Type) + 1) % 2) % 6,
-				STAR_OWNER (star->Type));
+		star_color = (star_temp + 6 + star_temp % 2 - (star_temp + 1) % 2) % 6;
+
+		star->Type = MAKE_STAR (DWARF_STAR, star_color, star_owner);
 	}
+
 	// Rainbow worlds all get RAINBOW0's color, whatever it is.
 	// We will use that later in the alien dialogs.
-	if ((star->Index > RAINBOW0_DEFINED) &&
-			(star->Index <= RAINBOW9_DEFINED))
+	if ((star->Index > RAINBOW0_DEFINED) && (star->Index <= RAINBOW9_DEFINED))
 	{
 		int j = 0;
+
 		while (RAINBOW0_DEFINED != starmap[j].Index)
+		{
 			if (++j >= NUM_SOLAR_SYSTEMS)
 				return; // It doesn't have one
-		star->Type = MAKE_STAR
-				(STAR_TYPE (star->Type),
-				STAR_COLOR (starmap[j].Type),
-				STAR_OWNER (star->Type));
+		}
+
+		star_type = STAR_TYPE (star->Type);
+		star_owner = STAR_OWNER (star->Type);
+		star_color = STAR_COLOR (starmap[j].Type);
+
+		star->Type = MAKE_STAR (star_type, star_color, star_owner);
 	}
 
 	// Section 3: Mess with names of star systems
@@ -1127,8 +1148,11 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 		int j = 0;
 		while ((starmap[j].Postfix != star->Postfix) ||
 				(starmap[j].Prefix != 1))
+		{
 			if (++j >= NUM_SOLAR_SYSTEMS)
 				return; // It doesn't have one
+		}
+
 #ifdef DEBUG_STARSEED
 		fprintf (stderr, "Melnorme %d swapping %d %d at %d.%d : %d.%d for "
 				"%d %d at %d.%d : %d.%d\n",
@@ -1139,6 +1163,7 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 				starmap[j].star_pt.x / 10, starmap[j].star_pt.x % 10,
 				starmap[j].star_pt.y / 10, starmap[j].star_pt.y % 10);
 #endif
+
 		starmap[j].Prefix = star->Prefix;
 		star->Prefix = 1;
 	}
@@ -1146,9 +1171,13 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 	if (star->Index == SOL_DEFINED)
 	{
 		int j = 0;
+
 		while (starmap[j].Postfix != 129) // Postfix 129 = "Sol"
+		{
 			if (++j >= NUM_SOLAR_SYSTEMS)
 				return; // Somehow, Sol does not exist
+		}
+
 		if (star->Prefix == 0)
 		{
 			starmap[j].Postfix = star->Postfix;
@@ -1156,37 +1185,52 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 		}
 		else
 		{
-			int prefix = 0;
-			int k;
+			int k, prefix = 0;
+
 			// Re-order the stars to remove new Sol's prefix
 			for (k = 0; k < NUM_SOLAR_SYSTEMS; k++)
+			{
 				if (starmap[k].Postfix == star->Postfix &&
 						starmap[k].Prefix > star->Prefix)
+				{
 					starmap[k].Prefix--;
+				}
+			}
+
 			// New Sol gets its name
 			star->Prefix = 0;
 			star->Postfix = 129;
+
 			// Find the nearest constellation to old Sol
 			STAR_DESC *pStr = FindNearestConstellation (starmap,
 					starmap[j].star_pt);
+
 			// Find the highest Prefix
 			for (k = 0; k < NUM_SOLAR_SYSTEMS; k++)
+			{
 				if (starmap[k].Postfix == pStr->Postfix &&
 						starmap[k].Prefix > prefix)
+				{
 					prefix = starmap[k].Prefix;
+				}
+			}
+
 			// Old Sol gets new Prefix/Postfix.  It shouldn't be possible,
 			// but just in case, cap Prefix at 14 ("Xi")
 			starmap[j].Postfix = pStr->Postfix;
 			starmap[j].Prefix = (prefix >= 14 ? 14 : prefix + 1);
+
 			// Old Sol JUST MIGHT be a Melnorme, in which case
 			Plotify (starmap, &starmap[j]);
 		}
 	}
+
 	// Alas, the poor algolites... wherever they are, the stars
 	// carry their name (Postfix 113 = "Algol").
 	if (star->Index == ALGOLITES_DEFINED)
 	{
 		int j = 0;
+
 		for (j = 0; j < NUM_SOLAR_SYSTEMS; j++)
 		{
 			if (&starmap[j] == star)
@@ -1196,6 +1240,7 @@ Plotify (STAR_DESC *starmap, STAR_DESC *star)
 			else if (starmap[j].Postfix == 113)
 				starmap[j].Postfix = star->Postfix;
 		}
+
 		star->Postfix = 113;
 	}
 }
