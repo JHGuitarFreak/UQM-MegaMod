@@ -1199,8 +1199,7 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 		NAMEPLATE nameplate[26];
 		BYTE currMax = 0;
 
-		for (index = 0,
-				hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
+		for (index = 0, hStarShip = GetHeadLink (&GLOBAL (avail_race_q));
 				hStarShip != 0; ++index, hStarShip = hNextShip)
 		{
 			FLEET_INFO *FleetPtr;
@@ -1208,9 +1207,10 @@ DrawStarMap (COUNT race_update, RECT *pClipRect)
 			FleetPtr = LockFleetInfo (&GLOBAL (avail_race_q), hStarShip);
 			hNextShip = _GetSuccLink (FleetPtr);
 
-			if ((FleetPtr->known_strength && which_starmap != WAR_ERA_STARMAP) ||
-				(which_starmap == WAR_ERA_STARMAP && WarEraStrength (FleetPtr->SpeciesID)
-				&& index < NUM_BUILDABLE_SHIPS))
+			if ((FleetPtr->known_strength && which_starmap != WAR_ERA_STARMAP)
+					|| (which_starmap == WAR_ERA_STARMAP
+						&& WarEraStrength (FleetPtr->SpeciesID)
+					&& index < NUM_BUILDABLE_SHIPS))
 			{
 				RECT repair_r;
 

@@ -1168,30 +1168,27 @@ JitDebug (FLEET_INFO *FleetPtr, UWORD rand_val_x, UWORD rand_val_y)
 POINT
 DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 {
+	POINT war_loc[] = { WAR_ERA_LOCATIONS };
 #ifdef DEBUG_STARSEED
 	fprintf (stderr, "Seeding hard coded location for fleet %d (plot %d).\n",
 			SpeciesID, visit);
 #endif
+
+	if (visit == WAR_ERA)
+		return war_loc[SpeciesID - 1]; // War era map
+
 	// We need to return plot specific coordinates here
-	// We also assume we only care about fleet movements and war map,
+	// We also assume we only care about fleet movements,
 	// as initial fleet positions are loaded from the ship files.
 	switch (SpeciesID)
 	{
 		case CHMMR_ID:
 				return (POINT) { 577, 2509}; // Homeworld
-		case EARTHLING_ID:
-				return (POINT) {1762, 1431}; // War era map
 		case PKUNK_ID:
 			if (visit == YEHAT_DEFINED)
 				return (POINT) {4970,  400}; // Rejoin Yehat
-			else if (visit == WAR_ERA)
-				return (POINT) { 564,  437}; // War Era 'Unknown'
 			else
 				return (POINT) { 502,  401}; // Return homeworld
-		case SHOFIXTI_ID:
-				return (POINT) {2869,  195}; // War era map
-		case SPATHI_ID:
-				return (POINT) {2443, 3645}; // War era map
 		case SUPOX_ID:
 			if (visit == SAMATRA_DEFINED)
 				return (POINT) {6479, 7541}; // Attack Kohr-Ah
@@ -1200,8 +1197,6 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 		case THRADDASH_ID:
 			if (visit == SAMATRA_DEFINED)
 				return (POINT) {4879, 7201}; // Attack Kohr-Ah
-			else if (visit == WAR_ERA)
-				return (POINT) {2819, 8502}; // War Era 'Unknown'
 			else
 				return (POINT) {2535, 8358}; // Return homeworld
 		case UTWIG_ID:
@@ -1209,49 +1204,31 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 				return (POINT) {7208, 7000}; // Attack Kohr-Ah
 			else
 				return (POINT) {8534, 8797}; // Return homeworld
-		case VUX_ID:
-				return (POINT) {4330, 1536}; // War era map
 		case YEHAT_ID:
 			if (visit == YEHAT_DEFINED)
 				return (POINT) {5150,    0}; // Here there be rebels
-			else if (visit == WAR_ERA)
-				return (POINT) {4947,   46}; // War era map
 			else
 				return (POINT) {4970,   40}; // Filthy Royalists
-		case DRUUGE_ID:
-				return (POINT) {9465, 2741}; // War Era 'Unknown'
 		case ILWRATH_ID:
 			if (visit == THRADD_DEFINED)
 				return (POINT) {2500, 8070}; // Thraddash/Ilwrath zone
 			else if (visit == PKUNK_DEFINED)
 				return (POINT) {  48, 1700}; // Attacking Pkunk (unused?)
-			else if (visit == WAR_ERA)
-				return (POINT) { -90, 3560}; // War era map
 			else
 				return (POINT) { 215, 3630}; // Homeworld (extended lore)
 		case MYCON_ID:
 			if (visit == MYCON_TRAP_DEFINED)
 				return (POINT) {6858,  577}; // Goin to the party
-			else if (visit == WAR_ERA)
-				return (POINT) {6245, 2355}; // War era map
 			else
 				return (POINT) {6392, 2200}; // Going back home
 		case UMGAH_ID:
 			if (visit == SAMATRA_DEFINED)
 				return (POINT) {5288, 4892}; // Compelled to seek death
-			else
-				return (POINT) {1853, 6067}; // War era map
 		case SYREEN_ID:
 			if (visit == MYCON_TRAP_DEFINED)
 				return (POINT) {6858,  577}; // Goin to the party
 			else
 				return (POINT) {4125, 3770}; // Going back home
-		case ANDROSYNTH_ID:
-				return (POINT) {3682, 2599}; // War era map
-		case CHENJESU_ID:
-				return (POINT) { 709, 2174}; // War era map
-		case MMRNMHRM_ID:
-				return (POINT) { 693, 2950}; // War era map
 		default:
 			fprintf (stderr, "%s %d / plot %d combo.\n",
 					"DefaultFleetLocation called with bad fleet",
@@ -1264,57 +1241,9 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 COUNT
 WarEraStrength (SPECIES_ID SpeciesID)
 {
-	COUNT radius;
+	COUNT strengths[] = { WAR_ERA_STRENGTHS };
 
-	switch (SpeciesID)
-	{
-		case EARTHLING_ID:
-			radius =  434;
-			break;
-		case PKUNK_ID:
-			radius =  351;
-			break;
-		case SHOFIXTI_ID:
-			radius =  351;
-			break;
-		case SPATHI_ID:
-			radius = 1014;
-			break;
-		case THRADDASH_ID:
-			radius =  744;
-			break;
-		case VUX_ID:
-			radius =  605;
-			break;
-		case YEHAT_ID:
-			radius = 1053;
-			break;
-		case DRUUGE_ID:
-			radius =  807;
-			break;
-		case ILWRATH_ID:
-			radius =  521;
-			break;
-		case MYCON_ID:
-			radius =  544;
-			break;
-		case UMGAH_ID:
-			radius =  491;
-			break;
-		case ANDROSYNTH_ID:
-			radius =  491;
-			break;
-		case CHENJESU_ID:
-			radius =  653;
-			break;
-		case MMRNMHRM_ID:
-			radius =  491;
-			break;
-		default:
-			return 0;
-	}
-
-	return radius / SPHERE_RADIUS_INCREMENT * 2;
+	return strengths[SpeciesID - 1] / SPHERE_RADIUS_INCREMENT * 2;
 }
 
 // Provide the homeworld plot ID for the given species ID (from fleet).
@@ -1376,7 +1305,7 @@ Homeworld (SPECIES_ID SpeciesID)
 		default:
 			fprintf(stderr, "Homeworld %s %d.\n",
 					"(Fleet ID) called with bad fleet ID", SpeciesID);
-		   	return NUM_PLOTS;
+			return NUM_PLOTS;
 	}
 
 }
@@ -1444,12 +1373,12 @@ POINT
 SeedFleetLocation (FLEET_INFO *FleetPtr, PLOT_LOCATION *plotmap, COUNT visit)
 {
 	UWORD rand_val_x, rand_val_y;
-	COUNT home;		// Plot ID of the homeworld for the fleet
-	COUNT strength; // Strength of the fleet
-	POINT warpoint;	// location being visited, or offset for samatra
+	COUNT home;              // Plot ID of the homeworld for the fleet
+	COUNT strength;          // Strength of the fleet
+	POINT warpoint;          // location being visited, or offset for samatra
 	POINT location = {0, 0}; // The results of the seeding
-	BOOLEAN myRNG = false; // If you create RNG, clean up RNG
-	UNICODE buf[256] = ""; // For debug string
+	BOOLEAN myRNG = false;   // If you create RNG, clean up RNG
+	UNICODE buf[256] = "";   // For debug string
 
 	if (!FleetPtr || !plotmap)
 	{
