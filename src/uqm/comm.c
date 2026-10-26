@@ -1866,7 +1866,6 @@ HailAlien (void)
 {
 	ENCOUNTER_STATE ES;
 	FONT PlayerFont, OldFont;
-	Color TextBack;
 
 	pCurInputState = &ES;
 	memset (pCurInputState, 0, sizeof (*pCurInputState));
@@ -1907,19 +1906,12 @@ HailAlien (void)
 
 	// init subtitle cache context
 	TextCacheContext = CreateContext ("TextCacheContext");
-	//TextCacheFrame = CaptureDrawable (
-	//		CreateDrawable (WANT_PIXMAP, SIS_SCREEN_WIDTH,
-	//		SIS_SCREEN_HEIGHT - SLIDER_Y - SLIDER_HEIGHT + 2, 1));
-	// BW: previous lines were just a complex and wrong way of obtaining 107
- 	TextCacheFrame = CaptureDrawable (
- 			CreateDrawable (WANT_PIXMAP, SIS_SCREEN_WIDTH, SLIDER_Y, 1));
+ 	TextCacheFrame = CaptureDrawable (CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
+			SIS_SCREEN_WIDTH, SLIDER_Y, 1));
 	SetContext (TextCacheContext);
 	SetContextFGFrame (TextCacheFrame);
-	TextBack = BUILD_COLOR (MAKE_RGB15 (0x00, 0x00, 0x01), 0x00);
-		// Color key for the background.
-	SetContextBackGroundColor (TextBack);
+	SetContextBackGroundColor (NULL_COLOR); // Fully transparent color
 	ClearDrawable ();
-	SetFrameTransparentColor (TextCacheFrame, TextBack);
 
 	ES.phrase_buf[0] = '\0';
 
