@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#define DEBUG_STARSEED
+//#define DEBUG_STARSEED
 #include "commglue.h"
 
 #include "battle.h"
