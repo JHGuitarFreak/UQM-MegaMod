@@ -442,7 +442,8 @@ ZoomInPlanetSphere (void)
 				tilt = ScreenYToViewingTilt (pt.y);
 
 				DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-				Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, tilt, pPlanetDesc->radius);
+				Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, tilt,
+						pPlanetDesc->radius);
 			}
 		}
 

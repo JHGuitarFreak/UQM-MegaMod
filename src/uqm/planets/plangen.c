@@ -992,9 +992,9 @@ SaveBackFrame (COUNT radius)
 
 typedef struct
 {
-	float inner_r;   /* inner radius in pixels */
-	float outer_r;   /* outer radius in pixels */
-	float opacity;   /* base alpha, 0.0-1.0 */
+	double inner_r;   /* inner radius in pixels */
+	double outer_r;   /* outer radius in pixels */
+	double opacity;   /* base alpha, 0.0-1.0 */
 	int   num_bands; /* 0 = solid, >0 = number of distinct bands */
 } RingParams;
 
@@ -1016,12 +1016,12 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 	const POINT3 *light_dir, double axial_tilt, double viewing_tilt,
 	COUNT radius)
 {
+	BYTE         *cbase;
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
-	Color *pix = Orbit->ScratchArray;
+	Color        *pix = Orbit->ScratchArray;
 	const Color   clear = BUILD_COLOR_RGBA (0, 0, 0, 0);
 	const int     half_size = (int)params->outer_r;
 	const int     frame_size = half_size * 2 + 1;
-	BYTE *cbase;
 	double        Nx, Ny, Nz;
 	double        diffuse, shadow;
 	double        base_r, base_g, base_b;
@@ -1069,8 +1069,11 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 				continue;
 			}
 
-			if (point_in_planet_shadow ((double)x, (double)y, t, light_dir, radius))
+			if (point_in_planet_shadow ((double)x, (double)y, t,
+					light_dir, radius))
+			{
 				light_factor = shadow;
+			}
 			else
 				light_factor = diffuse;
 
@@ -1102,7 +1105,8 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 		}
 	}
 
-	WriteFramePixelColors (DstFrame, Orbit->ScratchArray, frame_size, frame_size);
+	WriteFramePixelColors (DstFrame, Orbit->ScratchArray,
+			frame_size, frame_size);
 	SetFrameHot (DstFrame, MAKE_HOT_SPOT (half_size + 1, half_size + 1));
 }
 
@@ -1114,7 +1118,7 @@ CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
 	RingParams rp;
 	POINT3 light_dir;
 	int num_bands, scratch_size;
-	float axial_tilt, outer_factor, inner_factor;
+	double axial_tilt, outer_factor, inner_factor;
 	double planet_radius, surface_temp, rot_period, width_cap;
 
 	planet_radius = (double)PlanetInfo->PlanetRadius;
@@ -1124,21 +1128,18 @@ CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
 
 	if (planet_radius >= GAS_GIANT_RADIUS_THRESHOLD)
 	{	// "Large" ring system, e.g., Saturn
-		inner_factor = 1.163f;
+		inner_factor = 1.163;
 		outer_factor = width_cap;
 		num_bands = 5;
 	}
 	else
 	{	// "Small" ring system, e.g., Uranus/Neptune
-		inner_factor = 1.49f;
-		outer_factor = width_cap * 0.75f;
+		inner_factor = 1.49;
+		outer_factor = width_cap * 0.75;
 		num_bands = 3;
 	}
 
-	if (inner_factor == 0.0f || outer_factor == 0.0f)
-		return NULL;
-
-	rp.inner_r = (float)radius * inner_factor;
+	rp.inner_r = (double)radius * inner_factor;
 	rp.outer_r = outer_factor;
 	rp.num_bands = num_bands;
 	rp.opacity = 1.0f;
@@ -3156,7 +3157,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		if (Orbit->ObjectFrame)
 			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
 
-		Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, VIEWING_TILT, radius);
+		Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc,
+				VIEWING_TILT, radius);
 	}
 	
 	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));
