@@ -1110,46 +1110,70 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 	SetFrameHot (DstFrame, MAKE_HOT_SPOT (half_size + 1, half_size + 1));
 }
 
+#define SNOW_LINE_TEMP 100.0
+#define NEPTUNE_TEMP 230.0
+#define TEMP_RANGE (NEPTUNE_TEMP - SNOW_LINE_TEMP)
+
+// Based on the old Small/Large ring system numbers 1.163 - 1.49
+#define SMALL_INNER 1.15
+#define LARGE_INNER 1.50
+#define INNER_RANGE (LARGE_INNER - SMALL_INNER)
+
 FRAME
-CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
-		COUNT radius)
+CreateRingMask (DWORD rand_seed, const PLANET_INFO *PlanetInfo,
+		POINT loc, double viewing_tilt, COUNT radius)
 {
-	FRAME RingFrame;
 	RingParams rp;
+	FRAME RingFrame;
 	POINT3 light_dir;
 	int num_bands, scratch_size;
-	double axial_tilt, outer_factor, inner_factor;
-	double planet_radius, surface_temp, rot_period, width_cap;
+	double temperature_norm, width_cap;
+	double outer_factor, inner_factor, axial_tilt;
+	double SurfaceTemperature = (double)PlanetInfo->SurfaceTemperature;
+	double dradius = (double)radius;
 
-	planet_radius = (double)PlanetInfo->PlanetRadius;
-	surface_temp = (double)PlanetInfo->SurfaceTemperature;
-	rot_period = (double)PlanetInfo->RotationPeriod;
-	width_cap = (double)RING_MAX_OUTER_WIDTH (radius);
+	num_bands = rand_seed % 6;
 
-	if (planet_radius >= GAS_GIANT_RADIUS_THRESHOLD)
-	{	// "Large" ring system, e.g., Saturn
-		inner_factor = 1.163;
-		outer_factor = width_cap;
-		num_bands = 5;
-	}
-	else
-	{	// "Small" ring system, e.g., Uranus/Neptune
-		inner_factor = 1.49;
-		outer_factor = width_cap * 0.75;
-		num_bands = 3;
+	if (CurStarDescPtr->Index == SOL_DEFINED)
+	{	// Sol override
+		UWORD PlanetRadius = PlanetInfo->PlanetRadius;
+
+		if (PlanetRadius == 945)
+			num_bands = 5; // Saturn
+		if (PlanetRadius == 396 || PlanetRadius == 411)
+			num_bands = 2; // Uranus & Neptune
+		if (PlanetRadius == 1120)
+			num_bands = 1; // Jupiter
 	}
 
-	rp.inner_r = (double)radius * inner_factor;
-	rp.outer_r = outer_factor;
+	if (num_bands == 0)
+		return NULL;
+
+	temperature_norm = (-SurfaceTemperature - SNOW_LINE_TEMP) / TEMP_RANGE;
+
+	if (temperature_norm < 0.00)
+		temperature_norm = 0.00;
+	else if (temperature_norm > 1.00)
+		temperature_norm = 1.00;
+
+	width_cap = (double)RING_MAX_OUTER_WIDTH (radius) / dradius;
+	outer_factor = width_cap * (0.60 + 0.08 * num_bands);
+	inner_factor = LARGE_INNER - temperature_norm * INNER_RANGE;
+
+	if (outer_factor <= inner_factor + 0.05)
+		return NULL;
+
+	rp.inner_r   = dradius * inner_factor;
+	rp.outer_r   = dradius * outer_factor;
 	rp.num_bands = num_bands;
-	rp.opacity = 1.0f;
+	rp.opacity   = 1.0f;
 
 	axial_tilt = (M_DEG2RAD * PlanetInfo->AxialTilt);
-	light_dir = CalcLightDirection (loc);
+	light_dir  = CalcLightDirection (loc);
 
 	scratch_size = (int)rp.outer_r * 2 + 1;
-	RingFrame = CaptureDrawable (CreateDrawable (
-			WANT_PIXMAP | WANT_ALPHA, scratch_size, scratch_size, 1));
+	RingFrame = CaptureDrawable (CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
+			scratch_size, scratch_size, 1));
 	RenderRingMask (RingFrame, &rp, &light_dir, axial_tilt,
 			viewing_tilt, radius);
 
@@ -3157,8 +3181,8 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		if (Orbit->ObjectFrame)
 			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
 
-		Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc,
-				VIEWING_TILT, radius);
+		Orbit->ObjectFrame = CreateRingMask (pPlanetDesc->rand_seed,
+				PlanetInfo, loc, VIEWING_TILT, radius);
 	}
 	
 	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));
