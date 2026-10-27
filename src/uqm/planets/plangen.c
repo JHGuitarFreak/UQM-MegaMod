@@ -1112,43 +1112,41 @@ CreateRingMask (const PLANET_INFO *PlanetInfo, POINT loc, double viewing_tilt,
 {
 	FRAME RingFrame;
 	RingParams rp;
-	COUNT radius_thresh = GAS_GIANT_RADIUS_THRESHOLD;
+	POINT3 light_dir;
+	int num_bands, scratch_size;
+	float axial_tilt, outer_factor, inner_factor;
+	double planet_radius, surface_temp, rot_period, width_cap;
 
-	if (abs (PlanetInfo->AxialTilt) <= 5)
-		return NULL;
+	planet_radius = (double)PlanetInfo->PlanetRadius;
+	surface_temp = (double)PlanetInfo->SurfaceTemperature;
+	rot_period = (double)PlanetInfo->RotationPeriod;
+	width_cap = (double)RING_MAX_OUTER_WIDTH (radius);
 
-	switch (pSolarSysState->pOrbitalDesc->data_index & ~PLANET_SHIELDED)
-	{
-	case GRY_GAS_GIANT:
-	case CYA_GAS_GIANT:
-	case YEL_GAS_GIANT:
-		return NULL;
-	default:
-		break;
-	}
-
-	if (!playerInPlanetOrbit ())
-		radius_thresh <<= 1;
-
-	if (PlanetInfo->PlanetRadius >= radius_thresh)
+	if (planet_radius >= GAS_GIANT_RADIUS_THRESHOLD)
 	{	// "Large" ring system, e.g., Saturn
-		rp.inner_r = (float)radius * 1.163;
-		rp.outer_r = (float)RING_MAX_OUTER_WIDTH (radius);
-		rp.num_bands = 5;
+		inner_factor = 1.163f;
+		outer_factor = width_cap;
+		num_bands = 5;
 	}
 	else
 	{	// "Small" ring system, e.g., Uranus/Neptune
-		rp.inner_r = (float)radius * 1.49;
-		rp.outer_r = (float)RING_MAX_OUTER_WIDTH (radius)
-				- (RING_MAX_OUTER_WIDTH (radius) >> 2);
-		rp.num_bands = 3;
+		inner_factor = 1.49f;
+		outer_factor = width_cap * 0.75f;
+		num_bands = 3;
 	}
+
+	if (inner_factor == 0.0f || outer_factor == 0.0f)
+		return NULL;
+
+	rp.inner_r = (float)radius * inner_factor;
+	rp.outer_r = outer_factor;
+	rp.num_bands = num_bands;
 	rp.opacity = 1.0f;
 
-	double axial_tilt = (M_DEG2RAD * PlanetInfo->AxialTilt);
-	POINT3 light_dir = CalcLightDirection (loc);
+	axial_tilt = (M_DEG2RAD * PlanetInfo->AxialTilt);
+	light_dir = CalcLightDirection (loc);
 
-	int scratch_size = (int)rp.outer_r * 2 + 1;
+	scratch_size = (int)rp.outer_r * 2 + 1;
 	RingFrame = CaptureDrawable (CreateDrawable (
 			WANT_PIXMAP | WANT_ALPHA, scratch_size, scratch_size, 1));
 	RenderRingMask (RingFrame, &rp, &light_dir, axial_tilt,
@@ -3160,7 +3158,6 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 
 		Orbit->ObjectFrame = CreateRingMask (PlanetInfo, loc, VIEWING_TILT, radius);
 	}
-
 	
 	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));
 

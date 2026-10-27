@@ -1118,24 +1118,56 @@ GenerateTexturedPlanets (void)
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 246;
 				break;
 			case 4: /* JUPITER */
-				maskanim = IP_JUPITER_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 24;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 1120;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 3;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 98;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -143;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 520L / 100;
 				break;
 			case 5: /* SATURN */
-				maskanim = IP_SATURN_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 13;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 945;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 27;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 102;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -197;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 952L / 100;
 				break;
 			case 6: /* URANUS */
-				maskanim = IP_URANUS_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 21;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 411;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 98;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 172;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -217;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 1916L / 100;
 				break;
 			case 7: /* NEPTUNE */
-				maskanim = IP_NEPTUNE_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 28;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 396;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 30;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 182;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -229;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 2999L / 100;
 				break;
 			case 8: /* PLUTO */
 				maskanim = IP_PLUTO_MASK_ANIM;
