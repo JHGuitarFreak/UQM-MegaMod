@@ -2972,7 +2972,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 
 	if (!ForIP && useDosSpheres)
-	{		
+	{
 		RenderLevelMasks (Orbit->TopoMask, Orbit->lpTopoData, SurfDef);
 		SetPlanetColors (GetColorMapAddress (Orbit->sphereMap));
 		if (Orbit->TopoMask != NULL)
@@ -3178,11 +3178,16 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 	else if (PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO)
 	{
+		COUNT ring_radius = radius;
+
 		if (Orbit->ObjectFrame)
 			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
 
+		if (!ForIP && use3DOSpheres)
+			ring_radius *= 0.96;
+
 		Orbit->ObjectFrame = CreateRingMask (pPlanetDesc->rand_seed,
-				PlanetInfo, loc, VIEWING_TILT, radius);
+				PlanetInfo, loc, VIEWING_TILT, ring_radius);
 	}
 	
 	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));

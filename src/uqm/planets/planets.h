@@ -481,9 +481,6 @@ extern void SaveSolarSysLocation (void);
 
 extern BYTE PickClosestHabitable (SOLARSYS_STATE *solarSys);
 
-extern FRAME CreateRingMask (DWORD rand_seed, const PLANET_INFO *PlanetInfo,
-		POINT loc, double viewing_tilt, COUNT radius);
-
 void DoBubbleWarp (BOOLEAN UseFuel);
 
 #if defined(__cplusplus)

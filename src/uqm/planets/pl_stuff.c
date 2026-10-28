@@ -96,7 +96,8 @@ DrawCurrentPlanetSphere (void)
 	{
 		s.frame = Orbit->ObjectFrame;
 
-		if (use3DOSpheres)
+		if (use3DOSpheres && (pSolarSysState->pOrbitalDesc->data_index
+				& PLANET_SHIELDED))
 			Draw3DOShield (s);
 		else
 			DrawStamp (&s);
@@ -131,7 +132,8 @@ DrawPlanetSphere (int x, int y, bool back)
 	if (Orbit->ObjectFrame)
 	{
 		s.frame = Orbit->ObjectFrame;
-		if (use3DOSpheres)
+		if (use3DOSpheres && (pSolarSysState->pOrbitalDesc->data_index
+				& PLANET_SHIELDED))
 			Draw3DOShield (s);
 		else
 			DrawStamp (&s);
@@ -422,30 +424,6 @@ ZoomInPlanetSphere (void)
 				* (RES_SCALE (SCAN_SCREEN_HEIGHT) * 6 / 10) + 0.5);
 
 		SetContext (PlanetContext);
-
-		if (Orbit->ObjectFrame && Orbit->WorkFrame == NULL)
-		{
-			PLANET_INFO *PlanetInfo = &pSolarSysState->SysInfo.PlanetInfo;
-			PLANET_DESC *pPlanetDesc = pSolarSysState->pOrbitalDesc;
-			POINT loc;
-			RECT clipR;
-			double tilt;
-
-			if (!(pPlanetDesc->data_index & PLANET_SHIELDED))
-			{
-				if (pPlanetDesc->pPrevDesc == &pSolarSysState->SunDesc[0])
-					loc = pPlanetDesc->location;
-				else
-					loc = pPlanetDesc->pPrevDesc->location;
-
-				GetContextClipRect (&clipR);
-				tilt = ScreenYToViewingTilt (pt.y);
-
-				DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
-				Orbit->ObjectFrame = CreateRingMask (pPlanetDesc->rand_seed,
-						PlanetInfo, loc, tilt, pPlanetDesc->radius);
-			}
-		}
 
 		BatchGraphics ();
 		if (i > 0)
