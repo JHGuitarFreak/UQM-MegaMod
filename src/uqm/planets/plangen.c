@@ -1026,6 +1026,17 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 	double        diffuse, shadow;
 	double        base_r, base_g, base_b;
 	int           x, y;
+	RECT          sphere = { { 0, 0 } , { 0, 0 } };
+	BYTE         *spherePix = NULL;
+
+	if (useDosSpheres && Orbit->SphereFrame)
+	{
+		GetFrameRect (Orbit->SphereFrame, &sphere);
+		sphere.corner = GetFrameHot (Orbit->SphereFrame);
+		spherePix = HMalloc (sphere.extent.width * sphere.extent.height);
+		ReadFramePixelIndexes (Orbit->SphereFrame, spherePix,
+				sphere.extent.width, sphere.extent.height, TRUE);
+	}
 
 	{
 		const double sa = sin (axial_tilt);
@@ -1057,13 +1068,36 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 			double lr, lg, lb;
 			BYTE   alpha = 0xDF;
 			int    px2py2 = (x * x) + (y * y);
+			BOOLEAN occluded = FALSE;
 
 			t = -(x * Nx + (y - RES_SCALE (1)) * Ny) / Nz;
 			dist = sqrt (px2py2 + (t * t));
 
-			if (dist <= params->inner_r ||
-				dist >= params->outer_r ||
-				(t < 0.0 && px2py2 < RADIUS_2 (radius)))
+			if (dist <= params->inner_r || dist >= params->outer_r)
+			{
+				*pix = clear;
+				continue;
+			}
+
+			if (t < 0.0)
+			{
+				if (spherePix)
+				{
+					int sx = x + sphere.corner.x;
+					int sy = y + sphere.corner.y;
+
+					if (sx >= 0 && sx < sphere.extent.width
+							&& sy >= 0 && sy < sphere.extent.height)
+					{
+						if (spherePix[sy * sphere.extent.width + sx] != 0xFF)
+							occluded = TRUE;
+					}
+				}
+				else if (px2py2 < RADIUS_2 (radius))
+					occluded = TRUE;
+			}
+
+			if (occluded)
 			{
 				*pix = clear;
 				continue;
@@ -1104,6 +1138,9 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 			*pix = BUILD_COLOR_RGBA ((BYTE)lr, (BYTE)lg, (BYTE)lb, alpha);
 		}
 	}
+
+	if (spherePix)
+		HFree (spherePix);
 
 	WriteFramePixelColors (DstFrame, Orbit->ScratchArray,
 			frame_size, frame_size);
@@ -1170,6 +1207,9 @@ CreateRingMask (DWORD rand_seed, const PLANET_INFO *PlanetInfo,
 
 	axial_tilt = (M_DEG2RAD * PlanetInfo->AxialTilt);
 	light_dir  = CalcLightDirection (loc);
+
+	if (playerInPlanetOrbit () && useDosSpheres)
+		axial_tilt = -(M_DEG2RAD * PlanetInfo->AxialTilt);
 
 	scratch_size = (int)rp.outer_r * 2 + 1;
 	RingFrame = CaptureDrawable (CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
@@ -2145,7 +2185,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit, COUNT radius)
 	COUNT ring_diam = (RING_MAX_OUTER_WIDTH (radius) << 1) + 1;
 	COUNT i;
 
-	{// always needed
+	{	// always needed
 		Orbit->lpTopoData = HCalloc(width * height);
 
 		Orbit->TopoZoomFrame = 0;
@@ -2164,7 +2204,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit, COUNT radius)
 		Orbit->ScanColors = NULL;
 
 		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
-				* (ring_diam) * (ring_diam));
+				* (width + 1) * (width + 1));
 
 		Orbit->WorkFrame = 0;
 		Orbit->BackFrame = 0;
@@ -3176,7 +3216,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		if ((optNebulae || use3DOSpheres) && !ForIP && !useDosSpheres)
 			Orbit->BackFrame = SaveBackFrame (radius);
 	}
-	else if (PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO)
+	else if (EXTENDED && PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO)
 	{
 		COUNT ring_radius = radius;
 
@@ -3184,7 +3224,11 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
 
 		if (!ForIP && use3DOSpheres)
-			ring_radius *= 0.96;
+			ring_radius = (RES_SCALE (63) >> 1);
+			// Measured planet size from plshade-000.png
+
+		if (!ForIP && useDosSpheres)
+			ring_radius = (GetFrameWidth (Orbit->SphereFrame) >> 1);
 
 		Orbit->ObjectFrame = CreateRingMask (pPlanetDesc->rand_seed,
 				PlanetInfo, loc, VIEWING_TILT, ring_radius);
