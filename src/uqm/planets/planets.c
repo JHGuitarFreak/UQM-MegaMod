@@ -555,7 +555,7 @@ LoadPlanet (FRAME SurfDefFrame)
 	}
 	else
 	{
-	 	DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
+		DrawOrbitalDisplay (DRAW_ORBITAL_FULL);
 	}
 }
 

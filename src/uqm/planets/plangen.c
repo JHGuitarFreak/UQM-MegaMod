@@ -255,35 +255,35 @@ GetAltColorMap (PLANET_DESC *pPlanetDesc)
 {
 	switch (pPlanetDesc->data_index)
 	{
-	case METAL_WORLD:					/* MERCURY */
+	case METAL_WORLD:              /* MERCURY */
 		return MERCURY_COLOR_TAB;
-	case PRIMORDIAL_WORLD:				/* VENUS */
+	case PRIMORDIAL_WORLD:         /* VENUS */
 		return VENUS_COLOR_TAB;
-	case DUST_WORLD:					/* MARS */
+	case DUST_WORLD:               /* MARS */
 		return MARS_COLOR_TAB;
-	case PELLUCID_WORLD:				/* PLUTO & CALLISTO */
+	case PELLUCID_WORLD:           /* PLUTO & CALLISTO */
 	{
 		if (worldIsPlanet (pSolarSysState, pPlanetDesc))
 			return PLUTO_COLOR_TAB;
 		else
 			return CALLISTO_COLOR_TAB;
 	}
-	case SELENIC_WORLD:					/* LUNA & CHARON */
+	case SELENIC_WORLD:             /* LUNA & CHARON */
 	{
 		if (planetIndex (pSolarSysState, pPlanetDesc) == 2)
 			return LUNA_COLOR_TAB;
 		else
 			return CHARON_COLOR_TAB;
 	}
-	case RADIOACTIVE_WORLD:				/* IO */
+	case RADIOACTIVE_WORLD:        /* IO */
 		return IO_COLOR_TAB;
-	case HALIDE_WORLD:					/* EUROPA */
+	case HALIDE_WORLD:             /* EUROPA */
 		return EUROPA_COLOR_TAB;
-	case CYANIC_WORLD:					/* GANYMEDE */
+	case CYANIC_WORLD:             /* GANYMEDE */
 		return GANYMEDE_COLOR_TAB;
-	case ALKALI_WORLD:					/* TITAN */
+	case ALKALI_WORLD:             /* TITAN */
 		return TITAN_COLOR_TAB;
-	case VINYLOGOUS_WORLD:				/* TRITON */
+	case VINYLOGOUS_WORLD:         /* TRITON */
 		return TRITON_COLOR_TAB;
 	default:
 		return NULL;
@@ -894,7 +894,7 @@ CreateShieldMask (COUNT radius)
 	COUNT shielddiam = (shieldradius << 1) + 1;
 
 	ShieldFrame = CaptureDrawable (
-		CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
+			CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
 			shielddiam, shielddiam, 1));
 
 	pix = Orbit->ScratchArray;
