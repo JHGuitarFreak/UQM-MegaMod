@@ -1169,7 +1169,10 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 			{
 				double phase = fmod (norm_dist * params->num_bands, 1.0);
 				band_level = (phase < 0.5) ? phase * 2.0 : (1.0 - phase) * 2.0;
-				band_level = 0.4 + (0.6 * band_level);
+				if (playerInPlanetOrbit() && useDosSpheres)
+					band_level = 0.8 + (0.2 * band_level);
+				else
+					band_level = 0.4 + (0.6 * band_level);
 			}
 			else
 				band_level = 1.0;
