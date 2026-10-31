@@ -1169,8 +1169,13 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 			{
 				double phase = fmod (norm_dist * params->num_bands, 1.0);
 				band_level = (phase < 0.5) ? phase * 2.0 : (1.0 - phase) * 2.0;
-				if (playerInPlanetOrbit() && useDosSpheres)
-					band_level = 0.8 + (0.2 * band_level);
+
+				if ((playerInPlanetOrbit () && useDosSpheres)
+						|| (CurStarDescPtr->Index == SOL_DEFINED
+							&& solTexturesPresent))
+				{
+					band_level = 0.6 + (0.4 * band_level);
+				}
 				else
 					band_level = 0.4 + (0.6 * band_level);
 			}
@@ -1236,7 +1241,12 @@ CreateRingMask (DWORD rand_seed, const PLANET_INFO *PlanetInfo,
 		if (PlanetRadius == 396 || PlanetRadius == 411)
 			num_bands = 2; // Uranus & Neptune
 		if (PlanetRadius == 1120)
-			num_bands = 1; // Jupiter
+		{	// Jupiter
+			if (solTexturesPresent)
+				num_bands = 0;
+			else
+				num_bands = 1;
+		}
 	}
 
 	if (num_bands == 0)
