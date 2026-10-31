@@ -1011,6 +1011,42 @@ point_in_planet_shadow (double rx, double ry, double rz,
 	return (BOOLEAN)(s > 0.0);
 }
 
+typedef struct
+{
+	double r, g, b;
+} DBL_COLOR;
+
+static DBL_COLOR
+RingLerp (DBL_COLOR *c, double norm_dist, double band_level, int num_base)
+{
+	DBL_COLOR lerped;
+	int       idx0, idx1;
+	double    lerp_factor;
+	double    color_pos = norm_dist * 0.65 + band_level * 0.35;
+	double    index_pos = color_pos * (num_base - 1);
+
+	idx0 = (int)index_pos;
+	if (idx0 >= num_base)
+		idx0 = num_base - 1;
+
+	idx1 = idx0 + 1;
+	if (idx1 >= num_base)
+		idx1 = num_base - 1;
+
+	lerp_factor = index_pos - idx0;
+
+	//printf ("norm_dist %g, band_level %g, color_pos %g, index_pos %g, idx0 %d, idx1 %d, lerp_factor %g\n",
+	//		norm_dist, band_level, color_pos, index_pos, idx0, idx1, lerp_factor);
+
+	lerped.r = c[idx0].r + (c[idx1].r - c[idx0].r) * lerp_factor;
+	lerped.g = c[idx0].g + (c[idx1].g - c[idx0].g) * lerp_factor;
+	lerped.b = c[idx0].b + (c[idx1].b - c[idx0].b) * lerp_factor;
+
+	return lerped;
+}
+
+#define NUM_COLORS 128
+
 static void
 RenderRingMask (FRAME DstFrame, const RingParams *params,
 	const POINT3 *light_dir, double axial_tilt, double viewing_tilt,
@@ -1024,10 +1060,11 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 	const int     frame_size = half_size * 2 + 1;
 	double        Nx, Ny, Nz;
 	double        diffuse, shadow;
-	double        base_r, base_g, base_b;
-	int           x, y;
+	DBL_COLOR     base[NUM_COLORS];
+	int           x, y, i;
 	RECT          sphere = { { 0, 0 } , { 0, 0 } };
 	BYTE         *spherePix = NULL;
+	BYTE          num_base = 0;
 
 	if (useDosSpheres && Orbit->SphereFrame)
 	{
@@ -1055,20 +1092,34 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 		shadow = diffuse * 0.35;
 	}
 
-	cbase = (BYTE *)GetColorMapAddress (pSolarSysState->OrbitalCMap) + 2;
-	base_r = (double)(cbase[0]);
-	base_g = (double)(cbase[1]);
-	base_b = (double)(cbase[2]);
+	cbase = (BYTE *)GetColorMapAddress (pSolarSysState->OrbitalCMap);
+
+	for (i = 0; i < NUM_COLORS; ++i)
+	{
+		const BYTE *c = cbase + 2 + i * 3;
+		double luma = (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]);
+
+		if (luma >= 100)
+		{
+			base[num_base].r = (double)c[0];
+			base[num_base].g = (double)c[1];
+			base[num_base].b = (double)c[2];
+			num_base++;
+		}
+	}
+
+	// printf ("num_base %d\n", num_base);
 
 	for (y = -half_size; y <= half_size; ++y)
 	{
 		for (x = -half_size; x <= half_size; ++x, ++pix)
 		{
-			double t, dist, norm_dist, band_level, light_factor;
-			double lr, lg, lb;
-			BYTE   alpha = 0xDF;
-			int    px2py2 = (x * x) + (y * y);
-			BOOLEAN occluded = FALSE;
+			double    t, dist, norm_dist, band_level, light_factor;
+			double    lr, lg, lb;
+			DBL_COLOR lerped_base;
+			BYTE      alpha = 0xDF;
+			int       px2py2 = (x * x) + (y * y);
+			BOOLEAN   occluded = FALSE;
 
 			t = -(x * Nx + (y - RES_SCALE (1)) * Ny) / Nz;
 			dist = sqrt (px2py2 + (t * t));
@@ -1128,9 +1179,11 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 			else if (dist > params->outer_r - 1.0)
 				alpha *= (params->outer_r - dist);
 
-			lr = base_r * band_level * light_factor;
-			lg = base_g * band_level * light_factor;
-			lb = base_b * band_level * light_factor;
+			lerped_base = RingLerp (base, norm_dist, band_level, num_base);
+
+			lr = lerped_base.r * band_level * light_factor;
+			lg = lerped_base.g * band_level * light_factor;
+			lb = lerped_base.b * band_level * light_factor;
 			if (lr > 0xFF) lr = 0xFF;
 			if (lg > 0xFF) lg = 0xFF;
 			if (lb > 0xFF) lb = 0xFF;
