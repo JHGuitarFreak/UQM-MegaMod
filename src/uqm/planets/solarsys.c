@@ -1118,6 +1118,7 @@ GenerateTexturedPlanets (void)
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 246;
 				break;
 			case 4: /* JUPITER */
+				maskanim = IP_JUPITER_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
 					GAS_GIANT_ATMOSPHERE;
 				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 24;
@@ -1131,6 +1132,7 @@ GenerateTexturedPlanets (void)
 					EARTH_RADIUS * 520L / 100;
 				break;
 			case 5: /* SATURN */
+				maskanim = IP_SATURN_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
 					GAS_GIANT_ATMOSPHERE;
 				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 13;
@@ -1144,6 +1146,7 @@ GenerateTexturedPlanets (void)
 					EARTH_RADIUS * 952L / 100;
 				break;
 			case 6: /* URANUS */
+				maskanim = IP_URANUS_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
 					GAS_GIANT_ATMOSPHERE;
 				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 21;
@@ -1157,6 +1160,7 @@ GenerateTexturedPlanets (void)
 					EARTH_RADIUS * 1916L / 100;
 				break;
 			case 7: /* NEPTUNE */
+				maskanim = IP_NEPTUNE_MASK_ANIM;
 				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
 					GAS_GIANT_ATMOSPHERE;
 				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 28;
