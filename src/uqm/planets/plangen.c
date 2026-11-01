@@ -1035,9 +1035,6 @@ RingLerp (DBL_COLOR *c, double norm_dist, double band_level, int num_base)
 
 	lerp_factor = index_pos - idx0;
 
-	//printf ("norm_dist %g, band_level %g, color_pos %g, index_pos %g, idx0 %d, idx1 %d, lerp_factor %g\n",
-	//		norm_dist, band_level, color_pos, index_pos, idx0, idx1, lerp_factor);
-
 	lerped.r = c[idx0].r + (c[idx1].r - c[idx0].r) * lerp_factor;
 	lerped.g = c[idx0].g + (c[idx1].g - c[idx0].g) * lerp_factor;
 	lerped.b = c[idx0].b + (c[idx1].b - c[idx0].b) * lerp_factor;
@@ -1107,8 +1104,6 @@ RenderRingMask (FRAME DstFrame, const RingParams *params,
 			num_base++;
 		}
 	}
-
-	// printf ("num_base %d\n", num_base);
 
 	for (y = -half_size; y <= half_size; ++y)
 	{
