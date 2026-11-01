@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Added an Accessibility menu entry to the Setup Menu
 - Added a "High Visibility Orbits" option to the Accessibility menu which brightens the orbit lines
 - Added a "High Visibility Planets" option to the accessibility menu which dims the solar system background and put gaps in the orbit lines around planets
+- EXTENDED: Added gas giant rings from 0xDEC0DE's Extended Mod, randomized them, and prettied up the ring graphics by directly using the planet's color palette
 
 ### Changed
 - Removed a lag spike when Fwiffo opens fire on lander
