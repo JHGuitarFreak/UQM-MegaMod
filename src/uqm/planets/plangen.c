@@ -255,35 +255,35 @@ GetAltColorMap (PLANET_DESC *pPlanetDesc)
 {
 	switch (pPlanetDesc->data_index)
 	{
-	case METAL_WORLD:					/* MERCURY */
+	case METAL_WORLD:              /* MERCURY */
 		return MERCURY_COLOR_TAB;
-	case PRIMORDIAL_WORLD:				/* VENUS */
+	case PRIMORDIAL_WORLD:         /* VENUS */
 		return VENUS_COLOR_TAB;
-	case DUST_WORLD:					/* MARS */
+	case DUST_WORLD:               /* MARS */
 		return MARS_COLOR_TAB;
-	case PELLUCID_WORLD:				/* PLUTO & CALLISTO */
+	case PELLUCID_WORLD:           /* PLUTO & CALLISTO */
 	{
 		if (worldIsPlanet (pSolarSysState, pPlanetDesc))
 			return PLUTO_COLOR_TAB;
 		else
 			return CALLISTO_COLOR_TAB;
 	}
-	case SELENIC_WORLD:					/* LUNA & CHARON */
+	case SELENIC_WORLD:             /* LUNA & CHARON */
 	{
 		if (planetIndex (pSolarSysState, pPlanetDesc) == 2)
 			return LUNA_COLOR_TAB;
 		else
 			return CHARON_COLOR_TAB;
 	}
-	case RADIOACTIVE_WORLD:				/* IO */
+	case RADIOACTIVE_WORLD:        /* IO */
 		return IO_COLOR_TAB;
-	case HALIDE_WORLD:					/* EUROPA */
+	case HALIDE_WORLD:             /* EUROPA */
 		return EUROPA_COLOR_TAB;
-	case CYANIC_WORLD:					/* GANYMEDE */
+	case CYANIC_WORLD:             /* GANYMEDE */
 		return GANYMEDE_COLOR_TAB;
-	case ALKALI_WORLD:					/* TITAN */
+	case ALKALI_WORLD:             /* TITAN */
 		return TITAN_COLOR_TAB;
-	case VINYLOGOUS_WORLD:				/* TRITON */
+	case VINYLOGOUS_WORLD:         /* TRITON */
 		return TRITON_COLOR_TAB;
 	default:
 		return NULL;
@@ -575,6 +575,24 @@ P3norm (POINT3 *res, POINT3 *vec)
 	P3mult (res, vec, 1/mag);
 }
 
+#define AMBIENT_LIGHT 0.1
+#define LIGHT_Z       1.2
+
+static inline POINT3
+CalcLightDirection (POINT loc)
+{
+	POINT3 light;
+	// lrad is the distance from the sun to the planet
+	const double lrad = sqrt ((loc.x * loc.x + loc.y * loc.y));
+	// light is the sun's position.  the z-coordinate is whatever
+	// looks good
+	light.x = -loc.x;
+	light.y = -loc.y;
+	light.z = LIGHT_Z * lrad;
+	P3norm (&light, &light);
+	return light;
+}
+
 // GenerateSphereMask builds a shadow map for the rotating planet
 //  loc indicates the planet's position relative to the sun
 static void
@@ -582,23 +600,13 @@ GenerateSphereMask (POINT loc, COUNT radius)
 {
 	POINT pt;
 	POINT3 light;
-	double lrad;
 	const DWORD step = 1 << DIFFUSE_BITS;
 	int y, x;
 	COUNT tworadius = radius << 1;
 	COUNT radius_thres = (radius + 1) * (radius + 1);
 	COUNT radius_2 = radius * radius;
 
-#define AMBIENT_LIGHT 0.1
-#define LIGHT_Z       1.2
-	// lrad is the distance from the sun to the planet
-	lrad = sqrt (loc.x * loc.x + loc.y * loc.y);
-	// light is the sun's position.  the z-coordinate is whatever
-	// looks good
-	light.x = -((double)loc.x);
-	light.y = -((double)loc.y);
-	light.z = LIGHT_Z * lrad;
-	P3norm (&light, &light);
+	light = CalcLightDirection (loc);
 	
 	for (pt.y = 0, y = -radius; pt.y <= tworadius; ++pt.y, y++)
 	{
@@ -886,7 +894,7 @@ CreateShieldMask (COUNT radius)
 	COUNT shielddiam = (shieldradius << 1) + 1;
 
 	ShieldFrame = CaptureDrawable (
-		CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
+			CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
 			shielddiam, shielddiam, 1));
 
 	pix = Orbit->ScratchArray;
@@ -970,6 +978,307 @@ SaveBackFrame (COUNT radius)
 		shieldradius + 1));
 
 	return BackFrame;
+}
+
+
+/* RenderRingMask
+ * Creates rings around gas giants.  For aesthetics, the default viewing tilt
+ * assumes that the orbital view stabilises at 5° above the equator, which
+ * will give us a nice view of the rings rather than seeing them edge-on.
+ */
+#define VIEWING_TILT (85.0 * M_DEG2RAD)
+#define GAS_GIANT_RADIUS_THRESHOLD 600
+#define RING_MAX_OUTER_WIDTH(a) ((a << 1) + (a >> 1))
+
+typedef struct
+{
+	double inner_r;   /* inner radius in pixels */
+	double outer_r;   /* outer radius in pixels */
+	double opacity;   /* base alpha, 0.0-1.0 */
+	int   num_bands; /* 0 = solid, >0 = number of distinct bands */
+} RingParams;
+
+static BOOLEAN
+point_in_planet_shadow (double rx, double ry, double rz,
+		const POINT3 *light_dir, COUNT radius)
+{
+	const double PdotL = rx * light_dir->x + ry * light_dir->y + rz * light_dir->z;
+	const double PdotP = rx * rx + ry * ry + rz * rz;
+	const double disc = PdotL * PdotL - (PdotP - RADIUS_2 (radius));
+	if (disc < 0.0)
+		return FALSE;
+	const double s = -PdotL - sqrt (disc);
+	return (BOOLEAN)(s > 0.0);
+}
+
+typedef struct
+{
+	double r, g, b;
+} DBL_COLOR;
+
+static DBL_COLOR
+RingLerp (DBL_COLOR *c, double norm_dist, double band_level, int num_base)
+{
+	DBL_COLOR lerped;
+	int       idx0, idx1;
+	double    lerp_factor;
+	double    color_pos = norm_dist * 0.65 + band_level * 0.35;
+	double    index_pos = color_pos * (num_base - 1);
+
+	idx0 = (int)index_pos;
+	if (idx0 >= num_base)
+		idx0 = num_base - 1;
+
+	idx1 = idx0 + 1;
+	if (idx1 >= num_base)
+		idx1 = num_base - 1;
+
+	lerp_factor = index_pos - idx0;
+
+	lerped.r = c[idx0].r + (c[idx1].r - c[idx0].r) * lerp_factor;
+	lerped.g = c[idx0].g + (c[idx1].g - c[idx0].g) * lerp_factor;
+	lerped.b = c[idx0].b + (c[idx1].b - c[idx0].b) * lerp_factor;
+
+	return lerped;
+}
+
+#define NUM_COLORS 128
+
+static void
+RenderRingMask (FRAME DstFrame, const RingParams *params,
+	const POINT3 *light_dir, double axial_tilt, double viewing_tilt,
+	COUNT radius)
+{
+	BYTE         *cbase;
+	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
+	Color        *pix = Orbit->ScratchArray;
+	const Color   clear = BUILD_COLOR_RGBA (0, 0, 0, 0);
+	const int     half_size = (int)params->outer_r;
+	const int     frame_size = half_size * 2 + 1;
+	double        Nx, Ny, Nz;
+	double        diffuse, shadow;
+	DBL_COLOR     base[NUM_COLORS];
+	int           x, y, i;
+	RECT          sphere = { { 0, 0 } , { 0, 0 } };
+	BYTE         *spherePix = NULL;
+	BYTE          num_base = 0;
+
+	if (useDosSpheres && Orbit->SphereFrame)
+	{
+		GetFrameRect (Orbit->SphereFrame, &sphere);
+		sphere.corner = GetFrameHot (Orbit->SphereFrame);
+		spherePix = HMalloc (sphere.extent.width * sphere.extent.height);
+		ReadFramePixelIndexes (Orbit->SphereFrame, spherePix,
+				sphere.extent.width, sphere.extent.height, TRUE);
+	}
+
+	{
+		const double sa = sin (axial_tilt);
+		const double ca = cos (axial_tilt);
+		const double sv = sin (viewing_tilt);
+		const double cv = cos (viewing_tilt);
+		const double min_light_level = AMBIENT_LIGHT * 2.85;
+		double d;
+
+		Nx = sv * sa;
+		Ny = -sv * ca;
+		Nz = cv;
+
+		d = fabs (light_dir->x * Nx + light_dir->y * Ny + light_dir->z * Nz);
+		diffuse = (d < min_light_level) ? min_light_level : d;
+		shadow = diffuse * 0.35;
+	}
+
+	cbase = (BYTE *)GetColorMapAddress (pSolarSysState->OrbitalCMap);
+
+	for (i = 0; i < NUM_COLORS; ++i)
+	{
+		const BYTE *c = cbase + 2 + i * 3;
+		double luma = (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]);
+
+		if (luma >= 100)
+		{
+			base[num_base].r = (double)c[0];
+			base[num_base].g = (double)c[1];
+			base[num_base].b = (double)c[2];
+			num_base++;
+		}
+	}
+
+	for (y = -half_size; y <= half_size; ++y)
+	{
+		for (x = -half_size; x <= half_size; ++x, ++pix)
+		{
+			double    t, dist, norm_dist, band_level, light_factor;
+			double    lr, lg, lb;
+			DBL_COLOR lerped_base;
+			BYTE      alpha = 0xDF;
+			int       px2py2 = (x * x) + (y * y);
+			BOOLEAN   occluded = FALSE;
+
+			t = -(x * Nx + (y - RES_SCALE (1)) * Ny) / Nz;
+			dist = sqrt (px2py2 + (t * t));
+
+			if (dist <= params->inner_r || dist >= params->outer_r)
+			{
+				*pix = clear;
+				continue;
+			}
+
+			if (t < 0.0)
+			{
+				if (spherePix)
+				{
+					int sx = x + sphere.corner.x;
+					int sy = y + sphere.corner.y;
+
+					if (sx >= 0 && sx < sphere.extent.width
+							&& sy >= 0 && sy < sphere.extent.height)
+					{
+						if (spherePix[sy * sphere.extent.width + sx] != 0xFF)
+							occluded = TRUE;
+					}
+				}
+				else if (px2py2 < RADIUS_2 (radius))
+					occluded = TRUE;
+			}
+
+			if (occluded)
+			{
+				*pix = clear;
+				continue;
+			}
+
+			if (point_in_planet_shadow ((double)x, (double)y, t,
+					light_dir, radius))
+			{
+				light_factor = shadow;
+			}
+			else
+				light_factor = diffuse;
+
+			norm_dist = (dist - params->inner_r) /
+					(params->outer_r - params->inner_r);
+
+			if (params->num_bands > 0)
+			{
+				double phase = fmod (norm_dist * params->num_bands, 1.0);
+				band_level = (phase < 0.5) ? phase * 2.0 : (1.0 - phase) * 2.0;
+
+				if ((playerInPlanetOrbit () && useDosSpheres)
+						|| (CurStarDescPtr->Index == SOL_DEFINED
+							&& solTexturesPresent))
+				{
+					band_level = 0.6 + (0.4 * band_level);
+				}
+				else
+					band_level = 0.4 + (0.6 * band_level);
+			}
+			else
+				band_level = 1.0;
+
+			if (dist < params->inner_r + 1.0)
+				alpha *= (dist - params->inner_r);
+			else if (dist > params->outer_r - 1.0)
+				alpha *= (params->outer_r - dist);
+
+			lerped_base = RingLerp (base, norm_dist, band_level, num_base);
+
+			lr = lerped_base.r * band_level * light_factor;
+			lg = lerped_base.g * band_level * light_factor;
+			lb = lerped_base.b * band_level * light_factor;
+			if (lr > 0xFF) lr = 0xFF;
+			if (lg > 0xFF) lg = 0xFF;
+			if (lb > 0xFF) lb = 0xFF;
+
+			*pix = BUILD_COLOR_RGBA ((BYTE)lr, (BYTE)lg, (BYTE)lb, alpha);
+		}
+	}
+
+	if (spherePix)
+		HFree (spherePix);
+
+	WriteFramePixelColors (DstFrame, Orbit->ScratchArray,
+			frame_size, frame_size);
+	SetFrameHot (DstFrame, MAKE_HOT_SPOT (half_size + 1, half_size + 1));
+}
+
+#define SNOW_LINE_TEMP 100.0
+#define NEPTUNE_TEMP 230.0
+#define TEMP_RANGE (NEPTUNE_TEMP - SNOW_LINE_TEMP)
+
+// Based on the old Small/Large ring system numbers 1.163 - 1.49
+#define SMALL_INNER 1.15
+#define LARGE_INNER 1.50
+#define INNER_RANGE (LARGE_INNER - SMALL_INNER)
+
+FRAME
+CreateRingMask (DWORD rand_seed, const PLANET_INFO *PlanetInfo,
+		POINT loc, double viewing_tilt, COUNT radius)
+{
+	RingParams rp;
+	FRAME RingFrame;
+	POINT3 light_dir;
+	int num_bands, scratch_size;
+	double temperature_norm, width_cap;
+	double outer_factor, inner_factor, axial_tilt;
+	double SurfaceTemperature = (double)PlanetInfo->SurfaceTemperature;
+	double dradius = (double)radius;
+
+	num_bands = rand_seed % 6;
+
+	if (CurStarDescPtr->Index == SOL_DEFINED)
+	{	// Sol override
+		UWORD PlanetRadius = PlanetInfo->PlanetRadius;
+
+		if (PlanetRadius == 945)
+			num_bands = 5; // Saturn
+		if (PlanetRadius == 396 || PlanetRadius == 411)
+			num_bands = 2; // Uranus & Neptune
+		if (PlanetRadius == 1120)
+		{	// Jupiter
+			if (solTexturesPresent)
+				num_bands = 0;
+			else
+				num_bands = 1;
+		}
+	}
+
+	if (num_bands == 0)
+		return NULL;
+
+	temperature_norm = (-SurfaceTemperature - SNOW_LINE_TEMP) / TEMP_RANGE;
+
+	if (temperature_norm < 0.00)
+		temperature_norm = 0.00;
+	else if (temperature_norm > 1.00)
+		temperature_norm = 1.00;
+
+	width_cap = (double)RING_MAX_OUTER_WIDTH (radius) / dradius;
+	outer_factor = width_cap * (0.60 + 0.08 * num_bands);
+	inner_factor = LARGE_INNER - temperature_norm * INNER_RANGE;
+
+	if (outer_factor <= inner_factor + 0.05)
+		return NULL;
+
+	rp.inner_r   = dradius * inner_factor;
+	rp.outer_r   = dradius * outer_factor;
+	rp.num_bands = num_bands;
+	rp.opacity   = 1.0f;
+
+	axial_tilt = (M_DEG2RAD * PlanetInfo->AxialTilt);
+	light_dir  = CalcLightDirection (loc);
+
+	if (playerInPlanetOrbit () && useDosSpheres)
+		axial_tilt = -(M_DEG2RAD * PlanetInfo->AxialTilt);
+
+	scratch_size = (int)rp.outer_r * 2 + 1;
+	RingFrame = CaptureDrawable (CreateDrawable (WANT_PIXMAP | WANT_ALPHA,
+			scratch_size, scratch_size, 1));
+	RenderRingMask (RingFrame, &rp, &light_dir, axial_tilt,
+			viewing_tilt, radius);
+
+	return RingFrame;
 }
 
 // SetShieldThrobEffect adjusts the red levels in the shield glow graphic
@@ -1927,16 +2236,17 @@ ValidateMap (SBYTE *DepthArray, COUNT width, COUNT height)
 }
 
 static void
-planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
+planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit, COUNT radius)
 {
 	PLANET_ORBIT *Orbit = &pSolarSysState->Orbit;
 	COUNT spherespanx = height;
 	COUNT shieldradius = (height >> 1) * SHIELD_RADIUS / RADIUS;
 	COUNT shielddiam = (shieldradius << 1) + 1;
 	COUNT diameter = height + 1;
+	COUNT ring_diam = (RING_MAX_OUTER_WIDTH (radius) << 1) + 1;
 	COUNT i;
 
-	{// always needed
+	{	// always needed
 		Orbit->lpTopoData = HCalloc(width * height);
 
 		Orbit->TopoZoomFrame = 0;
@@ -1955,7 +2265,7 @@ planet_orbit_init (COUNT width, COUNT height, BOOLEAN forOrbit)
 		Orbit->ScanColors = NULL;
 
 		Orbit->ScratchArray = HMalloc (sizeof (Orbit->ScratchArray[0])
-				* (shielddiam) * (shielddiam));
+				* (width + 1) * (width + 1));
 
 		Orbit->WorkFrame = 0;
 		Orbit->BackFrame = 0;
@@ -2686,7 +2996,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	TopoContext = CreateContext ("Plangen.TopoContext");
 	OldContext = SetContext (TopoContext);
 	
-	planet_orbit_init (width, height, !ForIP);
+	planet_orbit_init (width, height, !ForIP, radius);
 
 	PlanDataPtr = &PlanData[pPlanetDesc->data_index & ~PLANET_SHIELDED];
 
@@ -2763,7 +3073,7 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 	}
 
 	if (!ForIP && useDosSpheres)
-	{		
+	{
 		RenderLevelMasks (Orbit->TopoMask, Orbit->lpTopoData, SurfDef);
 		SetPlanetColors (GetColorMapAddress (Orbit->sphereMap));
 		if (Orbit->TopoMask != NULL)
@@ -2967,7 +3277,23 @@ GeneratePlanetSurface (PLANET_DESC *pPlanetDesc, FRAME SurfDefFrame,
 		if ((optNebulae || use3DOSpheres) && !ForIP && !useDosSpheres)
 			Orbit->BackFrame = SaveBackFrame (radius);
 	}
+	else if (EXTENDED && PLANALGO (PlanDataPtr->Type) == GAS_GIANT_ALGO)
+	{
+		COUNT ring_radius = radius;
 
+		if (Orbit->ObjectFrame)
+			DestroyDrawable (ReleaseDrawable (Orbit->ObjectFrame));
+
+		if (!ForIP && use3DOSpheres)
+			ring_radius = (RES_SCALE (63) >> 1);
+			// Measured planet size from plshade-000.png
+
+		if (!ForIP && useDosSpheres)
+			ring_radius = (GetFrameWidth (Orbit->SphereFrame) >> 1);
+
+		Orbit->ObjectFrame = CreateRingMask (pPlanetDesc->rand_seed,
+				PlanetInfo, loc, VIEWING_TILT, ring_radius);
+	}
 	
 	PlanetRotation = (1 - 2 * (PlanetInfo->AxialTilt & 1));
 

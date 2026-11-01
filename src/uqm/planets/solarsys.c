@@ -1119,23 +1119,59 @@ GenerateTexturedPlanets (void)
 				break;
 			case 4: /* JUPITER */
 				maskanim = IP_JUPITER_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 24;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 1120;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 3;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 98;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -143;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 520L / 100;
 				break;
 			case 5: /* SATURN */
 				maskanim = IP_SATURN_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 13;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 945;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 27;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 102;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -197;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 952L / 100;
 				break;
 			case 6: /* URANUS */
 				maskanim = IP_URANUS_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 21;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 411;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 98;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 172;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -217;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 1916L / 100;
 				break;
 			case 7: /* NEPTUNE */
 				maskanim = IP_NEPTUNE_MASK_ANIM;
+				pSolarSysState->SysInfo.PlanetInfo.AtmoDensity =
+					GAS_GIANT_ATMOSPHERE;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetDensity = 28;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetRadius = 396;
 				pSolarSysState->SysInfo.PlanetInfo.AxialTilt = 30;
+				pSolarSysState->SysInfo.PlanetInfo.Weather = 7;
+				pSolarSysState->SysInfo.PlanetInfo.Tectonics = 0;
 				pSolarSysState->SysInfo.PlanetInfo.RotationPeriod = 182;
+				pSolarSysState->SysInfo.PlanetInfo.SurfaceTemperature = -229;
+				pSolarSysState->SysInfo.PlanetInfo.PlanetToSunDist =
+					EARTH_RADIUS * 2999L / 100;
 				break;
 			case 8: /* PLUTO */
 				maskanim = IP_PLUTO_MASK_ANIM;
@@ -1159,6 +1195,11 @@ GenerateTexturedPlanets (void)
 					CaptureDrawable (LoadGraphic (maskanim)),
 					GENERATE_PERIMETER (PLANET_DIAMETER), PLANET_DIAMETER
 				);
+
+		if (pCurDesc->orbit.SphereFrame || pCurDesc->orbit.ObjectFrame)
+		{	// Maybe this will fix the memory leak?
+			DestroyOrbitStruct (&pCurDesc->orbit, PLANET_DIAMETER);
+		}
 
 		pCurDesc->orbit = pSolarSysState->Orbit;
 		PrepareNextRotationFrameForIP (pCurDesc, 0);
@@ -2475,6 +2516,12 @@ FreePlanetDesc (PLANET_DESC *pPlanetDesc, SIZE diameter)
 
 	if (pPlanetDesc->size)
 		pPlanetDesc->size = 0;
+
+	if (pPlanetDesc->orbit.ObjectFrame)
+	{
+		DestroyDrawable (ReleaseDrawable (pPlanetDesc->orbit.ObjectFrame));
+		pPlanetDesc->orbit.ObjectFrame = 0;
+	}
 
 	if (pPlanetDesc->orbit.lpTopoData)
 		DestroyOrbitStruct (&pPlanetDesc->orbit, diameter);

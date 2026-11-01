@@ -96,7 +96,8 @@ DrawCurrentPlanetSphere (void)
 	{
 		s.frame = Orbit->ObjectFrame;
 
-		if (use3DOSpheres)
+		if (use3DOSpheres && (pSolarSysState->pOrbitalDesc->data_index
+				& PLANET_SHIELDED))
 			Draw3DOShield (s);
 		else
 			DrawStamp (&s);
@@ -131,7 +132,8 @@ DrawPlanetSphere (int x, int y, bool back)
 	if (Orbit->ObjectFrame)
 	{
 		s.frame = Orbit->ObjectFrame;
-		if (use3DOSpheres)
+		if (use3DOSpheres && (pSolarSysState->pOrbitalDesc->data_index
+				& PLANET_SHIELDED))
 			Draw3DOShield (s);
 		else
 			DrawStamp (&s);
@@ -407,7 +409,10 @@ ZoomInPlanetSphere (void)
 		if (i > 0)
 			RepairBackRect (&repairRect);
 
-		oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
+		if (useDosSpheres)
+			oldMode = SetGraphicScaleMode (TFB_SCALE_BILINEAR);
+		else
+			oldMode = SetGraphicScaleMode (TFB_SCALE_NEAREST);
 		oldScale = SetGraphicScale ((int)(base * scale + 0.5));
 		DrawPlanetSphere (pt.x, pt.y, FALSE);
 		SetGraphicScale (oldScale);

@@ -130,6 +130,19 @@ void draw_visual_menu (void)
 
 	ImGui_SameLine ();
 
+	if (ImGui_Button (ImMakeID (ImStr (GEN_SETT_STR_BASE + 5), // Reset
+		"NebulaeVolume")))
+	{
+		optNebulaeVolume = 16;
+		res_PutInteger ("mm.nebulaevol", optNebulaeVolume);
+		mmcfg_changed = true;
+
+		if (optNebulae && playerInSolarSystem ())
+			RedrawSolarSys = TRUE;
+	}
+
+	ImGui_SameLine ();
+
 	ImGui_SetNextItemWidth (ImGui_CalcItemWidth () -
 			(ImGui_GetItemRectSize ().x + style->ItemSpacing.x));
 
