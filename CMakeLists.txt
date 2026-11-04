@@ -64,11 +64,7 @@ endif ()
 
 # Find/Fetch the dependencies
 
-if (IS_LINUX)
-	find_package (PkgConfig REQUIRED)
-else ()
-	find_package (PkgConfig QUIET)
-endif ()
+find_package (PkgConfig QUIET)
 
 if (PkgConfig_FOUND)
 	message (STATUS "Found pkg-config: ${PkgConfig_VERSION}")
@@ -76,27 +72,10 @@ else ()
 	message (STATUS "pkg-config not found")
 endif ()
 
-# Don't use system SDL2 for Linux because of sdl2compat instabilities
-if (NOT IS_LINUX)
-	if (PkgConfig_FOUND)
-		pkg_check_modules (SDL2 QUIET sdl2)
-	else ()
-		find_package (SDL2 QUIET)
-	endif ()
-endif ()
-
-if (IS_LINUX)
-	# Video drivers
-	pkg_check_modules (X11 REQUIRED x11)
-	message (STATUS "x11 found")
-	pkg_check_modules (WAYLAND REQUIRED wayland-client)
-	message (STATUS "Wayland found")
-
-	# Audio drivers
-	pkg_check_modules (ALSA REQUIRED alsa)
-	message (STATUS "ALSA found")
-	pkg_check_modules (PULSE REQUIRED libpulse)
-	message (STATUS "Pulse Audio found")
+if (PkgConfig_FOUND)
+	pkg_check_modules (SDL2 QUIET sdl2)
+else ()
+	find_package (SDL2 QUIET)
 endif ()
 
 if (SDL2_FOUND)
