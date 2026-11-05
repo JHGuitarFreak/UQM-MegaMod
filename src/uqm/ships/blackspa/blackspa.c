@@ -22,15 +22,14 @@
 
  // Core characteristics
 #define MAX_CREW 30
-#define ACTUAL_CREW 13
 #define MAX_ENERGY 10
 #define ENERGY_REGENERATION 1
 #define ENERGY_WAIT 10
-#define MAX_THRUST 40
+#define MAX_THRUST 48
 #define THRUST_INCREMENT 12
 #define THRUST_WAIT 1
 #define TURN_WAIT 1
-#define SHIP_MASS 6
+#define SHIP_MASS 5
 
 // Forward gun
 #define WEAPON_ENERGY_COST 2
@@ -62,10 +61,10 @@
 static RACE_DESC blackspa_desc =
 {
 	{ /* SHIP_INFO */
-		"bss",
+		"squadron",
 		FIRES_FORE | FIRES_AFT | SEEKING_SPECIAL,
 		21, /* Super Melee cost */
-		ACTUAL_CREW, MAX_CREW,
+		MAX_CREW, MAX_CREW,
 		MAX_ENERGY, MAX_ENERGY,
 		BLACKSPA_RACE_STRINGS,
 		BLACKSPA_ICON_MASK_PMAP_ANIM,
@@ -247,8 +246,7 @@ initialize_prm_missile (ELEMENT *ShipPtr)
 	MissileBlock.cx = ShipPtr->next.location.x;
 	MissileBlock.cy = ShipPtr->next.location.y;
 	MissileBlock.farray = StarShipPtr->RaceDescPtr->ship_data.special;
-	MissileBlock.face = MissileBlock.index = NORMALIZE_FACING (StarShipPtr->ShipFacing
-		+ ANGLE_TO_FACING (HALF_CIRCLE));
+	MissileBlock.face = MissileBlock.index = StarShipPtr->ShipFacing;
 	MissileBlock.sender = ShipPtr->playerNr;
 	MissileBlock.flags = IGNORE_SIMILAR;
 	MissileBlock.pixoffs = BLACKSPA_FORWARD_OFFSET;
