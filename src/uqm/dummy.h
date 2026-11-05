@@ -21,6 +21,7 @@
 
 #include "ships/androsyn/androsyn.h"
 #include "ships/arilou/arilou.h"
+#include "ships/blackspa/blackspa.h"
 #include "ships/blackurq/blackurq.h"
 #include "ships/chenjesu/chenjesu.h"
 #include "ships/chmmr/chmmr.h"

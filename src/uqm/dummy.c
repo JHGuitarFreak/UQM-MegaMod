@@ -70,7 +70,9 @@ typedef enum
 
 	SAMATRA_CODE_RES,
 	SIS_CODE_RES,
-	PROBE_CODE_RES
+	PROBE_CODE_RES,
+
+	BLACKSPA_CODE_RES,
 } ShipCodeRes;
 
 typedef RACE_DESC *(*RaceDescInitFunc)(void);
@@ -108,6 +110,7 @@ CodeResToInitFunc(ShipCodeRes res)
 		case SAMATRA_CODE_RES: return &init_samatra;
 		case SIS_CODE_RES: return &init_sis;
 		case PROBE_CODE_RES: return &init_probe;
+		case BLACKSPA_CODE_RES: return &init_blackspa;
 		default:
 		{
 			log_add (log_Warning, "Unknown SHIP identifier '%d'", res);

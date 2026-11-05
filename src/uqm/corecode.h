@@ -19,6 +19,7 @@
 
 #include "ships/androsyn/icode.h"
 #include "ships/arilou/icode.h"
+#include "ships/blackspa/icode.h"
 #include "ships/blackurq/icode.h"
 #include "ships/chenjesu/icode.h"
 #include "ships/chmmr/icode.h"

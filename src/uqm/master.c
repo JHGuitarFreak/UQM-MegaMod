@@ -28,6 +28,19 @@
 QUEUE master_q;
 static int master_ship_seed = 0;
 
+static BOOLEAN
+MasterShipSort (SPECIES_ID builtID, const char *newName,
+		SPECIES_ID curID, const char *curName)
+{
+	BOOLEAN newExtra = (builtID > LAST_MAIN_ROSTER_ID);
+	BOOLEAN curExtra = (curID > LAST_MAIN_ROSTER_ID);
+
+	if (newExtra != curExtra)
+		return curExtra;
+
+	return strcmp (newName, curName) < 0;
+}
+
 void
 LoadMasterShipList (void (* YieldProcessing)(void))
 {
@@ -39,6 +52,7 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 	{
 		HMASTERSHIP hBuiltShip;
 		char *builtName;
+		SPECIES_ID builtID;
 		HMASTERSHIP hStarShip, hNextShip;
 		MASTER_SHIP_INFO *BuiltPtr;
 		RACE_DESC *RDPtr;
@@ -69,6 +83,7 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 
 		builtName = GetStringAddress (SetAbsStringTableIndex (
 				BuiltPtr->ShipInfo.race_strings, 2));
+		builtID = BuiltPtr->SpeciesID;
 		UnlockMasterShip (&master_q, hBuiltShip);
 
 		// Insert the ship in the master queue in the right location
@@ -77,15 +92,17 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 				hStarShip; hStarShip = hNextShip)
 		{
 			char *curName;
+			SPECIES_ID curID;
 			MASTER_SHIP_INFO *MasterPtr;
 
 			MasterPtr = LockMasterShip (&master_q, hStarShip);
 			hNextShip = _GetSuccLink (MasterPtr);
 			curName = GetStringAddress (SetAbsStringTableIndex (
 					MasterPtr->ShipInfo.race_strings, 2));
+			curID = MasterPtr->SpeciesID;
 			UnlockMasterShip (&master_q, hStarShip);
 
-			if (strcmp (builtName, curName) < 0)
+			if (MasterShipSort (builtID, builtName, curID, curName))
 				break;
 		}
 		InsertQueue (&master_q, hBuiltShip, hStarShip);

@@ -232,6 +232,9 @@
     <Filter Include="Source Files\uqm\ships\arilou">
       <UniqueIdentifier>{a5e1e5f5-567a-47bb-8728-82850c956940}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\uqm\ships\blackspa">
+      <UniqueIdentifier>{dacaee59-2865-4e8d-9e79-463b4889890b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\uqm\ships\blackurq">
       <UniqueIdentifier>{a6ab6188-cb43-4002-9642-a73bb7ae2650}</UniqueIdentifier>
     </Filter>
@@ -1136,6 +1139,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\uqm\ships\arilou\arilou.c">
       <Filter>Source Files\uqm\ships\arilou</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\uqm\ships\blackspa\blackspa.c">
+      <Filter>Source Files\uqm\ships\blackspa</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\uqm\ships\blackurq\blackurq.c">
       <Filter>Source Files\uqm\ships\blackurq</Filter>
@@ -2326,6 +2332,15 @@
     </ClInclude>
     <ClInclude Include="..\..\src\uqm\ships\arilou\resinst.h">
       <Filter>Source Files\uqm\ships\arilou</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\blackspa\blackspa.h">
+      <Filter>Source Files\uqm\ships\blackspa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\blackspa\icode.h">
+      <Filter>Source Files\uqm\ships\blackspa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\blackspa\resinst.h">
+      <Filter>Source Files\uqm\ships\blackspa</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\uqm\ships\blackurq\blackurq.h">
       <Filter>Source Files\uqm\ships\blackurq</Filter>
