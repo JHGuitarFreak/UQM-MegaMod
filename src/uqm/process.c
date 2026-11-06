@@ -162,7 +162,13 @@ PreProcess (ELEMENT *ElementPtr)
 				InitIntersectFrame (ElementPtr);
 		}
 
-		if (!(state_flags & IGNORE_VELOCITY))
+		// JMS: Was originally "if (!(state_flags & IGNORE_VELOCITY)".
+		// Added the ugly extra clause to enable moving Baul gas clouds.
+		// This is ugly hack and makes the Baul gas attracted to planet
+		// gravity. Oh well...
+		if (!(state_flags & IGNORE_VELOCITY)
+				|| ((state_flags & IGNORE_VELOCITY)
+					&& (state_flags & GASSY_SUBSTANCE)))
 		{
 			SIZE delta_x, delta_y;
 

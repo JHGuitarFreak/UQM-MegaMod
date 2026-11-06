@@ -76,6 +76,18 @@ typedef UWORD STATUS_FLAGS;
 #define SHOFIXTI_EXPLOSION	   (1 << 10)
 #define ANDROSYN_COMET_TOGGLE  (1 << 11)
 
+// JMS: Damage flags for a ship
+#define SHIP_IS_NOT_DAMAGED		(1 << 0)
+#define DAMAGE_GAUGE_ENERGY		(1 << 1)
+#define DAMAGE_GAUGE_CREW		(1 << 2)
+#define DAMAGE_GAUGE_CAPTAIN	(1 << 3)
+#define DAMAGE_THRUST			(1 << 4)
+#define DAMAGE_TEMP_WEAPON		(1 << 5)
+#define DAMAGE_TEMP_SPECIAL		(1 << 6)
+#define DAMAGE_TEMP_TURN		(1 << 7)
+#define DAMAGE_8				(1 << 8)
+#define DAMAGE_9				(1 << 9)
+
 /* These track the old resource package orderings for the ship resource indices */
 typedef enum
 {
@@ -108,7 +120,11 @@ typedef enum
 	LAST_MAIN_ROSTER_ID = MMRNMHRM_ID,
 
 	BLACKSPA_ID,
-	LAST_MELEE_ID = BLACKSPA_ID,
+	BAUL_ID,
+	FOONFOON_ID,
+	LURG_ID,
+	EXPLORER_ID,
+	LAST_MELEE_ID = EXPLORER_ID,
 
 	SIS_SHIP_ID,
 	SA_MATRA_ID,
@@ -189,6 +205,9 @@ typedef struct
 	STRING race_strings;
 	FRAME icons;
 	FRAME melee_icon;
+
+	// JMS: Damage Flags
+	UWORD damage_flags;
 } SHIP_INFO;
 
 typedef struct
@@ -283,6 +302,8 @@ struct STARSHIP
 			// In battle: frames left before special can be used
 	BYTE energy_counter;
 			// In battle: frames left before energy regeneration
+	BYTE auxiliary_counter;
+			// In battle: frames left before auxiliary can be used
 
 	BYTE ship_input_state;
 	STATUS_FLAGS cur_status_flags;

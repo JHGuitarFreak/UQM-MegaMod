@@ -31,6 +31,7 @@
 #include "intel.h"
 #include "igfxres.h"
 #include "nameref.h"
+#include "libs/log.h"
 
 void
 spawn_planet (void)
@@ -238,6 +239,9 @@ spawn_asteroid (ELEMENT *ElementPtr)
 	}
 }
 
+// change this to 1 to enable instrument damage
+#define INSTRUMENT_DAMAGE_IS_ENABLED 0
+
 void
 do_damage (ELEMENT *ElementPtr, SIZE damage)
 {
@@ -249,6 +253,10 @@ do_damage (ELEMENT *ElementPtr, SIZE damage)
 	}
 	if (ElementPtr->state_flags & PLAYER_SHIP)
 	{
+		// JMS: Calculate damage to ship instruments
+		if (INSTRUMENT_DAMAGE_IS_ENABLED)
+			do_instrument_damage (ElementPtr, damage);
+
 		if (!DeltaCrew (ElementPtr, -damage))
 		{
 			ElementPtr->life_span = 0;
@@ -272,6 +280,71 @@ do_damage (ELEMENT *ElementPtr, SIZE damage)
 		BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02)
 #define CREW_COLOR_HIGH_INTENSITY \
 		BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1E, 0x0A), 0x0A)
+
+// JMS: Apply instrument damage to ship
+void
+do_instrument_damage (ELEMENT *ElementPtr, SIZE damage)
+{
+	// Make the necessary pointers
+	STARSHIP *StarShipPtr;
+	SHIP_INFO *ShipInfoPtr;
+	COUNT damage_probability;
+	BOOLEAN hit_damages_instruments;
+	GetElementStarShip (ElementPtr, &StarShipPtr);
+	ShipInfoPtr = &StarShipPtr->RaceDescPtr->ship_info;
+
+	// Calculate instrument damage probability based on a random number multiplied by the amount of crew damage
+#define INSTRUMENT_DAMAGE_THRESHOLD 1000 
+	damage_probability = (COUNT)TFB_Random () % 100;
+	hit_damages_instruments = (damage_probability * (10 + damage) > 1000);
+	log_add (log_Info, "Damage %d\n", damage_probability * (10 + damage));
+
+	// Apply instrument damages if damage probability was big enough
+	if (hit_damages_instruments)
+	{
+		COUNT damagecounter = (COUNT)TFB_Random () % 3;
+		log_add (log_Info, "Damagecounter %d\n", damagecounter);
+		if (damagecounter == 0)
+			ShipInfoPtr->damage_flags |= DAMAGE_GAUGE_ENERGY;
+		if (damagecounter == 1)
+			ShipInfoPtr->damage_flags |= DAMAGE_GAUGE_CREW;
+		if (damagecounter == 2)
+			do_engine_damage (ElementPtr);
+	}
+}
+
+// JMS: Apply engine damage to ship (Copied from VUX limpet code)
+void
+do_engine_damage (ELEMENT *ElementPtr)
+{
+	STARSHIP *StarShipPtr2;
+	SHIP_INFO *ShipInfoPtr2;
+	GetElementStarShip (ElementPtr, &StarShipPtr2);
+	ShipInfoPtr2 = &StarShipPtr2->RaceDescPtr->ship_info;
+
+	if (!(ShipInfoPtr2->damage_flags & DAMAGE_THRUST))
+	{
+		RACE_DESC *RDPtr;
+
+		GetElementStarShip (ElementPtr, &StarShipPtr2);
+		RDPtr = StarShipPtr2->RaceDescPtr;
+#define MIN_THRUST_INCREMENT DISPLAY_TO_WORLD (1)
+		if (RDPtr->characteristics.thrust_increment <= MIN_THRUST_INCREMENT)
+		{
+			RDPtr->characteristics.max_thrust =
+				RDPtr->characteristics.thrust_increment << 1;
+		}
+		else
+		{
+			COUNT num_thrusts;
+			num_thrusts = RDPtr->characteristics.max_thrust / RDPtr->characteristics.thrust_increment;
+			--RDPtr->characteristics.thrust_increment;
+			RDPtr->characteristics.max_thrust = RDPtr->characteristics.thrust_increment * num_thrusts;
+		}
+		RDPtr->cyborg_control.ManeuverabilityIndex = 0;
+		ShipInfoPtr2->damage_flags |= DAMAGE_THRUST;
+	}
+}
 void
 crew_preprocess (ELEMENT *ElementPtr)
 {

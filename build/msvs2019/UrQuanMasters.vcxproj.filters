@@ -235,6 +235,18 @@
     <Filter Include="Source Files\uqm\ships\blackspa">
       <UniqueIdentifier>{dacaee59-2865-4e8d-9e79-463b4889890b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\uqm\ships\baul">
+      <UniqueIdentifier>{83e7980a-23d8-4d40-a333-e8682ab192ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\uqm\ships\foonfoon">
+      <UniqueIdentifier>{9f5c0ad8-59c7-444f-a73e-f274ab810302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\uqm\ships\lurg">
+      <UniqueIdentifier>{a76030bf-9d2c-4aaa-b282-ded0e6627a1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\uqm\ships\explorer">
+      <UniqueIdentifier>{484a7ae5-99cb-4421-bc29-90501f6b1db0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\uqm\ships\blackurq">
       <UniqueIdentifier>{a6ab6188-cb43-4002-9642-a73bb7ae2650}</UniqueIdentifier>
     </Filter>
@@ -1140,6 +1152,9 @@
     <ClCompile Include="..\..\src\uqm\ships\arilou\arilou.c">
       <Filter>Source Files\uqm\ships\arilou</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\uqm\ships\baul\baul.c">
+      <Filter>Source Files\uqm\ships\baul</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\uqm\ships\blackspa\blackspa.c">
       <Filter>Source Files\uqm\ships\blackspa</Filter>
     </ClCompile>
@@ -1155,6 +1170,12 @@
     <ClCompile Include="..\..\src\uqm\ships\druuge\druuge.c">
       <Filter>Source Files\uqm\ships\druuge</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\uqm\ships\explorer\explorer.c">
+      <Filter>Source Files\uqm\ships\explorer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\uqm\ships\foonfoon\foonfoon.c">
+      <Filter>Source Files\uqm\ships\foonfoon</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\uqm\ships\human\human.c">
       <Filter>Source Files\uqm\ships\human</Filter>
     </ClCompile>
@@ -1163,6 +1184,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\uqm\ships\lastbat\lastbat.c">
       <Filter>Source Files\uqm\ships\lastbat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\uqm\ships\lurg\lurg.c">
+      <Filter>Source Files\uqm\ships\lurg</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\uqm\ships\melnorme\melnorme.c">
       <Filter>Source Files\uqm\ships\melnorme</Filter>
@@ -2333,6 +2357,15 @@
     <ClInclude Include="..\..\src\uqm\ships\arilou\resinst.h">
       <Filter>Source Files\uqm\ships\arilou</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\baul\baul.h">
+      <Filter>Source Files\uqm\ships\baul</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\baul\icode.h">
+      <Filter>Source Files\uqm\ships\baul</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\baul\resinst.h">
+      <Filter>Source Files\uqm\ships\baul</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\uqm\ships\blackspa\blackspa.h">
       <Filter>Source Files\uqm\ships\blackspa</Filter>
     </ClInclude>
@@ -2378,6 +2411,24 @@
     <ClInclude Include="..\..\src\uqm\ships\druuge\resinst.h">
       <Filter>Source Files\uqm\ships\druuge</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\explorer\explorer.h">
+      <Filter>Source Files\uqm\ships\explorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\explorer\icode.h">
+      <Filter>Source Files\uqm\ships\explorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\explorer\resinst.h">
+      <Filter>Source Files\uqm\ships\explorer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\foonfoon\foonfoon.h">
+      <Filter>Source Files\uqm\ships\foonfoon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\foonfoon\icode.h">
+      <Filter>Source Files\uqm\ships\foonfoon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\foonfoon\resinst.h">
+      <Filter>Source Files\uqm\ships\foonfoon</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\uqm\ships\human\human.h">
       <Filter>Source Files\uqm\ships\human</Filter>
     </ClInclude>
@@ -2407,6 +2458,15 @@
     </ClInclude>
     <ClInclude Include="..\..\src\uqm\ships\melnorme\icode.h">
       <Filter>Source Files\uqm\ships\melnorme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\lurg\lurg.h">
+      <Filter>Source Files\uqm\ships\lurg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\lurg\icode.h">
+      <Filter>Source Files\uqm\ships\lurg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\uqm\ships\lurg\resinst.h">
+      <Filter>Source Files\uqm\ships\lurg</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\uqm\ships\melnorme\melnorme.h">
       <Filter>Source Files\uqm\ships\melnorme</Filter>

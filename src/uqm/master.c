@@ -38,6 +38,9 @@ MasterShipSort (SPECIES_ID builtID, const char *newName,
 	if (newExtra != curExtra)
 		return curExtra;
 
+	if (newExtra)
+		return builtID < curID;
+
 	return strcmp (newName, curName) < 0;
 }
 

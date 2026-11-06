@@ -34,7 +34,10 @@ extern "C" {
 typedef HLINK HELEMENT;
 
 // Bits for ELEMENT_FLAGS:
-// bits 0 and 1 are now available
+// bit 0 is now available
+#define GASSY_SUBSTANCE (1 << 1)
+		// JMS: This is used for Baul gas and spray.
+
 #define PLAYER_SHIP (1 << 2)
 		// The ELEMENT is a player controlable ship, and not some bullet,
 		// crew, asteroid, fighter, etc. This does not mean that the ship
@@ -156,6 +159,7 @@ struct element
 	BYTE colorCycleIndex;
 			// Melee: used to cycle ion trails and warp shadows, and
 			//        to cycle the ship color when fleeing.
+	BYTE weapon_element_index; // Used by etc. Baul ship to remember which of it's gas clouds is which.
 
 	VELOCITY_DESC velocity;
 	INTERSECT_CONTROL IntersectControl;
@@ -220,6 +224,8 @@ extern void RemoveElement (HLINK hLink);
 extern void spawn_planet (void);
 extern void spawn_asteroid (ELEMENT *ElementPtr);
 extern void do_damage (ELEMENT *ElementPtr, SIZE damage);
+extern void do_instrument_damage (ELEMENT *ElementPtr, SIZE damage); // JMS
+extern void do_engine_damage (ELEMENT *ElementPtr); // JMS
 extern void crew_preprocess (ELEMENT *ElementPtr);
 extern void crew_collision (ELEMENT *ElementPtr0, POINT *pPt0,
 		ELEMENT *ElementPtr1, POINT *pPt1);

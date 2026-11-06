@@ -188,6 +188,7 @@ weapon_collision (ELEMENT *WeaponElementPtr, POINT *pWPt,
 			COUNT angle, num_blast_frames;
 			ELEMENT *BlastElementPtr;
 			extern FRAME blast[];
+			STARSHIP *StarShipPtr;
 
 			PutElement (hBlastElement);
 			LockElement (hBlastElement, &BlastElementPtr);
@@ -214,7 +215,11 @@ weapon_collision (ELEMENT *WeaponElementPtr, POINT *pWPt,
 
 			num_blast_frames =
 					GetFrameCount (WeaponElementPtr->next.image.frame);
-			if (num_blast_frames <= ANGLE_TO_FACING (FULL_CIRCLE))
+
+			GetElementStarShip (WeaponElementPtr, &StarShipPtr);
+			if (num_blast_frames <= ANGLE_TO_FACING (FULL_CIRCLE)
+					|| (StarShipPtr && StarShipPtr->SpeciesID == FOONFOON_ID)
+					|| WeaponElementPtr->blast_offset == RES_SCALE (50)) // Hack to make dying foon-foon's shots work.
 			{
 				BlastElementPtr->life_span = 2;
 				BlastElementPtr->current.image.farray = blast;

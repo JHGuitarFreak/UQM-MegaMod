@@ -760,6 +760,9 @@ ship_death (ELEMENT *ShipPtr)
 static void
 cycle_ion_trail (ELEMENT *ElementPtr)
 {
+	STARSHIP *StarShipPtr;
+	SHIP_INFO *ShipInfoPtr;
+
 	static const Color colorTab[] =
 	{
 		BUILD_COLOR (MAKE_RGB15_INIT (0x1F, 0x15, 0x00), 0x7a),
@@ -775,7 +778,30 @@ cycle_ion_trail (ELEMENT *ElementPtr)
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0F, 0x00, 0x00), 0x2e),
 		BUILD_COLOR (MAKE_RGB15_INIT (0x0B, 0x00, 0x00), 0x2f),
 	};
+
+	// JMS: Color table for damaged thrusters
+	static const Color colorTab2[] =
+	{
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x15, 0x1F), 0x7a),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x11, 0x1F), 0x7b),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x0E, 0x1F), 0x7c),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x0A, 0x1F), 0x7d),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x07, 0x1F), 0x7e),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x03, 0x1F), 0x7f),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x1F), 0x2a),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x1B), 0x2b),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x17), 0x2c),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x13), 0x2d),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0F), 0x2e),
+		BUILD_COLOR (MAKE_RGB15_INIT (0x00, 0x00, 0x0B), 0x2f),
+	};
+
 	const size_t colorTabCount = ARRAY_SIZE (colorTab);
+
+	// JMS: Get the pointers to element's owner ship.
+	// They are needed to see if the ship's thrust is damaged
+	GetElementStarShip (ElementPtr, &StarShipPtr);
+	ShipInfoPtr = &StarShipPtr->RaceDescPtr->ship_info;
 			
 	assert (!(ElementPtr->state_flags & PLAYER_SHIP));
 
@@ -785,8 +811,17 @@ cycle_ion_trail (ELEMENT *ElementPtr)
 		ElementPtr->life_span = ElementPtr->thrust_wait;
 				// Reset the life span.
 		
-		SetPrimColor (&DisplayArray[ElementPtr->PrimIndex],
-				colorTab[ElementPtr->colorCycleIndex]);
+		// JMS: Damaged thruster emits differently colored particles
+		if (ShipInfoPtr->damage_flags & DAMAGE_THRUST)
+		{
+			SetPrimColor (&DisplayArray[ElementPtr->PrimIndex],
+					colorTab2[ElementPtr->colorCycleIndex]);
+		}
+		else
+		{
+			SetPrimColor (&DisplayArray[ElementPtr->PrimIndex],
+					colorTab[ElementPtr->colorCycleIndex]);
+		}
 
 		ElementPtr->state_flags &= ~DISAPPEARING;
 		ElementPtr->state_flags |= CHANGING;

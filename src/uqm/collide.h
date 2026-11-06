@@ -31,12 +31,21 @@ extern "C" {
 #define SKIP_COLLISION (NONSOLID | DISAPPEARING)
 #define CollidingElement(e) \
 		(!((e)->state_flags & SKIP_COLLISION))
+
+// JMS: Added the clauses with GASSY_SUBSTANCE. Mostly used with Baul Punisher.
+// XXX Ugly hack: the lines with "mass_points == 10" makes Chmmr's zapsats
+// again hittable by all weapons (also other than baul gas.)
 #define CollisionPossible(e0,e1) \
 		(CollidingElement (e0) \
 		&& (!(((e1)->state_flags & (e0)->state_flags) & COLLISION) \
 		&& ((!(((e1)->state_flags & (e0)->state_flags) & IGNORE_SIMILAR) \
 		|| (e1)->pParent != (e0)->pParent)) \
-		&& ((e1)->mass_points || (e0)->mass_points)))
+		&& ((e1)->mass_points || (e0)->mass_points) \
+		&& ((((e1)->state_flags & GASSY_SUBSTANCE) == ((e0)->state_flags & GASSY_SUBSTANCE)) \
+			||(!((e1)->state_flags & GASSY_SUBSTANCE) && ((e0)->state_flags & GASSY_SUBSTANCE) && ((e0)->mass_points == 10)) \
+			||(!((e0)->state_flags & GASSY_SUBSTANCE) && ((e1)->state_flags & GASSY_SUBSTANCE) && ((e1)->mass_points == 10)) \
+			||(((e1)->state_flags & (GASSY_SUBSTANCE | IGNORE_VELOCITY)) && ((e0)->state_flags & PLAYER_SHIP)) \
+			||(((e0)->state_flags & (GASSY_SUBSTANCE | IGNORE_VELOCITY)) && ((e1)->state_flags & PLAYER_SHIP))) ))
 
 #define InitIntersectStartPoint(eptr) \
 { \

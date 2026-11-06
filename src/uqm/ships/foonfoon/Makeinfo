@@ -1,0 +1,2 @@
+uqm_CFILES="foonfoon.c"
+uqm_HFILES="icode.h resinst.h foonfoon.h"
