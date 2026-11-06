@@ -1003,7 +1003,7 @@ foonfoon_postprocess (ELEMENT *ElementPtr)
 		}
 		
 		// Turning rate & max speed are normal when not in dervish mode.
-		RDPtr->characteristics.max_thrust	= basic_max_thrust[(IS_HD ? NUM_SIDES : 0) + ElementPtr->playerNr];
+		RDPtr->characteristics.max_thrust	= basic_max_thrust[RES_BOOL (0, NUM_SIDES) + ElementPtr->playerNr];
 		RDPtr->characteristics.thrust_wait	= basic_thrust_wait[ElementPtr->playerNr];
 		RDPtr->characteristics.turn_wait	= basic_turn_wait[ElementPtr->playerNr];
 		StarShipPtr->RaceDescPtr->ship_info.damage_flags &= ~(DAMAGE_THRUST);

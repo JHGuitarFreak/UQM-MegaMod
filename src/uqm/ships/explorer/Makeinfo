@@ -1,0 +1,2 @@
+uqm_CFILES="explorer.c"
+uqm_HFILES="icode.h resinst.h explorer.h"
