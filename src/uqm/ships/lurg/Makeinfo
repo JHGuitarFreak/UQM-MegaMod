@@ -1,0 +1,2 @@
+uqm_CFILES="lurg.c"
+uqm_HFILES="icode.h resinst.h lurg.h"
