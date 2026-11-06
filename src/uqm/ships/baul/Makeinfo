@@ -1,0 +1,2 @@
+uqm_CFILES="baul.c"
+uqm_HFILES="icode.h resinst.h baul.h"
