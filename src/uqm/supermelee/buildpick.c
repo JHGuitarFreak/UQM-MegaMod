@@ -28,14 +28,166 @@
 
 static FRAME BuildPickFrame;
 
-static RECT BuildPickRects[NUM_MELEE_SHIPS];
+#define NUM_PICK_SLOTS (NUM_PICK_COLS * NUM_PICK_ROWS)
+#define NUM_PICK_PAGES_ACTUAL \
+		((NUM_MELEE_SHIPS + NUM_PICK_SLOTS - 1) / NUM_PICK_SLOTS)
+#define NUM_PICK_PAGES NUM_PICK_PAGES_ACTUAL
+
+static RECT BuildPickRects[NUM_PICK_SLOTS];
+
+#define PICK_PAGE(a) (a / NUM_PICK_SLOTS)
+#define PICK_PAGE_START(a) (a * NUM_PICK_SLOTS)
+#define PICK_SLOT(a) (a % NUM_PICK_SLOTS)
+
+static inline COUNT
+PickPageStop (COUNT page)
+{
+	COUNT stop = PICK_PAGE_START (page) + NUM_PICK_SLOTS;
+
+	return (stop > NUM_MELEE_SHIPS) ? NUM_MELEE_SHIPS : stop;
+}
+
+static MeleeShip
+PickStep (MeleeShip ship, int dx, int dy, int override)
+{
+	COUNT page = PICK_PAGE (ship);
+	COUNT slot = PICK_SLOT (ship);
+	COUNT row = slot / NUM_PICK_COLS;
+	COUNT col = slot % NUM_PICK_COLS;
+	COUNT next;
+
+	if (override != 0)
+	{
+		if (override == 1)
+			page = 0;
+		else if (override == 2)
+			page = 1;
+
+		slot = 0;
+		col = 0;
+		row = 0;
+	}
+
+	if (dx)
+	{	// Horizontal wrap
+		col += dx;
+
+		if (col < 0 || col >= NUM_PICK_COLS)
+		{
+			COUNT page_var, col_var;
+
+			if (dx > 0)
+			{
+				page_var = 1;
+				col_var = 0;
+			}
+			else
+			{
+				page_var = NUM_PICK_PAGES - 1;
+				col_var = NUM_PICK_COLS - 1;
+			}
+
+			page = (page + page_var) % NUM_PICK_PAGES;
+			col = col_var;
+		}
+		else
+		{
+			COUNT next_slot = PICK_PAGE_START (page)
+					+ (slot / NUM_PICK_COLS) * NUM_PICK_COLS + col;
+
+			if (next_slot >= NUM_MELEE_SHIPS)
+			{
+				page = (page + 1) % NUM_PICK_PAGES;
+				col = 0;
+			}
+		}
+	}
+	else
+	{	// Vertical wrap
+		row = (row + dy + NUM_PICK_ROWS) % NUM_PICK_ROWS;
+	}
+
+	next = PICK_PAGE_START (page) + row * NUM_PICK_COLS + col;
+
+	if (next >= NUM_MELEE_SHIPS)
+		next = NUM_MELEE_SHIPS - 1;
+
+	return (MeleeShip)next;
+}
+
+static void
+PickSlotOrigin (COUNT slot, POINT *pt)
+{
+	pt->x = RES_SCALE (20) + (slot % NUM_PICK_COLS) * RES_SCALE (18);
+	pt->y = RES_SCALE (5) + (slot / NUM_PICK_COLS) * RES_SCALE (18);
+}
+
+static void
+DrawPickPageIndicator (COUNT page)
+{
+	RECT r, pick_r;
+	Color oldColor;
+	COORD pick_center;
+	COORD indicator_width = RES_SCALE (16);
+	COORD indicator_space = RES_SCALE (8);
+
+	oldColor = SetContextForeGroundColor (BUILD_SHADE_RGBA (87));
+
+	GetFrameRect (BuildPickFrame, &pick_r);
+
+	pick_center = pick_r.corner.x + (pick_r.extent.width >> 1);
+
+	r.extent.width = (indicator_width << 1) + indicator_space;
+	r.extent.height = RES_SCALE (2);
+	r.corner.x = pick_center - (r.extent.width >> 1);
+	r.corner.y = pick_r.corner.y + pick_r.extent.height - RES_SCALE (3);
+	DrawFilledRectangle (&r);
+
+	if (page == 0)
+		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
+	else
+		SetContextForeGroundColor (WIDGET_INACTIVE_COLOR);
+	r.extent.width = indicator_width;
+	DrawFilledRectangle (&r);
+
+	if (page == 1)
+		SetContextForeGroundColor (WIDGET_ACTIVE_COLOR);
+	else
+		SetContextForeGroundColor (WIDGET_INACTIVE_COLOR);
+	r.corner.x += r.extent.width + indicator_space;
+	DrawFilledRectangle (&r);
+
+	SetContextForeGroundColor (oldColor);
+}
+
+static void
+DrawPickPanel (void)
+{
+	STAMP s;
+
+	s.frame = SetAbsFrameIndex (BuildPickFrame, 0);
+	s.origin.x = 0;
+	s.origin.y = 0;
+	DrawStamp (&s);
+}
+
+static void
+DrawPickPage (MeleeShip ship)
+{
+	COUNT i;
+	COUNT page = PICK_PAGE (ship);
+
+	for (i = PICK_PAGE_START (page); i < PickPageStop (page); ++i)
+		DrawPickIcon ((MeleeShip)i, true);
+
+	DrawPickPageIndicator (page);
+}
 
 void
 BuildBuildPickFrame (void)
 {
 	STAMP s;
 	RECT  r;
-	COUNT i;
 	CONTEXT OldContext = SetContext (OffScreenContext);
 	
 	// create team building ship selection box
@@ -50,10 +202,6 @@ BuildBuildPickFrame (void)
 	SetContextFGFrame (BuildPickFrame);
 	SetFrameHot (s.frame, MAKE_HOT_SPOT (0, 0));
 	DrawStamp (&s);
-
-	for (i = 0; i < NUM_PICK_COLS * NUM_PICK_ROWS; ++i)
-		DrawPickIcon (i, true);
-
 	DrawShipPickerText (s);
 
 	SetContext (OldContext);
@@ -130,13 +278,13 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 {
 	STAMP s;
 	RECT r;
+	POINT pt;
 
 	GetFrameRect (BuildPickFrame, &r);
 
-	s.origin.x = r.corner.x + RES_SCALE (20) + (ship % NUM_PICK_COLS)
-			* RES_SCALE (18);
-	s.origin.y = r.corner.y +  RES_SCALE (5) + (ship / NUM_PICK_COLS)
-			* RES_SCALE (18);
+	PickSlotOrigin (PICK_SLOT (ship), &pt);
+	s.origin.x = r.corner.x + pt.x;
+	s.origin.y = r.corner.y + pt.y;
 
 	s.frame = GetShipIconsFromIndex (ship);
 
@@ -260,17 +408,18 @@ DrawPickFrame (MELEE_STATE *pMS)
 	s.origin.x = 0;
 	s.origin.y = 0;
 	DrawStamp (&s);
+	DrawPickPage (pMS->currentShip);
 	DrawMeleeShipStrings (pMS, pMS->currentShip);
 
 	if (optMouseInput)
 	{
 		BYTE i;
-		for (i = 0; i < NUM_PICK_COLS * NUM_PICK_ROWS; ++i)
+		for (i = 0; i < NUM_PICK_SLOTS; ++i)
 		{
-			BuildPickRects[i].corner.x = -r.corner.x + RES_SCALE (20) +
-					(i % NUM_PICK_COLS) * RES_SCALE (18);
-			BuildPickRects[i].corner.y = -r.corner.y + RES_SCALE (5) +
-					(i / NUM_PICK_COLS) * RES_SCALE (18);
+			POINT pt;
+			PickSlotOrigin (i, &pt);
+			BuildPickRects[i].corner.x = -r.corner.x + pt.x;
+			BuildPickRects[i].corner.y = -r.corner.y + pt.y;
 			BuildPickRects[i].extent.width = RES_SCALE (16);
 			BuildPickRects[i].extent.height = RES_SCALE (16);
 		}
@@ -294,7 +443,7 @@ static BOOLEAN
 DoPickShip (MELEE_STATE *pMS)
 {
 	DWORD TimeIn = GetTimeCounter ();
-	BOOLEAN select, cancel, special;
+	BOOLEAN select, cancel, special, pgup, pgdn;
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
@@ -306,11 +455,16 @@ DoPickShip (MELEE_STATE *pMS)
 	}
 
 	select = PulsedInputState.menu[KEY_MENU_SELECT] ||
-			CtxMouseClicker (BuildPickRects[pMS->currentShip]);
+			CtxMouseClicker (BuildPickRects[PICK_SLOT (pMS->currentShip)]);
 	cancel = PulsedInputState.menu[KEY_MENU_CANCEL] ||
 			PulsedInputState.menu[MOUSE_BTN_RIGHT];
 	special = PulsedInputState.menu[KEY_MENU_SPECIAL] ||
 			PulsedInputState.menu[MOUSE_BTN_MIDDLE];
+
+	pgup = PulsedInputState.menu[KEY_MENU_PAGE_UP] ||
+			PulsedInputState.menu[MOUSE_WHEEL_UP];
+	pgdn = PulsedInputState.menu[KEY_MENU_PAGE_DOWN] ||
+			PulsedInputState.menu[MOUSE_WHEEL_DOWN];
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
@@ -332,49 +486,36 @@ DoPickShip (MELEE_STATE *pMS)
 	}
 
 	{
-		MeleeShip newSelectedShip;
-
-		newSelectedShip = pMS->currentShip;
+		MeleeShip newSelectedShip = pMS->currentShip;
 
 		if (PulsedInputState.menu[KEY_MENU_LEFT])
-		{
-			if (newSelectedShip % NUM_PICK_COLS == 0)
-				newSelectedShip += NUM_PICK_COLS;
-			--newSelectedShip;
-		}
+			newSelectedShip = PickStep (newSelectedShip, -1, 0, 0);
 		else if (PulsedInputState.menu[KEY_MENU_RIGHT])
-		{
-			++newSelectedShip;
-			if (newSelectedShip % NUM_PICK_COLS == 0)
-				newSelectedShip -= NUM_PICK_COLS;
-		}
-		
+			newSelectedShip = PickStep (newSelectedShip, +1, 0, 0);
+
 		if (PulsedInputState.menu[KEY_MENU_UP])
-		{
-			if (newSelectedShip >= NUM_PICK_COLS)
-				newSelectedShip -= NUM_PICK_COLS;
-			else
-				newSelectedShip += NUM_PICK_COLS * (NUM_PICK_ROWS - 1);
-		}
+			newSelectedShip = PickStep (newSelectedShip, 0, -1, 0);
 		else if (PulsedInputState.menu[KEY_MENU_DOWN])
-		{
-			if (newSelectedShip < NUM_PICK_COLS * (NUM_PICK_ROWS - 1))
-				newSelectedShip += NUM_PICK_COLS;
-			else
-				newSelectedShip -= NUM_PICK_COLS * (NUM_PICK_ROWS - 1);
-		}
+			newSelectedShip = PickStep (newSelectedShip, 0, +1, 0);
+
+		if (pgup)
+			newSelectedShip = PickStep (newSelectedShip, 0, 0, 2);
+		else if (pgdn)
+			newSelectedShip = PickStep (newSelectedShip, 0, 0, 1);
 
 		if (SetMouseContext (SpaceContext))
 		{
-			BYTE i;
+			COUNT i;
 			int cursor = CURSOR_POINTER;
-			BYTE hovered_item = newSelectedShip;
+			MeleeShip hovered_item = newSelectedShip;
+			COUNT hoverPage = PICK_PAGE (newSelectedShip);
 
-			for (i = 0; i < NUM_MELEE_SHIPS; i++)
+			for (i = PICK_PAGE_START (hoverPage); i < PickPageStop (hoverPage);
+				++i)
 			{
-				if (MouseInRect (BuildPickRects[i]))
+				if (MouseInRect (BuildPickRects[PICK_SLOT (i)]))
 				{
-					hovered_item = i;
+					hovered_item = (MeleeShip)i;
 					cursor = CURSOR_POINTER_HILITE;
 					break;
 				}
@@ -391,8 +532,17 @@ DoPickShip (MELEE_STATE *pMS)
 
 		if (newSelectedShip != pMS->currentShip)
 		{
+			MeleeShip cur_page = PICK_PAGE (pMS->currentShip);
+			MeleeShip pick_page = PICK_PAGE (newSelectedShip);
+
 			// A new ship has been selected.
-			DrawPickIcon (pMS->currentShip, true);
+			if (pick_page == cur_page)
+				DrawPickIcon (pMS->currentShip, true);
+			else
+			{
+				DrawPickPanel ();
+				DrawPickPage (newSelectedShip);
+			}
 			pMS->currentShip = newSelectedShip;
 			DrawMeleeShipStrings (pMS, newSelectedShip);
 		}
