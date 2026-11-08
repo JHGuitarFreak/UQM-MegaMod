@@ -2011,14 +2011,14 @@ SeedUniverse (void)
 			LockElement (hHyperSpaceElement, &HyperSpaceElementPtr);
 
 			if (ANIMATED_HYPERSPACE && GET_GAME_STATE (ARILOU_SPACE_SIDE) <= 1 &&
-					STAR_COLOR (star_type) != WHITE_BODY)
+					star_color != WHITE_BODY)
 			{/* Add a color filter before the star vortex */
 				HyperSpaceElementPtr->current.image.frame = 
-							SetAbsFrameIndex (hyperstars[1], 96 + STAR_TYPE (star_type));
+						SetAbsFrameIndex (hyperstars[1], 96 + star_type);
 
 				SetPrimType (&DisplayArray[HyperSpaceElementPtr->PrimIndex], STAMPFILL_PRIM);
 				SetPrimColor (&DisplayArray[HyperSpaceElementPtr->PrimIndex],
-						GetMaskColor (STAR_COLOR (star_type)));
+						GetMaskColor (star_color));
 				SetPrimFlags (&DisplayArray[HyperSpaceElementPtr->PrimIndex], HS_STARMASK);
 
 				HyperSpaceElementPtr->state_flags =
