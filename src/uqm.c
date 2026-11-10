@@ -1284,10 +1284,6 @@ getUserConfigOptions (struct options_struct *options)
 
 	getBoolConfigValue (&options->highVisOrbits, "mm.highVisOrbits");
 	getBoolConfigValue (&options->highVisPlanets, "mm.highVisPlanets");
-
-	memset (&optDeviceArray, 0, sizeof (optDeviceArray));
-
-	memset (&optUpgradeArray , 0, sizeof (optUpgradeArray));
 }
 
 enum

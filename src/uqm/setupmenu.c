@@ -152,8 +152,6 @@ static int do_editkeys (WIDGET *self, int event);
 static int do_music (WIDGET *self, int event);
 static int do_visual (WIDGET *self, int event);
 static int do_qol (WIDGET *self, int event);
-static int do_devices (WIDGET *self, int event);
-static int do_upgrades (WIDGET *self, int event);
 static int do_editmenukeys (WIDGET *self, int event);
 static int do_savemenubinds (WIDGET *self, int event);
 static int do_cancelmenubinds (WIDGET *self, int event);
@@ -181,9 +179,9 @@ typedef int (*HANDLER)(WIDGET *, int);
 static HANDLER button_handlers[BUTTON_COUNT] = {
 	quit_main_menu, quit_sub_menu, do_graphics, do_engine,
 	do_audio, do_cheats, do_keyconfig, do_advanced, do_editkeys,
-	do_keyconfig, do_music, do_visual, do_qol, do_devices, do_upgrades,
-	do_cheats, do_editmenukeys, do_savemenubinds, do_cancelmenubinds,
-	do_loaddefmenubinds, do_deadzones, do_accessibility };
+	do_keyconfig, do_music, do_visual, do_qol, do_editmenukeys,
+	do_savemenubinds, do_cancelmenubinds, do_loaddefmenubinds, do_deadzones,
+	do_accessibility };
 
 /* These refer to uninitialized widgets, but that's OK; we'll fill
  * them in before we touch them */
@@ -291,8 +289,6 @@ static WIDGET *music_widgets[] = {
 	NULL };
 
 static WIDGET *cheat_widgets[] = {
-	(WIDGET *)(&buttons[BTN_DEVMENU        ]), // Devices Menu
-	(WIDGET *)(&buttons[BTN_UPGMENU        ]), // Upgrades Menu
 	(WIDGET *)(&choices[CHOICE_CHEATING    ]), // JMS: cheatMode on/off
 	(WIDGET *)(&choices[CHOICE_CHDECLEAN   ]), // Kohr-Ah DeCleansing mode
 	(WIDGET *)(&choices[CHOICE_CHGODMODE   ]), // Precursor Mode
@@ -410,56 +406,6 @@ static WIDGET *editkeys_widgets[] = {
 	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
 	NULL };
 
-static WIDGET *devices_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_DEVSPAWNER]), // Portal Spawner
-	(WIDGET *)(&choices[CHOICE_DEVPET    ]), // Talking Pet
-	(WIDGET *)(&choices[CHOICE_DEVBOMB   ]), // Utwig Bomb
-	(WIDGET *)(&choices[CHOICE_DEVSUN    ]), // Sun Device
-	(WIDGET *)(&choices[CHOICE_DEVSPHERE ]), // Rosy Sphere
-	(WIDGET *)(&choices[CHOICE_DEVHELIX  ]), // Aqua Helix
-	(WIDGET *)(&choices[CHOICE_DEVSPINDLE]), // Clear Spindle
-	(WIDGET *)(&choices[CHOICE_DEVULTRON0]), // Ultron (Broken)
-	(WIDGET *)(&choices[CHOICE_DEVULTRON1]), // Ultron (Semi-Broken)
-	(WIDGET *)(&choices[CHOICE_DEVULTRON2]), // Ultron (Semi-Fixed)
-	(WIDGET *)(&choices[CHOICE_DEVULTRON3]), // Ultron (Fixed)
-	(WIDGET *)(&choices[CHOICE_DEVMAIDENS]), // Shofixti Maidens
-	(WIDGET *)(&choices[CHOICE_DEVCASTER0]), // Umgah Caster
-	(WIDGET *)(&choices[CHOICE_DEVCASTER1]), // Burvixese Caster
-	(WIDGET *)(&choices[CHOICE_DEVSHIELD ]), // Taalo Shield
-	(WIDGET *)(&choices[CHOICE_DEVEGGCS0 ]), // Egg Case 01
-	(WIDGET *)(&choices[CHOICE_DEVEGGCS1 ]), // Egg Case 02
-	(WIDGET *)(&choices[CHOICE_DEVEGGCS2 ]), // Egg Case 03
-	(WIDGET *)(&choices[CHOICE_DEVSHUTTLE]), // Syreen Shuttle
-	(WIDGET *)(&choices[CHOICE_DEVBEAST  ]), // VUX Beast
-	(WIDGET *)(&choices[CHOICE_DEVSLYCODE]), // Slylandro Destruct
-	(WIDGET *)(&choices[CHOICE_DEVWARPPOD]), // Ur-Quan Warp Pod
-	(WIDGET *)(&choices[CHOICE_DEVTRIDENT]), // Wimbli's Trident
-	(WIDGET *)(&choices[CHOICE_DEVROD    ]), // Glowing Rod
-	(WIDGET *)(&choices[CHOICE_DEVLUNBASE]), // Lunar Base
-
-	(WIDGET *)(&labels [LABEL_SPACER     ]), // Spacer
-	(WIDGET *)(&buttons[BTN_CHTPREV      ]), // Back to Cheats
-	NULL };
-
-static WIDGET *upgrades_widgets[] = {
-	(WIDGET *)(&choices[CHOICE_UPGLANDERSPD]), // Lander Speed
-	(WIDGET *)(&choices[CHOICE_UPGLANDERCRG]), // Lander Cargo
-	(WIDGET *)(&choices[CHOICE_UPGLANDERFRE]), // Lander Rapid Fire
-	(WIDGET *)(&choices[CHOICE_UPGLANDERBSH]), // Lander Bio Shield
-	(WIDGET *)(&choices[CHOICE_UPGLANDERQSH]), // Lander Quake Shield
-	(WIDGET *)(&choices[CHOICE_UPGLANDERLSH]), // Lander Lightning Shield
-	(WIDGET *)(&choices[CHOICE_UPGLANDERHSH]), // Lander Heat Shield
-	(WIDGET *)(&choices[CHOICE_MODPOINTDEF ]), // Point Defense Module
-	(WIDGET *)(&choices[CHOICE_MODFUSBLAST ]), // Fusion Blaster Module
-	(WIDGET *)(&choices[CHOICE_MODFUELTANK ]), // Hi-Eff Fuel Module
-	(WIDGET *)(&choices[CHOICE_MODTRACKING ]), // Tracking Module
-	(WIDGET *)(&choices[CHOICE_MODHELLBORE ]), // Hellbore Cannon Module
-	(WIDGET *)(&choices[CHOICE_MODFURNACE  ]), // Shiva Furnace Module
-
-	(WIDGET *)(&labels [LABEL_SPACER       ]), // Spacer
-	(WIDGET *)(&buttons[BTN_CHTPREV        ]), // Back to Cheats
-	NULL };
-
 static WIDGET *editmenukeys_widgets[] = {
 	(WIDGET *)(&labels[LABEL_TAPTOOLTIP]), // "Press return to..."
 	(WIDGET *)(&labels[LABEL_SPACER    ]), // Spacer
@@ -551,11 +497,9 @@ menu_defs[] =
 	{music_widgets, 8},
 	{visual_widgets, 9},
 	{qol_widgets, 10},
-	{devices_widgets, 11},
-	{upgrades_widgets, 12},
-	{editmenukeys_widgets, 13},
-	{editdeadzone_widgets, 14},
-	{accessibility_widgets, 15},
+	{editmenukeys_widgets, 11},
+	{editdeadzone_widgets, 12},
+	{accessibility_widgets, 13},
 	{NULL, 0}
 };
 
@@ -739,32 +683,6 @@ do_qol (WIDGET *self, int event)
 	if (event == WIDGET_EVENT_SELECT)
 	{
 		next = (WIDGET *)(&menus[MENU_QOL]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_devices (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[MENU_DEVICES]);
-		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
-		return TRUE;
-	}
-	(void)self;
-	return FALSE;
-}
-
-static int
-do_upgrades (WIDGET *self, int event)
-{
-	if (event == WIDGET_EVENT_SELECT)
-	{
-		next = (WIDGET *)(&menus[MENU_UPGRADES]);
 		(*next->receiveFocus) (next, WIDGET_EVENT_DOWN);
 		return TRUE;
 	}
@@ -1412,7 +1330,6 @@ static void
 SetDefaults (void)
 {
 	GLOBALOPTS opts;
-	BYTE i;
 	
 	GetGlobalOptions (&opts);
 	choices[CHOICE_GRAPHICS     ].selected = opts.screenResolution;
@@ -1510,27 +1427,13 @@ SetDefaults (void)
 	choices[CHOICE_FLEETPOINT   ].selected = opts.fleetPointSys;
 	choices[CHOICE_HSCOLOR      ].selected = opts.hyperSpaceColor;
 	choices[CHOICE_DIRJOYP2     ].selected = opts.dirJoy[1];
-
-	// Devices
-	for (i = DEVICE_START; i < DEVICE_START
-			+ ARRAY_SIZE (opts.deviceArray); i++)
-	{
-		choices[i].selected = opts.deviceArray[i - DEVICE_START];
-	}
-
-	for (i = UPGRADE_START; i < UPGRADE_START + NUM_UPGRADES; i++)
-	{
-		choices[i].selected = opts.upgradeArray[i - UPGRADE_START];
-	}
-
-	// Next choice should be choices[CHOICE_SHIPSEED]
-	choices[CHOICE_SHIPSEED  ].selected = opts.shipSeed;
-	choices[CHOICE_SHIPSTORE ].selected = opts.shipStore;
-	choices[CHOICE_CAPTNAMES ].selected = opts.captainNames;
-	choices[CHOICE_DOSMENUS  ].selected = opts.dosMenus;
-	choices[CHOICE_MOUSEINPUT].selected = opts.mouseInput;
-	choices[CHOICE_BATMOUSE  ].selected = opts.battleMouse;
-	choices[CHOICE_SCRSHOTS  ].selected = opts.screenShots;
+	choices[CHOICE_SHIPSEED     ].selected = opts.shipSeed;
+	choices[CHOICE_SHIPSTORE    ].selected = opts.shipStore;
+	choices[CHOICE_CAPTNAMES    ].selected = opts.captainNames;
+	choices[CHOICE_DOSMENUS     ].selected = opts.dosMenus;
+	choices[CHOICE_MOUSEINPUT   ].selected = opts.mouseInput;
+	choices[CHOICE_BATMOUSE     ].selected = opts.battleMouse;
+	choices[CHOICE_SCRSHOTS     ].selected = opts.screenShots;
 
 	sliders[SLIDER_MUSVOLUME  ].value = opts.musicvol;
 	sliders[SLIDER_SFXVOLUME  ].value = opts.sfxvol;
@@ -1547,7 +1450,6 @@ static void
 PropagateResults (void)
 {
 	GLOBALOPTS opts;
-	BYTE i;
 
 	opts.screenResolution = choices[CHOICE_GRAPHICS     ].selected;
 	opts.driver =           choices[CHOICE_FRBUFFER     ].selected;
@@ -1643,28 +1545,15 @@ PropagateResults (void)
 	opts.fleetPointSys =    choices[CHOICE_FLEETPOINT   ].selected;
 	opts.hyperSpaceColor =  choices[CHOICE_HSCOLOR      ].selected;
 	opts.dirJoy[1] =        choices[CHOICE_DIRJOYP2     ].selected;
-
-	// Devices
-	for (i = DEVICE_START;
-			i < DEVICE_START + ARRAY_SIZE (opts.deviceArray); i++)
-	{
-		opts.deviceArray[i - DEVICE_START] = choices[i].selected;
-	}
-
-	for (i = UPGRADE_START; i < UPGRADE_START + NUM_UPGRADES; i++)
-	{
-		opts.upgradeArray[i - UPGRADE_START] = choices[i].selected;
-	}
-
-	opts.shipSeed =       choices[CHOICE_SHIPSEED    ].selected;
-	opts.shipStore =      choices[CHOICE_SHIPSTORE   ].selected;
-	opts.captainNames =   choices[CHOICE_CAPTNAMES   ].selected;
-	opts.dosMenus =       choices[CHOICE_DOSMENUS    ].selected;
-	opts.mouseInput =     choices[CHOICE_MOUSEINPUT  ].selected;
-	opts.battleMouse =    choices[CHOICE_BATMOUSE    ].selected;
-	opts.screenShots =    choices[CHOICE_SCRSHOTS    ].selected;
-	opts.highVisOrbits =  choices[CHOICE_HIVISORBITS ].selected;
-	opts.highVisPlanets = choices[CHOICE_HIVISPLANETS].selected;
+	opts.shipSeed =          choices[CHOICE_SHIPSEED    ].selected;
+	opts.shipStore =         choices[CHOICE_SHIPSTORE   ].selected;
+	opts.captainNames =      choices[CHOICE_CAPTNAMES   ].selected;
+	opts.dosMenus =          choices[CHOICE_DOSMENUS    ].selected;
+	opts.mouseInput =        choices[CHOICE_MOUSEINPUT  ].selected;
+	opts.battleMouse =       choices[CHOICE_BATMOUSE    ].selected;
+	opts.screenShots =       choices[CHOICE_SCRSHOTS    ].selected;
+	opts.highVisOrbits =     choices[CHOICE_HIVISORBITS ].selected;
+	opts.highVisPlanets =    choices[CHOICE_HIVISPLANETS].selected;
 
 	opts.musicvol   = sliders[SLIDER_MUSVOLUME ].value;
 	opts.sfxvol     = sliders[SLIDER_SFXVOLUME ].value;
@@ -2960,7 +2849,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 {
 	bool whichBound;
 	int flags;
-	BYTE i;
 
 /*
  *		Graphics options
@@ -3201,18 +3089,6 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->noHQEncounters = optNoHQEncounters;
 	opts->deCleansing = optDeCleansing;
 	opts->meleeObstacles = optMeleeObstacles;
-
-	// Devices
-	for (i = 0; i < NUM_DEVICES; i++)
-	{
-		opts->deviceArray[i] = optDeviceArray[i];
-	}
-
-	// Upgrades
-	for (i = 0; i < NUM_UPGRADES; i++)
-	{
-		opts->upgradeArray[i] = optUpgradeArray[i];
-	}
 }
 
 void 
@@ -3256,7 +3132,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	int NewSndFlags = 0;
 	int resFactor = resolutionFactor;
 	int newFactor;
-	BYTE i;
 
 /*
  *		Graphics options
@@ -3524,18 +3399,6 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	PutBoolOpt (&optNoHQEncounters, &opts->noHQEncounters, "cheat.noHQEncounters", FALSE);
 	PutBoolOpt (&optDeCleansing, &opts->deCleansing, "cheat.deCleansing", FALSE);
 	PutBoolOpt (&optMeleeObstacles, &opts->meleeObstacles, "cheat.meleeObstacles", FALSE);
-
-	// Devices
-	for (i = 0; i < NUM_DEVICES; i++)
-	{
-		optDeviceArray[i] = opts->deviceArray[i];
-	}
-
-	// Upgrades
-	for (i = 0; i < NUM_UPGRADES; i++)
-	{
-		optUpgradeArray[i] = opts->upgradeArray[i];
-	}
 
 	SaveResourceIndex (configDir, "uqm.cfg", "config.", TRUE);
 	SaveKeyConfiguration (configDir, "flight.cfg");

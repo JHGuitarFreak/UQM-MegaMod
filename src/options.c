@@ -142,8 +142,6 @@ OPT_ENABLABLE optFleetPointSys;
 OPT_ENABLABLE optShipStore;
 OPT_ENABLABLE optCaptainNames;
 OPT_ENABLABLE optDosMenus;
-OPT_ADD_REMOVE optDeviceArray[28];
-OPT_ADD_REMOVE optUpgradeArray[13];
 int optHyperSpaceColor;
 int DeadZoneLeftStick[2];
 int DeadZoneRightStick[2];
