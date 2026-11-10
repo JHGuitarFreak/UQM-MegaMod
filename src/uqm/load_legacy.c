@@ -631,6 +631,7 @@ LoadShipQueue (DECODE_REF fh, QUEUE *pQueue)
 		BYTE tmpb;
 
 		cread_16 (fh, &Index);
+		Index = RaceIDSwapper ((BYTE)Index, TRUE);
 
 		hStarShip = CloneShipFragment (Index, pQueue, 0);
 		FragPtr = LockShipFrag (pQueue, hStarShip);
@@ -640,7 +641,8 @@ LoadShipQueue (DECODE_REF fh, QUEUE *pQueue)
 		cread_8  (fh, &FragPtr->captains_name_index);
 		cread_8  (fh, NULL); /* padding */
 		cread_16 (fh, NULL); /* unused: was ship_flags */
-		cread_8  (fh, &FragPtr->race_id);
+		cread_8  (fh, &tmpb);
+		FragPtr->race_id = RaceIDSwapper (tmpb, TRUE);
 		cread_8  (fh, &FragPtr->index);
 		// XXX: reading crew as BYTE to maintain savegame compatibility
 		cread_8  (fh, &tmpb);
@@ -724,7 +726,8 @@ LoadGroupQueue (DECODE_REF fh, QUEUE *pQueue)
 		cread_8  (fh, NULL); /* unused; was captains_name_index */
 		cread_8  (fh, NULL); /* padding; for savegame compat */
 		cread_16 (fh, &GroupPtr->group_counter);
-		cread_8  (fh, &GroupPtr->race_id);
+		cread_8  (fh, &tmpb);
+		GroupPtr->race_id = RaceIDSwapper (tmpb, TRUE);
 		cread_8  (fh, &tmpb); /* was var2 */
 		GroupPtr->sys_loc = LONIBBLE (tmpb);
 		GroupPtr->task = HINIBBLE (tmpb);
@@ -760,7 +763,8 @@ LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh, BOOLEAN try_vanilla)
 	// former STAR_DESC fields
 	cread_16s (fh, &EncounterPtr->loc_pt.x);
 	cread_16s (fh, &EncounterPtr->loc_pt.y);
-	cread_8   (fh, &EncounterPtr->race_id);
+	cread_8   (fh, &tmpb);
+	EncounterPtr->race_id = RaceIDSwapper (tmpb, TRUE);
 	cread_8   (fh, &tmpb);
 	EncounterPtr->num_ships = tmpb & ENCOUNTER_SHIPS_MASK;
 	EncounterPtr->flags = tmpb & ENCOUNTER_FLAGS_MASK;
@@ -772,7 +776,8 @@ LoadEncounter (ENCOUNTER *EncounterPtr, DECODE_REF fh, BOOLEAN try_vanilla)
 		BRIEF_SHIP_INFO *ShipInfo = &EncounterPtr->ShipList[i];
 
 		cread_16  (fh, NULL); /* useless; was SHIP_INFO.ship_flags */
-		cread_8   (fh, &ShipInfo->race_id);
+		cread_8   (fh, &tmpb);
+		ShipInfo->race_id = RaceIDSwapper (tmpb, TRUE);
 		cread_8   (fh, NULL); /* useless; was SHIP_INFO.var2 */
 		// XXX: reading crew as BYTE to maintain savegame compatibility
 		cread_8   (fh, &tmpb);
@@ -1340,6 +1345,8 @@ LoadLegacyGame (COUNT which_game, SUMMARY_DESC *SummPtr, BOOLEAN try_vanilla)
 	loadGameCheats();
 	cclose (fh);
 	res_CloseResFile (in_fp);
+
+	IsVanillaSave = TRUE;
 
 	EncounterGroup = 0;
 	EncounterRace = -1;

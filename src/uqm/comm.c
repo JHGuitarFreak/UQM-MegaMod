@@ -2278,6 +2278,13 @@ RaceCommunication (void)
 	// the player will be talking to
 	hStarShip = GetHeadLink (&GLOBAL (npc_built_ship_q));
 	FragPtr = LockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);
+
+	if (FragPtr == NULL)
+	{
+		UnlockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);
+		return;
+	}
+
 	i = FragPtr->race_id;
 	UnlockShipFrag (&GLOBAL (npc_built_ship_q), hStarShip);
 
