@@ -40,6 +40,7 @@
 
 ACTIVITY NextActivity;
 BYTE IndependantResFactor;
+BOOLEAN IsVanillaSave = FALSE;
 
 // This describes the release version corresponding to each game state
 // flag revision chunk.
@@ -52,6 +53,23 @@ const char *gameStateBitMapRevTag[] = {
 	"MegaMod v0.8.4/v0.8.5",
 	"MegaMod v0.8.6"
 };
+
+BYTE
+RaceIDSwapper (BYTE race_id, BOOLEAN is_vanilla)
+{
+	if (!is_vanilla)
+		return race_id;
+
+	switch (race_id)
+	{
+	case 22: // Vanilla YEHAT_REBEL_SHIP
+		return YEHAT_REBEL_SHIP;
+	case 23: // Vanilla URQUAN_DRONE_SHIP
+		return URQUAN_DRONE_SHIP;
+	default:
+		return race_id;
+	}
+}
 
 static inline size_t
 read_8 (void *fp, BYTE *v)
@@ -158,7 +176,7 @@ read_a16 (void *fp, UWORD *ar, COUNT count)
 }
 
 static void
-LoadShipQueue (void *fh, QUEUE *pQueue, DWORD size)
+LoadShipQueue (void *fh, QUEUE *pQueue, DWORD size, BOOLEAN try_core)
 {
 	COUNT num_links = size / 11;
 
@@ -167,15 +185,21 @@ LoadShipQueue (void *fh, QUEUE *pQueue, DWORD size)
 		HSHIPFRAG hStarShip;
 		SHIP_FRAGMENT *FragPtr;
 		COUNT Index;
+		BYTE tmpb;
 
 		read_16 (fh, &Index);
+
+		Index = RaceIDSwapper ((BYTE)Index, try_core);
 
 		hStarShip = CloneShipFragment (Index, pQueue, 0);
 		FragPtr = LockShipFrag (pQueue, hStarShip);
 
 		// Read SHIP_FRAGMENT elements
 		read_8  (fh, &FragPtr->captains_name_index);
-		read_8  (fh, &FragPtr->race_id);
+		read_8  (fh, &tmpb);
+
+		FragPtr->race_id = RaceIDSwapper (tmpb, try_core);
+
 		read_8  (fh, &FragPtr->index);
 		read_16 (fh, &FragPtr->crew_level);
 		read_16 (fh, &FragPtr->max_crew);
@@ -231,7 +255,7 @@ LoadRaceQueue (void *fh, QUEUE *pQueue, DWORD size)
 }
 
 static void
-LoadGroupQueue (void *fh, QUEUE *pQueue, DWORD size)
+LoadGroupQueue (void *fh, QUEUE *pQueue, DWORD size, BOOLEAN try_core)
 {
 	COUNT num_links = size / 13;
 
@@ -239,12 +263,16 @@ LoadGroupQueue (void *fh, QUEUE *pQueue, DWORD size)
 	{
 		HIPGROUP hGroup;
 		IP_GROUP *GroupPtr;
+		BYTE tmpb;
 
 		hGroup = BuildGroup (pQueue, 0);
 		GroupPtr = LockIpGroup (pQueue, hGroup);
 
 		read_16 (fh, &GroupPtr->group_counter);
-		read_8  (fh, &GroupPtr->race_id);
+		read_8  (fh, &tmpb);
+
+		GroupPtr->race_id = RaceIDSwapper (tmpb, try_core);
+
 		read_8  (fh, &GroupPtr->sys_loc);
 		read_8  (fh, &GroupPtr->task);
 		read_8  (fh, &GroupPtr->in_system); /* was crew_level */
@@ -262,6 +290,7 @@ static void
 LoadEncounter (ENCOUNTER *EncounterPtr, void *fh, BOOLEAN try_core)
 {
 	COUNT i;
+	BYTE tmpb;
 
 	EncounterPtr->pred = 0;
 	EncounterPtr->succ = 0;
@@ -273,7 +302,10 @@ LoadEncounter (ENCOUNTER *EncounterPtr, void *fh, BOOLEAN try_core)
 	// former STAR_DESC fields
 	read_16s (fh, &EncounterPtr->loc_pt.x);
 	read_16s (fh, &EncounterPtr->loc_pt.y);
-	read_8   (fh, &EncounterPtr->race_id);
+	read_8   (fh, &tmpb);
+
+	EncounterPtr->race_id = RaceIDSwapper (tmpb, try_core);
+
 	read_8   (fh, &EncounterPtr->num_ships);
 	read_8   (fh, &EncounterPtr->flags);
 
@@ -282,7 +314,10 @@ LoadEncounter (ENCOUNTER *EncounterPtr, void *fh, BOOLEAN try_core)
 	{
 		BRIEF_SHIP_INFO *ShipInfo = &EncounterPtr->ShipList[i];
 
-		read_8   (fh, &ShipInfo->race_id);
+		read_8   (fh, &tmpb);
+
+		ShipInfo->race_id = RaceIDSwapper (tmpb, try_core);
+
 		read_16  (fh, &ShipInfo->crew_level);
 		read_16  (fh, &ShipInfo->max_crew);
 		read_8   (fh, &ShipInfo->max_energy);
@@ -895,7 +930,8 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 			LoadRaceQueue (in_fp, &GLOBAL (avail_race_q), chunkSize);
 			break;
 		case IP_GRP_Q_TAG:
-			LoadGroupQueue (in_fp, &GLOBAL (ip_group_q), chunkSize);
+			LoadGroupQueue (in_fp, &GLOBAL (ip_group_q), chunkSize,
+					try_core);
 			break;
 		case ENCOUNTERS_TAG:
 			num_links = chunkSize / 65;
@@ -944,13 +980,16 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 			loadGameCheats();
 			break;
 		case NPC_SHIP_Q_TAG:
-			LoadShipQueue (in_fp, &GLOBAL (npc_built_ship_q), chunkSize);
+			LoadShipQueue (in_fp, &GLOBAL (npc_built_ship_q), chunkSize,
+					try_core);
 			break;
 		case SHIP_Q_TAG:
-			LoadShipQueue (in_fp, &GLOBAL (built_ship_q), chunkSize);
+			LoadShipQueue (in_fp, &GLOBAL (built_ship_q), chunkSize,
+					try_core);
 			break;
 		case STOWED_Q_TAG:
-			LoadShipQueue (in_fp, &GLOBAL (stowed_ship_q), chunkSize);
+			LoadShipQueue (in_fp, &GLOBAL (stowed_ship_q), chunkSize,
+					try_core);
 			break;
 		case SCAN_TAG:
 			LoadScanInfo (in_fp, chunkSize, try_core);
@@ -996,6 +1035,8 @@ LoadGame (COUNT which_game, SUMMARY_DESC *SummPtr, uio_Stream *in_fp, BOOLEAN tr
 		NextActivity |= START_INTERPLANETARY;
 
 	LoadJournal (which_game);
+
+	IsVanillaSave = try_core;
 
 	// Reset Debug Key
 	DebugKeyPressed = FALSE;

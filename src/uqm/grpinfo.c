@@ -27,6 +27,7 @@
 
 #include "libs/mathlib.h"
 #include "libs/log.h"
+#include "save.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -69,6 +70,9 @@ ReadShipFragment (GAME_STATE_FILE *fp, SHIP_FRAGMENT *FragPtr)
 	sread_8  (fp, NULL); /* padding; for savegame compat */
 	sread_16 (fp, NULL); /* unused: was ship_flags */
 	sread_8  (fp, &FragPtr->race_id);
+
+	FragPtr->race_id = RaceIDSwapper (FragPtr->race_id, IsVanillaSave);
+
 	sread_8  (fp, &FragPtr->index);
 	// XXX: reading crew as BYTE to maintain savegame compatibility
 	sread_8  (fp, &tmpb);
@@ -109,6 +113,9 @@ ReadIpGroup (GAME_STATE_FILE *fp, IP_GROUP *GroupPtr)
 	sread_8  (fp, NULL); /* padding; for savegame compat */
 	sread_16 (fp, &GroupPtr->group_counter);
 	sread_8  (fp, &GroupPtr->race_id);
+
+	GroupPtr->race_id = RaceIDSwapper (GroupPtr->race_id, IsVanillaSave);
+
 	sread_8  (fp, &tmpb); /* was var2 */
 	GroupPtr->sys_loc = LONIBBLE (tmpb);
 	GroupPtr->task = HINIBBLE (tmpb);
@@ -679,6 +686,9 @@ GetGroupInfo (DWORD offset, BYTE which_group)
 
 			SeekStateFile (fp, GH.GroupOffset[which_group], SEEK_SET);
 			sread_8 (fp, &RaceType);
+
+			RaceType = RaceIDSwapper (RaceType, IsVanillaSave);
+
 			sread_8 (fp, &NumShips);
 			if (!NumShips)
 				continue; /* group is dead */
@@ -803,6 +813,7 @@ GetGroupInfo (DWORD offset, BYTE which_group)
 			IP_GROUP *GroupPtr;
 
 			sread_8 (fp, &RaceType);
+			RaceType = RaceIDSwapper (RaceType, IsVanillaSave);
 
 			hGroup = BuildGroup (&GLOBAL (ip_group_q), RaceType);
 			GroupPtr = LockIpGroup (&GLOBAL (ip_group_q), hGroup);
@@ -874,6 +885,7 @@ GetGroupInfo (DWORD offset, BYTE which_group)
 			SHIP_FRAGMENT *FragPtr;
 
 			sread_8 (fp, &RaceType);
+			RaceType = RaceIDSwapper (RaceType, IsVanillaSave);
 
 			hStarShip = CloneShipFragment (RaceType,
 					&GLOBAL (npc_built_ship_q), 0);
