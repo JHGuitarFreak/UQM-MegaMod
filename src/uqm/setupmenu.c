@@ -529,8 +529,8 @@ static WIDGET *accessibility_widgets[] = {
 	(WIDGET *)(&choices[CHOICE_HIVISORBITS ]), // Brightened orbits
 	(WIDGET *)(&choices[CHOICE_HIVISPLANETS]), // Circled Planets
 
-	(WIDGET *)(&labels [LABEL_SPACER]), // Spacer
-	(WIDGET *)(&buttons[BTN_PREVMENU]), // Previous menu
+	(WIDGET *)(&labels [LABEL_SPACER   ]), // Spacer
+	(WIDGET *)(&buttons[BTN_QUITSUBMENU]), // Exit to Menu
 	NULL };
 
 static const struct
