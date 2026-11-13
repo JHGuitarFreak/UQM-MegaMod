@@ -179,7 +179,7 @@ GenerateSpathi_generateName (const SOLARSYS_STATE *solarSys,
 {
 	GenerateDefault_generateName (solarSys, world);
 
-	if (CurStarDescPtr->Index == SPATHI_DEFINED
+	if (EXTENDED && CurStarDescPtr->Index == SPATHI_DEFINED
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
 			&& IsHomeworldKnown (SPATHI_HOME))
 	{

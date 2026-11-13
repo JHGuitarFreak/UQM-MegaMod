@@ -130,7 +130,7 @@ GenerateSyreen_generateName (const SOLARSYS_STATE *solarSys,
 {
 	GenerateDefault_generateName (solarSys, world);
 
-	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+	if (EXTENDED && matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
 			&& (GET_GAME_STATE (SYREEN_HOME_VISITS)
 			|| GET_GAME_STATE (SYREEN_KNOW_ABOUT_MYCON)))
 	{

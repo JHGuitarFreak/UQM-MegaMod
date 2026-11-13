@@ -97,7 +97,7 @@ GenerateSupox_generateName (const SOLARSYS_STATE *solarSys,
 {
 	GenerateDefault_generateName (solarSys, world);
 
-	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
+	if (EXTENDED && matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
 			&& GET_GAME_STATE (SUPOX_STACK1) > 2)
 	{
 		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;

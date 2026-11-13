@@ -146,7 +146,7 @@ GenerateMycon_generateName (const SOLARSYS_STATE *solarSys,
 {
 	GenerateDefault_generateName (solarSys, world);
 
-	if (CurStarDescPtr->Index == EGG_CASE0_DEFINED
+	if (EXTENDED && CurStarDescPtr->Index == EGG_CASE0_DEFINED
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;

@@ -154,7 +154,7 @@ GenerateColony_generateName (const SOLARSYS_STATE *solarSys,
 {
 	GenerateDefault_generateName (solarSys, world);
 
-	if (matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)) 
+	if (EXTENDED && matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET))
 	{
 		BYTE PlanetByte = solarSys->SunDesc[0].PlanetByte;
 		PLANET_DESC pPlanetDesc = solarSys->PlanetDesc[PlanetByte];
