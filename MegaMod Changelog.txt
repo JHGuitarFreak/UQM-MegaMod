@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - DeCleansing mod fixed when loading saves
 - Fixed vanilla UQM save scan records on load
 - Relative analog input for gamepads no longer has dead spots in the diagonals
+- The portal back to HyperSpace in QuasiSpace no longer flickers in and out with animated HyperSpace
 
 ### Dev
 - Slight optimixation in lander.c and more readable code
