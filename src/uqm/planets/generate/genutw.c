@@ -156,7 +156,7 @@ GenerateUtwig_generateName (const SOLARSYS_STATE *solarSys,
 {
 	GenerateDefault_generateName (solarSys, world);
 
-	if (CurStarDescPtr->Index == UTWIG_DEFINED
+	if (EXTENDED && CurStarDescPtr->Index == UTWIG_DEFINED
 			&& matchWorld (solarSys, world, MATCH_PBYTE, MATCH_PLANET)
 			&& IsHomeworldKnown (UTWIG_HOME))
 	{

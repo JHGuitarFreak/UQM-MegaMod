@@ -1028,34 +1028,6 @@ upgradeSwitch (int upgrade, int val)
 	}
 }
 
-static void
-cheatAddRemoveDevices (void)
-{
-	BYTE i;
-
-	for (i = 0; i < ARRAY_SIZE (optDeviceArray); i++)
-	{
-		if (!optDeviceArray[i])
-			continue;
-		else
-			deviceSwitch (i, optDeviceArray[i]);
-	}
-}
-
-static void
-cheatAddRemoveUpgrades (void)
-{
-	BYTE i;
-
-	for (i = 0; i < NUM_UPGRADES; i++)
-	{
-		if (!optUpgradeArray[i])
-			continue;
-		else
-			upgradeSwitch (i, optUpgradeArray[i]);
-	}
-}
-
 void
 loadGameCheats (void)
 {
@@ -1087,9 +1059,6 @@ loadGameCheats (void)
 	} 
 	else
 		loadFuel = 0;
-
-	cheatAddRemoveDevices ();
-	cheatAddRemoveUpgrades ();
 
 	if (optDeCleansing)
 	{

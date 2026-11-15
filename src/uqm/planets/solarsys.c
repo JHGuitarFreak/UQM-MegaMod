@@ -3726,7 +3726,7 @@ GetNamedPlanetaryBody (void)
 	{	// Sa-Matra
 		return GAME_STRING (PLANET_NUMBER_BASE + 32);
 	}
-	else if (CurStarDescPtr->Index > 0
+	else if (EXTENDED && CurStarDescPtr->Index > 0
 			&& matchWorld (pSolarSysState, pSolarSysState->pOrbitalDesc,
 				pSolarSysState->SunDesc[0].PlanetByte, MATCH_PLANET))
 	{
