@@ -50,6 +50,8 @@ extern COUNT WrapText (const UNICODE *pStr, COUNT len, TEXT *tarray, SIZE
 
 extern COUNT ShipCost (BYTE race_id);
 
+extern BOOLEAN AtStarBase;
+
 #if defined(__cplusplus)
 }
 #endif

@@ -16,6 +16,7 @@
  */
 
 #include "uqm_imgui.h"
+#include "uqm/starbase.h"
 
 bool config_changed = false;
 bool mmcfg_changed = false;
@@ -1046,7 +1047,8 @@ FlagStatRefresh (void)
 
 	scr_refresh = false;
 
-	DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
+	if (!AtStarBase)
+		DeltaSISGauges (UNDEFINED_DELTA, UNDEFINED_DELTA, UNDEFINED_DELTA);
 }
 
 void

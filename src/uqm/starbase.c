@@ -39,6 +39,7 @@
 #include "libs/inplib.h"
 
 RECT BaseRects[NUM_STARBASE_STRINGS];
+BOOLEAN AtStarBase = FALSE;
 
 static void CleanupAfterStarBase (void);
 
@@ -352,6 +353,8 @@ DoStarBase (MENU_STATE *pMS)
 	}
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
 
+	AtStarBase = TRUE;
+
 	if (!pMS->Initialized)
 	{
 		LastActivity &= ~CHECK_LOAD;
@@ -393,6 +396,8 @@ DoStarBase (MENU_STATE *pMS)
 ExitStarBase:
 		DestroyDrawable (ReleaseDrawable (pMS->CurFrame));
 		pMS->CurFrame = 0;
+
+		AtStarBase = FALSE;
 
 		SetMusicPosition ();
 
