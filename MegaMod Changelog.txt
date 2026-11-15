@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Removed a lag spike when Fwiffo opens fire on lander
 - UQM now scales to the window instead of the window scaling to UQM
 - Limit Slylandro Probes showing up in solar systems to Extended Lore and Hard Mode
+- Removed the Add/Remove Devices and Modules cheats from the Setup Menu (These can be accessed in the ImGui Debug menu)
+- Moved the player response to delay bomb installation behind Extended Mode
+- Put named homeworlds behind Extended Mode
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
