@@ -1927,8 +1927,7 @@ SeedUniverse (void)
 					|| (SD[i].Index == 8 && arilouSpaceSide > 1)))
 			{
 				HyperSpaceElementPtr->current.image.frame =
-						SetAbsFrameIndex (
-							hyperstars[1 + (arilouSpaceSide >> 1)],
+						SetAbsFrameIndex (hyperstars[1],
 							frameCounter + SD[i].Index);
 			}
 			else /* non-animated */
