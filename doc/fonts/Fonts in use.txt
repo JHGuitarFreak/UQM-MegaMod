@@ -57,4 +57,4 @@
 --   Utwig                        Razor Keen                  Custom license          https://www.dafont.com/razor-keen.font                                    
 --   Vux                          Black Chancery              Public Domain           https://www.dafont.com/black-chancery.font                                
 --   Yehat                        Berenika Bold               OFL-1.1 License         https://fontlibrary.org/en/font/klaudia-and-berenika                      
---   Zoq-Fot-Pik                  Arial Narrow 7 (Modded)     Freeware (No license)   http://www.styleseven.com/php/get_product.php?product=Arial%20Narrow%207  
+--   Zoq-Fot-Pik                  UQM Zoq-Fot-Pik Regular     CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
