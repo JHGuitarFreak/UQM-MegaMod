@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - Removed the Add/Remove Devices and Modules cheats from the Setup Menu (These can be accessed in the ImGui Debug menu)
 - Moved the player response to delay bomb installation behind Extended Mode
 - Put named homeworlds behind Extended Mode
+- Changed out HD fonts for the Pkunk, Shofixti, and Zoq-Fot-Pik with faithful remakes
 
 ### Fixed
 - DeCleansing mod fixed when loading saves
