@@ -31,8 +31,7 @@
 --   Module Menu                  UQM Module Regular          CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Mycon                        Untitled Black              Freeware (No License)   https://www.fontspace.com/untitled-black-font-f28082                      
 --   Orz                          Kero kero                   Free for personal use   https://www.dafont.com/kero-kero.font                                     
---   Pkunk Main                   Kerithing                   Freeware (No License)   https://www.fontspace.com/kerithing-font-f32202                           
---   Pkunk Punctuation            Nickainley                  CC BY-NC 4.0            https://www.behance.net/gallery/24243507/Nickainley-Script-Free-Font      
+--   Pkunk                        UQM Pkunk Regular           CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Player Font                  UQM Player Regular          CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Shipyard Labels              UQM Module Regular          CC BY-NC-SA 2.5         https://github.com/JHGuitarFreak/UQM-MegaMod/tree/master/doc/fonts        
 --   Shofixti                     Luteous Viscous             Freeware (No License)   https://www.fontspace.com/luteous-font-f420                               
