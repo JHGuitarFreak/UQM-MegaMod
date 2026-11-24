@@ -51,32 +51,32 @@ jobs:
         path: ./UrQuanMastersDebug
         if-no-files-found: error
 
-  build-windows-32bit:
+  build-windows-64bit:
     runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v6
 
-    - name: Setup MSYS2 for 32-bit
+    - name: Setup MSYS2 for 64-bit
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW32
+        msystem: UCRT64
         install: >-
           base-devel
-          mingw-w64-i686-toolchain
-          mingw-w64-i686-cmake
-          mingw-w64-i686-ninja
-          mingw-w64-i686-SDL2
-          mingw-w64-i686-libpng
-          mingw-w64-i686-libogg
-          mingw-w64-i686-libvorbis
-          mingw-w64-i686-zlib
+          mingw-w64-ucrt-x86_64-toolchain
+          mingw-w64-ucrt-x86_64-cmake
+          mingw-w64-ucrt-x86_64-ninja
+          mingw-w64-ucrt-x86_64-SDL2
+          mingw-w64-ucrt-x86_64-libpng
+          mingw-w64-ucrt-x86_64-libogg
+          mingw-w64-ucrt-x86_64-libvorbis
+          mingw-w64-ucrt-x86_64-zlib
     
-    - name: Build Windows 32-bit Binary
+    - name: Build Windows 64-bit Binary
       shell: msys2 {0}
       run: ./cmake-build.sh
     
-    - name: Upload Windows 32-bit Artifact
+    - name: Upload Windows 64-bit Artifact
       uses: actions/upload-artifact@v7
       with:
         name: UrQuanMastersDebug-Windows
