@@ -1189,6 +1189,8 @@ DefaultFleetLocation (SPECIES_ID SpeciesID, COUNT visit)
 				return (POINT) {4970,  400}; // Rejoin Yehat
 			else
 				return (POINT) { 502,  401}; // Return homeworld
+		case SHOFIXTI_ID:
+			return (POINT) {2908,  269}; // Reborn at homeworld
 		case SUPOX_ID:
 			if (visit == SAMATRA_DEFINED)
 				return (POINT) {6479, 7541}; // Attack Kohr-Ah
