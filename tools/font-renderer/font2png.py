@@ -82,7 +82,6 @@ Font = fontforge.open(FontPath.name, 1)
 
 emSize = Font.em
 ScaleFactor = FontSize / emSize
-LowestOffs = None
 WidthAdjust = 1 if args.uqm else 0
 
 if args.ascender is not None and args.ascender < Font.hhea_ascent:
@@ -99,7 +98,7 @@ if args.descender is not None and args.descender > Font.hhea_descent:
 Ascender = args.ascender if args.ascender else Font.hhea_ascent
 Descender = args.descender if args.descender else Font.hhea_descent
 
-ImgHeight = int((Ascender - Descender) * ScaleFactor)
+ImgHeight = round((Ascender - Descender) * ScaleFactor)
 
 values = [Ascender, Descender, ImgHeight]
 max_width = max(len(str(x)) for x in values)
@@ -133,6 +132,8 @@ for Glyph in Font.glyphs():
 
 	Img = Image.open(OutputFile)
 	Img = Img.convert("L")
+	
+	InkBox = Img.point(lambda p: 255 if p < 255 else 0).getbbox()
 
 	if args.invert:
 		Img = ImageOps.invert(Img)
@@ -140,12 +141,19 @@ for Glyph in Font.glyphs():
 	else:
 		Color = "White"
 
-	Offset = (ImgHeight - Img.height) // 2
-	if LowestOffs is None or Offset < LowestOffs:
-		LowestOffs = Offset
+	if InkBox is None:
+		NewImg = Image.new("L", (Img.width - WidthAdjust, ImgHeight), Color)
+		NewImg.save(OutputFile)
+		continue
+
+	_, _, _, YMax = Glyph.boundingBox()
+
+	Img = Img.crop((0, InkBox[1], Img.width, InkBox[3]))
+
+	PasteRow = round((Ascender - YMax) * ScaleFactor)
 
 	NewImg = Image.new("L", (Img.width - WidthAdjust, ImgHeight), Color)
-	NewImg.paste(Img, (0, Offset - abs(LowestOffs)))
+	NewImg.paste(Img, (0, PasteRow))
 	NewImg.save(OutputFile)
 
 Font.close()
