@@ -646,8 +646,7 @@ init_shofixti_comm (void)
 	if (EXTENDED)
 		altResFlags |= USE_ALT_FRAME;
 
-	shofixti_desc.AlienTextBaseline.x =
-			TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
+	shofixti_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
 	shofixti_desc.AlienTextBaseline.y = 0;
 	shofixti_desc.AlienTextWidth = SIS_TEXT_WIDTH;
 

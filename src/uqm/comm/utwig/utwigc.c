@@ -959,8 +959,8 @@ init_utwig_comm (void)
 			// generalised in the future.
 
 	utwig_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	utwig_desc.AlienTextBaseline.y = RES_SCALE (64);
-	utwig_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
+	utwig_desc.AlienTextBaseline.y = 64;
+	utwig_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
 
 	// use alternate 'Happy Utwig!' track
 	if (GET_GAME_STATE (UTWIG_HAVE_ULTRON))

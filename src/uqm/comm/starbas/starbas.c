@@ -1892,10 +1892,10 @@ init_starbase_comm ()
 			// Initialise Lua for string interpolation. This will be
 			// generalised in the future.
 
-	commander_desc.AlienTextWidth = RES_SCALE (143);
-	commander_desc.AlienTextBaseline.x = RES_SCALE (164)
-			- (SAFE_NEG (2) * 2);
-	commander_desc.AlienTextBaseline.y = RES_SCALE (20);
+	// Magic numbers measured from DOS screenshots
+	commander_desc.AlienTextWidth = 143;
+	commander_desc.AlienTextBaseline.x = 164 - (SAFE_NEG_US (2) * 2);
+	commander_desc.AlienTextBaseline.y = 20;
 
 	// use alternate Starbase track if available
 	altResFlags |= USE_ALT_SONG;

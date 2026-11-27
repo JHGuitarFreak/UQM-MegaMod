@@ -756,11 +756,10 @@ init_commander_comm ()
 	if (IS_HD)
 		altResFlags |= USE_ALT_FRAME;
 
-	
-	commander_desc.AlienTextWidth = RES_SCALE (143);
-	commander_desc.AlienTextBaseline.x = RES_SCALE (164)
-			- (SAFE_NEG (2) * 2);
-	commander_desc.AlienTextBaseline.y = RES_SCALE (20);
+	// Magic numbers measured from DOS screenshots
+	commander_desc.AlienTextWidth = 143;
+	commander_desc.AlienTextBaseline.x = 164 - (SAFE_NEG_US (2) * 2);
+	commander_desc.AlienTextBaseline.y = 20;
 
 	setSegue (Segue_peace);
 	retval = &commander_desc;

@@ -78,11 +78,14 @@ extern int CanvasHeight;
 #define MODE_CASE_SCL(a,b,c) RES_SCALE (MODE_CASE ((a),(b),(c)))
 
 		// Margins
-#define SAFE_X (SAFE_NUM_SCL (16))
+#define SAFE_X_OG 16
+#define SAFE_X (SAFE_NUM_SCL (SAFE_X_OG))
 		// Left and right screen margin used for 3DO mode
 #define SAFE_Y SAFE_X
 		// Top and bottom screen margin used for 3DO mode
 
+#define SAFE_NEG_US(a) (SAFE_NUM (SAFE_X_OG - (a)))
+		// Returns SAFE_X minus the input number, unscaled
 #define SAFE_NEG(a) (SAFE_NUM (SAFE_X - RES_SCALE((a))))
 		// Returns SAFE_X minus the input number, scaled to HD
 #define SAFE_POS(a) (SAFE_NUM (SAFE_X + RES_SCALE((a))))

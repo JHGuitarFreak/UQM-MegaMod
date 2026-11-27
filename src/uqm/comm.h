@@ -130,9 +130,9 @@ signaledFreezeTalkingAnim(void)
 
 #endif
 
-#define TEXT_X_OFFS RES_SCALE (1)
-#define TEXT_Y_OFFS RES_SCALE (1)
-#define SIS_TEXT_WIDTH (SIS_SCREEN_WIDTH - (TEXT_X_OFFS << 1))
+#define TEXT_X_OFFS 1
+#define TEXT_Y_OFFS 1
+#define SIS_TEXT_WIDTH (ORIG_SIS_SCREEN_WIDTH - (TEXT_X_OFFS << 1))
 
 #define BACKGROUND_VOL (usingSpeech && !VolasPackPresent ? (NORMAL_VOLUME / 2) : NORMAL_VOLUME)
 #define FOREGROUND_VOL NORMAL_VOLUME

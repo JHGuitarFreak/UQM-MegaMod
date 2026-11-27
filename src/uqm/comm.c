@@ -159,7 +159,7 @@ _count_lines (TEXT *pText)
 	int numLines = 0;
 	BOOLEAN eol;
 
-	text_width = CommData.AlienTextWidth;
+	text_width = RES_SCALE (CommData.AlienTextWidth);
 	SetContextFont (CommData.AlienFont);
 
 	pStr = pText->pStr;
@@ -221,7 +221,7 @@ add_text (int status, TEXT *pTextIn)
 			last_subtitle = pTextIn->pStr;
 		}
 
-		text_width = CommData.AlienTextWidth;
+		text_width = RES_SCALE (CommData.AlienTextWidth);
 		if (CommData.AlienConv == ORZ_CONVERSATION && optOrzCompFont && 
 				CommData.AlienTalkDesc.AnimFlags & PAUSE_TALKING)
 			SetContextFont (ComputerFont);// Orz intro
@@ -1900,9 +1900,9 @@ HailAlien (void)
 
 	SetUpCommData ();
 
-	SubtitleText.baseline = CommData.AlienTextBaseline;
+	SubtitleText.baseline.x = RES_SCALE (CommData.AlienTextBaseline.x);
+	SubtitleText.baseline.y = RES_SCALE (CommData.AlienTextBaseline.y);
 	SubtitleText.align = CommData.AlienTextAlign;
-
 
 	// init subtitle cache context
 	TextCacheContext = CreateContext ("TextCacheContext");
@@ -2408,7 +2408,8 @@ CheckSubtitles (BOOLEAN really)
 	}
 
 	pStr = GetTrackSubtitle ();
-	baseline = CommData.AlienTextBaseline;
+	baseline.x = RES_SCALE (CommData.AlienTextBaseline.x);
+	baseline.y = RES_SCALE (CommData.AlienTextBaseline.y);
 	align = CommData.AlienTextAlign;
 
 	if (pStr != SubtitleText.pStr ||

@@ -686,8 +686,8 @@ init_ilwrath_comm (void)
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	ilwrath_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1);
-	ilwrath_desc.AlienTextBaseline.y = RES_SCALE (64);
-	ilwrath_desc.AlienTextWidth = SIS_TEXT_WIDTH - RES_SCALE (16);
+	ilwrath_desc.AlienTextBaseline.y = 64;
+	ilwrath_desc.AlienTextWidth = SIS_TEXT_WIDTH - 16;
 
 	if (GET_GAME_STATE (PROBE_ILWRATH_ENCOUNTER)
 			|| (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA)

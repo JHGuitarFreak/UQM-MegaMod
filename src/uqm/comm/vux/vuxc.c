@@ -856,10 +856,9 @@ init_vux_comm (void)
 	luaUqm_comm_init (NULL, NULL_RESOURCE);
 
 	vux_desc.AlienTextBaseline.x = TEXT_X_OFFS + (SIS_TEXT_WIDTH >> 1)
-			+ (SIS_TEXT_WIDTH >> 2) - SAFE_NUM_SCL (4);
+			+ (SIS_TEXT_WIDTH >> 2) - SAFE_NUM (4);
 	vux_desc.AlienTextBaseline.y = 0;
-	vux_desc.AlienTextWidth = ((SIS_TEXT_WIDTH - RES_SCALE (16)) >> 1)
-			+ SAFE_X;
+	vux_desc.AlienTextWidth = ((SIS_TEXT_WIDTH - 16) >> 1) + SAFE_NUM (16);
 
 	// use alternate "ZEX" track and frame if available
 	if (GET_GAME_STATE (GLOBAL_FLAGS_AND_DATA) & (1 << 6))

@@ -426,9 +426,9 @@ init_rebel_yehat_comm (void)
 	// generalised in the future.
 	luaUqm_comm_init(NULL, NULL_RESOURCE);
 
-	yehat_desc.AlienTextBaseline.x = SIS_SCREEN_WIDTH * 2 / 3;
-	yehat_desc.AlienTextBaseline.y = RES_SCALE (107 * 2 / 3);
-	yehat_desc.AlienTextWidth = (SIS_TEXT_WIDTH - RES_SCALE (16)) * 2 / 3;
+	yehat_desc.AlienTextBaseline.x = ORIG_SIS_SCREEN_WIDTH * 2 / 3;
+	yehat_desc.AlienTextBaseline.y = 107 * 2 / 3;
+	yehat_desc.AlienTextWidth = (SIS_TEXT_WIDTH - 16) * 2 / 3;
 
 	// use alternate "Rebels" track if available
 	altResFlags |= USE_ALT_SONG;
